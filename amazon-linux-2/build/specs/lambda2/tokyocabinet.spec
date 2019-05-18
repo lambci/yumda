@@ -1,0 +1,147 @@
+Summary:	A modern implementation of a DBM
+Name:		tokyocabinet
+Version:	1.4.48
+Release: 3%{?dist}.0.2
+License:	LGPLv2+
+Group:		Development/Libraries
+URL:		http://fallabs.com/tokyocabinet/
+Source:		http://fallabs.com/%{name}/%{name}-%{version}.tar.gz
+Patch0:		tokyocabinet-fedora.patch
+Patch1:		tokyocabinet-manhelp.patch
+BuildRequires:	pkgconfig zlib-devel bzip2-devel autoconf
+
+Prefix: %{_prefix}
+
+%description
+Tokyo Cabinet is a library of routines for managing a database. It is the 
+successor of QDBM. Tokyo Cabinet runs very fast. For example, the time required
+to store 1 million records is 1.5 seconds for a hash database and 2.2 seconds
+for a B+ tree database. Moreover, the database size is very small and can be up
+to 8EB. Furthermore, the scalability of Tokyo Cabinet is great.
+
+%prep
+%setup -q
+%patch0 -p0 -b .fedora
+%patch1 -p1 -b .manhelp
+
+%build
+autoconf
+%configure --enable-off64 CFLAGS="$CFLAGS"
+make %{?_smp_mflags}
+
+%install
+make DESTDIR=%{buildroot} install
+
+%files
+%license COPYING
+%{_bindir}/tc*
+%{_libdir}/libtokyocabinet.so.*
+%{_libexecdir}/tcawmgr.cgi
+
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.a
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
+
+%changelog
+* Wed May 15 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.4.48-3
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.4.48-2
+- Mass rebuild 2013-12-27
+
+* Mon May 20 2013 Honza Horak <hhorak@redhat.com> - 1.4.48-1
+- Update to 1.4.48
+- Fix help vs. man page differences
+
+* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.47-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
+* Tue Sep 18 2012 Honza Horak <hhorak@redhat.com> - 1.4.47-5
+- Split devel documentation files into new sub-package tokyocabinet-devel-doc
+
+* Tue Sep 18 2012 Honza Horak <hhorak@redhat.com> - 1.4.47-4
+- Minor spec file fixes
+
+* Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.47-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.47-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Jul 14 2011 Honza Horak <hhorak@redhat.com> - 1.4.47-1
+- Update to 1.4.47
+
+* Wed Jul 13 2011 Honza Horak <hhorak@redhat.com> - 1.4.46-3
+- change project URL and source URL to actual destination
+
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.46-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Fri Aug 06 2010 Deji Akingunola <dakingun@gmail.com> - 1.4.46-1
+- Update to 1.4.46
+
+* Thu Apr 22 2010 Deji Akingunola <dakingun@gmail.com> - 1.4.43-2
+- Enable 64-bit file offset support (Fix Fedora bug #514383)
+
+* Thu Mar 11 2010 Deji Akingunola <dakingun@gmail.com> - 1.4.43-1
+- Update to 1.4.43 (Fix Fedora bug #572594)
+
+* Thu Mar 04 2010 Deji Akingunola <dakingun@gmail.com> - 1.4.42-1
+- Update to 1.4.42
+
+* Thu Dec 17 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.41-1
+- Update to 1.4.41
+
+* Wed Sep 30 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.33-1
+- Update to 1.4.33
+
+* Fri Aug 28 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.32-1
+- Update to 1.4.32
+
+* Mon Aug 10 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.30-1
+- New upstream version
+
+* Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.4.23-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Wed Jun 03 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.23-1
+- Update to version 1.4.23
+
+* Tue Mar 03 2009 Deji Akingunola <dakingun@gmail.com> - 1.4.9-1
+- Update to version 1.4.9
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.27-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Tue Jan 13 2009 Deji Akingunola <dakingun@gmail.com> - 1.3.27-1
+- Update to version 1.3.27
+
+* Mon Aug 25 2008 Deji Akingunola <dakingun@gmail.com> - 1.3.4-1
+- Update to 1.3.4
+
+* Sun May 25 2008 Masahiro Hasegawa <masahase@gmail.com> - 1.2.6-1
+- Update to 1.2.6
+
+* Mon Apr 28 2008 Deji Akingunola <dakingun@gmail.com> - 1.2.5-1
+- Update to 1.2.5
+
+* Fri Feb 08 2008 Deji Akingunola <dakingun@gmail.com> - 1.1.14-1
+- Update to 1.1.14
+
+* Fri Jan 11 2008 Deji Akingunola <dakingun@gmail.com> - 1.1.7-1
+- Update to 1.1.7
+
+* Tue Dec 18 2007 Deji Akingunola <dakingun@gmail.com> - 1.1.4-1
+- Update to 1.1.4
+
+* Sat Nov 24 2007 Deji Akingunola <dakingun@gmail.com> - 1.0.8-1
+- Update to 1.0.8
+
+* Sat Nov 24 2007 Deji Akingunola <dakingun@gmail.com> - 1.0.6-1
+- Initial package

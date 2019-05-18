@@ -1,0 +1,13 @@
+[lambda2]
+name=LambCI Lambda Amazon Linux 2 repository
+baseurl=https://rpm.lambci.org/lambda2/RPMS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-lambci
+gpgcheck=1
+enabled=1
+
+[lambda2-source]
+name=LambCI Lambda Amazon Linux 2 repository - source packages
+baseurl=https://rpm.lambci.org/lambda2/SRPMS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-lambci
+gpgcheck=1
+enabled=0
