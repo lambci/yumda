@@ -19,5 +19,8 @@ COPY ./rpmmacros /home/mockbuild/.rpmmacros
 
 WORKDIR /tmp
 
+COPY ./*.patch ./
+RUN for file in *.patch; do patch -d/ -p0 < $file; done && rm *.patch
+
 USER mockbuild
 
