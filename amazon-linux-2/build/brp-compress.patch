@@ -1,0 +1,25 @@
+--- /usr/lib/rpm/redhat/brp-compress	2010-02-02 09:24:04.000000000 +0000
++++ /tmp/fs/brp-compress	2019-08-03 02:06:54.000000000 +0000
+@@ -5,16 +5,18 @@
+ 	exit 0
+ fi
+ 
++PREFIX=${1:-/usr}
++
+ cd $RPM_BUILD_ROOT
+ 
+ # Compress man pages
+ COMPRESS="gzip -9 -n"
+ COMPRESS_EXT=.gz
+ 
+-for d in ./usr/man/man* ./usr/man/*/man* ./usr/info \
+-	./usr/share/man/man* ./usr/share/man/*/man* ./usr/share/info \
+-	./usr/kerberos/man ./usr/X11R6/man/man* ./usr/lib/perl5/man/man* \
+-	./usr/share/doc/*/man/man* ./usr/lib/*/man/man*
++for d in .${PREFIX}/man/man* .${PREFIX}/man/*/man* .${PREFIX}/info \
++	.${PREFIX}/share/man/man* .${PREFIX}/share/man/*/man* .${PREFIX}/share/info \
++	.${PREFIX}/kerberos/man .${PREFIX}/X11R6/man/man* .${PREFIX}/lib/perl5/man/man* \
++	.${PREFIX}/share/doc/*/man/man* .${PREFIX}/lib/*/man/man*
+ do
+     [ -d $d ] || continue
+     for f in `find $d -type f`
