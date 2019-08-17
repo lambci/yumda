@@ -3,13 +3,13 @@
 %global _hardened_build     1
 
 Name:           git
-Version:        2.21.0
+Version:        2.23.0
 Release:        1%{?rcrev}%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
 URL:            https://git-scm.com/
-Source0:        https://www.kernel.org/pub/software/scm/git/%{?rcrev:testing/}%{name}-%{version}%{?rcrev}.tar.xz
-Source1:        https://www.kernel.org/pub/software/scm/git/%{?rcrev:testing/}%{name}-%{version}%{?rcrev}.tar.sign
+Source0:        https://mirrors.edge.kernel.org/pub/software/scm/git/%{?rcrev:testing/}%{name}-%{version}%{?rcrev}.tar.xz
+Source1:        https://mirrors.edge.kernel.org/pub/software/scm/git/%{?rcrev:testing/}%{name}-%{version}%{?rcrev}.tar.sign
 
 # Junio C Hamano's key is used to sign git releases, it can be found in the
 # junio-gpg-pub tag within git.
@@ -189,10 +189,11 @@ find contrib -type f -print0 | xargs -r0 chmod -x
 %{_bindir}/git-upload-pack
 %dir %{_datadir}/git-core/templates
 %exclude %{_datadir}/git-core/templates/*
+%exclude %{gitexecdir}/git-cvsserver
 %exclude %{_bindir}/git-cvsserver
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org> - 2.21.0-1
+* Sat Aug 17 2019 Michael Hart <michael@lambci.org> - 2.23.0-1
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Nov 26 2018 Todd Zullinger <tmz@pobox.com> - 2.17.2-2
