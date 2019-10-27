@@ -1,0 +1,26 @@
+service: yumda-example
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+package:
+  individually: true
+  exclude:
+    - ./**
+
+functions:
+  hello-world:
+    handler: hello-world/app.lambdaHandler
+    package:
+      include:
+        - sam_squirrel.jpg
+        - hello-world/**
+    layers:
+      - {Ref: DependenciesLambdaLayer}
+
+layers:
+  dependencies:
+    path: dependencies
+    package:
+      artifact: dependencies.zip
