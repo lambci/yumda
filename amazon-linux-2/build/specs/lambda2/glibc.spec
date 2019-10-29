@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .2
 %define glibcsrcdir glibc-2.26-193-ga0bc5dd3be
 %define glibcversion 2.26
 %define glibcrelease 32%{?dist}%{?_trivial}%{?_buildid}
@@ -283,6 +283,35 @@ Patch2112: glibc-rh1315476-2.patch
 Patch2115: glibc-rh1484729.patch
 Patch2116: glibc-rh1484729-syscall-names.patch
 
+# glibc perfromance patches
+Patch3100: 0001-AArch64-Optimized-memcmp.patch
+Patch3101: 0002-aarch64-Use-the-L-macro-for-labels-in-memcmp.patch
+Patch3102: 0003-aarch64-Optimized-memcmp-for-medium-to-large-sizes.patch
+Patch3103: 0004-aarch64-Fix-branch-target-to-loop16.patch
+Patch3104: 0005-aarch64-Improve-strcmp-unaligned-performance.patch
+Patch3105: 0006-aarch64-strcmp-fix-misaligned-loop-jump-target.patch
+Patch3106: 0007-Improve-strstr-performance.patch
+Patch3107: 0008-Simplify-and-speedup-strstr-strcasestr-first-match.patch
+Patch3108: 0009-Speedup-first-memmem-match.patch
+Patch3109: 0010-Fix-strstr-bug-with-huge-needles-bug-23637.patch
+Patch3110: 0011-Add-ifunc-support-for-Ares.patch
+Patch3111: 0012-Improve-performance-of-strstr.patch
+Patch3112: 0013-Improve-performance-of-memmem.patch
+Patch3113: 0014-Mark-lazy-tlsdesc-helper-functions-unused-to-avoid-w.patch
+Patch3114: 0015-aarch64-Disable-lazy-symbol-binding-of-TLSDESC.patch
+Patch3115: 0016-aarch64-Remove-barriers-from-TLS-descriptor-function.patch
+Patch3116: 0017-arm-remove-prelinker-support-for-R_ARM_TLS_DESC.patch
+Patch3117: 0018-arm-Disable-lazy-initialization-of-tlsdesc-entries.patch
+Patch3118: 0019-arm-Remove-lazy-tlsdesc-initialization-related-code.patch
+Patch3119: 0020-aarch64-optimize-_dl_tlsdesc_dynamic-fast-path.patch
+Patch3120: 0021-aarch64-Use-PTR_REG-macro-to-fix-ILP32-bug-and-make-.patch
+Patch3121: 0022-AArch64-update-libm-test-ulps.patch
+Patch3122: 0023-Remove-slow-paths-from-pow.patch
+Patch3123: 0024-Remove-slow-paths-from-exp.patch
+Patch3124: 0025-Remove-slow-paths-from-log.patch
+Patch3125: 0026-aarch64-Improve-strncmp-for-mutually-misaligned-inpu.patch
+Patch3126: 0027-aarch64-strncmp-Unbreak-builds-with-old-binutils.patch
+Patch3127: 0028-aarch64-strncmp-Use-lsr-instead-of-mov-lsr.patch
 ##############################################################################
 # End of glibc patches.
 ##############################################################################
@@ -678,7 +707,34 @@ If unsure if you need this, don't install this package.
 %patch65 -p1
 %patch66 -p1
 %patch67 -p1
-
+%patch3100 -p1
+%patch3101 -p1
+%patch3102 -p1
+%patch3103 -p1
+%patch3104 -p1
+%patch3105 -p1
+%patch3106 -p1
+%patch3107 -p1
+%patch3108 -p1
+%patch3109 -p1
+%patch3110 -p1
+%patch3111 -p1
+%patch3112 -p1
+%patch3113 -p1
+%patch3114 -p1
+%patch3115 -p1
+%patch3116 -p1
+%patch3117 -p1
+%patch3118 -p1
+%patch3119 -p1
+%patch3120 -p1
+%patch3121 -p1
+%patch3122 -p1
+%patch3123 -p1
+%patch3124 -p1
+%patch3125 -p1
+%patch3126 -p1
+%patch3127 -p1
 ##############################################################################
 # %%prep - Additional prep required...
 ##############################################################################
@@ -1334,8 +1390,38 @@ fi
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Oct 3 2019 Anchal Agarwal <anchalag@amazon.com> - 2.26-32
+- AArch64-Optimized-memcmp.patch
+- aarch64-Use-the-L-macro-for-labels-in-memcmp.patch
+- aarch64-Optimized-memcmp-for-medium-to-large-sizes.patch
+- aarch64-Fix-branch-target-to-loop16.patch
+- aarch64-Improve-strcmp-unaligned-performance.patch
+- aarch64-strcmp-fix-misaligned-loop-jump-target.patch
+- Improve-strstr-performance.patch
+- Simplify-and-speedup-strstr-strcasestr-first-match.patch
+- Speedup-first-memmem-match.patch
+- Fix-strstr-bug-with-huge-needles-bug-23637.patch
+- Add-ifunc-support-for-Ares.patch
+- Improve-performance-of-strstr.patch
+- Improve-performance-of-memmem.patch
+- Mark-lazy-tlsdesc-helper-functions-unused-to-avoid-w.patch
+- aarch64-Disable-lazy-symbol-binding-of-TLSDESC.patch
+- aarch64-Remove-barriers-from-TLS-descriptor-function.patch
+- arm-remove-prelinker-support-for-R_ARM_TLS_DESC.patch
+- arm-Disable-lazy-initialization-of-tlsdesc-entries.patch
+- arm-Remove-lazy-tlsdesc-initialization-related-code.patch
+- aarch64-optimize-_dl_tlsdesc_dynamic-fast-path.patch
+- aarch64-Use-PTR_REG-macro-to-fix-ILP32-bug-and-make-.patch
+- AArch64-update-libm-test-ulps.patch
+- Remove-slow-paths-from-pow.patch
+- Remove-slow-paths-from-exp.patch
+- Remove-slow-paths-from-log.patch
+- aarch64-Improve-strncmp-for-mutually-misaligned-inpu.patch
+- aarch64-strncmp-Unbreak-builds-with-old-binutils.patch
+- aarch64-strncmp-Use-lsr-instead-of-mov-lsr.patch
 
 * Wed Nov 28 2018 Florian Weimer <fweimer@redhat.com> - 2.26-32
 - Auto-sync with upstream branch release/2.26/master,

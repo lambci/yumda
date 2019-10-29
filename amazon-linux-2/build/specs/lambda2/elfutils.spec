@@ -1,7 +1,7 @@
 Name: elfutils
 Summary: A collection of utilities and DSOs to handle ELF files and DWARF data
-Version: 0.170
-%global baserelease 4
+Version: 0.176
+%global baserelease 2
 URL: http://elfutils.org/
 %global source_url ftp://sourceware.org/pub/elfutils/%{version}/
 License: GPLv3+ and (GPLv2+ or LGPLv3+)
@@ -14,10 +14,7 @@ Release: %{baserelease}%{?dist}
 Source: %{?source_url}%{name}-%{version}.tar.bz2
 
 # Patches
-Patch1: elfutils-0.170-dwarf_aggregate_size.patch
-Source1: testfile-sizes3.o.bz2
-
-Patch2: elfutils-0.170-x86_64-backtrace-test-override.patch
+Patch1: elfutils-0.176-xlate-note.patch
 
 Requires: elfutils-libelf%{depsuffix} = %{version}-%{release}
 Requires: elfutils-libs%{depsuffix} = %{version}-%{release}
@@ -27,6 +24,8 @@ BuildRequires: bison >= 1.875
 BuildRequires: flex >= 2.5.4a
 BuildRequires: bzip2
 BuildRequires: gcc >= 4.4
+# For libstdc++ demangle support
+BuildRequires: libstdc++-devel
 
 BuildRequires: zlib-devel >= 1.2.2.3
 BuildRequires: bzip2-devel
@@ -90,13 +89,10 @@ elfutils package use it also to generate new ELF files.
 %setup -q
 
 # Apply patches
-%patch1 -p1 -b .aggregate_size
-cp %SOURCE1 tests/
-
-# This is only necessary for the RHEL brew build host, which seems to
-# generate a corrupt core file which we cannot test properly.
-%patch2 -p1 -b .x86_64_override
-
+%patch1 -p1 -b .xlate-note
+ 
+# In case the above patches added any new test scripts, make sure they
+# are executable.
 find . -name \*.sh ! -perm -0100 -print | xargs chmod +x
 
 %build
@@ -166,8 +162,43 @@ chmod +x ${RPM_BUILD_ROOT}%{_prefix}/%{_lib}/elfutils/lib*.so*
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed May  1 2019 Mark Wielaard <mjw@fedoraproject.org> - 0.176-2
+- Add elfutils-0.176-xlate-note.patch (#1704754)
+
+* Wed Mar  6 2019 Mark Wielaard <mjw@redhat.com> - 0.176-1
+- New upstream release (#1676504)
+  CVE-2019-7146, CVE-2019-7148, CVE-2019-7149, CVE-2019-7150,
+  CVE-2019-7664, CVE-2019-7665, CVE-2018-16062, CVE-2018-16402,
+  CVE-2018-16403, CVE-2018-18310, CVE-2018-18521, CVE-2018-18520.
+
+* Wed Jun 20 2018 Mark Wielaard <mjw@redhat.com> - 0.172-2
+- Add elfutils-0.172-robustify.patch. (#1593328)
+
+* Mon Jun 11 2018 Mark Wielaard <mjw@redhat.com> - 0.172-1
+- New upstream release.
+  - No functional changes compared to 0.171.
+  - Various bug fixes in libdw and eu-readelf dealing with bad DWARF5
+    data. Thanks to running the afl fuzzer on eu-readelf and various
+    testcases.
+  - eu-readelf -N is ~15% faster.
+
+* Tue Jun 05 2018 Mark Wielaard <mjw@redhat.com> - 0.171-1
+- New upstream release.
+  - DWARF5 and split dwarf, including GNU DebugFission, support.
+  - readelf: Handle all new DWARF5 sections.
+    --debug-dump=info+ will show split unit DIEs when found.
+    --dwarf-skeleton can be used when inspecting a .dwo file.
+    Recognizes GNU locviews with --debug-dump=loc.
+  - libdw: New functions dwarf_die_addr_die, dwarf_get_units,
+    dwarf_getabbrevattr_data and dwarf_cu_info.
+    libdw will now try to resolve the alt file on first use
+    when not set yet with dwarf_set_alt.
+    dwarf_aggregate_size() now works with multi-dimensional arrays.
+  - libdwfl: Use process_vm_readv when available instead of ptrace.
+  - backends: Add a RISC-V backend.
 
 * Wed Dec 20 2017 Mark Wielaard <mjw@redhat.com> - 0.170-4
 - Add elfutils-0.170-dwarf_aggregate_size.patch (#1527966).

@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 20%{?dist}
+Release: 38%{?dist}
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -68,6 +68,54 @@ Patch23: poppler-0.26.5-infinite-recursion.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1602838
 Patch24: poppler-0.26.5-negative-object-number.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1626618
+# https://bugzilla.redhat.com/show_bug.cgi?id=1665266
+Patch25: poppler-0.26.5-cycles-in-pdf-parsing.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1649457
+Patch26: poppler-0.26.5-embedded-file-check.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1649435
+Patch27: poppler-0.26.5-stream-check.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1649440
+Patch28: poppler-0.26.5-valid-embedded-file.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1649450
+Patch29: poppler-0.26.5-valid-embedded-file-name.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1639595
+Patch30: poppler-0.26.5-add-font-substitute-name-to-qt-bindings.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1672419
+Patch31: poppler-0.26.5-dummy-xref-entry.patch
+Patch32: poppler-0.26.5-negative-xref-indices.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1665263
+Patch33:  poppler-0.26.5-filespec.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1665273
+Patch34:  poppler-0.26.5-pdfunite-missing-pages.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1646546
+Patch35:  poppler-0.26.5-display-profile.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1683632
+Patch36:  poppler-0.26.5-image-stream-getline.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1636103
+Patch37: poppler-0.26.5-color-space.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1658304
+Patch38: poppler-0.26.5-glib-print-scaling.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1378961
+Patch39: poppler-0.26.5-tiling-patterns.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1686802
+Patch40: poppler-0.26.5-coverage-values.patch
+Patch41: poppler-0.26.5-rescale-filter.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -209,6 +257,23 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %patch22 -p1 -b .annotink
 %patch23 -p1 -b .infinite-recursion
 %patch24 -p1 -b .negative-object-number
+%patch25 -p1 -b .cycles-in-pdf-parsing
+%patch26 -p1 -b .embedded-file-check
+%patch27 -p1 -b .stream-check
+%patch28 -p1 -b .valid-embedded-file
+%patch29 -p1 -b .valid-embedded-file-name
+%patch30 -p1 -b .add-font-substitute-name-to-qt-bindings
+%patch31 -p1 -b .dummy-xref-entry
+%patch32 -p1 -b .negative-xref-indices
+%patch33 -p1 -b .filespec
+%patch34 -p1 -b .pdfunite-missing-pages
+%patch35 -p1 -b .display-profile
+%patch36 -p1 -b .image-getstream-getline
+%patch37 -p1 -b .color-space
+%patch38 -p1 -b .glib-print-scaling
+%patch39 -p1 -b .tiling-pattern
+%patch40 -p1 -b .coverage-values
+%patch41 -p1 -b .rescale-filter
 
 # hammer to nuke rpaths, recheck on new releases
 autoreconf -i -f
@@ -330,6 +395,82 @@ test "$(pkg-config --modversion poppler-splash)" = "%{version}"
 
 
 %changelog
+* Fri Mar 29 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-38
+- Constrain number of cycles in rescale filter
+- Compute correct coverage values for box filter
+- Resolves: #1688417
+
+* Wed Mar 20 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-37
+- Fix tiling patterns when pattern cell is too far
+- Resolves: #1378961
+
+* Mon Mar 18 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-36
+- Fix version from which PrintScaling is available
+- Resolves: #1658304
+
+* Mon Mar 18 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-35
+- Export PrintScaling viewer preference in glib frontend
+- Related: #1658304
+
+* Fri Mar 15 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-34
+- Fix a memory leak detected by Coverity Scan
+- Related: #1636103
+
+* Wed Mar 13 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-33
+- Only embed mime data for gray/rgb/cmyk colorspaces
+- if image decode map is identity
+- Resolves: #1636103
+
+* Fri Mar 8 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-32
+- Fix possible crash on broken files in ImageStream::getLine()
+- Resolves: #1685267
+
+* Fri Mar 8 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-31
+- Avoid global display profile state becoming an uncontrolled
+- memory leak
+- Resolves: #1648860
+
+* Fri Feb 22 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-30
+- Check for missing pages in documents passed to pdfunite
+- Resolves: #1677348
+
+* Fri Feb 22 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-29
+- Don't reuse "entry" in Parser::makeStream
+- Resolves: #1677058
+
+* Fri Feb 22 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-28
+- Move the fileSpec.dictLookup call inside fileSpec.isDict if
+- Resolves: #1677029
+
+* Fri Feb 22 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-27
+- Defend against requests for negative XRef indices
+- Resolves: #1673700
+
+* Tue Jan 15 2019 Jan Grulich <jgrulich@redhat.com> - 0.26.5-26
+- Add font substituteName() getter to Qt bindings
+- Resolves: bz#1639595
+
+* Wed Nov 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-25
+- Check for valid file name of embedded file
+- Resolves: #1651307
+
+* Wed Nov 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-24
+- Check for valid embedded file before trying to save it
+- Resolves: #1651306
+
+* Wed Nov 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-23
+- Check for stream before calling stream methods
+- when saving an embedded file
+- Resolves: #1651305
+
+* Wed Nov 21 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-22
+- Fix crash on missing embedded file
+- Resolves: #1651309
+
+* Tue Nov 13 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-21
+- Avoid cycles in PDF parsing
+- Resolves: #1640295
+
 * Mon Jul 30 2018 Marek Kasik <mkasik@redhat.com> - 0.26.5-20
 - Fix crash when Object has negative number (CVE-2018-13988)
 - Resolves: #1609036

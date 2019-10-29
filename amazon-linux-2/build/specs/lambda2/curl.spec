@@ -2,11 +2,11 @@
 %bcond_with ldap
 
 %define _trivial .0
-%define _buildid .2
+%define _buildid .1
 Summary: A utility for getting files from remote servers (FTP, HTTP, and others)
 Name: curl
 Version: 7.61.1
-Release: 11%{?dist}%{?_trivial}%{?_buildid}
+Release: 12%{?dist}%{?_trivial}%{?_buildid}
 License: MIT
 Source: https://curl.haxx.se/download/%{name}-%{version}.tar.xz
 
@@ -56,6 +56,12 @@ Patch16:  0016-curl-7.64.0-CVE-2019-5435.patch
 
 # fix TFTP receive buffer overflow (CVE-2019-5436)
 Patch17:  0017-curl-7.64.0-CVE-2019-5436.patch
+
+# fix heap buffer overflow in function tftp_receive_packet() (CVE-2019-5482)
+Patch18:  0018-curl-7.65.3-CVE-2019-5482.patch
+
+# double free due to subsequent call of realloc() (CVE-2019-5481)
+Patch19:  0019-curl-7.65.3-CVE-2019-5481.patch
 
 # patch making libcurl multilib ready
 Patch101: 0101-curl-7.32.0-multilib.patch
@@ -187,6 +193,8 @@ git apply %{PATCH4}
 # upstream patches
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
+%patch19 -p1
 
 # make tests/*.py use Python 3
 sed -e '1 s|^#!/.*python|#!%{__python3}|' -i tests/*.py
@@ -268,8 +276,12 @@ make DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p" install
 %exclude %{_datadir}
 
 %changelog
-* Wed May 29 2019 Michael Hart <michael@lambci.org>
+* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Sep 11 2019 Kamil Dudka <kdudka@redhat.com> - 7.61.1-12
+- double free due to subsequent call of realloc() (CVE-2019-5481)
+- fix heap buffer overflow in function tftp_receive_packet() (CVE-2019-5482)
 
 * Wed May 22 2019 Kamil Dudka <kdudka@redhat.com> - 7.61.1-11
 - fix TFTP receive buffer overflow (CVE-2019-5436)

@@ -11,7 +11,7 @@
 Summary: A collection of SNMP protocol tools and libraries
 Name: net-snmp
 Version: 5.7.2
-Release: 33%{?dist}.2
+Release: 43%{?dist}
 Epoch: 1
 
 License: BSD
@@ -103,6 +103,17 @@ Patch67: net-snmp-5.7.2-iterator-fix.patch
 Patch68: net-snmp-5.7.2-autofs.patch
 Patch69: net-snmp-5.7.2-leak-backport.patch
 Patch70: net-snmp-5.7.2-acfs.patch
+Patch71: net-snmp-5.7.2-fsync.patch
+Patch72: net-snmp-5.7.2-zfs-support.patch
+Patch73: net-snmp-5.7.2-man-page.patch
+Patch74: net-snmp-5.7.2-key-leak-backport.patch
+Patch75: net-snmp-5.7.2-snmpd-log-once.patch
+Patch76: net-snmp-5.7.2-MYSQL-LIBS.patch
+Patch77: net-snmp-5.7.2-expand-SNMPCONFPATH.patch
+Patch78: net-snmp-5.7.2-traptomail.patch
+Patch79: net-snmp-5.7.2-null-magic.patch
+Patch80: net-snmp-5.7.2-v3-forward.patch
+Patch81: net-snmp-5.7.2-memory.patch
 
 Requires(post): chkconfig
 Requires(preun): chkconfig
@@ -326,6 +337,17 @@ The net-snmp-sysvinit package provides SysV init scripts for Net-SNMP daemons.
 %patch68 -p1 -b .autofspatch
 %patch69 -p1 -b .leak-backport
 %patch70 -p1 -b .acfs
+%patch71 -p1 -b .fsync
+%patch72 -p1 -b .zfs-support
+%patch73 -p1 -b .man-page
+%patch74 -p1 -b .key-bakcport
+%patch75 -p1 -b .snmpd-log-once
+%patch76 -p1 -b .MYSQL-LIBS
+%patch77 -p1 -b .expand-variable
+%patch78 -p1 -b .traptomail
+%patch79 -p1 -b .null-magic
+%patch80 -p1 -b .v3-forward
+%patch81 -p1 -b .memory
 
 %ifarch sparc64 s390 s390x
 # disable failing test - see https://bugzilla.redhat.com/show_bug.cgi?id=680697
@@ -621,11 +643,40 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_initrddir}/snmptrapd
 
 %changelog
-* Mon Apr 23 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-33.2
-- Add ACFS support (#1570506)
+* Wed May 22 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-43
+- fix available memory calculation (#1250060)
 
-* Wed Mar 28 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-33.1
-- Build for z-stream (#1560965)
+* Fri May 10 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-42
+- fix trapd crash when forward snmp v3 traps (#1680547)
+
+* Wed Apr 17 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-41
+- secure magic variable to prevent daemon crash (#1635201)
+
+* Fri Mar 29 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-40
+- add relro flag to MYSQL LIBS patch (#1548084)
+
+* Tue Mar 19 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-39
+- adjust logging of statfs (#1314610)
+- link libnetsnmptrapd against MYSQL LIBS (#1468084)
+- expand SNMPCONFPATH (#1514501)
+- remove date in mailheader (#1585940)
+
+* Mon Nov 26 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-38
+- backport upstream fixes of memory leaks (#1650393)
+
+* Thu Sep 06 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-37
+- fix fsync issue (#1520761)
+
+* Tue Aug 14 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-36
+- Add missing part of ACFS support (#1564400)
+
+* Thu Jun 21 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-35
+- Add fsync to prevet data lose on power failure (#1520761)
+- Add ZFS support (#1533943)
+- Fix man page (#1537460)
+
+* Fri Apr 20 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-34
+- Add ACFS support (#1564400)
 
 * Tue Mar 27 2018 Josef Ridky <jridky@redhat.com> - 1:5.7.2-33
 - Backport upstream leak fix (#1533780)
@@ -1892,3 +1943,4 @@ rm -rf ${RPM_BUILD_ROOT}
 
 * Tue Dec 30 1997 Otto Hammersmith <otto@redhat.com>
 - created the package... possibly replace cmu-snmp with this.
+

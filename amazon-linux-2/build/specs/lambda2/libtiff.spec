@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 27%{?dist}.0.2
+Release: 32%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -42,6 +42,17 @@ Patch29: libtiff-CVE-2016-9535.patch
 Patch30: libtiff-CVE-2016-9540.patch
 Patch31: libtiff-CVE-2016-5652.patch
 Patch32: libtiff-CVE-2015-8870.patch
+Patch33: libtiff-CVE-2016-3186.patch
+Patch34: libtiff-CVE-2018-7456.patch
+Patch35: libtiff-CVE-2018-8905.patch
+Patch36: libtiff-CVE-2018-10779.patch
+Patch37: libtiff-CVE-2018-10963.patch
+Patch38: libtiff-CVE-2018-12900.patch
+Patch39: libtiff-CVE-2018-17100.patch
+Patch40: libtiff-CVE-2018-17101.patch
+Patch41: libtiff-CVE-2018-18557.patch
+Patch42: libtiff-CVE-2018-18661.patch
+Patch43: libtiff-coverity.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -103,6 +114,17 @@ image files using the libtiff library.
 %patch30 -p1
 %patch31 -p1
 %patch32 -p1
+%patch33 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+%patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -140,20 +162,58 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %exclude %{_datadir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Apr 30 2019 Nikola Forró <nforro@redhat.com> - 4.0.3-32
+- Fix one more Covscan defect
+- Related: #1647965
+
+* Tue Apr 30 2019 Nikola Forró <nforro@redhat.com> - 4.0.3-31
+- Fix processing of RAS files without colormap 
+- Related: #1647965
+
+* Thu Dec 13 2018 Nikola Forró <nforro@redhat.com> - 4.0.3-30
+- Fix various Covscan defects
+- Related: #1647965
+
+* Thu Dec 13 2018 Nikola Forró <nforro@redhat.com> - 4.0.3-29
+- Fix compiler warning introduced by patch for CVE-2018-18661
+- Related: #1647965
+
+* Thu Dec 06 2018 Nikola Forró <nforro@redhat.com> - 4.0.3-28
+- Fix CVE-2016-3186
+- Resolves: #1319503
+- Fix CVE-2018-7456
+- Resolves: #1561318
+- Fix CVE-2018-8905
+- Resolves: #1574548
+- Fix CVE-2018-10779
+- Resolves: #1598503
+- Fix CVE-2018-10963
+- Resolves: #1598726
+- Fix CVE-2018-12900
+- Resolves: #1600430
+- Fix CVE-2018-17100
+- Resolves: #1632578
+- Fix CVE-2018-17101
+- Resolves: #1632579
+- Fix CVE-2018-18557
+- Resolves: #1647737
+- Fix CVE-2018-18661
+- Resolves: #1647965
 
 * Wed Jan 18 2017 Nikola Forró <nforro@redhat.com> - 4.0.3-27
 - Fix CWE-476 defect found by covscan
-- Related: #1412080
-
+- Related: #1412081
+ 
 * Wed Jan 11 2017 Nikola Forró <nforro@redhat.com> - 4.0.3-26
 - Add patches for CVEs:
   CVE-2016-9533, CVE-2016-9534, CVE-2016-9535,
   CVE-2016-9536, CVE-2016-9537, CVE-2016-9540,
   CVE-2016-5652, CVE-2015-8870
-- Resolves: #1412080
-
+- Resolves: #1412081
+ 
 * Wed Jul 27 2016 Nikola Forró <nforro@redhat.com> - 4.0.3-25
 - Add patches for CVEs:
   CVE-2015-7554, CVE-2015-8683, CVE-2015-8665,
