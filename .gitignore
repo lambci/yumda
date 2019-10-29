@@ -3,4 +3,4 @@ amazon-linux-2/build/lambda2
 .aws-sam
 .serverless
 packaged.yaml
-example/dependencies*
+examples/*/dependencies*

@@ -72,7 +72,7 @@ $ aws lambda publish-layer-version --layer-name gs-layer --zip-file fileb://gs-l
 
 Let's say you want to create a Lambda function that needs to clone a git repository and then manipulate an image using [GraphicsMagick](http://www.graphicsmagick.org/). For fun, we'll also convert it to ASCII art and log it.
 
-The code for this example lives in the [example](https://github.com/lambci/yumda/tree/master/example) directory, but we'll walk through the steps of creating it from scratch.
+The code for this example lives in the [examples](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory, but we'll walk through the steps of creating it from scratch.
 
 Start off by creating a new SAM app:
 
@@ -91,7 +91,7 @@ const shell = cmd => execSync(cmd, { cwd: '/tmp', encoding: 'utf8', stdio: 'inhe
 exports.lambdaHandler = async (event, context) => {
   shell('git clone --depth 1 https://github.com/lambci/yumda')
 
-  shell('gm convert ./yumda/example/sam_squirrel.jpg -negate -contrast -resize 100x100 thumbnail.jpg')
+  shell('gm convert ./yumda/examples/sam_squirrel.jpg -negate -contrast -resize 100x100 thumbnail.jpg')
 
   // Normally we'd perhaps upload to S3, etc... but here we just convert to ASCII:
 

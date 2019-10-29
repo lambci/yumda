@@ -1,5 +1,5 @@
 {
-  "name": "hello_world",
+  "name": "hello-world",
   "description": "An example Lambda function to demonstrate yumda",
   "version": "1.0.0",
   "private": true
