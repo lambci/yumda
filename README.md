@@ -19,7 +19,10 @@ configuration to install them (requires [Docker](https://docs.docker.com/install
 
 ## Quickstart
 
-Usage: `docker run lambci/yumda:<version> yum <yum-args>`
+Usage:
+```console
+docker run lambci/yumda:<version> yum <yum-args>
+```
 
 For the `nodejs10.x` runtime use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
 
