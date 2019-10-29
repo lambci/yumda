@@ -104,7 +104,7 @@ These binaries (`git`, `gm`, `jp2a`) don't exist on Lambda, so we'll need to ins
 ```console
 # Assume we're still in the yumda-example directory
 mkdir -p dependencies
-docker run --rm -v "$PWD"/dependencies:/lambda/opt yumda:2 yum install -y git GraphicsMagick jp2a
+docker run --rm -v "$PWD"/dependencies:/lambda/opt lambci/yumda:2 yum install -y git GraphicsMagick jp2a
 ```
 
 Now we have the binaries (and their dependencies) in a local directory that can be deployed as a layer alongside our function.
@@ -277,7 +277,7 @@ We install the dependencies the same way as in the previous example, using `yumd
 ```console
 # Assume we're still in the yumda-example directory
 mkdir -p dependencies
-docker run --rm -v "$PWD"/dependencies:/lambda/opt yumda:2 yum install -y git GraphicsMagick jp2a
+docker run --rm -v "$PWD"/dependencies:/lambda/opt lambci/yumda:2 yum install -y git GraphicsMagick jp2a
 ```
 
 And then we can test this out locally:
