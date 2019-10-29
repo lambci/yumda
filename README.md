@@ -15,7 +15,7 @@ configuration to install them (requires [Docker](https://docs.docker.com/install
 * [AWS SAM Example](#full-example-with-aws-sam)
 * [Serverless Framework Example](#example-with-serverless-framework)
 * [Requesting Packages to Add](#requesting-packages-to-add)
-* [Building/Hosting Your Own Packages](#building-hosting-your-own-packages)
+* [Building/Hosting Your Own Packages](#buildinghosting-your-own-packages)
 
 ---
 
