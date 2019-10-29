@@ -23,7 +23,7 @@ configuration to install them (requires [Docker](https://docs.docker.com/install
 
 Usage: `docker run lambci/yumda:2 yum <yum-args>`
 
-Eg, to see what packages are available:
+Eg, to see what [packages are available](https://github.com/lambci/yumda/blob/master/packages.txt):
 
 ```console
 $ docker run --rm lambci/yumda:2 yum list available
