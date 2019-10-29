@@ -1,0 +1,124 @@
+%dist .lambda1
+
+%_prefix /opt
+
+%_exec_prefix %{_prefix}
+%_bindir %{_exec_prefix}/bin
+%_sbindir %{_exec_prefix}/sbin
+%_libexecdir %{_exec_prefix}/libexec
+%_datarootdir %{_prefix}/share
+%_datadir %{_datarootdir}
+%_sysconfdir %{_prefix}/etc
+%_lib lib
+%_libdir %{_exec_prefix}/lib
+%_includedir %{_prefix}/include
+%_oldincludedir %{_prefix}/include
+%_infodir %{_datarootdir}/info
+%_mandir %{_datarootdir}/man
+%_localedir %{_datarootdir}/locale
+%_lispdir %{_datarootdir}/emacs/site-lisp
+%_initddir %{_sysconfdir}/rc.d/init.d
+%_tmpfilesdir %{_prefix}/lib/tmpfiles.d
+%_defaultdocdir %{_datadir}/doc
+%_metainfodir %{_datadir}/appdata
+
+# /tmp is the only writable location in Lambda
+%_localstatedir /tmp/var
+%_sharedstatedir %{_localstatedir}/lib
+%_runstatedir %{_localstatedir}/run
+
+# Deprecated misspelling, present for backwards compatibility.
+%_initrddir %{_initddir}
+%_rundir %{_runstatedir}
+%_docdir %{_defaultdocdir}
+
+%_signature gpg
+%_gpg_name LambCI Lambda RPMs <rpm@lambci.org>
+%_gpg_path /home/mockbuild/.gnupg
+%_gpgbin /usr/bin/gpg
+%__gpg %{_gpgbin}
+
+%debug_package %{nil}
+
+%_enable_debug_packages %{nil}
+
+%__os_install_post    \
+    %{_rpmconfigdir}/brp-compress %{_prefix} \
+    %{_rpmconfigdir}/brp-strip %{__strip} \
+    %{_rpmconfigdir}/brp-strip-static-archive %{__strip} \
+    %{_rpmconfigdir}/brp-strip-comment-note %{__strip} %{__objdump} \
+%{nil}
+
+%__python %{__python3}
+
+%python2_version 2.7
+%python2_version_nodots 27
+%python2_sitearch %{_prefix}/python/lib/python%{python2_version}/site-packages
+%python2_sitelib %{_prefix}/python/lib/python%{python2_version}/site-packages
+
+%python3_version 3.7
+%python3_version_nodots 37
+%python3_sitearch %{_prefix}/python/lib/python%{python3_version}/site-packages
+%python3_sitelib %{_prefix}/python/lib/python%{python3_version}/site-packages
+
+%python_version %{python3_version}
+%python_version_nodots %{python3_version_nodots}
+%python_sitearch %{python3_sitearch}
+%python_sitelib %{python3_sitelib}
+
+%py2_install_wheel() %{expand:\
+  pip%{python2_version} install -I dist/%{1} --root %{buildroot} --strip-file-prefix %{buildroot} --no-deps --prefix %{_prefix}
+}
+
+%py3_install_wheel() %{expand:\
+  pip%{python3_version} install -I dist/%{1} --root %{buildroot} --strip-file-prefix %{buildroot} --no-deps --prefix %{_prefix}
+}
+
+%py_install_wheel() %{expand:\
+  pip install -I dist/%{1} --root %{buildroot} --strip-file-prefix %{buildroot} --no-deps --prefix %{_prefix}
+}
+
+%__font_provides /usr/lib/rpm/fontconfig.prov
+
+# ghc_lib_subpackage [-c cdepslist] [-l licensetag] [-x] [name] [version]
+%ghc_lib_subpackage(c:l:x)\
+%define pkgname %{?1}%{!?1:%{pkg_name}}\
+%define pkgver %{?2}%{!?2:%{version}}\
+%{!-x:%{?1:%global ghc_packages_list %{?ghc_packages_list} %{pkgname}-%{pkgver}}}\
+%define basepkg ghc-%{pkgname}\
+%package -n %{basepkg}\
+Summary:        Haskell %{pkgname} library\
+%{?1:Version:        %{pkgver}}\
+%{-l:License:        %{-l*}}\
+Url:            http://hackage.haskell.org/package/%{pkgname}\
+%{?ghc_pkg_obsoletes:Obsoletes:      %(echo "%{ghc_pkg_obsoletes}" | sed -e "s/\\(ghc-[^, ]*\\)-devel/\\1/g")}\
+\
+Prefix: %{_prefix}\
+\
+%description -n %{basepkg}\
+This package provides the Haskell %{pkgname} library.\
+\
+%files -n %{basepkg} -f %{basepkg}.files\
+%{?base_doc_files:%doc %base_doc_files}\
+%{nil}
+
+# %gem_install - Install gem into appropriate directory.
+#
+# Usage: %gem_install [options]
+#
+# -n <gem_file>      Overrides gem file name for installation.
+# -d <install_dir>   Set installation directory.
+#
+%gem_install(d:n:) \
+mkdir -p %{-d*}%{!?-d:.%{gem_dir}} \
+\
+CONFIGURE_ARGS="--with-cflags='%{optflags}' $CONFIGURE_ARGS" \\\
+gem install \\\
+        -V \\\
+        --local \\\
+        --build-root %{-d*}%{!?-d:.} \\\
+        --bindir %{_bindir} \\\
+        --install-dir %{gem_dir} \\\
+        --force \\\
+        %{-n*}%{!?-n:%{gem_name}-%{version}%{?prerelease}.gem} \
+%{nil}

@@ -1,0 +1,25 @@
+service: yumda1-example
+
+provider:
+  name: aws
+  runtime: python3.7
+
+package:
+  individually: true
+  exclude:
+    - ./**
+
+functions:
+  hello-world:
+    handler: hello_world/app.lambda_handler
+    package:
+      include:
+        - hello_world/**
+    layers:
+      - {Ref: DependenciesLambdaLayer}
+
+layers:
+  dependencies:
+    path: dependencies
+    package:
+      artifact: dependencies.zip

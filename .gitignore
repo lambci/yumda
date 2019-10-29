@@ -1,6 +1,8 @@
 *.private
+amazon-linux-1/build/lambda1
 amazon-linux-2/build/lambda2
 .aws-sam
 .serverless
 packaged.yaml
 examples/*/dependencies*
+__pycache__

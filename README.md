@@ -5,8 +5,6 @@ environment, with a
 [yum](https://access.redhat.com/sites/default/files/attachments/rh_yum_cheatsheet_1214_jcs_print-1.pdf)
 configuration to install them (requires [Docker](https://docs.docker.com/install/)).
 
-*Note*: Currently only has packages for Amazon Linux 2 Lambda runtimes (`nodejs10.x`)
-
 ---
 
 ## Contents
@@ -21,9 +19,13 @@ configuration to install them (requires [Docker](https://docs.docker.com/install
 
 ## Quickstart
 
-Usage: `docker run lambci/yumda:2 yum <yum-args>`
+Usage: `docker run lambci/yumda:<version> yum <yum-args>`
 
-Eg, to see what [packages are available](https://github.com/lambci/yumda/blob/master/packages.txt):
+For the `nodejs10.x` runtime use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
+
+The `nodejs10.x` runtime uses Amazon Linux 2 – so it requires different yum packages than the older runtimes.
+
+Eg, to see what [packages are available for nodejs10.x](https://github.com/lambci/yumda/blob/master/amazon-linux-2/packages.txt):
 
 ```console
 $ docker run --rm lambci/yumda:2 yum list available
@@ -72,7 +74,7 @@ $ aws lambda publish-layer-version --layer-name gs-layer --zip-file fileb://gs-l
 
 Let's say you want to create a Lambda function that needs to clone a git repository and then manipulate an image using [GraphicsMagick](http://www.graphicsmagick.org/). For fun, we'll also convert it to ASCII art and log it.
 
-The code for this example lives in the [examples](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory, but we'll walk through the steps of creating it from scratch.
+The example we'll walk through below uses `nodejs10.x` runtime (and hence `lambci/yumda:2`). The code for this example lives in the [examples/nodejs10.x](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory, but we'll walk through the steps of creating it from scratch. For the other runtimes, see [examples/python3.7](https://github.com/lambci/yumda/tree/master/examples/python3.7) and just replace any usage below of `lambci/yumda:2` with `lambci/yumda:1`.
 
 Start off by creating a new SAM app:
 
@@ -304,7 +306,7 @@ sls deploy
 
 ## Requesting Packages to Add
 
-Please file a GitHub Issue with your request and add the `package suggestion` label. For now we'll only be considering additions that already exist in the Amazon Linux 2 core repository, or the `amazon-linux-extras` repositories (including `epel`).
+Please file a GitHub Issue with your request and add the `package suggestion` label. For now we'll only be considering additions that already exist in the Amazon Linux core repositories, or the `amazon-linux-extras` repositories (including `epel`).
 
 ## Building/Hosting Your Own Packages
 

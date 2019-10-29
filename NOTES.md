@@ -2,6 +2,17 @@
 
 Assumes access to the `RPM-GPG-KEY-lambci` private key
 
+Amazon Linux 1:
+
+```console
+cd amazon-linux-1/build
+
+docker run --rm -it -v $PWD:/tmp/fs lambci/yumda:build-1 bash
+gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
+```
+
+Amazon Linux 2:
+
 ```console
 cd amazon-linux-2/build
 
@@ -11,12 +22,23 @@ gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
 
 ## Checking for remote updates to spec files
 
+Amazon Linux 1:
+
 ```console
-diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s | sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
+diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64 | sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
+  <(ls -1 /tmp/fs/lambda1/SRPMS/Packages | sort) | \
+  grep '^<' | \
+  grep -v git-2.14.5-1.60.
+```
+
+Amazon Linux 2:
+
+```console
+diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64 | sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
   grep '^<' | \
-  grep -v git-2.17.2-2.lambda2.src.rpm | \
-  grep -v libvoikko-3.6-5.lambda2.0.1.src.rpm
+  grep -v git-2.17.2-2. | \
+  grep -v libvoikko-3.6-5.
 ```
 
 ## Pulling down Amazon source RPMS
@@ -69,6 +91,16 @@ rpm --addsign ~/rpmbuild/{SRPMS,RPMS/*}/*.rpm
 
 ## Copying over RPMs and updating yum repo
 
+Amazon Linux 1:
+
+```console
+cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda1/RPMS/Packages/
+cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda1/SRPMS/Packages/
+for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda1/$dir; done
+```
+
+Amazon Linux 2:
+
 ```console
 cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda2/RPMS/Packages/
 cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda2/SRPMS/Packages/
@@ -77,12 +109,29 @@ for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda2/$dir; done
 
 ## Syncing to S3
 
+Amazon Linux 1:
+
+```console
+aws s3 sync --delete ~/github/yumda/amazon-linux-1/build/lambda1 s3://rpm.lambci.org/lambda1 && \
+  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda1/RPMS/repodata/*"
+```
+
+Amazon Linux 2:
+
 ```console
 aws s3 sync --delete ~/github/yumda/amazon-linux-2/build/lambda2 s3://rpm.lambci.org/lambda2 && \
   aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda2/RPMS/repodata/*"
 ```
 
 ## Checking that all RPMs install ok
+
+Amazon Linux 1:
+
+```console
+docker run --rm lambci/yumda:1 bash -c "yum list available | tail -n +3 | grep -o -E '^\S+' | xargs yum install -y"
+```
+
+Amazon Linux 2:
 
 ```console
 docker run --rm lambci/yumda:2 bash -c "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install -y"

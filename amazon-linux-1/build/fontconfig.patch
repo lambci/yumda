@@ -1,0 +1,20 @@
+--- /usr/lib/rpm/fontconfig.prov	2018-09-12 21:28:07.000000000 +0000
++++ /home/mockbuild/fontconfig.prov	2019-05-30 22:04:55.000000000 +0000
+@@ -10,15 +10,8 @@
+ # Based on other provides scripts from RPM
+ #
+ 
+-fcquery=/usr/bin/fc-query
+-
+-if [ ! -x $fcquery ]; then
+-    cat > /dev/null
+-    exit 0
+-fi
+-
+ # filter out anything outside main fontconfig path
+-grep /usr/share/fonts/ |
++grep /share/fonts/ |
+ while read fn; do
+-    $fcquery --format '%{=pkgkit}' "${fn}" 2> /dev/null
++    fc-query --format '%{=pkgkit}' "${fn}" 2> /dev/null
+ done
