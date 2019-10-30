@@ -17,7 +17,7 @@ Patch2: 0003-various-security-fixes.patch
 # resolves: #987069
 Patch3: 0004-don-t-use-usr-bin-env-in-shebang.patch
 
-Requires: coreutils, /sbin/install-info, groff-base = %{version}-%{release}
+Requires: coreutils, /sbin/install-info
 BuildRequires: git, netpbm-progs, psutils, ghostscript
 Provides: nroff-i18n = %{version}-%{release}
 
@@ -34,17 +34,6 @@ more.
 Groff can also be used to format man pages. If you are going to use
 groff with the X Window System, you will also need to install the
 groff-x11 package.
-
-%package base
-Summary: Parts of the groff formatting system required to display manual pages
-Group: Applications/Publishing
-Conflicts: groff < 1.22.2
-Prefix: %{_prefix}
-
-%description base
-The groff-base package contains only necessary parts of groff formatting
-system which are required to display manual pages, and the groff's default
-display device (PostScript).
 
 %prep
 %setup -q
@@ -89,6 +78,7 @@ chmod 755 %{buildroot}%{_datadir}/groff/%{version}/groffer/version.sh
 chmod 755 %{buildroot}%{_datadir}/groff/%{version}/font/devlj4/generate/special.awk
 
 %files
+%license COPYING FDL LICENSES
 # data
 %{_datadir}/%{name}/%{version}/font/devdvi/
 %{_datadir}/%{name}/%{version}/font/devlbp/
@@ -144,8 +134,6 @@ chmod 755 %{buildroot}%{_datadir}/groff/%{version}/font/devlj4/generate/special.
 %{_bindir}/glookbib
 %{_bindir}/gindxbib
 
-%files base
-%license COPYING FDL LICENSES
 # configuration
 %dir %{_sysconfdir}/groff/
 %config(noreplace) %{_sysconfdir}/groff/*
