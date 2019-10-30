@@ -137,3 +137,10 @@ Amazon Linux 2:
 docker run --rm lambci/yumda:2 bash -c "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install -y"
 ```
 
+## Generating todo.txt
+
+```
+for pkg in $(repoquery -a --archlist=x86_64,noarch --nvr); do
+  echo $pkg $(repoquery -q --whatrequires --archlist=x86_64,noarch --nvr $pkg | awk -F- '{for (i=1; i<NF-1; i++) printf("%s-",$i); printf("\n")}' | sort | uniq | wc -l)
+done
+```
