@@ -17,21 +17,12 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Patch0: libyaml-CVE-2014-9130.patch
 
+Prefix: %{_prefix}
+
 %description
 YAML is a data serialization format designed for human readability and
 interaction with scripting languages.  LibYAML is a YAML parser and
 emitter written in C.
-
-
-%package devel
-Summary:   Development files for LibYAML applications
-Group:     Development/Libraries
-Requires:  libyaml%{?_isa} = %{version}-%{release}, pkgconfig
-
-
-%description devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use LibYAML.
 
 
 %prep
@@ -40,7 +31,7 @@ developing applications that use LibYAML.
 %patch0 -p1
 
 %build
-%configure
+%configure --disable-static
 make %{?_smp_mflags}
 
 
@@ -49,41 +40,24 @@ rm -rf %{buildroot}
 make DESTDIR=%{buildroot} INSTALL="install -p" install
 rm -f %{buildroot}%{_libdir}/*.{la,a}
 
-soname=$(readelf -d %{buildroot}%{_libdir}/libyaml.so | awk '$2 == "(SONAME)" {print $NF}' | tr -d '[]')
-rm -f %{buildroot}%{_libdir}/libyaml.so
-echo "INPUT($soname)" > %{buildroot}%{_libdir}/libyaml.so
-
-
-%check
-make check
-
 
 %clean
 rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
-
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
-%doc README
 %{_libdir}/%{name}*.so.*
 
-
-%files devel
-%defattr(-,root,root,-)
-%doc doc/html
-%{_libdir}/%{name}*.so
-%{_includedir}/yaml.h
-%{_libdir}/pkgconfig/yaml*.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Tue Feb 3 2015 Sean Kelly <seankell@amazon.com>
 - import source package F21/libyaml-0.1.6-6.fc21
 

@@ -18,18 +18,11 @@ Patch2:		libmcrypt-2.5.8-prototypes.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	libtool-ltdl-devel
 
+Prefix: %{_prefix}
+
 %description
 Libmcrypt is a thread-safe library providing a uniform interface
 to access several block and stream encryption algorithms.
-
-%package devel
-Group:		Development/Libraries
-Summary:	Development libraries and headers for libmcrypt
-Requires:	%{name} = %{version}-%{release}
-
-%description devel
-Development libraries and headers for use in building applications that
-use libmcrypt.
 
 %prep
 %setup -q
@@ -38,7 +31,7 @@ use libmcrypt.
 %patch2 -p1 -b .prototypes
 
 %build
-%configure
+%configure --disable-static
 make %{?_smp_mflags}
 
 %install
@@ -46,32 +39,25 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT -type f -name '*.la' -exec rm -f {} \;
 
-# Multilib fix
-sed -i 's|-L%{_libdir}||g' $RPM_BUILD_ROOT%{_bindir}/libmcrypt-config
-touch -r NEWS $RPM_BUILD_ROOT%{_bindir}/libmcrypt-config
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING.LIB ChangeLog KNOWN-BUGS README NEWS THANKS TODO
+%license COPYING.LIB
 %{_libdir}/*.so.*
 %{_mandir}/man3/*
 
-%files devel
-%defattr(-,root,root,-)
-%doc doc/README.key doc/README.xtea doc/example.c
-%{_bindir}/libmcrypt-config
-%{_includedir}/mutils/
-%{_includedir}/mcrypt.h
-%{_libdir}/*.so
-%{_datadir}/aclocal/libmcrypt.m4
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_bindir}/libmcrypt-config
+%exclude %{_libdir}/*.so
+%exclude %{_datadir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Fri Jul 9 2010 22:19:53 UTC Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/libmcrypt-2.5.8-9.1.el6
 
