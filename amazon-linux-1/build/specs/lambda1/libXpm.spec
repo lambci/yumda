@@ -16,16 +16,10 @@ BuildREquires: pkgconfig(xt)
 BuildRequires: pkgconfig(xau)
 BuildRequires: pkgconfig(xextproto)
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXpm runtime library
-
-%package devel
-Summary: X.Org X11 libXpm development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXpm development package
 
 %prep
 %setup -q
@@ -45,27 +39,23 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING ChangeLog
+%license COPYING
 %{_libdir}/libXpm.so.4
 %{_libdir}/libXpm.so.4.11.0
 
-%files devel
-%defattr(-,root,root,-)
-%{_bindir}/cxpm
-%{_bindir}/sxpm
-%{_includedir}/X11/xpm.h
-%{_libdir}/libXpm.so
-%{_libdir}/pkgconfig/xpm.pc
-#%dir %{_mandir}/man1x
-%{_mandir}/man1/*.1*
-#%{_mandir}/man1/*.1x*
+%exclude %{_bindir}/cxpm
+%exclude %{_bindir}/sxpm
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Mon Feb 25 2013 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/libXpm-3.5.10-2.el6
 

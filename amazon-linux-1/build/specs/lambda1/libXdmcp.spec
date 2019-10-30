@@ -16,16 +16,10 @@ BuildRequires: xorg-x11-proto-devel
 BuildRequires: xmlto
 BuildRequires: xorg-x11-util-macros autoconf automake libtool
 
+Prefix: %{_prefix}
+
 %description
 X Display Manager Control Protocol library.
-
-%package devel
-Summary: Development files for %{name}
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-libXdmcp development package.
 
 %prep
 %setup -q
@@ -50,23 +44,21 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING ChangeLog Wraphelp.README.crypto
+%license COPYING
 %{_libdir}/libXdmcp.so.6
 %{_libdir}/libXdmcp.so.6.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%doc README
-%{_includedir}/X11/Xdmcp.h
-%{_libdir}/libXdmcp.so
-%{_libdir}/pkgconfig/xdmcp.pc
+%exclude %{_includedir}
+%exclude %{_mandir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Mon Feb 25 2013 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/libXdmcp-1.1.1-3.el6
 

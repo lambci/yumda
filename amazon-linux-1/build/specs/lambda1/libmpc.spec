@@ -14,19 +14,12 @@ BuildRequires: gmp-devel >= 6.0.0
 BuildRequires: mpfr-devel >= 3.1.1
 BuildRequires: texinfo
 
+Prefix: %{_prefix}
+
 %description
 MPC is a C library for the arithmetic of complex numbers with
 arbitrarily high precision and correct rounding of the result. It is
 built upon and follows the same principles as Mpfr.
-
-%package devel
-Summary: Header and shared development libraries for MPC
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: mpfr-devel gmp-devel
-
-%description devel
-Header files and shared object symlinks for MPC is a C library.
 
 %prep
 %setup -q -n mpc-%{version}
@@ -39,9 +32,6 @@ export EGREP=egrep
 %configure --disable-static
 make %{?_smp_mflags}
 
-%check
-make check
-
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -52,33 +42,19 @@ rm -f ${RPM_BUILD_ROOT}/%{_infodir}/dir
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-%post devel
-if [ -f %{_infodir}/mpc.info.gz ]; then # for --excludedocs
-   /sbin/install-info %{_infodir}/mpc.info.gz %{_infodir}/dir || :
-fi
-
-%preun devel
-if [ $1 = 0 ]; then
-   if [ -f %{_infodir}/mpc.info.gz ]; then # for --excludedocs
-      /sbin/install-info --delete %{_infodir}/mpc.info.gz %{_infodir}/dir || :
-   fi
-fi
-
 %files
 %defattr(-,root,root,-)
-%doc README NEWS COPYING.LESSER
+%license COPYING.LESSER
 %{_libdir}/libmpc.so.3*
 
-%files devel
-%defattr(-,root,root,-)
-%{_libdir}/libmpc.so
-%{_includedir}/mpc.h
-%{_infodir}/*.info*
+%exclude %{_libdir}/*.so
+%exclude %{_includedir}
+%exclude %{_infodir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Wed May 7 2014 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL7/libmpc-1.0.1-3.el7
 

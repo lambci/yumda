@@ -15,6 +15,8 @@ BuildRequires:	libogg-devel >= 2:1.1
 Patch2:		libvorbis-1.2.3-add-needed.patch
 Patch3:     CVE-2018-5146.diff
 
+Prefix: %{_prefix}
+
 %description
 Ogg Vorbis is a fully open, non-proprietary, patent- and royalty-free,
 general-purpose compressed audio format for audio and music at fixed
@@ -22,26 +24,6 @@ and variable bitrates.
 
 The libvorbis package contains runtime libraries for use in programs
 that support Ogg Vorbis.
-
-%package devel
-Summary: Development tools for Vorbis applications
-Group: Development/Libraries
-Requires:	libogg-devel >= 2:1.1
-Requires:	%{name} = %{epoch}:%{version}-%{release}
-Obsoletes:	vorbis-devel
-
-%description devel
-The libvorbis-devel package contains the header files and documentation
-needed to develop applications with Ogg Vorbis.
-
-%package devel-docs
-Summary: Documentation for developing Vorbis applications
-Group: Development/Libraries
-Requires: %{name}-devel = %{epoch}:%{version}-%{release}
-BuildArch: noarch
-
-%description devel-docs
-Documentation for developing applications with libvorbis.
 
 %prep
 
@@ -58,45 +40,29 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install docdir=%{_pkgdocdir}
-install -pm 644 -t $RPM_BUILD_ROOT%{_pkgdocdir} AUTHORS COPYING README
+make DESTDIR=$RPM_BUILD_ROOT install
 # remove unpackaged files from the buildroot
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-%check
-make check
-
 %files
 %defattr(-,root,root)
-%doc %dir %{_pkgdocdir}
-%doc %{_pkgdocdir}/COPYING
+%license COPYING
 %{_libdir}/libvorbis.so.*
 %{_libdir}/libvorbisfile.so.*
 %{_libdir}/libvorbisenc.so.*
 
-%files devel
-%defattr(-,root,root)
-%{_includedir}/vorbis
-%{_libdir}/libvorbis.so
-%{_libdir}/libvorbisfile.so
-%{_libdir}/libvorbisenc.so
-%{_libdir}/pkgconfig/*.pc
-%{_datadir}/aclocal/vorbis.m4
-
-%files devel-docs
-%defattr(-,root,root)
-%{_pkgdocdir}/*
-%exclude %{_pkgdocdir}/COPYING
-%exclude %{_pkgdocdir}/doxygen-build.stamp
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
 
 %clean 
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Mon Apr 2 2018 Andrew Egelhofer <egelhofe@amazon.com>
 - Import Upstream 1.3.3-8 and apply CVE-2018-5146 patch
 

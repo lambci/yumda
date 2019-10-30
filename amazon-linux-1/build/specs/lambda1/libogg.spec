@@ -11,32 +11,12 @@ URL:            http://www.xiph.org/
 Source:         http://downloads.xiph.org/releases/ogg/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)    
 
+Prefix: %{_prefix}
+
 %description
 Libogg is a library for manipulating Ogg bitstream file formats.
 Libogg supports both making Ogg bitstreams and getting packets from
 Ogg bitstreams.
-
-
-%package devel
-Summary:        Files needed for development using libogg
-Group:          Development/Libraries
-Requires:       libogg = %{epoch}:%{version}-%{release}
-Requires:       pkgconfig
-Requires:       automake
-
-%description devel
-Libogg is a library used for manipulating Ogg bitstreams. The
-libogg-devel package contains the header files and documentation
-needed for development using libogg.
-
-
-%package devel-docs
-Summary:	Documentation for developing Ogg applications
-Group:		Development/Libraries
-BuildArch:	noarch
-
-%description devel-docs
-Documentation for developing applications with libogg
 
 
 %prep
@@ -60,31 +40,21 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean 
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS CHANGES COPYING README
+%license COPYING
 %{_libdir}/libogg.so.*
 
-%files devel
-%defattr(-,root,root)
-%dir %{_includedir}/ogg
-%{_includedir}/ogg/ogg.h
-%{_includedir}/ogg/os_types.h
-%{_includedir}/ogg/config_types.h
-%{_libdir}/libogg.so
-%{_libdir}/pkgconfig/ogg.pc
-%{_datadir}/aclocal/ogg.m4
-
-%files devel-docs
-%defattr(-,root,root)
-%{_docdir}/%{name}-%{version}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Fri Jul 9 2010 22:20:11 UTC Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/libogg-1.1.4-2.1.el6
 

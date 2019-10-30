@@ -39,6 +39,8 @@ Patch007: libtirpc-0.2.4-clnt-mthr-create.patch
 #
 Patch008: libtirpc-0.2.4-CVE-2017-8779.patch
 
+Prefix: %{_prefix}
+
 %description
 This package contains SunLib's implementation of transport-independent
 RPC (TI-RPC) documentation.  This library forms a piece of the base of 
@@ -50,16 +52,6 @@ Transport Layer Interface (TLI) or an equivalent X/Open Transport Interface
 (XTI).  TI-RPC is on-the-wire compatible with the TS-RPC, which is supported 
 by almost 70 vendors on all major operating systems.  TS-RPC source code 
 (RPCSRC 4.0) remains available from several internet sites.
-
-%package devel
-Summary:	Development files for the libtirpc library
-Group:	Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-Requires:	pkgconfig
-
-%description devel
-This package includes header files and libraries necessary for
-developing programs which use the tirpc library.
 
 
 %prep
@@ -92,30 +84,13 @@ make all
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/etc
-mkdir -p %{buildroot}%{_root_libdir}
+mkdir -p %{buildroot}%{_sysconfdir}
+mkdir -p %{buildroot}%{_libdir}
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 make install DESTDIR=%{buildroot} \
-	libdir=%{_root_libdir} pkgconfigdir=%{_libdir}/pkgconfig
+	libdir=%{_libdir} pkgconfigdir=%{_libdir}/pkgconfig
 # Don't package .a or .la files
-rm -f %{buildroot}%{_root_libdir}/*.{a,la}
-
-# Creat the man diretory
-mv %{buildroot}%{_mandir}/man3 %{buildroot}%{_mandir}/man3t
-
-%post  -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post devel
-# Register the new man section
-#if [ "$1" -eq 1 ]; then
-#	makewhatis -s 3t	
-#fi
-
-%postun devel 
-# Remove the existance of the man section
-#makewhatis -s 3t
+rm -f %{buildroot}%{_libdir}/*.{a,la}
 
 
 %clean
@@ -123,51 +98,18 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README
-%{_root_libdir}/libtirpc.so.*
+%{_libdir}/libtirpc.so.*
 %config(noreplace)%{_sysconfdir}/netconfig
 
-%files devel
-%defattr(0644,root,root,755)
-%dir %{_includedir}/tirpc
-%dir %{_includedir}/tirpc/rpc
-%dir %{_includedir}/tirpc/rpcsvc
-%{_root_libdir}/libtirpc.so
-%{_libdir}/pkgconfig/libtirpc.pc
-%{_includedir}/tirpc/netconfig.h
-%{_includedir}/tirpc/rpc/auth.h
-%{_includedir}/tirpc/rpc/auth_des.h
-%{_includedir}/tirpc/rpc/auth_gss.h
-%{_includedir}/tirpc/rpc/auth_kerb.h
-%{_includedir}/tirpc/rpc/auth_unix.h
-%{_includedir}/tirpc/rpc/clnt.h
-%{_includedir}/tirpc/rpc/clnt_soc.h
-%{_includedir}/tirpc/rpc/clnt_stat.h
-%{_includedir}/tirpc/rpc/des.h
-%{_includedir}/tirpc/rpc/des_crypt.h
-%{_includedir}/tirpc/rpc/nettype.h
-%{_includedir}/tirpc/rpc/pmap_clnt.h
-%{_includedir}/tirpc/rpc/pmap_prot.h
-%{_includedir}/tirpc/rpc/pmap_rmt.h
-%{_includedir}/tirpc/rpc/raw.h
-%{_includedir}/tirpc/rpc/rpc.h
-%{_includedir}/tirpc/rpc/rpc_com.h
-%{_includedir}/tirpc/rpc/rpc_msg.h
-%{_includedir}/tirpc/rpc/rpcb_clnt.h
-%{_includedir}/tirpc/rpc/rpcb_prot.h
-%{_includedir}/tirpc/rpc/rpcb_prot.x
-%{_includedir}/tirpc/rpc/rpcent.h
-%{_includedir}/tirpc/rpc/svc.h
-%{_includedir}/tirpc/rpc/svc_auth.h
-%{_includedir}/tirpc/rpc/svc_dg.h
-%{_includedir}/tirpc/rpc/svc_soc.h
-%{_includedir}/tirpc/rpc/types.h
-%{_includedir}/tirpc/rpc/xdr.h
-%{_includedir}/tirpc/rpcsvc/crypt.h
-%{_includedir}/tirpc/rpcsvc/crypt.x
-%{_mandir}/*/*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Tue May 23 2017 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/libtirpc-0.2.4-0.8.el7_3
 

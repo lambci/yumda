@@ -31,16 +31,10 @@ BuildRequires: pkgconfig(xrender)
 BuildRequires: pkgconfig(xext)
 BuildRequires: pkgconfig(x11) >= 1.5.99.902
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXrandr runtime library
-
-%package devel
-Summary: X.Org X11 libXrandr development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXrandr development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -60,24 +54,21 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING
+%license COPYING
 %{_libdir}/libXrandr.so.2
 %{_libdir}/libXrandr.so.2.2.0
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/X11/extensions/Xrandr.h
-%{_libdir}/libXrandr.so
-%{_libdir}/pkgconfig/xrandr.pc
-#%dir %{_mandir}/man3x
-%{_mandir}/man3/*.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Tue Oct 14 2014 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/libXrandr-1.4.1-2.1.el6
 

@@ -11,6 +11,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Patch1: libaio-install-to-slash.patch
 Patch2: libaio-sparc.patch
 
+Prefix: %{_prefix}
+
 %description
 The Linux-native asynchronous I/O facility ("async I/O", or "aio") has a
 richer API and capability set than the simple POSIX async I/O facility.
@@ -18,18 +20,6 @@ This library, libaio, provides the Linux-native API for async I/O.
 The POSIX async I/O facility requires this library in order to provide
 kernel-accelerated async I/O capabilities, as do applications which
 require the Linux-native async I/O API.
-
-%define libdir /%{_lib}
-%define usrlibdir %{_prefix}/%{_lib}
-
-%package devel
-Summary: Development files for Linux-native asynchronous I/O access
-Group: Development/System
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-This package provides header files to include and libraries to link with
-for the Linux-native asynchronous I/O facility ("async I/O", or "aio").
 
 %prep
 %setup -a 0
@@ -51,30 +41,27 @@ make
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 cd compat-%{name}-%{version}
 install -D -m 755 src/libaio.so.1.0.0 \
-  $RPM_BUILD_ROOT/%{libdir}/libaio.so.1.0.0
+  $RPM_BUILD_ROOT%{_libdir}/libaio.so.1.0.0
 cd ..
-make destdir=$RPM_BUILD_ROOT prefix=/ libdir=%{libdir} usrlibdir=%{usrlibdir} \
+make destdir=$RPM_BUILD_ROOT prefix=%{_prefix} libdir=%{_libdir} usrlibdir=%{_libdir} \
 	includedir=%{_includedir} install
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
-%attr(0755,root,root) %{libdir}/libaio.so.*
-%doc COPYING TODO
+%license COPYING
+%attr(0755,root,root) %{_libdir}/libaio.so.*
 
-%files devel
-%defattr(-,root,root)
-%attr(0644,root,root) %{_includedir}/*
-%attr(0755,root,root) %{usrlibdir}/libaio.so*
-%attr(0644,root,root) %{_libdir}/libaio.a
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/*.a
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Wed May 7 2014 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL7/libaio-0.3.109-12.el7
 
