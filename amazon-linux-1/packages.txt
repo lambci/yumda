@@ -4,8 +4,12 @@ GraphicsMagick.x86_64                  1.3.32-1.16.lambda1               lambda1
 GraphicsMagick-c++.x86_64              1.3.32-1.16.lambda1               lambda1
 fipscheck.x86_64                       1.3.1-3.13.lambda1                lambda1
 fipscheck-lib.x86_64                   1.3.1-3.13.lambda1                lambda1
+ghostscript.x86_64                     8.70-24.26.lambda1                lambda1
 git.x86_64                             2.23.0-1.lambda1                  lambda1
+groff.x86_64                           1.22.2-8.11.lambda1               lambda1
+groff-base.x86_64                      1.22.2-8.11.lambda1               lambda1
 jp2a.x86_64                            1.0.7-1.lambda1                   lambda1
+less.x86_64                            436-13.12.lambda1                 lambda1
 libwebp.x86_64                         0.3.0-3.5.lambda1                 lambda1
 libwebp-tools.x86_64                   0.3.0-3.5.lambda1                 lambda1
 openssh.x86_64                         7.4p1-16.71.lambda1               lambda1
@@ -13,5 +17,8 @@ openssh-cavs.x86_64                    7.4p1-16.71.lambda1               lambda1
 openssh-clients.x86_64                 7.4p1-16.71.lambda1               lambda1
 openssh-keycat.x86_64                  7.4p1-16.71.lambda1               lambda1
 openssh-server.x86_64                  7.4p1-16.71.lambda1               lambda1
+pcre2.x86_64                           10.21-22.lambda1                  lambda1
+pcre2-tools.x86_64                     10.21-22.lambda1                  lambda1
 tcp_wrappers.x86_64                    7.6-77.12.lambda1                 lambda1
 tcp_wrappers-libs.x86_64               7.6-77.12.lambda1                 lambda1
+zip.x86_64                             3.0-1.10.lambda1                  lambda1
