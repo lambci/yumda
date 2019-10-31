@@ -15,6 +15,8 @@ Provides: bundled(gnulib)
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: help2man
 
+Prefix: %{_prefix}
+
 %description
 Diffutils includes four utilities: diff, cmp, diff3 and sdiff. Diff
 compares two files and shows the differences, line by line.  The cmp
@@ -47,30 +49,23 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-%find_lang %{name}
-
-%check
-make check
-
-%post
-/sbin/install-info %{_infodir}/%{name}.info %{_infodir}/dir || :
-
-%preun
-if [ $1 = 0 ]; then
-  /sbin/install-info --delete %{_infodir}/%{name}.info %{_infodir}/dir || :
-fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -f %{name}.lang
+%files
 %defattr(-,root,root)
-%doc COPYING NEWS README
+%license COPYING
 %{_bindir}/*
-%{_mandir}/*/*
-%{_infodir}/diffutils.info*gz
+
+%exclude %{_mandir}
+%exclude %{_infodir}
+%exclude %{_datadir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.3-4
 - Mass rebuild 2014-01-24
 
