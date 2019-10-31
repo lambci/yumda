@@ -279,27 +279,6 @@ Prefix: %{_prefix}
 The gcc package contains the GNU Compiler Collection version 7.
 You'll need this package in order to compile C code.
 
-%package -n libgcc%{?gccv}
-Summary: GCC version 7 shared support library
-Group: System Environment/Libraries
-%if 0%{?gccv:1}
-Provides: libgcc = %{version}-%{release}
-%{?obsolete_gcc:Obsoletes: libgcc < %{version}-%{release}}
-#Obsoletes: libgcc < %{hard_obsolete_ver}
-Provides: libgcc%{?_isa} = %{version}-%{release}
-%endif
-#%if !%{build_ada}
-#Obsoletes: libgnat < %{version}-%{release}
-#%endif
-#Obsoletes: libmudflap
-Obsoletes: libgcj < %{version}-%{release}
-
-Prefix: %{_prefix}
-
-%description -n libgcc%{?gccv}
-This package contains GCC shared support library which is needed
-e.g. for exception handling support.
-
 %package c++
 Summary: C++ support for GCC
 Group: Development/Languages
@@ -1459,12 +1438,6 @@ rm -rf %{buildroot}
 %dir %{_libexecdir}/gcc/%{gcc_target_platform}
 %dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1
-
-%files -n libgcc%{?gccv}
-%defattr(-,root,root,-)
-%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-%if ! 0%{?gccv:1}
-%{_libdir}/libgcc_s.so.1
 %endif
 %license gcc/COPYING* COPYING.RUNTIME
 
@@ -1680,6 +1653,8 @@ rm -rf %{buildroot}
 %exclude %{_libdir}/libstdc++.so.6.*
 %exclude %{_datadir}/gdb/auto-load/%{_libdir}/libstdc*gdb.py*
 %exclude %{_prefix}/share/gcc-%{gcc_major}/python/libstdcxx
+%exclude %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
+%exclude %{_libdir}/libgcc_s.so.1
 
 %changelog
 * Wed Oct 30 2019 Michael Hart <michael@lambci.org>
