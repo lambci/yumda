@@ -62,30 +62,30 @@ Summary: The Linux kernel
 # to 0 in here to disable them.
 #
 # standard kernel
-%define with_up        %{?_without_up:        0} %{?!_without_up:        1}
+%define with_up        0
 # kernel-debug
-%define with_debug     %{?_without_debug:     0} %{?!_without_debug:     0}
+%define with_debug     0
 # kernel-doc
-%define with_doc       %{?_without_doc:       0} %{?!_without_doc:       0}
+%define with_doc       0
 # kernel-headers
-%define with_headers   %{?_without_headers:   0} %{?!_without_headers:   1}
+%define with_headers   1
 # perf
-%define with_perf      %{?_without_perf:      0} %{?!_without_perf:      1}
+%define with_perf      0
 # tools
-%define with_tools     %{?_without_tools:     0} %{?!_without_tools:     1}
+%define with_tools     0
 # kernel-debuginfo
-%define with_debuginfo %{?_without_debuginfo: 0} %{?!_without_debuginfo: 1}
+%define with_debuginfo 0
 # Want to build a the vsdo directories installed
-%define with_vdso_install %{?_without_vdso_install: 0} %{?!_without_vdso_install: 1}
+%define with_vdso_install 0
 # Use dracut instead of mkinitrd for initrd image generation
-%define with_dracut       %{?_without_dracut:       0} %{?!_without_dracut:       1}
+%define with_dracut       0
 
 # Build the kernel-doc package, but don't fail the build if it botches.
 # Here "true" means "continue" and "false" means "fail the build".
 %define doc_build_fail true
 
 # should we do C=1 builds with sparse
-%define with_sparse	%{?_with_sparse:      1} %{?!_with_sparse:      0}
+%define with_sparse	0
 
 # Set debugbuildsenabled to 1 for production (build separate debug kernels)
 #  and 0 for rawhide (all kernels are debug kernels).
@@ -112,34 +112,13 @@ Summary: The Linux kernel
 %if !%{with_debuginfo}
 %define _enable_debug_packages 0
 %endif
-%define debuginfodir /usr/lib/debug
+%define debuginfodir %{_prefix}/lib/debug
 
 %define all_x86 i386 i686
 
 %if %{with_vdso_install}
 # These arches install vdso/ directories.
 %define vdso_arches %{all_x86} x86_64 %{arm}
-%endif
-
-# Overrides for generic default options
-
-# don't do debug builds on anything but i686 and x86_64
-%ifnarch i686 x86_64 %{arm}
-%define with_debug 0
-%endif
-
-# only package docs noarch
-%ifnarch noarch
-%define with_doc 0
-%endif
-
-# don't build noarch kernels or headers (duh)
-%ifarch noarch
-%define with_up 0
-%define with_headers 0
-%define with_tools 0
-%define with_perf 0
-%define all_arch_configs kernel-%{version}-*.config
 %endif
 
 # Per-arch tweaks
@@ -176,17 +155,6 @@ Summary: The Linux kernel
 # don't build kernel-headers then the new build system will no longer let
 # us use the previous build of that package -- it'll just be completely AWOL.
 # Which is a BadThing(tm).
-
-# We don't build a kernel on i386; we only do kernel-headers there
-%define nobuildarches i386 i486 i586
-
-%ifarch %nobuildarches
-%define with_up 0
-%define with_debuginfo 0
-%define with_perf 0
-%define with_tools 0
-%define _enable_debug_packages 0
-%endif
 
 # Architectures we build tools/cpupower on
 %define cpupowerarchs %{ix86} x86_64
@@ -240,10 +208,6 @@ Provides: kernel-drm = 4.3.0\
 Provides: kernel-drm-nouveau = 16\
 Provides: kernel-modeset = 1\
 Provides: kernel-uname-r = %{KVERREL}%{?1:.%{1}}\
-Requires(pre): %{kernel_prereq}\
-Requires(pre): %{initrd_prereq}\
-Requires(post): /sbin/new-kernel-pkg\
-Requires(preun): /sbin/new-kernel-pkg\
 Conflicts: %{kernel_dot_org_conflicts}\
 Conflicts: %{package_conflicts}\
 %{expand:%%{?kernel%{?1:_%{1}}_conflicts:Conflicts: %%{kernel%{?1:_%{1}}_conflicts}}}\
@@ -490,6 +454,8 @@ Patch0122: 0122-Add-Amazon-EFA-driver-version-1.4.patch
 
 BuildRoot: %{_tmppath}/kernel-%{KVERREL}-root
 
+Prefix: %{_prefix}
+
 %description
 The kernel package contains the Linux kernel (vmlinuz), the core of any
 Linux operating system.  The kernel handles the basic functions
@@ -497,183 +463,18 @@ of the operating system: memory allocation, process allocation, device
 input and output, etc.
 
 
-%package doc
-Summary: Various documentation bits found in the kernel source
-Group: Documentation
-%description doc
-This package contains documentation files from the kernel
-source. Various bits of information about the Linux kernel and the
-device drivers shipped with it are documented in these files.
-
-You'll want to install this package if you need a reference to the
-options that can be passed to Linux kernel modules at load time.
-
-
 %package headers
 Summary: Header files for the Linux kernel for use by glibc
 Group: Development/System
 Obsoletes: glibc-kernheaders
 Provides: glibc-kernheaders = 3.0-46
+Prefix: %{_prefix}
 %description headers
 Kernel-headers includes the C header files that specify the interface
 between the Linux kernel and userspace libraries and programs.  The
 header files define structures and constants that are needed for
 building most standard programs and are also needed for rebuilding the
 glibc package.
-
-%package debuginfo-common-%{_target_cpu}
-Summary: Kernel source files used by %{name}-debuginfo packages
-Group: Development/Debug
-%description debuginfo-common-%{_target_cpu}
-This package is required by %{name}-debuginfo subpackages.
-It provides the kernel source files common to all builds.
-
-%if %{with_perf}
-%package -n perf
-Summary: Performance monitoring for the Linux kernel
-Group: Development/System
-License: GPLv2
-%description -n perf
-This package contains the perf tool, which enables performance monitoring
-of the Linux kernel.
-
-%package -n perf-debuginfo
-Summary: Debug information for package perf
-Group: Development/Debug
-Requires: %{name}-debuginfo-common-%{_target_cpu} = %{version}-%{release}
-AutoReqProv: no
-%description -n perf-debuginfo
-This package provides debug information for the perf package.
-
-# Note that this pattern only works right to match the .build-id
-# symlinks because of the trailing nonmatching alternation and
-# the leading .*, because of find-debuginfo.sh's buggy handling
-# of matching the pattern against the symlinks file.
-%{expand:%%global debuginfo_args %{?debuginfo_args} -p '.*%%{_bindir}/perf(\.debug)?|.*%%{_libexecdir}/perf-core/.*|.*%%{python_sitearch}/perf.so(\.debug)?|.*%%{_libdir}/traceevent/plugins/.*|XXX' -o perf-debuginfo.list}
-%endif #perf
-
-%if %{with_tools}
-%package tools
-Summary: Assortment of tools for the Linux kernel
-Group: Development/System
-License: GPLv2
-Provides:  cpupowerutils = 1:009-0.6.p1
-Obsoletes: cpupowerutils < 1:009-0.6.p1
-Provides:  cpufreq-utils = 1:009-0.6.p1
-Provides:  cpufrequtils = 1:009-0.6.p1
-Obsoletes: cpufreq-utils < 1:009-0.6.p1
-Obsoletes: cpufrequtils < 1:009-0.6.p1
-Obsoletes: cpuspeed < 1:1.5-16
-
-%description tools
-This package contains the tools/ directory from the kernel source
-and the supporting documentation.
-
-%package tools-devel
-Summary: Assortment of tools for the Linux kernel
-Group: Development/System
-License: GPLv2
-Requires: kernel-tools = %{version}-%{release}
-%ifarch %{cpupowerarchs}
-Provides:  cpupowerutils-devel = 1:009-0.6.p1
-Obsoletes: cpupowerutils-devel < 1:009-0.6.p1
-%endif # cpupower
-
-%description tools-devel
-This package contains the development files for the tools/ directory from
-the kernel source.
-
-%package tools-debuginfo
-Summary: Debug information for package kernel-tools
-Group: Development/Debug
-Requires: %{name}-debuginfo-common-%{_target_cpu} = %{version}-%{release}
-AutoReqProv: no
-%description tools-debuginfo
-This package provides debug information for package kernel-tools.
-
-# Note that this pattern only works right to match the .build-id
-# symlinks because of the trailing nonmatching alternation and
-# the leading .*, because of find-debuginfo.sh's buggy handling
-# of matching the pattern against the symlinks file.
-%{expand:%%global debuginfo_args %{?debuginfo_args} -p '.*%%{_bindir}/centrino-decode(\.debug)?|.*%%{_bindir}/powernow-k8-decode(\.debug)?|.*%%{_bindir}/cpupower(\.debug)?|.*%%{_libdir}/libcpupower.*|XXX' -o kernel-tools-debuginfo.list}
-%endif
-
-#
-# This macro creates a kernel-<subpackage>-debuginfo package.
-#	%%kernel_debuginfo_package <subpackage>
-#
-%define kernel_debuginfo_package() \
-%package %{?1:%{1}-}debuginfo\
-Summary: Debug information for package %{name}%{?1:-%{1}}\
-Group: Development/Debug\
-Requires: %{name}-debuginfo-common-%{_target_cpu} = %{version}-%{release}\
-Provides: %{name}%{?1:-%{1}}-debuginfo-%{_target_cpu} = %{version}-%{release}\
-AutoReqProv: no\
-%description -n %{name}%{?1:-%{1}}-debuginfo\
-This package provides debug information for package %{name}%{?1:-%{1}}.\
-This is required to use SystemTap with %{name}%{?1:-%{1}}-%{KVERREL}.\
-%{expand:%%global debuginfo_args %{?debuginfo_args} -p '/.*/%%{KVERREL}%{?1:\.%{1}}/.*|/.*%%{KVERREL}%{?1:\.%{1}}(\.debug)?' -o debuginfo%{?1}.list}\
-%{nil}
-
-#
-# This macro creates a kernel-<subpackage>-devel package.
-#	%%kernel_devel_package <subpackage> <pretty-name>
-#
-%define kernel_devel_package() \
-%package %{?1:%{1}-}devel\
-Summary: Development package for building kernel modules to match the %{?2:%{2} }kernel\
-Group: System Environment/Kernel\
-Provides: kernel%{?1:-%{1}}-devel-%{_target_cpu} = %{version}-%{release}\
-Provides: kernel-devel-%{_target_cpu} = %{version}-%{release}%{?1:.%{1}}\
-Provides: kernel-devel = %{version}-%{release}%{?1:.%{1}}\
-Provides: kernel-devel-uname-r = %{KVERREL}%{?1:.%{1}}\
-AutoReqProv: no\
-Requires(pre): /usr/bin/find\
-Requires(post): /usr/sbin/hardlink\
-Requires: perl\
-Requires: elfutils-libelf-devel\
-Requires: gcc >= 7.2.1\
-%if  "%{_gccver}" > "7"\
-Provides: buildrequires(gcc) = %{_gccver}\
-%endif\
-%description -n kernel%{?variant}%{?1:-%{1}}-devel\
-This package provides kernel headers and makefiles sufficient to build modules\
-against the %{?2:%{2} }kernel package.\
-%{nil}
-
-#
-# This macro creates a kernel-<subpackage> and its -devel and -debuginfo too.
-#	%%define variant_summary The Linux kernel compiled for <configuration>
-#	%%kernel_variant_package [-n <pretty-name>] <subpackage>
-#
-%define kernel_variant_package(n:) \
-%package %1\
-Summary: %{variant_summary}\
-Group: System Environment/Kernel\
-%kernel_reqprovconf\
-%{expand:%%kernel_devel_package %1 %{!?-n:%1}%{?-n:%{-n*}}}\
-%{expand:%%kernel_debuginfo_package %1}\
-%{nil}
-
-
-# First the auxiliary packages of the main kernel package.
-%kernel_devel_package
-%kernel_debuginfo_package
-
-
-# Now, each variant package.
-
-%define variant_summary The Linux kernel compiled with extra debugging enabled
-%kernel_variant_package debug
-%description debug
-The kernel package contains the Linux kernel (vmlinuz), the core of any
-Linux operating system.  The kernel handles the basic functions
-of the operating system:  memory allocation, process allocation, device
-input and output, etc.
-
-This variant of the kernel has numerous debugging options enabled.
-It should only be installed when trying to gather additional information
-on kernel bugs, as some of these options impact performance noticably.
 
 
 %prep
@@ -958,431 +759,10 @@ cd ..
 ###
 %build
 
-%if %{with_sparse}
-%define sparse_mflags	C=1
-%endif
-
-%if %{with_debuginfo}
-# This override tweaks the kernel makefiles so that we run debugedit on an
-# object before embedding it.  When we later run find-debuginfo.sh, it will
-# run debugedit again.  The edits it does change the build ID bits embedded
-# in the stripped object, but repeating debugedit is a no-op.  We do it
-# beforehand to get the proper final build ID bits into the embedded image.
-# This affects the vDSO images in vmlinux, and the vmlinux image in bzImage.
-export AFTER_LINK=\
-'sh -xc "/usr/lib/rpm/debugedit -b $$RPM_BUILD_DIR -d /usr/src/debug \
-    				-i $@ > $@.id"'
-%endif
-
-cp_vmlinux()
-{
-  eu-strip --remove-comment -o "$2" "$1"
-}
-
-export CC=%{?_gcc}%{?!_gcc:gcc}
-export HOSTCC=%{?_gcc}%{?!_gcc:gcc}
-export HOSTCXX=%{?_gxx}%{?!_gxx:g++}
-
-%global make_defines CC=gcc HOSTCC=gcc HOSTCXX=g++
-
-export KBUILD_BUILD_HOST=$(hostname --short)
-
-BuildKernel() {
-    MakeTarget=$1
-    KernelImage=$2
-    Flavour=$3
-    Flav=${Flavour:+.${Flavour}}
-    InstallName=${4:-vmlinuz}
-
-    # Pick the right config file for the kernel we're building
-    Config=kernel-%{version}-%{_target_cpu}${Flavour:+-${Flavour}}.config
-    DevelDir=/usr/src/kernels/%{KVERREL}${Flav}
-
-    # When the bootable image is just the ELF kernel, strip it.
-    # We already copy the unstripped file into the debuginfo package.
-    if [ "$KernelImage" = vmlinux ]; then
-      CopyKernel=cp_vmlinux
-    else
-      CopyKernel=cp
-    fi
-
-    KernelVer=%{version}-%{release}.%{_target_cpu}${Flav}
-    echo BUILDING A KERNEL FOR ${Flavour} %{_target_cpu}...
-
-    # make sure EXTRAVERSION says what we want it to say
-    perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}.%{_target_cpu}${Flav}/" Makefile
-
-    # and now to start the build process
-
-    make -s mrproper
-    cp configs/$Config .config
-
-%if %{signmodules}
-    cp %{SOURCE11} .
-    chmod +x scripts/sign-file
-%endif
-
-    Arch=`head -1 .config | cut -b 3-`
-    echo USING ARCH=$Arch
-
-    make -s ARCH=$Arch %{oldconfig_target} %{?make_defines} > /dev/null
-    make -s ARCH=$Arch V=1 %{?_smp_mflags} $MakeTarget %{?sparse_mflags} %{?make_defines}
-    make -s ARCH=$Arch V=1 %{?_smp_mflags} modules %{?sparse_mflags} %{?make_defines} || exit 1
-
-    # Start installing the results
-%if %{with_debuginfo}
-    mkdir -p $RPM_BUILD_ROOT%{debuginfodir}/boot
-    mkdir -p $RPM_BUILD_ROOT%{debuginfodir}/%{image_install_path}
-%endif
-    mkdir -p $RPM_BUILD_ROOT/%{image_install_path}
-    install -m 644 .config $RPM_BUILD_ROOT/boot/config-$KernelVer
-    install -m 644 System.map $RPM_BUILD_ROOT/boot/System.map-$KernelVer
-
-%if %{with_dracut}
-    # We estimate the size of the initramfs because rpm needs to take this size
-    # into consideration when performing disk space calculations. (See bz #530778)
-    dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initramfs-$KernelVer.img bs=1M count=20
-%else
-    dd if=/dev/zero of=$RPM_BUILD_ROOT/boot/initrd-$KernelVer.img bs=1M count=5
-%endif
-
-    if [ -f arch/$Arch/boot/zImage.stub ]; then
-      cp arch/$Arch/boot/zImage.stub $RPM_BUILD_ROOT/%{image_install_path}/zImage.stub-$KernelVer || :
-    fi
-    %if %{signmodules}
-    # Sign the image if we're using EFI
-    %pesign -s -i $KernelImage -o vmlinuz.signed
-    if [ ! -s vmlinuz.signed ]; then
-        echo "pesigning failed"
-        exit 1
-    fi
-    mv vmlinuz.signed $KernelImage
-    %endif
-    $CopyKernel $KernelImage \
-    		$RPM_BUILD_ROOT/%{image_install_path}/$InstallName-$KernelVer
-    chmod 755 $RPM_BUILD_ROOT/%{image_install_path}/$InstallName-$KernelVer
-
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KernelVer
-    # Override $(mod-fw) because we don't want it to install any firmware
-    # we'll get it from the linux-firmware package and we don't want conflicts
-    make -s ARCH=$Arch INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_install KERNELRELEASE=$KernelVer mod-fw=
-
-%ifarch %{vdso_arches}
-    make -s ARCH=$Arch INSTALL_MOD_PATH=$RPM_BUILD_ROOT vdso_install KERNELRELEASE=$KernelVer
-    if grep '^CONFIG_XEN=y$' .config >/dev/null ; then
-        echo > ldconfig-kernel.conf "\
-# This directive teaches ldconfig to search in nosegneg subdirectories
-# and cache the DSOs there with extra bit 0 set in their hwcap match
-# fields.  In Xen guest kernels, the vDSO tells the dynamic linker to
-# search in nosegneg subdirectories and to match this extra hwcap bit
-# in the ld.so.cache file.
-hwcap 1 nosegneg"
-    fi
-    if [ ! -s ldconfig-kernel.conf ]; then
-      echo > ldconfig-kernel.conf "\
-# Placeholder file, no vDSO hwcap entries used in this kernel."
-    fi
-    %{__install} -D -m 444 ldconfig-kernel.conf \
-        $RPM_BUILD_ROOT/etc/ld.so.conf.d/kernel-$KernelVer.conf
-%endif
-
-    # And save the headers/makefiles etc for building modules against
-    #
-    # This all looks scary, but the end result is supposed to be:
-    # * all arch relevant include/ files
-    # * all Makefile/Kconfig files
-    # * all script/ files
-
-    rm -f $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    rm -f $RPM_BUILD_ROOT/lib/modules/$KernelVer/source
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    (cd $RPM_BUILD_ROOT/lib/modules/$KernelVer ; ln -s build source)
-    # dirs for additional modules per module-init-tools, kbuild/modules.txt
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KernelVer/extra
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KernelVer/updates
-    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KernelVer/weak-updates
-    # first copy everything
-    cp --parents `find  -type f -name "Makefile*" -o -name "Kconfig*"` $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    cp Module.symvers $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    gzip -c9 Module.symvers >  $RPM_BUILD_ROOT/boot/symvers-$KernelVer.gz
-    cp System.map $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    if [ -s Module.markers ]; then
-      cp Module.markers $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    fi
-    # then drop all but the needed Makefiles/Kconfig files
-    rm -rf $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/Documentation
-    rm -rf $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/scripts
-    rm -rf $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include
-    cp .config $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    if [ -f tools/objtool/objtool ]; then
-      cp -a tools/objtool/objtool $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/tools/objtool/ || :
-    fi
-    cp -a scripts $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-    if [ -d arch/$Arch/scripts ]; then
-      cp -a arch/$Arch/scripts $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/arch/%{_arch} || :
-    fi
-    if [ -f arch/$Arch/*lds ]; then
-      cp -a arch/$Arch/*lds $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/arch/%{_arch}/ || :
-    fi
-    rm -f $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/scripts/*.o
-    rm -f $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/scripts/*/*.o
-    if [ -d arch/%{asmarch}/include ]; then
-      cp -a --parents arch/%{asmarch}/include $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/
-    fi
-    cp -a include $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include
-
-    # newer kernels relocate these from under include/linux to
-    # include/generated.... Maintain compatibility with old(er) code looking
-    # for former files in the formerly valid location
-    pushd  $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include/linux
-    test -s utsrelease.h        || ln -sf ../generated/utsrelease.h .
-    test -s autoconf.h          || ln -sf ../generated/autoconf.h .
-    test -s version.h           || ln -sf ../generated/uapi/linux/version.h .
-    popd
-    # Make sure the Makefile and version.h have a matching timestamp so that
-    # external modules can be built
-    touch -r $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/Makefile $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include/linux/version.h
-    touch -r $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/.config $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include/linux/autoconf.h
-    # Copy .config to include/config/auto.conf so "make prepare" is unnecessary.
-    cp -a $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/.config $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/include/config/auto.conf
-
-%if %{with_debuginfo}
-%if %{fancy_debuginfo}
-    if test -s vmlinux.id; then
-      cp vmlinux.id $RPM_BUILD_ROOT/lib/modules/$KernelVer/build/vmlinux.id
-    else
-      echo >&2 "*** ERROR *** no vmlinux build ID! ***"
-      exit 1
-    fi
-%endif # fancy_debuginfo
-    #
-    # save the vmlinux file for kernel debugging into the kernel-debuginfo rpm
-    #
-    mkdir -p $RPM_BUILD_ROOT%{debuginfodir}/lib/modules/$KernelVer
-    cp vmlinux $RPM_BUILD_ROOT%{debuginfodir}/lib/modules/$KernelVer
-%endif #debuginfo
-
-    find $RPM_BUILD_ROOT/lib/modules/$KernelVer -name "*.ko" -type f >modnames
-
-    # mark modules executable so that strip-to-file can strip them
-    xargs --no-run-if-empty chmod u+x < modnames
-
-    # Generate a list of modules for block and networking.
-
-    grep -F /drivers/ modnames | xargs --no-run-if-empty nm -upA |
-    sed -n 's,^.*/\([^/]*\.ko\):  *U \(.*\)$,\1 \2,p' > drivers.undef
-
-    collect_modules_list()
-    {
-      sed -r -n -e "s/^([^ ]+) \\.?($2)\$/\\1/p" drivers.undef |
-      LC_ALL=C sort -u > $RPM_BUILD_ROOT/lib/modules/$KernelVer/modules.$1
-    }
-
-    collect_modules_list networking \
-                        'register_netdev|ieee80211_register_hw|usbnet_probe|phy_driver_register|rt(l_|2x00)(pci|usb)_probe|register_netdevice'
-    collect_modules_list block \
-                        'ata_scsi_ioctl|scsi_add_host|scsi_add_host_with_dma|blk_init_queue|register_mtd_blktrans|scsi_esp_register|scsi_register_device_handler|blk_queue_physical_block_size'
-    collect_modules_list drm \
-                        'drm_open|drm_init'
-    collect_modules_list modesetting \
-                        'drm_crtc_init'
-
-    # detect missing or incorrect license tags
-    rm -f modinfo
-    while read i
-    do
-      echo -n "${i#$RPM_BUILD_ROOT/lib/modules/$KernelVer/} " >> modinfo
-      %{_sbindir}/modinfo -l $i >> modinfo
-    done < modnames
-
-    grep -E -v \
-    	  'GPL( v2)?$|Dual BSD/GPL$|Dual MPL/GPL$|GPL and additional rights$' \
-	  modinfo && exit 1
-
-    rm -f modinfo modnames
-
-    # Call the modules-extra script to move things around
-    %{SOURCE17} $RPM_BUILD_ROOT/lib/modules/$KernelVer %{SOURCE16}
-
-%if %{signmodules}
-    # Save off the .tmp_versions/ directory.  We'll use it in the
-    # __debug_install_post macro below to sign the right things
-    # Also save the signing keys so we actually sign the modules with the
-    # right key.
-    cp -r .tmp_versions .tmp_versions.sign${Flavour:+.${Flavour}}
-    cp signing_key.priv signing_key.priv.sign${Flavour:+.${Flavour}}
-    cp signing_key.x509 signing_key.x509.sign${Flavour:+.${Flavour}}
-%endif
-
-    # remove files that will be auto generated by depmod at rpm -i time
-    for i in alias alias.bin builtin.bin ccwmap dep dep.bin ieee1394map inputmap isapnpmap ofmap pcimap seriomap symbols symbols.bin usbmap devname softdep
-    do
-      rm -f $RPM_BUILD_ROOT/lib/modules/$KernelVer/modules.$i
-    done
-
-    # Move the devel headers out of the root file system
-    mkdir -p $RPM_BUILD_ROOT/usr/src/kernels
-    mv $RPM_BUILD_ROOT/lib/modules/$KernelVer/build $RPM_BUILD_ROOT/$DevelDir
-    ln -sf ../../..$DevelDir $RPM_BUILD_ROOT/lib/modules/$KernelVer/build
-
-    # prune junk from kernel-devel
-    find $RPM_BUILD_ROOT/usr/src/kernels -name ".*.cmd" -exec rm -f {} \;
-}
-
-###
-# DO it...
-###
-
 # prepare directories
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/boot
 mkdir -p $RPM_BUILD_ROOT%{_libexecdir}
-
-cd linux-%{KVERREL}
-
-%if %{with_debug}
-BuildKernel %make_target %kernel_image debug
-%endif
-
-%if %{with_up}
-BuildKernel %make_target %kernel_image
-%endif
-
-# perf
-%if 0%{?_sys_python:1}
-  perfPYTHON=%{_sys_python}
-%else
-  perfPYTHON=%{_python}
-%endif
-%global perf_make \
-  make %{?_smp_mflags} -C tools/perf -s V=1 EXTRA_CFLAGS="-Wno-error=array-bounds" \\\
-  HAVE_CPLUS_DEMANGLE=1 NO_LIBUNWIND=1 NO_GTK2=1 NO_STRLCPY=1 \\\
-  prefix=%{_prefix} \\\
-  PYTHON=$perfPYTHON \\\
-  PYTHON_INSTALL_LAYOUT="amzn"
-
-%if %{with_perf}
-%{perf_make} all
-%{perf_make} man || %{doc_build_fail}
-%endif
-
-%if %{with_tools}
-%ifarch %{cpupowerarchs}
-# cpupower
-# make sure version-gen.sh is executable.
-chmod +x tools/power/cpupower/utils/version-gen.sh
-make %{?_smp_mflags} -C tools/power/cpupower CPUFREQ_BENCH=false
-%ifarch %{ix86}
-    pushd tools/power/cpupower/debug/i386
-    make %{?_smp_mflags} centrino-decode powernow-k8-decode
-    popd
-%endif # ix86
-%ifarch x86_64
-    pushd tools/power/cpupower/debug/x86_64
-    make %{?_smp_mflags} centrino-decode powernow-k8-decode
-    popd
-%endif # x86_64
-%ifarch %{ix86} x86_64
-   pushd tools/power/x86/x86_energy_perf_policy/
-   make
-   popd
-   pushd tools/power/x86/turbostat
-   make
-   popd
-%endif #turbostat/x86_energy_perf_policy
-%endif # cpupowerarchs
-%endif # tools
-
-%if %{with_doc}
-#
-# Make the HTML documents.
-# Newer kernel versions use ReST markups for documentation which
-# needs to be built using Sphinx. Sphinx toolchain is fragile and any
-# upgrade to its toolchain or dependent python package can cause
-# documentation build to fail. To avoid this problem, documentation
-# build uses one particular version of Sphinx. To build document,
-# we create a virtual environment and install the required version
-# of Sphinx inside it.
-# Refer to $SRC/Documentation/sphinx/requirements.txt for more
-# information related to package and version dependency.
-#
-virtualenv doc_build_env
-source ./doc_build_env/bin/activate
-pip install -r Documentation/sphinx/requirements.txt
-make htmldocs || %{doc_build_fail}
-deactivate
-rm -rf doc_build_env
-
-# Build man pages for the kernel API (section 9)
-scripts/kernel-doc -man $(find . -name '*.[ch]') | %{split_man_cmd} Documentation/output/man
-pushd Documentation/output/man
-gzip *.9
-popd
-
-# sometimes non-world-readable files sneak into the kernel source tree
-chmod -R a=rX Documentation
-find Documentation -type d | xargs chmod u+w
-
-# switch absolute symlinks to relative ones
-find . -lname "$(pwd)*" -exec sh -c 'ln -snvf $(python -c "from os.path import *; print relpath(\"$(readlink {})\",dirname(\"{}\"))") {}' \;
-%endif # with_doc
-
-# In the modsign case, we do 3 things.  1) We check the "flavour" and hard
-# code the value in the following invocations.  This is somewhat sub-optimal
-# but we're doing this inside of an RPM macro and it isn't as easy as it
-# could be because of that.  2) We restore the .tmp_versions/ directory from
-# the one we saved off in BuildKernel above.  This is to make sure we're
-# signing the modules we actually built/installed in that flavour.  3) We
-# grab the arch and invoke mod-sign.sh command to actually sign the modules.
-#
-# We have to do all of those things _after_ find-debuginfo runs, otherwise
-# that will strip the signature off of the modules.
-%define __modsign_install_post \
-  if [ "%{signmodules}" == "1" ]; then \
-    if [ "%{with_debug}" != "0" ]; \
-    then \
-      Arch=`head -1 configs/kernel-%{version}-%{_target_cpu}-debug.config | cut -b 3-` \
-      rm -rf .tmp_versions \
-      mv .tmp_versions.sign.debug .tmp_versions \
-      mv signing_key.priv.sign.debug signing_key.priv \
-      mv signing_key.x509.sign.debug signing_key.x509 \
-      make -s ARCH=$Arch V=1 INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_sign KERNELRELEASE=%{KVERREL}.debug \
-      %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KVERREL}.debug/extra/ \
-    fi \
-  fi \
-%{nil}
-
-###
-### Special hacks for debuginfo subpackages.
-###
-
-# This macro is used by %%install, so we must redefine it before that.
-%define debug_package %{nil}
-
-%if %{with_debuginfo}
-%if %{fancy_debuginfo}
-%define __debug_install_post \
-  /usr/lib/rpm/find-debuginfo.sh %{debuginfo_args} %{_builddir}/%{?buildsubdir}\
-%{nil}
-%endif # fancy_debuginfo
-
-%ifnarch noarch
-%global __debug_package 1
-%files -f debugfiles.list debuginfo-common-%{_target_cpu}
-%defattr(-,root,root)
-%endif # noarch
-
-%endif # debuginfo
-
-#
-# Disgusting hack alert! We need to ensure we sign modules *after* all
-# invocations of strip occur, which is in __debug_install_post if
-# find-debuginfo.sh runs, and __os_install_post if not.
-%define __spec_install_post \
-  %{?__debug_package:%{__debug_install_post}}\
-  %{__arch_install_post}\
-  %{__os_install_post}\
-  %{__modsign_install_post}
 
 ###
 ### install
@@ -1392,97 +772,29 @@ find . -lname "$(pwd)*" -exec sh -c 'ln -snvf $(python -c "from os.path import *
 
 cd linux-%{KVERREL}
 
-%if %{with_doc}
-docdir=$RPM_BUILD_ROOT%{_datadir}/doc/kernel-doc-%{rpmversion}
-man9dir=$RPM_BUILD_ROOT%{_datadir}/man/man9
-
-# copy the source over
-mkdir -p $docdir
-tar -f - --exclude=man --exclude='.*' -c Documentation | tar xf - -C $docdir
-
-# Install man pages for the kernel API.
-mkdir -p $man9dir
-pushd Documentation/output/man
-find -type f -name '*.9.gz' -print0 |
-xargs -0 --no-run-if-empty %{__install} -m 444 -t $man9dir $m
-popd
-ls $man9dir | grep -q '' || > $man9dir/BROKEN
-%endif # with_doc
-
-# We have to do the headers install before the tools install because the
-# kernel headers_install will remove any header files in /usr/include that
-# it doesn't install itself.
-
 %if %{with_headers}
 # Install kernel headers
-make -s ARCH=%{hdrarch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr headers_install
+make -s ARCH=%{hdrarch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT%{_prefix} headers_install
 
 # Do headers_check but don't die if it fails.
-make -s ARCH=%{hdrarch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT/usr headers_check \
+make -s ARCH=%{hdrarch} INSTALL_HDR_PATH=$RPM_BUILD_ROOT%{_prefix} headers_check \
      > hdrwarnings.txt || :
 if grep -q exist hdrwarnings.txt; then
-   sed s:^$RPM_BUILD_ROOT/usr/include/:: hdrwarnings.txt
+   sed s:^$RPM_BUILD_ROOT%{_includedir}/:: hdrwarnings.txt
    # Temporarily cause a build failure if header inconsistencies.
    # exit 1
 fi
 
-find $RPM_BUILD_ROOT/usr/include \
+find $RPM_BUILD_ROOT%{_includedir} \
      \( -name .install -o -name .check -o \
      	-name ..install.cmd -o -name ..check.cmd \) | xargs rm -f
 
 # glibc provides scsi headers for itself, for now
-rm -rf $RPM_BUILD_ROOT/usr/include/scsi
-rm -f $RPM_BUILD_ROOT/usr/include/asm*/atomic.h
-rm -f $RPM_BUILD_ROOT/usr/include/asm*/io.h
-rm -f $RPM_BUILD_ROOT/usr/include/asm*/irq.h
+rm -rf $RPM_BUILD_ROOT%{_includedir}/scsi
+rm -f $RPM_BUILD_ROOT%{_includedir}/asm*/atomic.h
+rm -f $RPM_BUILD_ROOT%{_includedir}/asm*/io.h
+rm -f $RPM_BUILD_ROOT%{_includedir}/asm*/irq.h
 %endif
-
-%if %{with_perf}
-# perf tool binary and supporting scripts/binaries
-%{perf_make} DESTDIR=$RPM_BUILD_ROOT install
-# python-perf extension
-%{perf_make} DESTDIR=$RPM_BUILD_ROOT install-python_ext
-# perf man pages (note: implicit rpm magic compresses them later)
-%{perf_make} DESTDIR=$RPM_BUILD_ROOT install-man || %{doc_build_fail}
-# clean up files we don't use
-rm -f $RPM_BUILD_ROOT/etc/bash_completion.d/perf
-%endif
-
-%if %{with_tools}
-%ifarch %{cpupowerarchs}
-make -C tools/power/cpupower DESTDIR=$RPM_BUILD_ROOT libdir=%{_libdir} mandir=%{_mandir} CPUFREQ_BENCH=false install
-rm -f %{buildroot}%{_libdir}/*.{a,la}
-%find_lang cpupower
-mv cpupower.lang ../
-%ifarch %{ix86}
-    pushd tools/power/cpupower/debug/i386
-    install -m755 centrino-decode %{buildroot}%{_bindir}/centrino-decode
-    install -m755 powernow-k8-decode %{buildroot}%{_bindir}/powernow-k8-decode
-    popd
-%endif
-%ifarch x86_64
-    pushd tools/power/cpupower/debug/x86_64
-    install -m755 centrino-decode %{buildroot}%{_bindir}/centrino-decode
-    install -m755 powernow-k8-decode %{buildroot}%{_bindir}/powernow-k8-decode
-    popd
-%endif
-%ifarch %{ix86} x86_64
-   mkdir -p %{buildroot}%{_mandir}/man8
-   pushd tools/power/x86/x86_energy_perf_policy
-   make DESTDIR=%{buildroot} install
-   popd
-   pushd tools/power/x86/turbostat
-   make DESTDIR=%{buildroot} install
-   popd
-%endif #turbostat/x86_energy_perf_policy
-chmod 0755 %{buildroot}%{_libdir}/libcpupower.so*
-mkdir -p %{buildroot}%{_initddir} %{buildroot}%{_sysconfdir}/sysconfig
-#install -m644 %{SOURCE2000} %{buildroot}%{_initddir}/cpupower
-install -m644 %{SOURCE2001} %{buildroot}%{_sysconfdir}/sysconfig/cpupower
-%endif # cpupowerarchs
-# just in case so the files list won't croak
-touch ../cpupower.lang
-%endif # tools
 
 
 ###
@@ -1493,225 +805,17 @@ touch ../cpupower.lang
 rm -rf $RPM_BUILD_ROOT
 
 ###
-### scripts
-###
-
-%if %{with_tools}
-%post tools
-/sbin/ldconfig
-
-%postun tools
-/sbin/ldconfig
-%endif
-
-#
-# This macro defines a %%post script for a kernel*-devel package.
-#	%%kernel_devel_post [<subpackage>]
-#
-%define kernel_devel_post() \
-%{expand:%%post %{?1:%{1}-}devel}\
-if [ -f /etc/sysconfig/kernel ]\
-then\
-    . /etc/sysconfig/kernel || exit $?\
-fi\
-if [ "$HARDLINK" != "no" -a -x /usr/sbin/hardlink ]\
-then\
-    (cd /usr/src/kernels/%{KVERREL}%{?1:.%{1}} &&\
-     /usr/bin/find . -type f | while read f; do\
-       hardlink -c /usr/src/kernels/*.%{dist}.*/$f $f\
-     done)\
-fi\
-%{nil}
-
-# This macro defines a %%posttrans script for a kernel package.
-#	%%kernel_variant_posttrans [<subpackage>]
-# More text can follow to go at the end of this variant's %%post.
-#
-%define kernel_variant_posttrans() \
-%{expand:%%posttrans %{?1}}\
-%{expand:\
-%if %{with_dracut}\
-/sbin/new-kernel-pkg --package kernel%{?1:-%{1}} --mkinitrd --make-default --dracut --depmod --install %{KVERREL}%{?1:-%{1}} || exit $?\
-%else\
-/sbin/new-kernel-pkg --package kernel%{?1:-%{1}} --mkinitrd --make-default --depmod --install %{KVERREL}%{?1:-%{1}} || exit $?\
-%endif\
-}\
-/sbin/new-kernel-pkg --package kernel%{?1:-%{1}} --rpmposttrans %{KVERREL}%{?1:.%{1}} || exit $?\
-%{nil}
-
-#
-# This macro defines a %%post script for a kernel package and its devel package.
-#	%%kernel_variant_post [-v <subpackage>] [-r <replace>]
-# More text can follow to go at the end of this variant's %%post.
-#
-%define kernel_variant_post(v:r:) \
-%{expand:%%kernel_devel_post %{?-v*}}\
-%{expand:%%kernel_variant_posttrans %{?-v*}}\
-%{expand:%%post %{?-v*}}\
-%{-r:\
-if [ `uname -i` == "x86_64" -o `uname -i` == "i386" ] &&\
-   [ -f /etc/sysconfig/kernel ]; then\
-  /bin/sed -r -i -e 's/^DEFAULTKERNEL=%{-r*}$/DEFAULTKERNEL=kernel%{?-v:-%{-v*}}/' /etc/sysconfig/kernel || exit $?\
-fi}\
-%{nil}
-
-#
-# This macro defines a %%preun script for a kernel package.
-#	%%kernel_variant_preun <subpackage>
-#
-%define kernel_variant_preun() \
-%{expand:%%preun %{?1}}\
-/sbin/new-kernel-pkg --rminitrd --rmmoddep --remove %{KVERREL}%{?1:.%{1}} || exit $?\
-%{nil}
-
-%kernel_variant_preun
-%kernel_variant_post
-
-%kernel_variant_preun debug
-%kernel_variant_post -v debug
-
-if [ -x /sbin/ldconfig ]
-then
-    /sbin/ldconfig -X || exit $?
-fi
-
-###
 ### file lists
 ###
 
-%if %{with_headers}
 %files headers
 %defattr(-,root,root)
-/usr/include/*
-%endif
-
-# only some architecture builds need kernel-doc
-%if %{with_doc}
-%files doc
-%defattr(-,root,root)
-%{_datadir}/doc/kernel-doc-%{rpmversion}/Documentation/*
-%dir %{_datadir}/doc/kernel-doc-%{rpmversion}/Documentation
-%dir %{_datadir}/doc/kernel-doc-%{rpmversion}
-%{_datadir}/man/man9/*
-%endif
-
-%if %{with_perf}
-%files -n perf
-%defattr(-,root,root)
-%{_bindir}/perf
-%{_bindir}/trace
-%dir %{_libexecdir}/perf-core
-%{_libexecdir}/perf-core/*
-%{_datadir}/perf-core/*
-%{_datadir}/doc/perf*/*
-%dir %{_libdir}/traceevent/plugins
-%{_libdir}/traceevent/plugins/*
-%{_mandir}/man[1-8]/perf*
-%doc linux-%{KVERREL}/tools/perf/Documentation/examples.txt
-%if 0%{?_sys_python_sitearch:1}
-%{_sys_python_sitearch}/*
-%else
-%{_python_sitearch}/*
-%endif
-
-%if %{with_debuginfo}
-%files -f perf-debuginfo.list -n perf-debuginfo
-%defattr(-,root,root)
-%endif
-%endif # with_perf
-
-%if %{with_tools}
-%files tools -f cpupower.lang
-%defattr(-,root,root)
-%{_mandir}/man[1-8]/cpupower*
-%{_bindir}/cpupower
-%ifarch %{ix86} x86_64
-%{_bindir}/centrino-decode
-%{_bindir}/powernow-k8-decode
-%{_bindir}/x86_energy_perf_policy
-%{_mandir}/man8/x86_energy_perf_policy*
-%{_bindir}/turbostat
-%{_mandir}/man8/turbostat*
-%endif
-%{_libdir}/libcpupower.so.0
-%{_libdir}/libcpupower.so.0.0.1
-#%{_initddir}/cpupower
-%config(noreplace) %{_sysconfdir}/sysconfig/cpupower
-
-%if %{with_debuginfo}
-%files tools-debuginfo -f kernel-tools-debuginfo.list
-%defattr(-,root,root)
-%endif
-
-%ifarch %{cpupowerarchs}
-%files tools-devel
-%{_libdir}/libcpupower.so
-%{_includedir}/cpufreq.h
-%endif
-%endif # with_tools
-
-# This is %%{image_install_path} on an arch where that includes ELF files,
-# or empty otherwise.
-%define elf_image_install_path %{?kernel_image_elf:%{image_install_path}}
-
-#
-# This macro defines the %%files sections for a kernel package
-# and its devel and debuginfo packages.
-#	%%kernel_variant_files [-k vmlinux] <condition> <subpackage>
-#
-%define kernel_variant_files(k:) \
-%if %{1}\
-%{expand:%%files %{?2}}\
-%defattr(-,root,root)\
-/%{image_install_path}/%{?-k:%{-k*}}%{!?-k:vmlinuz}-%{KVERREL}%{?2:.%{2}}\
-%attr(600,root,root) /boot/System.map-%{KVERREL}%{?2:.%{2}}\
-/boot/symvers-%{KVERREL}%{?2:.%{2}}.gz\
-/boot/config-%{KVERREL}%{?2:.%{2}}\
-%dir /lib/modules/%{KVERREL}%{?2:.%{2}}\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/kernel\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/build\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/source\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/extra\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/updates\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/weak-updates\
-%ifarch %{vdso_arches}\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/vdso\
-/etc/ld.so.conf.d/kernel-%{KVERREL}%{?2:.%{2}}.conf\
-%endif\
-/lib/modules/%{KVERREL}%{?2:.%{2}}/modules.*\
-%if %{with_dracut}\
-%ghost /boot/initramfs-%{KVERREL}%{?2:.%{2}}.img\
-%else\
-%ghost /boot/initrd-%{KVERREL}%{?2:.%{2}}.img\
-%endif\
-%{expand:%%files %{?2:%{2}-}devel}\
-%defattr(-,root,root)\
-%verify(not mtime) /usr/src/kernels/%{KVERREL}%{?2:.%{2}}\
-%dir /usr/src/kernels\
-%if %{with_debuginfo}\
-%ifnarch noarch\
-%if %{fancy_debuginfo}\
-%{expand:%%files -f debuginfo%{?2}.list %{?2:%{2}-}debuginfo}\
-%else\
-%{expand:%%files %{?2:%{2}-}debuginfo}\
-%endif\
-%defattr(-,root,root)\
-%if !%{fancy_debuginfo}\
-%if "%{elf_image_install_path}" != ""\
-%{debuginfodir}/%{elf_image_install_path}/*-%{KVERREL}%{?2:.%{2}}.debug\
-%endif\
-%{debuginfodir}/lib/modules/%{KVERREL}%{?2:.%{2}}\
-%{debuginfodir}/usr/src/kernels/%{KVERREL}%{?2:.%{2}}\
-%endif\
-%endif\
-%endif\
-%endif\
-%{nil}
-
-%kernel_variant_files %{with_up}
-%kernel_variant_files %{with_debug} debug
+%{_includedir}/*
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Sep 24 2019 Builder <builder@amazon.com>
 - builder/acc6f0011823f63f596280321c28e10254db635a last changes:
   + [acc6f00] [2019-09-23] Rebase to v4.14.146 (linuxci@amazon.com)
@@ -1839,5 +943,3 @@ fi
   + [76b35c50c6e7] [2016-01-26] bump the default TTL to 255 (kamatam@amazon.com)
   + [7f927f4d52cf] [2012-02-10] scsi: sd_revalidate_disk prevent NULL ptr deref (kernel-team@fedoraproject.org)
   + [aae515c4670d] [2008-10-06] kbuild: AFTER_LINK (roland@redhat.com)
-
-
