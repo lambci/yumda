@@ -18,20 +18,12 @@ BuildRequires: gawk
 BuildRequires: libgpg-error-devel >= 1.8
 BuildRequires: libgcrypt-devel >= 1.2.0
 
+Prefix: %{_prefix}
+
 %description
 KSBA (pronounced Kasbah) is a library to make X.509 certificates as
 well as the CMS easily accessible by other applications.  Both
 specifications are building blocks of S/MIME and TLS.
-
-%package devel
-Summary: Development headers and libraries for %{name}
-Group:   Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-%description devel
-%{summary}.
-
 
 %prep
 %setup -q
@@ -56,42 +48,25 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.la
 
 
-%check
-make check
-
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post devel
-install-info %{_infodir}/ksba.info %{_infodir}/dir ||:
-
-%preun devel
-if [ $1 -eq 0 ]; then
-  install-info --delete %{_infodir}/ksba.info %{_infodir}/dir ||:
-fi
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING* NEWS README* THANKS TODO VERSION
+%license COPYING*
 %{_libdir}/libksba.so.8*
 
-%files devel
-%defattr(-,root,root,-)
-%{_bindir}/ksba-config
-%{_libdir}/libksba.so
-%{_includedir}/ksba.h
-%{_datadir}/aclocal/ksba.m4
-%{_infodir}/ksba.info*
-
+%exclude %{_bindir}/ksba-config
+%exclude %{_libdir}/libksba.so
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_infodir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.3.0-5
 - Mass rebuild 2014-01-24
 
