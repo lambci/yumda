@@ -60,6 +60,8 @@ Provides: /bin/cpio
 BuildRequires: texinfo, autoconf, automake, gettext, rmt
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+Prefix: %{_prefix}
+
 %description
 GNU cpio copies files into or out of a cpio or tar archive.  Archives
 are files which contain a collection of other files plus information
@@ -113,35 +115,21 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/*.1*
 install -c -p -m 0644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_mandir}/man1
 
-%find_lang %{name}
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
-%check
-rm -f ${RPM_BUILD_ROOT}/test/testsuite
-make check
-
-
-%post
-if [ -f %{_infodir}/cpio.info.gz ]; then
-	/sbin/install-info %{_infodir}/cpio.info.gz %{_infodir}/dir || :
-fi
-
-%preun
-if [ $1 = 0 ]; then
-	if [ -f %{_infodir}/cpio.info.gz ]; then
-		/sbin/install-info --delete %{_infodir}/cpio.info.gz %{_infodir}/dir || :
-	fi
-fi
-
-%files -f %{name}.lang
-%doc AUTHORS ChangeLog NEWS README THANKS TODO COPYING
+%files
+%license COPYING
 %{_bindir}/*
-%{_mandir}/man*/*
-%{_infodir}/*.info*
+
+%exclude %{_mandir}
+%exclude %{_infodir}
+%exclude %{_datadir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Feb 06 2017 Pavel Raiskup <praiskup@redhat.com> - 2.11-27
 - don't segfault during recovery (rhbz#1318084)
 
