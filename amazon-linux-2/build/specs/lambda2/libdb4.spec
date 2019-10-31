@@ -31,6 +31,8 @@ BuildRequires: tcl-devel%{?_isa} >= 8.5.2-3
 BuildRequires: chrpath
 BuildRequires: java-devel >= 1:1.6.0
 
+Prefix: %{_prefix}
+
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that
 provides embedded database support for both traditional and
@@ -47,42 +49,11 @@ Group: Applications/Databases
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Obsoletes: db4-utils < 5.0.0
 Provides: db4-utils = %{version}
+Prefix: %{_prefix}
 
 %description utils
 This package contains command-line tools for managing Berkeley DB (version
 4) databases.
-
-%package devel
-Summary: C development files for the Berkeley DB (version 4) library
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Obsoletes: db4-devel < 5.0.0
-Provides: db4-devel = %{version}
-
-%description devel
-This package contains the header files and libraries for building C
-programs which use the Berkeley DB.
-
-%package doc
-Summary: Documentation for the Berkeley DB
-Group: Documentation
-BuildArch: noarch
-Obsoletes: db4-devel-doc < 5.0.0
-Provides: db4-devel-doc = %{version}
-
-%description doc
-This package includes documentation files for the Berkeley DB database.
-
-%package devel-static
-Summary: Berkeley DB (version 4) static libraries
-Group: Development/Libraries
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
-Obsoletes: db4-devel-static < 5.0.0
-Provides: db4-devel-static = %{version}
-
-%description devel-static
-This package contains static libraries needed for applications that
-require static linking of Berkeley DB.
 
 %package cxx
 Summary: The Berkeley DB database library (version 4) for C++
@@ -90,65 +61,10 @@ Group: System Environment/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Obsoletes: db4-cxx < 5.0.0
 Provides: db4-cxx = %{version}
+Prefix: %{_prefix}
 
 %description cxx
 This package contains the C++ version of the Berkeley DB library (v4).
-
-%package cxx-devel
-Summary: C++ development files for the Berkeley DB database library (version 4)
-Group: Development/Libraries
-Requires: %{name}-cxx%{?_isa} = %{version}-%{release}
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
-Obsoletes: db4-cxx-devel < 5.0.0
-Provides: db4-cxx-devel = %{version}
-
-%description cxx-devel
-This package contains the header files and libraries for building C++
-programs which use the Berkeley DB.
-
-%package tcl
-Summary: Development files for using the Berkeley DB (version 4) with tcl
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Obsoletes: db4-tcl < 5.0.0
-Provides: db4-tcl = %{version}
-
-%description tcl
-This package contains the libraries for building programs which use the
-Berkeley DB in Tcl.
-
-%package tcl-devel
-Summary: Development files for using the Berkeley DB (version 4) with tcl
-Group: Development/Libraries
-Requires: %{name}-tcl%{?_isa} = %{version}-%{release}
-Obsoletes: db4-tcl-devel < 5.0.0
-Provides: db4-tcl-devel = %{version}
-
-%description tcl-devel
-This package contains the libraries for building programs which use the
-Berkeley DB in Tcl.
-
-%package java
-Summary: Development files for using the Berkeley DB (version 4) with Java
-Group: System Environment/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Obsoletes: db4-java < 5.0.0
-Provides: db4-java = %{version}
-
-%description java
-This package contains the libraries for building programs which use the
-Berkeley DB in Java.
-
-%package java-devel
-Summary: Development files for using the Berkeley DB (version 4) with Java
-Group: Development/Libraries
-Requires: %{name}-java%{?_isa} = %{version}-%{release}
-Obsoletes: db4-java-devel < 5.0.0
-Provides: db4-java-devel = %{version}
-
-%description java-devel
-This package contains the libraries for building programs which use the
-Berkeley DB in Java.
 
 %prep
 %setup -q -n db-%{version} -a 1
@@ -167,35 +83,6 @@ popd
 %patch22 -p1 -b .4.5.20.jni
 %patch23 -p1 -b .quotas-segfault
 %patch24 -p1 -b .format-security
-
-# Fix HREF references in the docs which would otherwise break when we split the docs up into subpackages.
-set +x
-for doc in `find . -name "*.html"`; do
-	chmod u+w ${doc}
-	sed	-e 's,="../api_c/,="../../%{name}-devel-%{version}/api_c/,g' \
-		-e 's,="api_c/,="../%{name}-devel-%{version}/api_c/,g' \
-		-e 's,="../api_cxx/,="../../%{name}-devel-%{version}/api_cxx/,g' \
-		-e 's,="api_cxx/,="../%{name}-devel-%{version}/api_cxx/,g' \
-		-e 's,="../api_tcl/,="../../%{name}-devel-%{version}/api_tcl/,g' \
-		-e 's,="api_tcl/,="../%{name}-devel-%{version}/api_tcl/,g' \
-		-e 's,="../java/,="../../%{name}-devel-%{version}/java/,g' \
-		-e 's,="java/,="../%{name}-devel-%{version}/java/,g' \
-		-e 's,="../examples_c/,="../../%{name}-devel-%{version}/examples_c/,g' \
-		-e 's,="examples_c/,="../%{name}-devel-%{version}/examples_c/,g' \
-		-e 's,="../examples_cxx/,="../../%{name}-devel-%{version}/examples_cxx/,g' \
-		-e 's,="examples_cxx/,="../%{name}-devel-%{version}/examples_cxx/,g' \
-		-e 's,="../ref/,="../../%{name}-devel-%{version}/ref/,g' \
-		-e 's,="ref/,="../%{name}-devel-%{version}/ref/,g' \
-		-e 's,="../images/,="../../%{name}-devel-%{version}/images/,g' \
-		-e 's,="images/,="../%{name}-devel-%{version}/images/,g' \
-		-e 's,="../utility/,="../../%{name}-utils-%{version}/utility/,g' \
-		-e 's,="utility/,="../%{name}-utils-%{version}/utility/,g' ${doc} > ${doc}.new
-	touch -r ${doc} ${doc}.new
-	cat ${doc}.new > ${doc}
-	touch -r ${doc}.new ${doc}
-	rm -f ${doc}.new
-done
-set -x
 
 cd dist
 ./s_config
@@ -219,13 +106,12 @@ pushd dist/dist-tls
 ln -sf ../configure .
 %configure -C \
 	--enable-compat185 --enable-dump185 \
-	--enable-shared --enable-static \
-	--enable-tcl --with-tcl=%{_libdir} \
+	--enable-shared --disable-static \
+	--disable-tcl \
 	--enable-cxx \
-	--enable-java \
-	--enable-test \
-	--disable-rpath \
-	--with-tcl=%{_libdir}/tcl8.5
+	--disable-java \
+	--disable-test \
+	--disable-rpath
 
 # Remove libtool predep_objects and postdep_objects wonkiness so that
 # building without -nostdlib doesn't include them twice.  Because we
@@ -236,12 +122,6 @@ perl -pi -e 's/^postdep_objects=".*$/postdep_objects=""/' libtool
 perl -pi -e 's/-shared -nostdlib/-shared/' libtool
 
 make %{?_smp_mflags}
-
-# XXX hack around libtool not creating ./libs/libdb_java-X.Y.lai
-LDBJ=./.libs/libdb_java-%{__soversion}.la
-if test -f ${LDBJ} -a ! -f ${LDBJ}i; then
-	sed -e 's,^installed=no,installed=yes,' < ${LDBJ} > ${LDBJ}i
-fi
 
 popd
 
@@ -256,19 +136,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_libdir}
 rm -f ${RPM_BUILD_ROOT}%{_libdir}/{libdb.a,libdb_cxx.a}
 
 chmod +x ${RPM_BUILD_ROOT}%{_libdir}/*.so*
-
-# Move the header files to a subdirectory, in case we're deploying on a
-# system with multiple versions of DB installed.
-mkdir -p ${RPM_BUILD_ROOT}%{_includedir}/%{name}
-mv ${RPM_BUILD_ROOT}%{_includedir}/*.h ${RPM_BUILD_ROOT}%{_includedir}/%{name}
-
-# Move java jar file to the correct place
-# Rename java jar file to fix conflict with libdb (#800359)
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/java
-mv ${RPM_BUILD_ROOT}%{_libdir}/*.jar ${RPM_BUILD_ROOT}%{_datadir}/java
-pushd ${RPM_BUILD_ROOT}%{_datadir}/java
-mv db.jar db4.jar
-popd
 
 # Eliminate installed doco
 rm -rf ${RPM_BUILD_ROOT}%{_prefix}/docs
@@ -295,7 +162,7 @@ popd
 # with libdb-devel (#839508)
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/%{name}
 pushd ${RPM_BUILD_ROOT}%{_libdir}/%{name}
-for i in libdb libdb_cxx libdb_tcl libdb_java; do
+for i in libdb libdb_cxx; do
   rm -f ${RPM_BUILD_ROOT}%{_libdir}/$i.so
   ln -s ../$i-%{__soversion}.so $i.so
 done
@@ -304,46 +171,11 @@ popd
 # remove RPATHs
 chrpath -d ${RPM_BUILD_ROOT}%{_libdir}/*.so ${RPM_BUILD_ROOT}%{_bindir}/*
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post -p /sbin/ldconfig cxx
-
-%postun -p /sbin/ldconfig cxx
-
-%post -p /sbin/ldconfig tcl
-
-%postun -p /sbin/ldconfig tcl
-
-%post -p /sbin/ldconfig java
-
-%postun -p /sbin/ldconfig java
-
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README
+%license LICENSE
 %{_libdir}/libdb-%{__soversion}.so
 %{_libdir}/libdb-%{__soversion_major}.so
-
-%files devel
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/libdb.so
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/db.h
-%{_includedir}/%{name}/db_185.h
-
-%files doc
-%defattr(-,root,root,-)
-%doc docs/*
-%doc examples_c examples_cxx examples_java
-
-%files devel-static
-%defattr(-,root,root,-)
-%{_libdir}/libdb-%{__soversion}.a
-%{_libdir}/libdb_cxx-%{__soversion}.a
-%{_libdir}/libdb_tcl-%{__soversion}.a
-%{_libdir}/libdb_java-%{__soversion}.a
 
 %files utils
 %defattr(-,root,root,-)
@@ -365,31 +197,14 @@ chrpath -d ${RPM_BUILD_ROOT}%{_libdir}/*.so ${RPM_BUILD_ROOT}%{_bindir}/*
 %{_libdir}/libdb_cxx-%{__soversion}.so
 %{_libdir}/libdb_cxx-%{__soversion_major}.so
 
-%files cxx-devel
-%defattr(-,root,root,-)
-%{_includedir}/%{name}/db_cxx.h
-%{_libdir}/%{name}/libdb_cxx.so
-
-%files tcl
-%defattr(-,root,root,-)
-%{_libdir}/libdb_tcl-%{__soversion}.so
-%{_libdir}/libdb_tcl-%{__soversion_major}.so
-
-%files tcl-devel
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/libdb_tcl.so
-
-%files java
-%defattr(-,root,root,-)
-%{_libdir}/libdb_java-%{__soversion}*.so
-%{_libdir}/libdb_java-%{__soversion_major}*.so
-%{_datadir}/java/*.jar
-
-%files java-devel
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/libdb_java.so
+%exclude %{_includedir}
+%exclude %{_libdir}/%{name}/libdb.so
+%exclude %{_libdir}/%{name}/libdb_cxx.so
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Dec 03 2013 Jan Stanek <jstanek@redhat.com> - 4.8.30-13
 - Adjusted for -Werror=format-security gcc flag.
 
