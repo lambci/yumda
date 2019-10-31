@@ -23,6 +23,8 @@ BuildRequires: freetype-devel, fontconfig-devel, libX11-devel, libXpm-devel
 BuildRequires: libjpeg-devel, libpng-devel, zlib-devel, pkgconfig
 BuildRequires: libtool, automake, automake19, autoconf, gettext-devel
 
+Prefix: %{_prefix}
+
 %description
 The gd graphics library allows your code to quickly draw images
 complete with lines, arcs, text, multiple colors, cut and paste from
@@ -37,22 +39,12 @@ Requires:       gd = %{version}-%{release}
 Summary:        Utility programs that use libgd
 Group:          Applications/Multimedia
 
+Prefix: %{_prefix}
+
 %description progs
 The gd-progs package includes utility programs supplied with gd, a
 graphics library for creating PNG and JPEG images. 
 
-
-%package devel
-Summary:  The development libraries and header files for gd
-Group:    Development/Libraries
-Requires: gd = %{version}-%{release}
-Requires: libX11-devel, libXpm-devel, libjpeg-devel, freetype-devel
-Requires: libpng-devel, zlib-devel, fontconfig-devel
-Requires: pkgconfig
-
-%description devel
-The gd-devel package contains the development libraries and header
-files for gd, a graphics library for creating PNG and JPEG graphics.
 
 %prep
 %setup -q
@@ -79,36 +71,28 @@ rm -rf $RPM_BUILD_ROOT
 make install INSTALL='install -p' DESTDIR=$RPM_BUILD_ROOT 
 rm $RPM_BUILD_ROOT/%{_libdir}/libgd.la
 rm $RPM_BUILD_ROOT/%{_libdir}/libgd.a
-install -m 755 -d $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
-install config/gdlib.pc $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING README-JPEG.TXT index.html NEWS
+%license COPYING
 %{_libdir}/*.so.*
 
 %files progs
 %defattr(-,root,root,-)
 %{_bindir}/*
-%exclude %{_bindir}/gdlib-config
 
-%files devel
-%defattr(-,root,root,-)
-%doc index.html
-%{_bindir}/gdlib-config
-%{_includedir}/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/gdlib.pc
+%exclude %{_bindir}/gdlib-config
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Sep 21 2012 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL6/gd-2.0.35-11.el6
 

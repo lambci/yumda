@@ -8,6 +8,8 @@ fipscheck-lib.x86_64                 1.3.1-3.13.lambda1                  lambda1
 gcc72.x86_64                         7.2.1-2.59.lambda1                  lambda1
 gcc72-c++.x86_64                     7.2.1-2.59.lambda1                  lambda1
 gcc72-gdb-plugin.x86_64              7.2.1-2.59.lambda1                  lambda1
+gd.x86_64                            2.0.35-11.10.lambda1                lambda1
+gd-progs.x86_64                      2.0.35-11.10.lambda1                lambda1
 ghostscript.x86_64                   8.70-24.26.lambda1                  lambda1
 git.x86_64                           2.23.0-1.lambda1                    lambda1
 glibc-devel.x86_64                   2.17-260.175.lambda1                lambda1
