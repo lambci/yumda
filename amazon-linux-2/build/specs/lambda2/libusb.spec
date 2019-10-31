@@ -13,72 +13,44 @@ Patch0: libusb-config-multilib.patch
 
 BuildRequires: libusb1-devel
 
+Prefix: %{_prefix}
+
 %description
 This package provides a way for applications to access USB devices.
 Legacy libusb-0.1 is no longer supported by upstream, therefore content of this
 package was replaced by libusb-compat. It provides compatibility layer allowing
 applications written for libusb-0.1 to work with libusb-1.0.
 
-%package devel
-Summary: Development files for libusb
-Group: Development/Libraries
-Requires: %{name} = %{epoch}:%{version}-%{release}
-Requires: pkgconfig
-
-%description devel
-This package contains the header files, libraries and documentation needed to
-develop applications that use libusb-0.1. However new applications should use
-libusb-1.0 library instead of this one.
-
-%package static
-Summary: Static development files for libusb
-Group: Development/Libraries
-Requires: %{name}-devel = %{epoch}:%{version}-%{release}
-
-%description static
-This package contains static libraries needed to develop applications that use
-libusb-0.1. However new applications should use libusb-1.0 library instead of
-this one.
-
 %prep
 %setup -q -n libusb-compat-%{version}
 %patch0 -p1 -b .config-multilib
 
 %build
-%configure --libdir=/%{_lib}
+%configure --disable-static
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
-rm -f %{buildroot}/%{_lib}/libusb.la
-
-mkdir -p %{buildroot}%{_libdir}/pkgconfig
-mv %{buildroot}/%{_lib}/pkgconfig/* %{buildroot}%{_libdir}/pkgconfig/
+rm -f %{buildroot}%{_libdir}/libusb.la
 
 %clean
 rm -rf %{buildroot}
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-/%{_lib}/libusb-0.1.so.*
+%license COPYING
+%{_libdir}/libusb-0.1.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README
-%{_includedir}/usb.h
-/%{_lib}/libusb.so
-%{_libdir}/pkgconfig/libusb.pc
-%{_bindir}/libusb-config
-
-%files static
-%defattr(-,root,root,-)
-/%{_lib}/libusb.a
+%exclude %{_includedir}/usb.h
+%exclude %{_libdir}/libusb.so
+%exclude %{_libdir}/pkgconfig/libusb.pc
+%exclude %{_bindir}/libusb-config
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1:0.1.4-3
 - Mass rebuild 2014-01-24
 
