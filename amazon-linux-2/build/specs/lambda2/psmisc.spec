@@ -30,6 +30,7 @@ BuildRequires: gettext
 BuildRequires: ncurses-devel
 BuildRequires: autoconf automake
 
+Prefix: %{_prefix}
 
 %description
 The psmisc package contains utilities for managing processes on your
@@ -60,30 +61,22 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR="$RPM_BUILD_ROOT"
 
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-mv $RPM_BUILD_ROOT%{_bindir}/fuser $RPM_BUILD_ROOT%{_sbindir}
-
-%find_lang %name
-
-%files -f %{name}.lang
-%{_sbindir}/fuser
+%files
+%license COPYING
+%{_bindir}/fuser
 %{_bindir}/killall
 %{_bindir}/pstree
 %{_bindir}/pstree.x11
 %{_bindir}/prtstat
-%{_mandir}/man1/fuser.1*
-%{_mandir}/man1/killall.1*
-%{_mandir}/man1/pstree.1*
-%{_mandir}/man1/prtstat.1*
-%ifarch %{ix86} x86_64 ppc %{power64} %{arm} mipsel
 %{_bindir}/peekfd
-%{_mandir}/man1/peekfd.1*
-%else
-%exclude %{_mandir}/man1/peekfd.1*
-%endif
-%doc AUTHORS ChangeLog COPYING README
+
+%exclude %{_mandir}
+%exclude %{_localedir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Mar 29 2017 Jan Rybar <jrybar@redhat.com> 22.20-15
 - peekfd: manpage and usage screen correction - long options
 - Resolves: rhbz#1413632
