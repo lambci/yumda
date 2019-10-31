@@ -41,8 +41,6 @@ BuildRequires: pth-devel
 BuildRequires: readline-devel ncurses-devel
 BuildRequires: zlib-devel
 
-Requires(post): /sbin/install-info
-Requires(postun): /sbin/install-info
 Requires: pinentry
 
 %if 0%{?rhel} > 5
@@ -53,11 +51,7 @@ Provides: gnupg = %{version}-%{release}
 Obsoletes: gnupg <= 1.4.10
 %endif
 
-%package smime
-Summary: CMS encryption and signing tool and smart card support for GnuPG
-Requires: gnupg2 = %{version}-%{release}
-Group: Applications/Internet
-
+Prefix: %{_prefix}
 
 %description
 GnuPG is GNU's tool for secure communication and data storage.  It can
@@ -70,6 +64,12 @@ GnuPG 2.0 is a newer version of GnuPG with additional support for
 S/MIME.  It has a different design philosophy that splits
 functionality up into several modules. The S/MIME and smartcard functionality
 is provided by the gnupg2-smime package.
+
+%package smime
+Summary: CMS encryption and signing tool and smart card support for GnuPG
+Requires: gnupg2 = %{version}-%{release}
+Group: Applications/Internet
+Prefix: %{_prefix}
 
 %description smime
 GnuPG is GNU's tool for secure communication and data storage. This
@@ -106,66 +106,27 @@ sed -i -e 's/"libpcsclite\.so"/"%{pcsclib}"/' scd/{scdaemon,pcsc-wrapper}.c
   --disable-rpath \
   --enable-standard-socket
 
-# need scratch gpg database for tests
-mkdir -p $HOME/.gnupg
-
 make %{?_smp_mflags}
 
 
 %install
 make install DESTDIR=%{buildroot} \
-  INSTALL="install -p" \
-  docdir=%{_docdir}/%{name}-%{version}
-
-%if ! (0%{?rhel} > 5)
-# drop file conflicting with gnupg-1.x
-rm -f %{buildroot}%{_mandir}/man1/gpg-zip.1*
-%endif
-
-%find_lang %{name}
+  INSTALL="install -p"
 
 # gpgconf.conf
 mkdir -p %{buildroot}%{_sysconfdir}/gnupg
 touch %{buildroot}%{_sysconfdir}/gnupg/gpgconf.conf
 
-# more docs
-install -m644 -p AUTHORS COPYING ChangeLog NEWS THANKS TODO \
-  %{buildroot}%{_docdir}/%{name}-%{version}/
-
 %if 0%{?rhel} > 5
 # compat symlinks
 ln -sf gpg2 %{buildroot}%{_bindir}/gpg
 ln -sf gpgv2 %{buildroot}%{_bindir}/gpgv
-ln -sf gpg2.1 %{buildroot}%{_mandir}/man1/gpg.1
-ln -sf gpgv2.1 %{buildroot}%{_mandir}/man1/gpgv.1
 %endif
 
-# info dir
-rm -f %{buildroot}%{_infodir}/dir
 
-
-%check
-# need scratch gpg database for tests
-mkdir -p $HOME/.gnupg
-# we skip the test on ppc as it hangs and we do not ship gnupg2
-# as multilib anyway
-%ifnarch ppc
-make -k check
-%endif
-
-%post
-/sbin/install-info %{_infodir}/gnupg.info %{_infodir}/dir ||:
-
-%preun
-if [ $1 -eq 0 ]; then
-  /sbin/install-info --delete %{_infodir}/gnupg.info %{_infodir}/dir ||:
-fi
-
-
-%files -f %{name}.lang
+%files
 %defattr(-,root,root,-)
-#doc AUTHORS COPYING ChangeLog NEWS README THANKS TODO
-%{_docdir}/%{name}-%{version}/
+%license COPYING
 %dir %{_sysconfdir}/gnupg
 %ghost %config(noreplace) %{_sysconfdir}/gnupg/gpgconf.conf
 ## docs say to install suid root, but fedora/rh security folk say not to
@@ -188,11 +149,7 @@ fi
 %{_sbindir}/*
 %{_datadir}/gnupg/
 %{_libexecdir}/*
-%{_infodir}/*.info*
-%{_mandir}/man?/*
 %exclude %{_datadir}/gnupg/com-certs.pem
-%exclude %{_mandir}/man?/gpgsm*
-%exclude %{_mandir}/man?/scdaemon*
 %exclude %{_libexecdir}/scdaemon
 
 %files smime
@@ -200,12 +157,17 @@ fi
 %{_bindir}/gpgsm*
 %{_bindir}/kbxutil
 %{_libexecdir}/scdaemon
-%{_mandir}/man?/gpgsm*
-%{_mandir}/man?/scdaemon*
 %{_datadir}/gnupg/com-certs.pem
 
+%exclude %{_mandir}
+%exclude %{_infodir}
+%exclude %{_docdir}
+%exclude %{_localedir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Apr 24 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.0.22-5.amzn2.0.3
 - Fix CVE-2014-4617
 

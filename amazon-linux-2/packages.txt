@@ -185,6 +185,8 @@ glibc-devel.x86_64           2.26-32.lambda2.0.2                         lambda2
 glibc-headers.x86_64         2.26-32.lambda2.0.2                         lambda2
 glibc-nss-devel.x86_64       2.26-32.lambda2.0.2                         lambda2
 glibc-utils.x86_64           2.26-32.lambda2.0.2                         lambda2
+gnupg2.x86_64                2.0.22-5.lambda2.0.3                        lambda2
+gnupg2-smime.x86_64          2.0.22-5.lambda2.0.3                        lambda2
 gnutls.x86_64                3.3.29-9.lambda2                            lambda2
 gnutls-c++.x86_64            3.3.29-9.lambda2                            lambda2
 gnutls-dane.x86_64           3.3.29-9.lambda2                            lambda2
