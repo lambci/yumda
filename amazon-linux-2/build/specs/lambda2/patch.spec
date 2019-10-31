@@ -28,6 +28,8 @@ BuildRequires: automake autoconf
 
 Provides: bundled(gnulib) = %{gnulib_ver}
 
+Prefix: %{_prefix}
+
 %description
 The patch program applies diff files to originals.  The diff command
 is used to compare an original to a changed file.  Diff lists the
@@ -70,14 +72,8 @@ applications.
 
 %build
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE"
-%ifarch sparcv9
-CFLAGS=`echo $CFLAGS|sed -e 's|-fstack-protector||g'`
-%endif
 %configure --disable-silent-rules
 make %{?_smp_mflags}
-
-%check
-make check
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -88,11 +84,15 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc COPYING NEWS README
+%license COPYING
 %{_bindir}/*
-%{_mandir}/*/*
+
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Sep 02 2019 Than Ngo <than@redhat.com> - 2.7.1-12
 - Fixed CVE-2018-20969, invoke ed directly instead of using the shell
 
