@@ -14,10 +14,6 @@
 # Number of threads to spawn when testing some threading fixes.
 %define thread_test_threads %{?threads:%{threads}}%{!?threads:1}
 
-# Arches on which we need to prevent arch conflicts on opensslconf.h, must
-# also be handled in opensslconf-new.h.
-%define multilib_arches %{ix86} ia64 %{mips} ppc ppc64 s390 s390x sparcv9 sparc64 x86_64
-
 %global _performance_build 1
 
 %define _trivial .1
@@ -121,60 +117,16 @@ BuildRequires: coreutils, krb5-devel, perl, sed, zlib-devel, /usr/bin/cmp
 BuildRequires: lksctp-tools-devel
 BuildRequires: /usr/bin/rename
 BuildRequires: /usr/bin/pod2man
-Requires: coreutils, make
-Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: coreutils
+Requires: %{name}-libs%{?_isa} >= %{epoch}:%{version}
+
+Prefix: %{_prefix}
 
 %description
 The OpenSSL toolkit provides support for secure communications between
 machines. OpenSSL includes a certificate management tool and shared
 libraries which provide various cryptographic algorithms and
 protocols.
-
-%package libs
-Summary: A general purpose cryptography library with TLS implementation
-Group: System Environment/Libraries
-Requires: ca-certificates >= 2008-5
-# Needed obsoletes due to the base/lib subpackage split
-Obsoletes: openssl < 1:1.0.1-0.3.beta3
-
-%description libs
-OpenSSL is a toolkit for supporting cryptography. The openssl-libs
-package contains the libraries that are used by various applications which
-support cryptographic algorithms and protocols.
-
-%package devel
-Summary: Files for development of applications which will use OpenSSL
-Group: Development/Libraries
-Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
-Requires: krb5-devel%{?_isa}, zlib-devel%{?_isa}
-Requires: pkgconfig
-
-%description devel
-OpenSSL is a toolkit for supporting cryptography. The openssl-devel
-package contains include files needed to develop applications which
-support various cryptographic algorithms and protocols.
-
-%package static
-Summary:  Libraries for static linking of applications which will use OpenSSL
-Group: Development/Libraries
-Requires: %{name}-devel%{?_isa} = %{epoch}:%{version}-%{release}
-
-%description static
-OpenSSL is a toolkit for supporting cryptography. The openssl-static
-package contains static libraries needed for static linking of
-applications which support various cryptographic algorithms and
-protocols.
-
-%package perl
-Summary: Perl scripts provided with OpenSSL
-Group: Applications/Internet
-Requires: perl
-Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release}
-
-%description perl
-OpenSSL is a toolkit for supporting cryptography. The openssl-perl
-package provides Perl scripts for converting certificates and keys
-from other formats to the formats used by the OpenSSL toolkit.
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -355,47 +307,11 @@ for i in libcrypto.pc libssl.pc openssl.pc ; do
   sed -i '/^Libs.private:/{s/-L[^ ]* //;s/-Wl[^ ]* //}' $i
 done
 
-%check
-# Verify that what was compiled actually works.
-
-# We must revert patch33 before tests otherwise they will fail
-patch -p1 -R < %{PATCH33}
-
-LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-export LD_LIBRARY_PATH
-OPENSSL_ENABLE_MD5_VERIFY=
-export OPENSSL_ENABLE_MD5_VERIFY
-make -C test apps tests
-%{__cc} -o openssl-thread-test \
-	`krb5-config --cflags` \
-	-I./include \
-	$RPM_OPT_FLAGS \
-	%{SOURCE8} \
-	-L. \
-	-lssl -lcrypto \
-	`krb5-config --libs` \
-	-lpthread -lz -ldl
-./openssl-thread-test --threads %{thread_test_threads}
-
-# Add generation of HMAC checksum of the final stripped library
-%define __spec_install_post \
-    %{?__debug_package:%{__debug_install_post}} \
-    %{__arch_install_post} \
-    %{__os_install_post} \
-    crypto/fips/fips_standalone_hmac $RPM_BUILD_ROOT%{_libdir}/libcrypto.so.%{version} >$RPM_BUILD_ROOT%{_libdir}/.libcrypto.so.%{version}.hmac \
-    ln -sf .libcrypto.so.%{version}.hmac $RPM_BUILD_ROOT%{_libdir}/.libcrypto.so.%{soversion}.hmac \
-    crypto/fips/fips_standalone_hmac $RPM_BUILD_ROOT%{_libdir}/libssl.so.%{version} >$RPM_BUILD_ROOT%{_libdir}/.libssl.so.%{version}.hmac \
-    ln -sf .libssl.so.%{version}.hmac $RPM_BUILD_ROOT%{_libdir}/.libssl.so.%{soversion}.hmac \
-%{nil}
-
-%define __provides_exclude_from %{_libdir}/openssl
-
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 # Install OpenSSL.
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_includedir},%{_libdir},%{_mandir},%{_libdir}/openssl}
 make INSTALL_PREFIX=$RPM_BUILD_ROOT install
-make INSTALL_PREFIX=$RPM_BUILD_ROOT install_docs
 mv $RPM_BUILD_ROOT%{_libdir}/engines $RPM_BUILD_ROOT%{_libdir}/openssl
 mv $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/man/* $RPM_BUILD_ROOT%{_mandir}/
 rmdir $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/man
@@ -413,30 +329,6 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/certs
 install -m644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/certs/Makefile
 install -m755 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/certs/make-dummy-cert
 install -m755 %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/certs/renew-dummy-cert
-
-# Make sure we actually include the headers we built against.
-for header in $RPM_BUILD_ROOT%{_includedir}/openssl/* ; do
-	if [ -f ${header} -a -f include/openssl/$(basename ${header}) ] ; then
-		install -m644 include/openssl/`basename ${header}` ${header}
-	fi
-done
-
-# Rename man pages so that they don't conflict with other system man pages.
-pushd $RPM_BUILD_ROOT%{_mandir}
-ln -s -f config.5 man5/openssl.cnf.5
-for manpage in man*/* ; do
-	if [ -L ${manpage} ]; then
-		TARGET=`ls -l ${manpage} | awk '{ print $NF }'`
-		ln -snf ${TARGET}ssl ${manpage}ssl
-		rm -f ${manpage}
-	else
-		mv ${manpage} ${manpage}ssl
-	fi
-done
-for conflict in passwd rand ; do
-	rename ${conflict} ssl${conflict} man*/${conflict}*
-done
-popd
 
 # Pick a CA script.
 pushd  $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/misc
@@ -465,18 +357,6 @@ basearch=sparc
 basearch=sparc64
 %endif
 
-%ifarch %{multilib_arches}
-# Do an opensslconf.h switcheroo to avoid file conflicts on systems where you
-# can have both a 32- and 64-bit version of the library, and they each need
-# their own correct-but-different versions of opensslconf.h to be usable.
-install -m644 %{SOURCE10} \
-	$RPM_BUILD_ROOT/%{_prefix}/include/openssl/opensslconf-${basearch}.h
-cat $RPM_BUILD_ROOT/%{_prefix}/include/openssl/opensslconf.h >> \
-	$RPM_BUILD_ROOT/%{_prefix}/include/openssl/opensslconf-${basearch}.h
-install -m644 %{SOURCE9} \
-	$RPM_BUILD_ROOT/%{_prefix}/include/openssl/opensslconf.h
-%endif
-
 # Remove unused files from upstream fips support
 rm -rf $RPM_BUILD_ROOT/%{_bindir}/openssl_fips_fingerprint
 rm -rf $RPM_BUILD_ROOT/%{_libdir}/fips_premain.*
@@ -487,11 +367,7 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/fipscanister.*
 
 %files
 %defattr(-,root,root)
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
-%doc FAQ NEWS README
-%doc README.FIPS
-%doc README.legacy-settings
 %{_sysconfdir}/pki/tls/certs/make-dummy-cert
 %{_sysconfdir}/pki/tls/certs/renew-dummy-cert
 %{_sysconfdir}/pki/tls/certs/Makefile
@@ -503,56 +379,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/fipscanister.*
 %dir %{_sysconfdir}/pki/CA/newcerts
 %{_sysconfdir}/pki/tls/misc/c_*
 %attr(0755,root,root) %{_bindir}/openssl
-%attr(0644,root,root) %{_mandir}/man1*/*
-%exclude %{_mandir}/man1*/*.pl*
-%exclude %{_mandir}/man1*/c_rehash*
-%exclude %{_mandir}/man1*/tsget*
-%attr(0644,root,root) %{_mandir}/man5*/*
-%attr(0644,root,root) %{_mandir}/man7*/*
-
-%files libs
-%defattr(-,root,root)
-%{!?_licensedir:%global license %%doc}
-%license LICENSE
-%dir %{_sysconfdir}/pki/tls
-%dir %{_sysconfdir}/pki/tls/certs
-%dir %{_sysconfdir}/pki/tls/misc
-%dir %{_sysconfdir}/pki/tls/private
 %config(noreplace) %{_sysconfdir}/pki/tls/openssl.cnf
-%attr(0755,root,root) %{_libdir}/libcrypto.so.%{version}
-%attr(0755,root,root) %{_libdir}/libcrypto.so.%{soversion}
-%attr(0755,root,root) %{_libdir}/libssl.so.%{version}
-%attr(0755,root,root) %{_libdir}/libssl.so.%{soversion}
-%attr(0644,root,root) %{_libdir}/.libcrypto.so.*.hmac
-%attr(0644,root,root) %{_libdir}/.libssl.so.*.hmac
-%attr(0755,root,root) %{_libdir}/openssl
 
-%files devel
-%defattr(-,root,root)
-%doc doc/c-indentation.el doc/openssl.txt CHANGES
-%{_prefix}/include/openssl
-%attr(0755,root,root) %{_libdir}/*.so
-%attr(0644,root,root) %{_mandir}/man3*/*
-%attr(0644,root,root) %{_libdir}/pkgconfig/*.pc
-
-%files static
-%defattr(-,root,root)
-%attr(0644,root,root) %{_libdir}/*.a
-
-%files perl
-%defattr(-,root,root)
-%attr(0755,root,root) %{_bindir}/c_rehash
-%attr(0644,root,root) %{_mandir}/man1*/*.pl*
-%attr(0644,root,root) %{_mandir}/man1*/c_rehash*
-%attr(0644,root,root) %{_mandir}/man1*/tsget*
-%{_sysconfdir}/pki/tls/misc/*.pl
-%{_sysconfdir}/pki/tls/misc/tsget
-
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
+%exclude %{_prefix}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Apr  3 2019 Heath Petty <hpetty@amazon.com 1.0.2k-16.amzn2.1.1
 - fix CVE-2019-1559 
 

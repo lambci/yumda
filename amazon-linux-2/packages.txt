@@ -378,6 +378,7 @@ openssh-cavs.x86_64          7.4p1-16.lambda2.0.6                        lambda2
 openssh-clients.x86_64       7.4p1-16.lambda2.0.6                        lambda2
 openssh-keycat.x86_64        7.4p1-16.lambda2.0.6                        lambda2
 openssh-server.x86_64        7.4p1-16.lambda2.0.6                        lambda2
+openssl.x86_64               1:1.0.2k-16.lambda2.1.1                     lambda2
 pam.x86_64                   1.1.8-22.lambda2                            lambda2
 pandoc.x86_64                1.12.3.1-2.lambda2                          lambda2
 pandoc-pdf.x86_64            1.12.3.1-2.lambda2                          lambda2
