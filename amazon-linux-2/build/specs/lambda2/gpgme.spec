@@ -30,29 +30,13 @@ BuildRequires: libassuan2-devel
 %define _with_gpg --with-gpg=%{_bindir}/gpg2
 Requires: gnupg2
 
-# On the following architectures workaround multiarch conflict of -devel packages:
-%define multilib_arches %{ix86} x86_64 ia64 ppc ppc64 s390 s390x %{sparc}
+Prefix: %{_prefix}
 
 %description
 GnuPG Made Easy (GPGME) is a library designed to make access to GnuPG
 easier for applications.  It provides a high-level crypto API for
 encryption, decryption, signing, signature verification and key
 management.
-
-%package devel
-Summary:  Development headers and libraries for %{name}
-Group:    Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: libgpg-error-devel%{?_isa}
-# http://bugzilla.redhat.com/676954
-# TODO: see if -lassuan can be added to config_extras patch too -- Rex
-#Requires: libassuan2-devel
-# /usr/share/aclocal ownership
-#Requires: automake
-Requires(post): /sbin/install-info
-Requires(postun): /sbin/install-info
-%description devel
-%{summary}
 
 
 %prep
@@ -84,55 +68,24 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.la
 rm -rf $RPM_BUILD_ROOT%{_datadir}/common-lisp/source/gpgme/
 
-# Hack to resolve multiarch conflict (#341351)
-%ifarch %{multilib_arches}
-mv $RPM_BUILD_ROOT%{_bindir}/gpgme-config{,.%{_target_cpu}}
-cat > gpgme-config-multilib.sh <<__END__
-#!/bin/sh
-exec %{_bindir}/gpgme-config.\$(arch) \$@
-__END__
-install -D -p gpgme-config-multilib.sh $RPM_BUILD_ROOT%{_bindir}/gpgme-config
-mv $RPM_BUILD_ROOT%{_includedir}/gpgme.h \
-   $RPM_BUILD_ROOT%{_includedir}/gpgme-%{__isa_bits}.h
-install -m644 -p -D %{SOURCE2} $RPM_BUILD_ROOT%{_includedir}/gpgme.h
-%endif
-
-
-%check 
-make -C tests check 
-
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING* ChangeLog NEWS README* THANKS TODO VERSION
+%license COPYING*
 %{_libdir}/libgpgme.so.11*
 %{_libdir}/libgpgme-pthread.so.11*
 
-%post devel
-/sbin/install-info %{_infodir}/%{name}.info %{_infodir}/dir 2>/dev/null || :
-
-%preun devel
-if [ $1 -eq 0 ] ; then
-  /sbin/install-info --delete %{_infodir}/%{name}.info %{_infodir}/dir 2>/dev/null || :
-fi
-
-%files devel
-%defattr(-,root,root,-)
-%{_bindir}/gpgme-config
-%ifarch %{multilib_arches}
-%{_bindir}/gpgme-config.%{_target_cpu}
-%{_includedir}/gpgme-%{__isa_bits}.h
-%endif
-%{_includedir}/gpgme.h
-%{_libdir}/libgpgme*.so
-%{_datadir}/aclocal/gpgme.m4
-%{_infodir}/gpgme.info*
+%exclude %{_bindir}/gpgme-config
+%exclude %{_includedir}
+%exclude %{_libdir}/libgpgme*.so
+%exclude %{_datadir}
+%exclude %{_infodir}
 
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.3.2-5
 - Mass rebuild 2014-01-24
 

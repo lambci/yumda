@@ -191,6 +191,7 @@ gnutls.x86_64                3.3.29-9.lambda2                            lambda2
 gnutls-c++.x86_64            3.3.29-9.lambda2                            lambda2
 gnutls-dane.x86_64           3.3.29-9.lambda2                            lambda2
 gnutls-utils.x86_64          3.3.29-9.lambda2                            lambda2
+gpgme.x86_64                 1.3.2-5.lambda2.0.2                         lambda2
 graphite2.x86_64             1.3.10-1.lambda2.0.2                        lambda2
 groff.x86_64                 1.22.2-8.lambda2.0.2                        lambda2
 groff-base.x86_64            1.22.2-8.lambda2.0.2                        lambda2
