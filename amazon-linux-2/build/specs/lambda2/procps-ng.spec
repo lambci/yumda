@@ -35,9 +35,6 @@ Patch20: procps-ng-3.3.10-recognize_sched_deadline.patch
 Patch21: procps-ng-3.3.10-free-counts-unreclaim-slabs-in-avail-mem.patch
 
 
-Requires(post): /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
-
 BuildRequires: ncurses-devel
 BuildRequires: libtool
 BuildRequires: autoconf
@@ -55,6 +52,8 @@ Obsoletes: procps < 3.2.9-1
 # usrmove hack - will be removed once initscripts are fixed
 Provides: /sbin/sysctl
 Provides: /bin/ps
+
+Prefix: %{_prefix}
 
 %description
 The procps package contains a set of system utilities that provide
@@ -77,20 +76,11 @@ virtual memory statistics about processes, memory, paging, block
 I/O, traps, and CPU activity. The pwdx command reports the current
 working directory of a process or processes.
 
-%package devel
-Summary:  System and process monitoring utilities
-Group:    Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Provides: procps-devel = %{version}-%{release}
-Obsoletes: procps-devel < 3.2.9-1
-
-%description devel
-System and process monitoring utilities development headers
-
 %package i18n
 Summary:  Internationalization pack for procps-ng
 Group:    Applications/System
 Requires: %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description i18n
 Internationalization pack for procps-ng
@@ -124,84 +114,54 @@ Internationalization pack for procps-ng
 
 
 %build
-# The following stuff is needed for git archives only
-#echo "%{version}" > .tarball-version
-#./autogen.sh
 
 autoreconf --verbose --force --install
 
-./configure --prefix=/ \
-            --bindir=%{_bindir} \
-            --sbindir=%{_sbindir} \
-            --libdir=%{_libdir} \
-            --mandir=%{_mandir} \
-            --includedir=%{_includedir} \
-            --sysconfdir=%{_sysconfdir} \
-            --localedir=%{_datadir}/locale \
-            --docdir=/unwanted \
-            --disable-static \
-            --enable-w-from \
-            --disable-kill \
-            --disable-rpath \
-            --enable-watch8bit \
-            --enable-skill \
-            --enable-sigwinch \
-            --enable-libselinux \
-            --with-systemd \
-            --disable-pidof \
-            --disable-modern-top
+%configure \
+  --docdir=/unwanted \
+  --disable-static \
+  --enable-w-from \
+  --disable-kill \
+  --disable-rpath \
+  --enable-watch8bit \
+  --enable-skill \
+  --enable-sigwinch \
+  --enable-libselinux \
+  --without-systemd \
+  --disable-pidof \
+  --disable-modern-top
 
 make CFLAGS="%{optflags}"
-
-
-%if %{tests_enabled}
-%check
-make check
-%endif
 
 
 %install
 make DESTDIR=%{buildroot} install
 
-# --localedir doesn't work correctly
-mv %{buildroot}/share/locale %{buildroot}%{_datadir}
-rmdir %{buildroot}/share
-
-# translated man pages
-#find man-po/ -type d -maxdepth 1 -mindepth 1 | while read dirname; do cp -a $dirname %{buildroot}/usr/share/man/ ; done
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+# --bindir seems to be ignored
+mv %{buildroot}%{_prefix}/usr/bin/* %{buildroot}%{_bindir}/
 
 %files
-%doc AUTHORS Documentation/BUGS COPYING COPYING.LIB Documentation/FAQ NEWS README top/README.top Documentation/TODO
+%license COPYING COPYING.LIB
 
 %{_libdir}/libprocps.so.*
 %{_bindir}/*
 %{_sbindir}/*
-%{_mandir}/man1/*
-%{_mandir}/man8/*
-%{_mandir}/man5/*
-#%%{_mandir}/*/man1/*
-#%%{_mandir}/*/man8/*
-#%%{_mandir}/*/man5/*
 
 %exclude %{_libdir}/libprocps.la
-%exclude %{_sysconfdir}/sysctl.conf
 %exclude /unwanted/*
-
-%files devel
-%doc COPYING COPYING.LIB
-%{_libdir}/libprocps.so
-%{_libdir}/pkgconfig/libprocps.pc
-%{_includedir}/proc
-%{_mandir}/man3/*
 
 %files i18n
 %{_datadir}/locale/*
 
+%exclude %{_libdir}/libprocps.so
+%exclude %{_libdir}/pkgconfig/libprocps.pc
+%exclude %{_includedir}
+%exclude %{_mandir}
+
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Apr 12 2019 Jan Rybar <jrybar@redhat.com> - 3.3.10-26
 - free: unreclaimable slabs counted into free memory, used mem incorrect
 - Resolves: rhbz#1699264

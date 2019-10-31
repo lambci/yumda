@@ -502,6 +502,8 @@ postgresql.x86_64            9.2.24-1.lambda2.0.1                        lambda2
 postgresql-contrib.x86_64    9.2.24-1.lambda2.0.1                        lambda2
 postgresql-libs.x86_64       9.2.24-1.lambda2.0.1                        lambda2
 postgresql-server.x86_64     9.2.24-1.lambda2.0.1                        lambda2
+procps-ng.x86_64             3.3.10-26.lambda2                           lambda2
+procps-ng-i18n.x86_64        3.3.10-26.lambda2                           lambda2
 pth.x86_64                   2.0.7-23.lambda2.0.2                        lambda2
 pulseaudio-libs.x86_64       10.0-3.lambda2.0.2                          lambda2
 pulseaudio-libs-glib2.x86_64 10.0-3.lambda2.0.2                          lambda2
