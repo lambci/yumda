@@ -1,5 +1,7 @@
 %dist .lambda1
 
+%_topdir %{getenv:HOME}/rpmbuild
+
 %_prefix /opt
 
 %_exec_prefix %{_prefix}
