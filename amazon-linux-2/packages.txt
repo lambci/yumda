@@ -82,6 +82,8 @@ fftw-libs.x86_64             3.3.3-8.lambda2.0.2                         lambda2
 fftw-libs-double.x86_64      3.3.3-8.lambda2.0.2                         lambda2
 fftw-libs-long.x86_64        3.3.3-8.lambda2.0.2                         lambda2
 fftw-libs-single.x86_64      3.3.3-8.lambda2.0.2                         lambda2
+file.x86_64                  5.11-33.lambda2.0.2                         lambda2
+file-libs.x86_64             5.11-33.lambda2.0.2                         lambda2
 findutils.x86_64             1:4.5.11-5.lambda2.0.2                      lambda2
 fipscheck.x86_64             1.4.1-6.lambda2.0.2                         lambda2
 fipscheck-lib.x86_64         1.4.1-6.lambda2.0.2                         lambda2

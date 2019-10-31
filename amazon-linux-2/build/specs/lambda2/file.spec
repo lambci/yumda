@@ -70,6 +70,8 @@ URL: http://www.darwinsys.com/file/
 Requires: file-libs = %{version}-%{release}
 BuildRequires: zlib-devel
 
+Prefix: %{_prefix}
+
 %description
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
@@ -81,39 +83,11 @@ Summary: Libraries for applications using libmagic
 Group:   Applications/File
 License: BSD
 
+Prefix: %{_prefix}
+
 %description libs
 
 Libraries for applications using libmagic.
-
-%package devel
-Summary:  Libraries and header files for file development
-Group:    Applications/File
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-The file-devel package contains the header files and libmagic library
-necessary for developing programs using libmagic.
-
-%package static
-Summary: Static library for file development
-Group:    Applications/File
-Requires: %{name} = %{version}-%{release}
-
-%description static
-The file-static package contains the static version of
-the libmagic library.
-
-%package -n python-magic
-Summary: Python bindings for the libmagic API
-Group:   Development/Libraries
-BuildArch: noarch
-BuildRequires: python2-devel
-Requires: %{name} = %{version}-%{release}
-
-%description -n python-magic
-This package contains the Python bindings to allow access to the
-libmagic API. The libmagic library is also used by the familiar
-file(1) command.
 
 %prep
 
@@ -188,8 +162,6 @@ sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 export LD_LIBRARY_PATH=%{_builddir}/%{name}-%{version}/src/.libs
 make
-cd python
-CFLAGS="%{optflags}" %{__python} setup.py build
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
@@ -210,46 +182,29 @@ ln -s misc/magic ${RPM_BUILD_ROOT}%{_datadir}/magic
 #ln -s file/magic.mime ${RPM_BUILD_ROOT}%{_datadir}/magic.mime
 ln -s ../magic ${RPM_BUILD_ROOT}%{_datadir}/file/magic
 
-cd python
-%{__python} setup.py install -O1 --skip-build --root ${RPM_BUILD_ROOT}
 %{__install} -d ${RPM_BUILD_ROOT}%{_datadir}/%{name}
 
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
-
 %files
-%doc COPYING ChangeLog README
+%license COPYING
 %{_bindir}/*
-%{_mandir}/man1/*
 %config(noreplace) %{_sysconfdir}/magic
 
 %files libs
-%doc COPYING ChangeLog README
+%license COPYING
 %{_libdir}/*so.*
 %{_datadir}/magic*
-%{_mandir}/man5/*
 %{_datadir}/file
 %{_datadir}/misc/*
 
-%files devel
-%{_libdir}/*.so
-%{_includedir}/magic.h
-%{_mandir}/man3/*
-
-%files static
-%{_libdir}/*.a
-
-%files -n python-magic
-%doc python/README COPYING python/example.py
-%{python_sitelib}/magic.py
-%{python_sitelib}/magic.pyc
-%{python_sitelib}/magic.pyo
-%if 0%{?fedora} >= 9 || 0%{?rhel} >= 6
-%{python_sitelib}/*egg-info
-%endif
+%exclude %{_libdir}/*.a
+%exclude %{_libdir}/*.so
+%exclude %{_includedir}
+%exclude %{_mandir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jun 27 2016 Kamil Dudka <kdudka@redhat.com> 5.11-33
 - fix #1246385 - 'file --version' now exits successfully
 
