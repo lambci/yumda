@@ -45,6 +45,8 @@ Patch17: unzip-6.0-symlink.patch
 URL: http://www.info-zip.org/UnZip.html
 BuildRequires:  bzip2-devel
 
+Prefix: %{_prefix}
+
 %description
 The unzip utility is used to list, test, or extract files from a zip
 archive.  Zip archives are commonly found on MS-DOS systems.  The zip
@@ -92,11 +94,15 @@ make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} MANDIR=$RPM_BUILD_ROOT/%{
 
 %files
 %defattr(-,root,root)
-%doc README BUGS LICENSE
+%license LICENSE
 %{_bindir}/*
-%{_mandir}/*/*
+
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Jan 09 2018 Jakub Martisko <jamartis@redhat.com> - 6.0-19
 - rename patch unzip-6.0-nostrip.patch to unzip-6.0-configure.patch
 - make linking flags configurable from the specc file
