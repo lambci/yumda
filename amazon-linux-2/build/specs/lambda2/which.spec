@@ -11,8 +11,8 @@ Url: http://www.xs4all.nl/~carlo17/which/
 Patch: which-2.19-afs.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: readline-devel
-Requires(preun): /sbin/install-info
-Requires(post): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description
 The which command shows the full pathname of a specified program, if
@@ -37,28 +37,22 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
 install -p -m 644 %{SOURCE1} %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 
-%post
-/sbin/install-info --quiet --info-dir=%{_infodir} %{_infodir}/which.info.gz
-exit 0
-
-%preun
-if [ $1 = 0 ]; then
-   /sbin/install-info --quiet --info-dir=%{_infodir} --delete %{_infodir}/which.info.gz
-fi
-exit 0
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc COPYING EXAMPLES README AUTHORS NEWS
+%license COPYING
 %attr(0644,root,root) %{_sysconfdir}/profile.d/which2.*
 %{_bindir}/*
-%{_infodir}/which.info.gz
-%{_mandir}/*/*
+
+%exclude %{_infodir}
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.20-7
 - Mass rebuild 2014-01-24
 
