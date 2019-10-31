@@ -1,6 +1,6 @@
 FROM amazonlinux:2
 
-RUN yum install -y yum-utils rpm-build rpm-sign createrepo gcc make automake sudo passwd vim less
+RUN yum install -y yum-utils rpm-build rpm-sign createrepo gcc gcc-c++ make automake sudo passwd vim less
 
 RUN groupadd mock && \
   groupadd mockbuild && \

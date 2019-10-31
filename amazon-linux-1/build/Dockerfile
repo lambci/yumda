@@ -1,6 +1,6 @@
 FROM amazonlinux:1
 
-RUN yum install -y shadow-utils yum-utils rpm-build rpm-sign createrepo gcc make automake sudo passwd vim less epel-release
+RUN yum install -y shadow-utils yum-utils rpm-build rpm-sign createrepo gcc gcc-c++ make automake sudo passwd vim less epel-release
 
 RUN groupadd mock && \
   groupadd mockbuild && \
