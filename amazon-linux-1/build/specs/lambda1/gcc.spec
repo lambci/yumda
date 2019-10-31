@@ -34,74 +34,25 @@
 
 %global _unpackaged_files_terminate_build 1
 
-%global multilib_64_archs sparc64 ppc64 ppc64p7 s390x x86_64
-%ifarch %{multilib_64_archs}
-%global build_multilib 1
-%else
 %global build_multilib 0
-%endif
 
-%ifarch %{ix86} x86_64 ia64 ppc %{power64} alpha s390x %{arm} aarch64
 %global build_ada 1
-%else
-%global build_ada 0
-%endif
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64le ppc64p7 s390 s390x %{arm} aarch64 %{mips}
 %global build_go 1
-%else
-%global build_go 0
-%endif
-%ifarch %{ix86} x86_64 ia64
 %global build_libquadmath 1
-%else
-%global build_libquadmath 0
-%endif
 
-%ifarch %{ix86} x86_64 aarch64
 %global build_libsanitizer 1
-%else
-%global build_libsanitizer 0
-%endif
 
-%ifarch %{ix86} x86_64
 %global build_libcilkrts 1
-%else
-%global build_libcilkrts 0
-%endif
-%ifarch %{ix86} x86_64 %{arm} aarch64
 %global build_libatomic 1
-%else
-%global build_libatomic 0
-%endif
-%ifarch %{ix86} x86_64 %{arm} aarch64
 %global build_libitm 1
-%else
-%global build_libitm 0
-%endif
-%ifarch %{ix86} x86_64
 %global build_libmpx 1
-%else
-%global build_libmpx 0
-%endif
 %global build_isl 0
-%global build_libstdcxx_docs 1
-%ifarch %{ix86} x86_64 %{arm} aarch64
+%global build_libstdcxx_docs 0
 %global attr_ifunc 1
-%else
-%global attr_ifunc 0
-%endif
 
 %global build_libgomp 1
 
-%ifarch x86_64
-%global multilib_32_arch i686
-%endif
-
-%ifarch x86_64
 %global build_libgccjit 1
-%else
-%global build_libgccjit 0
-%endif
 
 %global _skip_check 0
 
@@ -194,10 +145,6 @@ BuildRequires: glibc-devel >= 2.4.90-13
 BuildRequires: elfutils-devel >= 0.147
 BuildRequires: elfutils-libelf-devel >= 0.147
 %if %{build_multilib}
-%ifarch %{multilib_64_archs} sparcv9 ppc
-# Ensure glibc{,-devel} is installed for both multilib arches
-BuildRequires: /lib/libc.so.6 /usr/lib/libc.so /lib64/libc.so.6 /usr/lib64/libc.so
-%endif
 %endif #multilib
 %if %{build_ada}
 # Ada requires Ada to build
@@ -217,8 +164,8 @@ BuildRequires: doxygen >= 1.7.1
 BuildRequires: graphviz, texlive-latex, docbook5-style-xsl
 %endif
 # these are required to make this compiler functional
-Requires: cpp%{?gccv}%{?_isa} = %{version}-%{release}
-Requires: libgcc%{?gccv}%{?_isa} = %{version}
+Requires: cpp%{?gccv}%{?_isa} >= %{version}
+Requires: libgcc%{?gccv}%{?_isa} >= %{version}
 # Need .eh_frame ld optimizations
 # Need proper visibility support
 # Need -pie support
@@ -243,23 +190,16 @@ Requires: glibc >= 2.16
 %endif
 %endif
 %if 0%{?gccv:1}
-Requires: libgcc%{?_isa} >= %{version}-%{release}
+Requires: libgcc%{?_isa} >= %{version}
 %if %{build_libgomp}
-Requires: libgomp%{?_isa} >= %{version}-%{release}
+Requires: libgomp%{?_isa} >= %{version}
 %endif #libgomp
 %endif
 #%if !%{build_ada}
 #Obsoletes: gcc-gnat < %{version}-%{release}
 #%endif
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 AutoReq: true
 Provides: bundled(libiberty)
-
-%if 0%{?gccv:1}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
-%endif
 
 Provides: gcc(major) = %{gcc_major}
 
@@ -333,6 +273,8 @@ Provides: libquadmath%{?gccv}-static = %{version}-%{release}
 Obsoletes: libgcj-devel < %{version}-%{release}
 Obsoletes: libgcj-src < %{version}-%{release}
 
+Prefix: %{_prefix}
+
 %description
 The gcc package contains the GNU Compiler Collection version 7.
 You'll need this package in order to compile C code.
@@ -352,6 +294,8 @@ Provides: libgcc%{?_isa} = %{version}-%{release}
 #Obsoletes: libmudflap
 Obsoletes: libgcj < %{version}-%{release}
 
+Prefix: %{_prefix}
+
 %description -n libgcc%{?gccv}
 This package contains GCC shared support library which is needed
 e.g. for exception handling support.
@@ -359,14 +303,12 @@ e.g. for exception handling support.
 %package c++
 Summary: C++ support for GCC
 Group: Development/Languages
-Requires: gcc%{?gccv}%{?_isa} = %{version}-%{release}
-Requires: libstdc++%{?gccv}%{?_isa} = %{version}-%{release}
+Requires: gcc%{?gccv}%{?_isa} >= %{version}
+Requires: libstdc++%{?gccv}%{?_isa} >= %{version}
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-c++ = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-c++ < %{version}-%{release}}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 %endif
 Obsoletes: libstdc++%{?gccv}-devel
 Obsoletes: libstdc++%{?gccv}-static
@@ -381,47 +323,26 @@ Provides: libstdc++-static = %{version}-%{release}
 Provides: libstdc++-static%{?_isa} = %{version}-%{release}
 %endif
 
+Prefix: %{_prefix}
+
 %description c++
 This package adds C++ support to the GNU Compiler Collection.
 It includes support for most of the current C++ specification,
 including templates and exception handling.
 
-%package -n libstdc++%{?gccv}
-Summary: GNU Standard C++ Library
-Group: System Environment/Libraries
-Autoreq: true
-Requires: glibc%{?_isa} >= 2.10.90-7
-%if 0%{?gccv:1}
-Provides: libstdc++ = %{version}-%{release}
-%{?obsolete_gcc:Obsoletes: libstdc++ < %{version}-%{release}}
-#Obsoletes: libstdc++ < %{hard_obsolete_ver}
-Provides: libstdc++%{?_isa} = %{version}-%{release}
-%endif
-
-%description -n libstdc++%{?gccv}
-The libstdc++ package contains a rewritten standard compliant GCC Standard
-C++ Library.
-
-%package -n libstdc++-docs
-Summary: Documentation for the GNU standard C++ library
-Group: Development/Libraries
-Autoreq: true
-
-%description -n libstdc++-docs
-Manual, doxygen generated API information and Frequently Asked Questions
-for the GNU standard C++ library.
-
 %if %{build_objc}
 %package objc
 Summary: Objective-C support for GCC
 Group: Development/Languages
-Requires: gcc%{?gccv}%{?_isa} = %{version}-%{release}
-Requires: libobjc%{?gccv}%{?_isa} = %{version}-%{release}
+Requires: gcc%{?gccv}%{?_isa} >= %{version}
+Requires: libobjc%{?gccv}%{?_isa} >= %{version}
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-objc = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-objc < %{version}-%{release}}
 %endif
+
+Prefix: %{_prefix}
 
 %description objc
 gcc-objc provides Objective-C support for the GCC.
@@ -431,13 +352,15 @@ object-oriented derivative of the C language.
 %package objc++
 Summary: Objective-C++ support for GCC
 Group: Development/Languages
-Requires: gcc%{?gccv}-c++%{?_isa} = %{version}-%{release}
-Requires: gcc%{?gccv}-objc%{?_isa} = %{version}-%{release}
+Requires: gcc%{?gccv}-c++%{?_isa} >= %{version}
+Requires: gcc%{?gccv}-objc%{?_isa} >= %{version}
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-objc++ = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-objc++ < %{version}-%{release}}
 %endif
+
+Prefix: %{_prefix}
 
 %description objc++
 gcc-objc++ package provides Objective-C++ support for the GCC.
@@ -452,6 +375,8 @@ Provides: libobjc = %{version}-%{release}
 Provides: libobjc%{?_isa} = %{version}-%{release}
 %endif
 
+Prefix: %{_prefix}
+
 %description -n libobjc%{?gccv}
 This package contains Objective-C shared library which is needed to run
 Objective-C dynamically linked programs.
@@ -461,21 +386,19 @@ Objective-C dynamically linked programs.
 %package gfortran
 Summary: Fortran support
 Group: Development/Languages
-Requires: gcc%{?gccv}%{?_isa} = %{version}-%{release}
+Requires: gcc%{?gccv}%{?_isa} >= %{version}
 # rely on automatic rpm dependencies
 #Requires: libgfortran >= %{version}-%{release}
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-gfortran = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-gfortran < %{version}-%{release}}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 %else
 Obsoletes: gcc44-gfortran
 Obsoletes: gcc48-gfortran
 %endif
+
+Prefix: %{_prefix}
 
 %description gfortran
 The gcc-gfortran package provides support for compiling Fortran
@@ -489,6 +412,8 @@ Autoreq: true
 Requires: %{_prefix}/%{_lib}/libquadmath.so.%{libquadmath_ver}
 %endif
 
+Prefix: %{_prefix}
+
 %description -n libgfortran
 This package contains Fortran shared library which is needed to run
 Fortran dynamically linked programs.
@@ -497,8 +422,8 @@ Fortran dynamically linked programs.
 %package -n libgomp
 Summary: GCC OpenMP v4.5 shared support library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libgomp
 This package contains GCC shared support library which is needed
@@ -508,7 +433,9 @@ for OpenMP v4.5 support.
 %package gdb-plugin
 Summary: GCC plugin for GDB
 Group: Development/Debuggers
-Requires: gcc = %{version}-%{release}
+Requires: gcc >= %{version}
+
+Prefix: %{_prefix}
 
 %description gdb-plugin
 This package contains GCC plugin for GDB C expression evaluation.
@@ -517,28 +444,19 @@ This package contains GCC plugin for GDB C expression evaluation.
 %package -n libgccjit
 Summary: Library for embedding GCC inside programs and libraries
 Group: System Environment/Libraries
-Requires: gcc = %{version}-%{release}
+Requires: gcc >= %{version}
+
+Prefix: %{_prefix}
 
 %description -n libgccjit
 This package contains shared library with GCC JIT front-end.
-
-%package -n libgccjit-devel
-Summary: Support for embedding GCC inside programs and libraries
-Group: Development/Libraries
-BuildRequires: %{_bindir}/sphinx-build
-Requires: libgccjit = %{version}-%{release}
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-
-%description -n libgccjit-devel
-This package contains header files and documentation for GCC JIT front-end.
 %endif #build_libgccjit
 
 %package -n libquadmath
 Summary: GCC __float128 shared support library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libquadmath
 This package contains GCC shared support library which is needed
@@ -547,8 +465,8 @@ for __float128 math support and for Fortran REAL*16 support.
 %package -n libitm
 Summary: The GNU Transactional Memory library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libitm
 This package contains the GNU Transactional Memory library
@@ -557,8 +475,8 @@ which is a GCC transactional memory support runtime library.
 %package -n libatomic
 Summary: The GNU Atomic library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libatomic
 This package contains the GNU Atomic library which is a GCC support runtime
@@ -567,10 +485,10 @@ library for atomic operations not supported by hardware.
 %package -n libsanitizer
 Summary: Sanitizer runtime library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 Obsoletes: libtsan = 4.8.5
 Obsoletes: libtsan = 4.8.3
+
+Prefix: %{_prefix}
 
 %description -n libsanitizer
 This package contains sanitizer libraries which are automatically used when
@@ -583,8 +501,8 @@ the appropriate -fsanitize option is used for instrumented programs
 %package -n libcilkrts
 Summary: The Cilk+ runtime library
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libcilkrts
 This package contains the Cilk+ runtime library.
@@ -592,8 +510,8 @@ This package contains the Cilk+ runtime library.
 %package -n libmpx
 Summary: The Memory Protection Extensions runtime libraries
 Group: System Environment/Libraries
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+
+Prefix: %{_prefix}
 
 %description -n libmpx
 This package contains the Memory Protection Extensions runtime libraries
@@ -604,15 +522,13 @@ Summary: The C Preprocessor
 Group: Development/Languages
 #Requires: filesystem >= 3
 Provides: /lib/cpp
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: cpp = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: cpp < %{version}-%{release}}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 %endif
+
+Prefix: %{_prefix}
 
 %description -n cpp%{?gccv}
 Cpp is the GNU C-Compatible Compiler Preprocessor.
@@ -639,18 +555,14 @@ macros.
 %package gnat
 Summary: Ada 83, 95, 2005 and 2012 support for GCC
 Group: Development/Languages
-Requires: gcc%{?gccv}%{?_isa} = %{version}-%{release}
-Requires: libgnat%{?gccv}%{?_isa} = %{version}-%{release}
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
+Requires: gcc%{?gccv}%{?_isa} >= %{version}
+Requires: libgnat%{?gccv}%{?_isa} >= %{version}
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-gnat = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-gnat < %{version}-%{release}}
 %{?obsolete_gcc:Obsoletes: libgnat-devel < %{version}-%{release}}
 %{?obsolete_gcc:Obsoletes: libgnat-static < %{version}-%{release}}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 %endif
 Obsoletes: libgnat%{?gccv}-devel
 Provides: libgnat%{?gccv}-devel = %{version}-%{release}
@@ -668,6 +580,8 @@ Obsoletes: libgnat48-devel
 Obsoletes: libgnat48-static
 %endif
 
+Prefix: %{_prefix}
+
 %description gnat
 GNAT is a GNU Ada 83, 95, 2005 and 2012 front-end to GCC. This package includes
 development tools, the documents and Ada compiler.
@@ -682,6 +596,8 @@ Provides: libgnat = %{version}-%{release}
 Provides: libgnat%{?_isa} = %{version}-%{release}
 %endif
 
+Prefix: %{_prefix}
+
 %description -n libgnat%{?gccv}
 GNAT is a GNU Ada 83, 95, 2005 and 2012 front-end to GCC. This package includes
 shared libraries, which are required to run programs compiled with the GNAT.
@@ -689,18 +605,12 @@ shared libraries, which are required to run programs compiled with the GNAT.
 %package go
 Summary: Go support
 Group: Development/Languages
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-Requires(post): %{_sbindir}/update-alternatives
-Requires(postun): %{_sbindir}/update-alternatives
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-go = %{version}-%{release}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 %endif
-Requires: gcc%{?gccv}%{?_isa} = %{version}-%{release}
-Requires: libgo%{?gccv}-devel%{?_isa} = %{version}-%{release}
+Requires: gcc%{?gccv}%{?_isa} >= %{version}
+Requires: libgo%{?gccv}-devel%{?_isa} >= %{version}
 %if 0%{?gccv:1}
 Provides: libgo-devel = %{version}-%{release}
 Provides: libgo-devel%{?_isa} = %{version}-%{release}
@@ -711,6 +621,8 @@ Obsoletes: libgo%{?gccv}-devel
 Provides: libgo%{?gccv}-devel = %{version}-%{release}
 Obsoletes: libgo%{?gccv}-static
 Provides: libgo%{?gccv}-static = %{version}-%{release}
+
+Prefix: %{_prefix}
 
 %description go
 The gcc-go package provides support for compiling Go programs
@@ -725,61 +637,11 @@ Provides: libgo = %{version}-%{release}
 Provides: libgo%{?_isa} = %{version}-%{release}
 %endif
 
+Prefix: %{_prefix}
+
 %description -n libgo
 This package contains Go shared library which is needed to run
 Go dynamically linked programs.
-
-%package plugin-devel
-Summary: Support for compiling GCC plugins
-Group: Development/Languages
-Requires: gcc%{?gccv} = %{version}-%{release}
-Requires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
-
-%description plugin-devel
-This package contains header files and other support files
-for compiling GCC plugins.  The GCC plugin ABI is currently
-not stable, so plugins must be rebuilt any time GCC is updated.
-
-%if 0%{?_enable_debug_packages}
-%define debug_package %{nil}
-%global __debug_package 1
-%global __debug_install_post \
-   PATH=%{_builddir}/gcc-%{version}-%{DATE}/dwz-wrapper/:$PATH %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/gcc-%{version}-%{DATE}"\
-    %{_builddir}/gcc-%{version}-%{DATE}/split-debuginfo.sh\
-%{nil}
-
-%package debuginfo
-Summary: Debug information for package %{name}
-Group: Development/Debug
-AutoReqProv: 0
-Requires: gcc%{?gccv}-base-debuginfo%{?_isa} = %{version}-%{release}
-%if 0%{?gccv:1}
-Provides: gcc-debuginfo = %{version}-%{release}
-%endif
-
-%description debuginfo
-This package provides debug information for package %{name}.
-Debug information is useful when developing applications that use this
-package or when debugging this package.
-
-%files debuginfo -f debugfiles.list
-
-%package base-debuginfo
-Summary: Debug information for libraries from package %{name}
-Group: Development/Debug
-AutoReqProv: 0
-%if 0%{?gccv:1}
-Provides: gcc-base-debuginfo = %{version}-%{release}
-%endif
-
-%description base-debuginfo
-This package provides debug information for libgcc_s, libgomp and
-libstdc++ libraries from package %{name}.
-Debug information is useful when developing applications that use this
-package or when debugging this package.
-
-%files base-debuginfo -f debugfiles-base.list
-%endif
 
 %prep
 %setup -q -n gcc-%{version}-%{DATE}
@@ -815,133 +677,13 @@ package or when debugging this package.
 %patch1007 -p1
 %patch1008 -p1
 
-%if 0%{?_enable_debug_packages}
-mkdir dwz-wrapper
-if [ -f /usr/bin/dwz ]; then
-cat > dwz-wrapper/dwz <<\EOF
-#!/bin/bash
-dwz_opts=
-dwzm_opts=
-dwz_files=
-dwzm_files=
-while [ $# -gt 0 ]; do
-  case "$1" in
-  -l|-L)
-    dwz_opts="$dwz_opts $1 $2"; shift;;
-  -m|-M)
-    dwzm_opts="$dwzm_opts $1 $2"; shift;;
-  -*)
-    dwz_opts="$dwz_opts $1";;
-  *)
-    if [[ "$1" =~ (lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm|go\.so)|bin/gofmt.gcc.debug|bin/go.gcc.debug|/cgo.debug) ]]; then
-      dwz_files="$dwz_files $1"
-    else
-      dwzm_files="$dwzm_files $1"
-    fi;;
-  esac
-  shift
-done
-if [ -f /usr/bin/dwz ]; then
-  /usr/bin/dwz $dwz_opts $dwz_files
-  /usr/bin/dwz $dwz_opts $dwzm_opts $dwzm_files
-fi
-EOF
-chmod 755 dwz-wrapper/dwz
-fi
-cat > split-debuginfo.sh <<\EOF
-#!/bin/sh
-BUILDDIR="%{_builddir}/gcc-%{version}-%{DATE}"
-if [ -f "${BUILDDIR}"/debugfiles.list \
-     -a -f "${BUILDDIR}"/debuglinks.list ]; then
-  > "${BUILDDIR}"/debugsources-base.list
-  > "${BUILDDIR}"/debugfiles-base.list
-  cd "${RPM_BUILD_ROOT}"
-  for f in `find usr/lib/debug -name \*.debug \
-	    | egrep 'lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm)'`; do
-    echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-    if [ -f "$f" -a ! -L "$f" ]; then
-      cp -a "$f" "${BUILDDIR}"/test.debug
-      /usr/lib/rpm/debugedit -b "${RPM_BUILD_DIR}" -d /usr/src/debug \
-			     -l "${BUILDDIR}"/debugsources-base.list \
-			     "${BUILDDIR}"/test.debug
-      rm -f "${BUILDDIR}"/test.debug
-    fi
-  done
-  for f in `find usr/lib/debug/.build-id -type l`; do
-    ls -l "$f" | egrep -q -- '->.*lib[0-9]*/lib(gcc[_.]|gomp|stdc|quadmath|itm)' \
-      && echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-  done
-  cp -a "${BUILDDIR}"/debugfiles-base.list "${BUILDDIR}"/debugfiles-remove.list
-%if %{build_go}
-  libgoso=`basename .%{_prefix}/%{_lib}/libgo.so.11.*`
-  for f in %{_prefix}/bin/go.gcc \
-	   %{_prefix}/bin/gofmt.gcc \
-	   %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cgo \
-	   %{_prefix}/%{_lib}/$libgoso ; do
-    eu-unstrip .$f usr/lib/debug$f.debug -o .$f.new
-    chmod --reference=.$f .$f.new
-    mv -f .$f.new .$f
-    rm -f usr/lib/debug$f.debug
-    echo "/usr/lib/debug$f.debug" >> "${BUILDDIR}"/debugfiles-remove.list
-  done
-  rm -f usr/lib/debug%{_prefix}/%{_lib}/libgo.so.11.debug
-  echo "/usr/lib/debug%{_prefix}/%{_lib}/libgo.so.11.debug" >> "${BUILDDIR}"/debugfiles-remove.list
-  for f in `find usr/lib/debug/.build-id -type l`; do
-    if ls -l "$f" | egrep -q -- '->.*(/bin/go.gcc|/bin/gofmt.gcc|/cgo|lib[0-9]*/libgo\.so)'; then
-      echo "/$f" >> "${BUILDDIR}"/debugfiles-remove.list
-      rm -f "$f"
-    fi
-  done
-%endif
-  grep -v -f "${BUILDDIR}"/debugfiles-remove.list \
-    "${BUILDDIR}"/debugfiles.list > "${BUILDDIR}"/debugfiles.list.new
-  mv -f "${BUILDDIR}"/debugfiles.list.new "${BUILDDIR}"/debugfiles.list
-  for f in `LC_ALL=C sort -z -u "${BUILDDIR}"/debugsources-base.list \
-	    | grep -E -v -z '(<internal>|<built-in>)$' \
-	    | xargs --no-run-if-empty -n 1 -0 echo \
-	    | sed 's,^,usr/src/debug/,'`; do
-    if [ -f "$f" ]; then
-      echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-      echo "%%exclude /$f" >> "${BUILDDIR}"/debugfiles.list
-    fi
-  done
-  mv -f "${BUILDDIR}"/debugfiles-base.list{,.old}
-  echo "%%dir /usr/lib/debug" > "${BUILDDIR}"/debugfiles-base.list
-  awk 'BEGIN{FS="/"}(NF>4&&$NF){d="%%dir /"$2"/"$3"/"$4;for(i=5;i<NF;i++){d=d"/"$i;if(!v[d]){v[d]=1;print d}}}' \
-    "${BUILDDIR}"/debugfiles-base.list.old >> "${BUILDDIR}"/debugfiles-base.list
-  cat "${BUILDDIR}"/debugfiles-base.list.old >> "${BUILDDIR}"/debugfiles-base.list
-  rm -f "${BUILDDIR}"/debugfiles-base.list.old
-fi
-EOF
-chmod 755 split-debuginfo.sh
-%endif
-
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
 
 ./contrib/gcc_update --touch
 
-LC_ALL=C sed -i -e 's/\xa0/ /' gcc/doc/options.texi
-
 sed -i -e 's/Common Driver Var(flag_report_bug)/& Init(1)/' gcc/common.opt
-
-%ifarch ppc
-if [ -d libstdc++-v3/config/abi/post/powerpc64-linux-gnu ]; then
-  mkdir -p libstdc++-v3/config/abi/post/powerpc64-linux-gnu/64
-  mv libstdc++-v3/config/abi/post/powerpc64-linux-gnu/{,64/}baseline_symbols.txt
-  mv libstdc++-v3/config/abi/post/powerpc64-linux-gnu/{32/,}baseline_symbols.txt
-  rm -rf libstdc++-v3/config/abi/post/powerpc64-linux-gnu/32
-fi
-%endif
-%ifarch sparc
-if [ -d libstdc++-v3/config/abi/post/sparc64-linux-gnu ]; then
-  mkdir -p libstdc++-v3/config/abi/post/sparc64-linux-gnu/64
-  mv libstdc++-v3/config/abi/post/sparc64-linux-gnu/{,64/}baseline_symbols.txt
-  mv libstdc++-v3/config/abi/post/sparc64-linux-gnu/{32/,}baseline_symbols.txt
-  rm -rf libstdc++-v3/config/abi/post/sparc64-linux-gnu/32
-fi
-%endif
 
 # This test causes fork failures, because it spawns way too many threads
 rm -f gcc/testsuite/go.test/test/chan/goroutines.go
@@ -995,7 +737,7 @@ enableobjc=,objc,obj-c++
 %endif
 
 CONFIGURE_OPTS="\
-	--prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir} \
+	--prefix=%{_prefix} \
 	--with-bugurl=http://bugzilla.redhat.com/bugzilla \
 	--enable-shared --enable-threads=posix --enable-checking=release \
 %if %{build_multilib}
@@ -1113,67 +855,10 @@ cp -a Makefile{,.orig}
 sed -i -e '/^CHECK_TARGETS/s/$/ check-jit/' Makefile
 touch -r Makefile.orig Makefile
 rm Makefile.orig
-make jit.sphinx.html
-make jit.sphinx.install-html jit_htmldir=`pwd`/../../rpm.doc/libgccjit-devel/html
 cd ..
 %endif
 
-# Make generated man pages even if Pod::Man is not new enough
-perl -pi -e 's/head3/head2/' ../contrib/texi2pod.pl
-for i in ../gcc/doc/*.texi; do
-  cp -a $i $i.orig; sed 's/ftable/table/' $i.orig > $i
-done
-make -C gcc generated-manpages
-for i in ../gcc/doc/*.texi; do mv -f $i.orig $i; done
-
-# Make generated doxygen pages.
-%if %{build_libstdcxx_docs}
-cd %{gcc_target_platform}/libstdc++-v3
-make doc-html-doxygen
-make doc-man-doxygen
-cd ../..
-%endif
-
-# Copy various doc files here and there
 cd ..
-mkdir -p rpm.doc/gfortran rpm.doc/objc
-mkdir -p rpm.doc/go rpm.doc/libgo rpm.doc/libquadmath rpm.doc/libitm
-mkdir -p rpm.doc/changelogs/{gcc/cp,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts,libmpx}
-
-for i in {gcc,gcc/cp,gcc/ada,gcc/jit,libstdc++-v3,libobjc,libgomp,libcc1,libatomic,libsanitizer,libcilkrts,libmpx}/ChangeLog*; do
-	cp -p $i rpm.doc/changelogs/$i
-done
-
-(cd gcc/fortran; for i in ChangeLog*; do
-	cp -p $i ../../rpm.doc/gfortran/$i
-done)
-(cd libgfortran; for i in ChangeLog*; do
-	cp -p $i ../rpm.doc/gfortran/$i.libgfortran
-done)
-(cd libobjc; for i in README*; do
-	cp -p $i ../rpm.doc/objc/$i.libobjc
-done)
-%if %{build_libquadmath}
-(cd libquadmath; for i in ChangeLog* COPYING.LIB; do
-	cp -p $i ../rpm.doc/libquadmath/$i.libquadmath
-done)
-%endif
-%if %{build_libitm}
-(cd libitm; for i in ChangeLog*; do
-	cp -p $i ../rpm.doc/libitm/$i.libitm
-done)
-%endif
-%if %{build_go}
-(cd gcc/go; for i in README* ChangeLog*; do
-	cp -p $i ../../rpm.doc/go/$i
-done)
-(cd libgo; for i in LICENSE* PATENTS* README; do
-	cp -p $i ../rpm.doc/libgo/$i.libgo
-done)
-%endif
-
-rm -f rpm.doc/changelogs/gcc/ChangeLog.[1-9]
-find rpm.doc -name \*ChangeLog\* | xargs bzip2 -9
 
 %install
 rm -rf %{buildroot}
@@ -1185,53 +870,42 @@ TARGET_PLATFORM=%{gcc_target_platform}
 # There are some MP bugs in libstdc++ Makefiles
 make -C %{gcc_target_platform}/libstdc++-v3
 
-make prefix=%{buildroot}%{_prefix} mandir=%{buildroot}%{_mandir} \
-  infodir=%{buildroot}%{_infodir} install
-%if %{build_ada}
-chmod 644 %{buildroot}%{_infodir}/gnat*
-%endif
+make prefix=%{buildroot}%{_prefix} install
+
+mv %{buildroot}%{_prefix}/lib64/* %{buildroot}%{_libdir}/
 
 FULLPATH=%{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-FULLEPATH=%{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
+FULLEPATH=%{buildroot}%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 
 # fix some things
 # ln -sf gcc %{buildroot}%{_prefix}/bin/cc
 # rm -f %{buildroot}%{_prefix}/lib/cpp
 # ln -sf ../bin/cpp %{buildroot}/%{_prefix}/lib/cpp
 # ln -sf gfortran %{buildroot}%{_prefix}/bin/f95
-rm -f %{buildroot}%{_infodir}/dir
 # gzip -9 %{buildroot}%{_infodir}/*.info*
 %if %{build_ada}
 # target will be renamed to a gccv-base suffix if needed later on in this spec file
-ln -sf gcc%{?gccv} %{buildroot}%{_prefix}/bin/gnatgcc
+ln -sf gcc%{?gccv} %{buildroot}%{_bindir}/gnatgcc
 %endif
 
 %if %{build_go}
-mv %{buildroot}%{_prefix}/bin/go{,.gcc}
-mv %{buildroot}%{_prefix}/bin/gofmt{,.gcc}
-ln -sf /etc/alternatives/go %{buildroot}%{_prefix}/bin/go
-ln -sf /etc/alternatives/gofmt %{buildroot}%{_prefix}/bin/gofmt
+mv %{buildroot}%{_bindir}/go{,.gcc}
+mv %{buildroot}%{_bindir}/gofmt{,.gcc}
+ln -sf /etc/alternatives/go %{buildroot}%{_bindir}/go
+ln -sf /etc/alternatives/gofmt %{buildroot}%{_bindir}/gofmt
 %endif
 
 cxxconfig="`find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h`"
 for i in `find %{gcc_target_platform}/[36]*/libstdc++-v3/include -name c++config.h 2>/dev/null`; do
   if ! diff -up $cxxconfig $i; then
-    cat > %{buildroot}%{_prefix}/include/c++/%{gcc_major}/%{gcc_target_platform}/bits/c++config.h <<EOF
+    cat > %{buildroot}%{_includedir}/c++/%{gcc_major}/%{gcc_target_platform}/bits/c++config.h <<EOF
 #ifndef _CPP_CPPCONFIG_WRAPPER
 #define _CPP_CPPCONFIG_WRAPPER 1
 #include <bits/wordsize.h>
 #if __WORDSIZE == 32
-%ifarch %{multilib_64_archs}
-`cat $(find %{gcc_target_platform}/32/libstdc++-v3/include -name c++config.h)`
-%else
 `cat $(find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h)`
-%endif
 #else
-%ifarch %{multilib_64_archs}
-`cat $(find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h)`
-%else
 `cat $(find %{gcc_target_platform}/64/libstdc++-v3/include -name c++config.h)`
-%endif
 #endif
 #endif
 EOF
@@ -1239,7 +913,7 @@ EOF
   fi
 done
 
-for f in `find %{buildroot}%{_prefix}/include/c++/%{gcc_major}/%{gcc_target_platform}/ -name c++config.h`; do
+for f in `find %{buildroot}%{_includedir}/c++/%{gcc_major}/%{gcc_target_platform}/ -name c++config.h`; do
   for i in 1 2 4 8; do
     sed -i -e 's/#define _GLIBCXX_ATOMIC_BUILTINS_'$i' 1/#ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_'$i'\
 &\
@@ -1256,17 +930,7 @@ done
 # 4) it is huge
 # People can always precompile on their own whatever they want, but
 # shipping this for everybody is unnecessary.
-rm -rf %{buildroot}%{_prefix}/include/c++/%{gcc_major}/%{gcc_target_platform}/bits/*.h.gch
-
-%if %{build_libstdcxx_docs}
-libstdcxx_doc_builddir=%{gcc_target_platform}/libstdc++-v3/doc/doxygen
-mkdir -p ../rpm.doc/libstdc++-v3
-cp -r -p ../libstdc++-v3/doc/html ../rpm.doc/libstdc++-v3/html
-cp -r -p $libstdcxx_doc_builddir/html ../rpm.doc/libstdc++-v3/html/api
-mkdir -p %{buildroot}%{_mandir}/man3
-cp -r -p $libstdcxx_doc_builddir/man/man3/* %{buildroot}%{_mandir}/man3/
-find ../rpm.doc/libstdc++-v3 -name \*~ | xargs rm
-%endif
+rm -rf %{buildroot}%{_includedir}/c++/%{gcc_major}/%{gcc_target_platform}/bits/*.h.gch
 
 FULLLSUBDIR=
 if [ -n "$FULLLSUBDIR" ]; then
@@ -1279,78 +943,54 @@ fi
 find %{buildroot} -name \*.la | xargs rm -f
 
 %if %{build_fortran}
-mv %{buildroot}%{_prefix}/%{_lib}/libgfortran.spec $FULLPATH/
+mv %{buildroot}%{_libdir}/libgfortran.spec $FULLPATH/
 %endif
 %if %{build_libitm}
-mv %{buildroot}%{_prefix}/%{_lib}/libitm.spec $FULLPATH/
+mv %{buildroot}%{_libdir}/libitm.spec $FULLPATH/
 %endif
 %if %{build_libsanitizer}
-mv %{buildroot}%{_prefix}/%{_lib}/libsanitizer.spec $FULLPATH/
+mv %{buildroot}%{_libdir}/libsanitizer.spec $FULLPATH/
 %endif
 %if %{build_libcilkrts}
-mv %{buildroot}%{_prefix}/%{_lib}/libcilkrts.spec $FULLPATH/
+mv %{buildroot}%{_libdir}/libcilkrts.spec $FULLPATH/
 %endif
 %if %{build_libmpx}
-mv %{buildroot}%{_prefix}/%{_lib}/libmpx.spec $FULLPATH/
+mv %{buildroot}%{_libdir}/libmpx.spec $FULLPATH/
 %endif
 
-mkdir -p %{buildroot}/%{_lib}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgcc_s.so.1 %{buildroot}/%{_lib}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-chmod 755 %{buildroot}/%{_lib}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-
-ln -sf libgcc_s-%{gcc_major}-%{DATE}.so.1 %{buildroot}/%{_lib}/libgcc_s.so.1
-#ln -sf /%{_lib}/libgcc_s.so.1 $FULLPATH/libgcc_s.so
-ln -sf /%{_lib}/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
-%if %{build_multilib}
-%ifarch %{multilib_64_archs}
-ln -sf /lib/libgcc_s.so.1 $FULLPATH/32/libgcc_s.so
-%endif
-%endif # multilib
-%ifarch ppc
-rm -f $FULLPATH/libgcc_s.so
-echo '/* GNU ld script
-   Use the shared library, but some functions are only in
-   the static library, so try that secondarily.  */
-OUTPUT_FORMAT(elf32-powerpc)
-GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/libgcc_s.so
-%endif
-%ifarch %{arm}
-rm -f $FULLPATH/libgcc_s.so
-echo '/* GNU ld script
-   Use the shared library, but some functions are only in
-   the static library, so try that secondarily.  */
-OUTPUT_FORMAT(elf32-littlearm)
-GROUP ( /lib/libgcc_s.so.1 libgcc.a )' > $FULLPATH/libgcc_s.so
-%endif
+mv -f %{buildroot}%{_libdir}/libgcc_s.so.1 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
+chmod 755 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
+ln -sf libgcc_s-%{gcc_major}-%{DATE}.so.1 %{buildroot}%{_libdir}/libgcc_s.so.1
+ln -sf %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
 
 %if %{build_libgomp}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.spec $FULLPATH/
+mv -f %{buildroot}%{_libdir}/libgomp.spec $FULLPATH/
 %endif
 
 %if %{build_ada}
-mv -f $FULLPATH/adalib/libgnarl-*.so %{buildroot}%{_prefix}/%{_lib}/
-mv -f $FULLPATH/adalib/libgnat-*.so %{buildroot}%{_prefix}/%{_lib}/
+mv -f $FULLPATH/adalib/libgnarl-*.so %{buildroot}%{_libdir}/
+mv -f $FULLPATH/adalib/libgnat-*.so %{buildroot}%{_libdir}/
 rm -f $FULLPATH/adalib/libgnarl.so* $FULLPATH/adalib/libgnat.so*
 %endif
 
-mkdir -p %{buildroot}%{_prefix}/libexec/getconf
+mkdir -p %{buildroot}%{_libexecdir}/getconf
 if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep '__LONG_MAX__.*\(2147483647\|0x7fffffff\($\|[LU]\)\)'; then
-  ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_prefix}/libexec/getconf/default
+  ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_libexecdir}/getconf/default
 else
-  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
+  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
 fi
 
-mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++*gdb.py* \
-      %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
+mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}
+mv -f %{buildroot}%{_libdir}/libstdc++*gdb.py* \
+      %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/
 pushd ../libstdc++-v3/python
 for i in `find . -name \*.py`; do
   touch -r $i %{buildroot}%{_prefix}/share/gcc-%{gcc_major}/python/$i
 done
-touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
+touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/libstdc++*gdb.py
 popd
 for f in `find %{buildroot}%{_prefix}/share/gcc-%{gcc_major}/python/ \
-	       %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/ -name \*.py`; do
+	       %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/ -name \*.py`; do
   r=${f/$RPM_BUILD_ROOT/}
   %{__sys_python} -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
   %{__sys_python} -O -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
@@ -1358,14 +998,11 @@ done
 
 rm -f $FULLEPATH/libgccjit.so
 %if %{build_libgccjit}
-cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_prefix}/%{_lib}/
-cp -a ../gcc/jit/libgccjit*.h %{buildroot}%{_prefix}/include/
-/usr/bin/install -c -m 644 objlibgccjit/gcc/doc/libgccjit.info %{buildroot}/%{_infodir}/
-gzip -9 %{buildroot}/%{_infodir}/libgccjit.info
+cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_libdir}/
+cp -a ../gcc/jit/libgccjit*.h %{buildroot}%{_includedir}/
 %endif
 
 pushd $FULLPATH
-if [ "%{_lib}" = "lib" ]; then
 %if %{build_objc}
 ln -sf ../../../libobjc.so.4 libobjc.so
 %endif
@@ -1392,6 +1029,11 @@ ln -sf ../../../libatomic.so.1.* libatomic.so
 ln -sf ../../../libasan.so.4.* libasan.so
 mv ../../../libasan_preinit.o libasan_preinit.o
 ln -sf ../../../libubsan.so.0.* libubsan.so
+rm -f libtsan.so
+echo 'INPUT ( %{_libdir}/'`echo ../../../libtsan.so.0.* | sed 's,^.*libt,libt,'`' )' > libtsan.so
+mv ../../../libtsan_preinit.o libtsan_preinit.o
+rm -f liblsan.so
+echo 'INPUT ( %{_libdir}/'`echo ../../../liblsan.so.0.* | sed 's,^.*libl,libl,'`' )' > liblsan.so
 %endif
 %if %{build_libcilkrts}
 ln -sf ../../../libcilkrts.so.5.* libcilkrts.so
@@ -1400,290 +1042,65 @@ ln -sf ../../../libcilkrts.so.5.* libcilkrts.so
 ln -sf ../../../libmpx.so.2.* libmpx.so
 ln -sf ../../../libmpxwrappers.so.2.* libmpxwrappers.so
 %endif
-else
-%if %{build_objc}
-ln -sf ../../../../%{_lib}/libobjc.so.4 libobjc.so
-%endif
-ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
+mv -f %{buildroot}%{_libdir}/libstdc++.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libstdc++fs.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libsupc++.*a $FULLLPATH/
 %if %{build_fortran}
-ln -sf ../../../../%{_lib}/libgfortran.so.4.* libgfortran.so
+mv -f %{buildroot}%{_libdir}/libgfortran.*a $FULLLPATH/
+%endif
+%if %{build_objc}
+mv -f %{buildroot}%{_libdir}/libobjc.*a .
 %endif
 %if %{build_libgomp}
-ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
-%endif
-%if %{build_go}
-ln -sf ../../../../%{_lib}/libgo.so.11.* libgo.so
+mv -f %{buildroot}%{_libdir}/libgomp.*a .
 %endif
 %if %{build_libquadmath}
-ln -sf ../../../../%{_lib}/libquadmath.so.0.* libquadmath.so
+mv -f %{buildroot}%{_libdir}/libquadmath.*a $FULLLPATH/
 %endif
 %if %{build_libitm}
-ln -sf ../../../../%{_lib}/libitm.so.1.* libitm.so
+mv -f %{buildroot}%{_libdir}/libitm.*a $FULLLPATH/
 %endif
 %if %{build_libatomic}
-ln -sf ../../../../%{_lib}/libatomic.so.1.* libatomic.so
+mv -f %{buildroot}%{_libdir}/libatomic.*a $FULLLPATH/
 %endif
 %if %{build_libsanitizer}
-ln -sf ../../../../%{_lib}/libasan.so.4.* libasan.so
-mv ../../../../%{_lib}/libasan_preinit.o libasan_preinit.o
-ln -sf ../../../../%{_lib}/libubsan.so.0.* libubsan.so
+mv -f %{buildroot}%{_libdir}/libasan.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libubsan.*a $FULLLPATH/
 %ifarch x86_64 aarch64
-rm -f libtsan.so
-echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/libtsan.so.0.* | sed 's,^.*libt,libt,'`' )' > libtsan.so
-rm -f liblsan.so
-echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/liblsan.so.0.* | sed 's,^.*libl,libl,'`' )' > liblsan.so
+mv -f %{buildroot}%{_libdir}/libtsan.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/liblsan.*a $FULLLPATH/
 %endif
 %endif
 %if %{build_libcilkrts}
-ln -sf ../../../../%{_lib}/libcilkrts.so.5.* libcilkrts.so
+mv -f %{buildroot}%{_libdir}/libcilkrts.*a $FULLLPATH/
 %endif
 %if %{build_libmpx}
-ln -sf ../../../../%{_lib}/libmpx.so.2.* libmpx.so
-ln -sf ../../../../%{_lib}/libmpxwrappers.so.2.* libmpxwrappers.so
-%endif
-%if %{build_libsanitizer}
-rm -f libtsan.so
-echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/libtsan.so.0.* | sed 's,^.*libt,libt,'`' )' > libtsan.so
-mv ../../../../%{_lib}/libtsan_preinit.o libtsan_preinit.o
-rm -f liblsan.so
-echo 'INPUT ( %{_prefix}/%{_lib}/'`echo ../../../../%{_lib}/liblsan.so.0.* | sed 's,^.*libl,libl,'`' )' > liblsan.so
-%endif
-fi
-mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++fs.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
-%if %{build_fortran}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a $FULLLPATH/
-%endif
-%if %{build_objc}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libobjc.*a .
-%endif
-%if %{build_libgomp}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.*a .
-%endif
-%if %{build_libquadmath}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libquadmath.*a $FULLLPATH/
-%endif
-%if %{build_libitm}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libitm.*a $FULLLPATH/
-%endif
-%if %{build_libatomic}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libatomic.*a $FULLLPATH/
-%endif
-%if %{build_libsanitizer}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libasan.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libubsan.*a $FULLLPATH/
-%ifarch x86_64 aarch64
-mv -f %{buildroot}%{_prefix}/%{_lib}/libtsan.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/liblsan.*a $FULLLPATH/
-%endif
-%endif
-%if %{build_libcilkrts}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libcilkrts.*a $FULLLPATH/
-%endif
-%if %{build_libmpx}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libmpx.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libmpxwrappers.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libmpx.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libmpxwrappers.*a $FULLLPATH/
 %endif
 %if %{build_go}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgo.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgobegin.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgolibbegin.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libgo.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libgobegin.*a $FULLLPATH/
+mv -f %{buildroot}%{_libdir}/libgolibbegin.*a $FULLLPATH/
 %endif
 
 %if %{build_ada}
-%ifarch %{multilib_64_archs}
-rm -rf $FULLPATH/32/ada{include,lib}
-%endif
 if [ "$FULLPATH" != "$FULLLPATH" ]; then
 mv -f $FULLPATH/ada{include,lib} $FULLLPATH/
 pushd $FULLLPATH/adalib
-if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../../libgnarl-*.so libgnarl.so
 ln -sf ../../../../../libgnarl-*.so libgnarl-6.so
 ln -sf ../../../../../libgnat-*.so libgnat.so
 ln -sf ../../../../../libgnat-*.so libgnat-7.so
-else
-ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../../%{_lib}/libgnarl-*.so libgnarl-6.so
-ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../../%{_lib}/libgnat-*.so libgnat-7.so
-fi
 popd
 else
 pushd $FULLPATH/adalib
-if [ "%{_lib}" = "lib" ]; then
 ln -sf ../../../../libgnarl-*.so libgnarl.so
 ln -sf ../../../../libgnarl-*.so libgnarl-6.so
 ln -sf ../../../../libgnat-*.so libgnat.so
 ln -sf ../../../../libgnat-*.so libgnat-7.so
-else
-ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl.so
-ln -sf ../../../../../%{_lib}/libgnarl-*.so libgnarl-6.so
-ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat.so
-ln -sf ../../../../../%{_lib}/libgnat-*.so libgnat-7.so
-fi
 popd
 fi
-%endif
-
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-mkdir -p 32
-%if %{build_objc}
-ln -sf ../../../../libobjc.so.4 32/libobjc.so
-%endif
-%if %{build_fortran}
-ln -sf ../`echo ../../../../lib64/libgfortran.so.3.* | sed s~/../lib64/~/~` 32/libgfortran.so
-%endif
-ln -sf ../`echo ../../../../lib64/libstdc++.so.6.*[0-9] | sed s~/../lib64/~/~` 32/libstdc++.so
-%if %{build_libgomp}
-ln -sf ../`echo ../../../../lib64/libgomp.so.1.* | sed s~/../lib64/~/~` 32/libgomp.so
-%endif
-%endif # multilib
-
-%if %{build_go}
-rm -f libgo.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libgo.so.11.* | sed 's,^.*libg,libg,'`' )' > libgo.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libgo.so.11.* | sed 's,^.*libg,libg,'`' )' > 32/libgo.so
-%endif # multilib
-%endif
-
-%if %{build_libquadmath}
-rm -f libquadmath.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > libquadmath.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libquadmath.so.0.* | sed 's,^.*libq,libq,'`' )' > 32/libquadmath.so
-%endif # multilib
-%endif
-
-%if %{build_libitm}
-rm -f libitm.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libitm.so.1.* | sed 's,^.*libi,libi,'`' )' > libitm.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libitm.so.1.* | sed 's,^.*libi,libi,'`' )' > 32/libitm.so
-%endif # multilib
-%endif
-
-%if %{build_libatomic}
-rm -f libatomic.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libatomic.so.1.* | sed 's,^.*liba,liba,'`' )' > libatomic.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libatomic.so.1.* | sed 's,^.*liba,liba,'`' )' > 32/libatomic.so
-%endif # multilib
-%endif
-
-%if %{build_libsanitizer}
-rm -f libasan.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libasan.so.4.* | sed 's,^.*liba,liba,'`' )' > libasan.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libasan.so.4.* | sed 's,^.*liba,liba,'`' )' > 32/libasan.so
-mv ../../../../lib/libasan_preinit.o 32/libasan_preinit.o
-%endif # multilib
-rm -f libubsan.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libubsan.so.0.* | sed 's,^.*libu,libu,'`' )' > libubsan.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libubsan.so.0.* | sed 's,^.*libu,libu,'`' )' > 32/libubsan.so
-%endif # multilib
-%endif
-
-%if %{build_libcilkrts}
-rm -f libcilkrts.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > libcilkrts.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libcilkrts.so.5.* | sed 's,^.*libc,libc,'`' )' > 32/libcilkrts.so
-%endif # multilib
-%endif
-
-%if %{build_libmpx}
-rm -f libmpx.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmpx.so.2.* | sed 's,^.*libm,libm,'`' )' > libmpx.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmpx.so.2.* | sed 's,^.*libm,libm,'`' )' > 32/libmpx.so
-%endif # multilib
-rm -f libmpxwrappers.so
-echo 'INPUT ( %{_prefix}/lib64/'`echo ../../../../lib64/libmpxwrappers.so.2.* | sed 's,^.*libm,libm,'`' )' > libmpxwrappers.so
-%if %{build_multilib}
-echo 'INPUT ( %{_prefix}/lib/'`echo ../../../../lib64/libmpxwrappers.so.2.* | sed 's,^.*libm,libm,'`' )' > 32/libmpxwrappers.so
-%endif # multilib
-%endif
-
-%if %{build_multilib}
-%if %{build_objc}
-mv -f %{buildroot}%{_prefix}/lib/libobjc.*a 32/
-%endif
-%if %{build_libgomp}
-mv -f %{buildroot}%{_prefix}/lib/libgomp.*a 32/
-%endif
-
-%if %{build_fortran}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libgfortran.a 32/libgfortran.a
-%endif
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libstdc++.a 32/libstdc++.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libstdc++fs.a 32/libstdc++fs.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libsupc++.a 32/libsupc++.a
-
-%if %{build_libquadmath}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libquadmath.a 32/libquadmath.a
-%endif
-
-%if %{build_libitm}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libitm.a 32/libitm.a
-%endif
-
-%if %{build_libatomic}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libatomic.a 32/libatomic.a
-%endif
-
-%if %{build_libsanitizer}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libasan.a 32/libasan.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libubsan.a 32/libubsan.a
-%endif
-
-%if %{build_libcilkrts}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libcilkrts.a 32/libcilkrts.a
-%endif
-
-%if %{build_libmpx}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libmpx.a 32/libmpx.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libmpxwrappers.a 32/libmpxwrappers.a
-%endif
-
-%if %{build_go}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libgo.a 32/libgo.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libgobegin.a 32/libgobegin.a
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/libgolibbegin.a 32/libgolibbegin.a
-%endif
-
-%if %{build_ada}
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/adainclude 32/adainclude
-ln -sf ../../../%{multilib_32_arch}-%{_vendor}-%{_target_os}/%{gcc_major}/adalib 32/adalib
-%endif
-%endif # multilib
-%endif # multilib_64_archs
-
-# If we are building a debug package then copy all of the static archives
-# into the debug directory to keep them as unstripped copies.
-%if 0%{?_enable_debug_packages}
-for d in . $FULLLSUBDIR; do
-  mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/$d
-  for f in `find $d -maxdepth 1 -a \
-		\( -name libasan.a -o -name libatomic.a \
-		-o -name libcaf_single.a -o -name libcilkrts.a \
-		-o -name libgcc.a -o -name libgcc_eh.a \
-		-o -name libgcov.a -o -name libgfortran.a \
-		-o -name libgo.a -o -name libgobegin.a \
-		-o -name libgolibbegin.a -o -name libgomp.a \
-		-o -name libitm.a -o -name liblsan.a \
-		-o -name libmpx.a -o -name libmpxwrappers.a \
-		-o -name libobjc.a \
-		-o -name libquadmath.a -o -name libstdc++.a \
-		-o -name libstdc++fs.a -o -name libsupc++.a \
-		-o -name libtsan.a -o -name libubsan.a \) -a -type f`; do
-    cp -a $f $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/$d/
-  done
-done
 %endif
 
 pwd
@@ -1691,45 +1108,45 @@ popd
 pwd
 
 %if %{build_fortran}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.4.*
+chmod 755 %{buildroot}%{_libdir}/libgfortran.so.4.*
 %endif
 %if %{build_libgomp}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
+chmod 755 %{buildroot}%{_libdir}/libgomp.so.1.*
 %endif
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libcc1.so.0.*
+chmod 755 %{buildroot}%{_libdir}/libcc1.so.0.*
 %if %{build_libquadmath}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libquadmath.so.0.*
+chmod 755 %{buildroot}%{_libdir}/libquadmath.so.0.*
 %endif
 %if %{build_libitm}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libitm.so.1.*
+chmod 755 %{buildroot}%{_libdir}/libitm.so.1.*
 %endif
 %if %{build_libatomic}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libatomic.so.1.*
+chmod 755 %{buildroot}%{_libdir}/libatomic.so.1.*
 %endif
 %if %{build_libsanitizer}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libasan.so.4.*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libubsan.so.0.*
+chmod 755 %{buildroot}%{_libdir}/libasan.so.4.*
+chmod 755 %{buildroot}%{_libdir}/libubsan.so.0.*
 %ifarch x86_64 aarch64
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libtsan.so.0.*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/liblsan.so.0.*
+chmod 755 %{buildroot}%{_libdir}/libtsan.so.0.*
+chmod 755 %{buildroot}%{_libdir}/liblsan.so.0.*
 %endif
 %endif
 %if %{build_libcilkrts}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libcilkrts.so.5.*
+chmod 755 %{buildroot}%{_libdir}/libcilkrts.so.5.*
 %endif
 %if %{build_libmpx}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmpx.so.2.*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmpxwrappers.so.2.*
+chmod 755 %{buildroot}%{_libdir}/libmpx.so.2.*
+chmod 755 %{buildroot}%{_libdir}/libmpxwrappers.so.2.*
 %endif
 %if %{build_go}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgo.so.11.*
+chmod 755 %{buildroot}%{_libdir}/libgo.so.11.*
 %endif
 %if %{build_objc}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libobjc.so.4.*
+chmod 755 %{buildroot}%{_libdir}/libobjc.so.4.*
 %endif
 %if %{build_ada}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgnarl*so*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgnat*so*
+chmod 755 %{buildroot}%{_libdir}/libgnarl*so*
+chmod 755 %{buildroot}%{_libdir}/libgnat*so*
 %endif
 
 mv $FULLPATH/include-fixed/syslimits.h $FULLPATH/include/syslimits.h
@@ -1742,7 +1159,7 @@ for h in `find $FULLPATH/include -name \*.h`; do
   fi
 done
 
-cat > %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c89 <<"EOF"
+cat > %{buildroot}%{_bindir}/%{?gccv:%{name}-}c89 <<"EOF"
 #!/bin/sh
 fl="-std=c89"
 for opt; do
@@ -1754,7 +1171,7 @@ for opt; do
 done
 exec %{name} $fl ${1+"$@"}
 EOF
-cat > %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c99 <<"EOF"
+cat > %{buildroot}%{_bindir}/%{?gccv:%{name}-}c99 <<"EOF"
 #!/bin/sh
 fl="-std=c99"
 for opt; do
@@ -1766,40 +1183,18 @@ for opt; do
 done
 exec %{name} $fl ${1+"$@"}
 EOF
-chmod 755 %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c?9
+chmod 755 %{buildroot}%{_bindir}/%{?gccv:%{name}-}c?9
 
 cd ..
-%find_lang gcc
-%find_lang cpplib
-%find_lang libstdc++
-# packaging lang files via alternatives is somewhat of a pain, so....
-# thou shalt speak english
-for p in gcc cpplib libstdc++ ; do
-    awk '{printf "%{buildroot}%s\n", $2;}' < $p.lang | xargs -r rm -f
-    >$p.lang
-done
 
 %if 0%{?gccv:1}
 # rename binaries in user directories to avoid conflicts
 %if %{build_ada}
-for i in %{buildroot}%{_prefix}/bin/gnat* ; do
+for i in %{buildroot}%{_bindir}/gnat* ; do
   mv -f $i ${i}%{gccv}
 done
-for i in %{buildroot}%{_infodir}/gnat*.info ; do
-    sed -i -e "/^START-INFO-DIR-ENTRY/,/^END-INFO-DIR-ENTRY/s|gnat|gnat%{gccv}|gi" $i
-    g=${i##*gnat}
-    mv $i %{buildroot}%{_infodir}/gnat%{gccv}${g}
-done
 %endif
-%if %{build_fortran}
-mv %{buildroot}%{_mandir}/man1/gfortran.1 %{buildroot}%{_mandir}/man1/gfortran%{gccv}.1
-mv %{buildroot}%{_infodir}/gfortran.info %{buildroot}%{_infodir}/gfortran%{gccv}.info
-%endif
-%if %{build_go}
-mv %{buildroot}%{_mandir}/man1/gccgo.1 %{buildroot}%{_mandir}/man1/gccgo%{gccv}.1
-mv %{buildroot}%{_infodir}/gccgo.info %{buildroot}%{_infodir}/gccgo%{gccv}.info
-%endif
-pushd %{buildroot}%{_prefix}/bin
+pushd %{buildroot}%{_bindir}
 for i in $(ls {*gcc,*++,gcov,cpp,*gccgo,*gfortran} 2>/dev/null) ; do
   mv -f $i ${i}%{gccv}
 done
@@ -1809,53 +1204,25 @@ done
 # rename binaries and man pages for gcov-tool and gcov-dump
 for b in tool dump ; do
   mv -f -v gcov-${b} gcov%{gccv}-${b}
-  i=$(ls %{buildroot}%{_mandir}/man1/gcov-${b}.1* 2>/dev/null)
-  [ -n "${i}" ] || continue
-  in=${i%%-${b}.1*}
-  mv -f -v $i ${in}%{gccv}${i##${in}}
 done
 popd
-# rename man pages to match: gcc.1* -> gccXX.1*
-for i in %{buildroot}%{_mandir}/man1/{gcc,gcov,g++,cpp}.1* ; do
-  in=${i%%.1*}
-  mv -f $i ${in}%{gccv}${i##${in}}
-done
-# rename info files
-mv -f %{buildroot}%{_infodir}/cpp.info %{buildroot}%{_infodir}/cpp%{gccv}.info
-mv -f %{buildroot}%{_infodir}/cppinternals.info %{buildroot}%{_infodir}/cpp%{gccv}internals.info
-mv -f %{buildroot}%{_infodir}/gcc.info %{buildroot}%{_infodir}/gcc%{gccv}.info
-mv -f %{buildroot}%{_infodir}/gccint.info %{buildroot}%{_infodir}/gcc%{gccv}int.info
-# fix up the info files
-for info in cpp gcc \
-%if %{build_fortran}
-            gfortran \
-%endif
-%if %{build_go}
-            gccgo \
-%endif
-; do
-    sed -i -e "/^START-INFO-DIR-ENTRY/,/^END-INFO-DIR-ENTRY/s|${info}|${info}%{gccv}|gi" %{buildroot}%{_infodir}/${info}%{gccv}.info
-done
-sed -i -e "/^START-INFO-DIR-ENTRY/,/^END-INFO-DIR-ENTRY/s|g++|g++%{gccv}|g" %{buildroot}%{_infodir}/gcc%{gccv}.info
-sed -i -e "/^START-INFO-DIR-ENTRY/,/^END-INFO-DIR-ENTRY/s|cpp|cpp%{gccv}|gi" %{buildroot}%{_infodir}/cpp%{gccv}internals.info
-sed -i -e "/^START-INFO-DIR-ENTRY/,/^END-INFO-DIR-ENTRY/s|gcc|gcc%{gccv}|gi" %{buildroot}%{_infodir}/gcc%{gccv}int.info
 %endif # gccv binary rename
  
 # Remove binaries we will not be including, so that they don't end up in
 # gcc-debuginfo
-rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a} || :
-rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
-rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
+rm -f %{buildroot}%{_libdir}/{libffi*,libiberty.a} || :
+rm -f %{buildroot}%{_libdir}/{32,64}/libiberty.a
+rm -f %{buildroot}%{_libdir}/libssp*
 rm -rf $FULLPATH/install-tools $FULLEPATH/install-tools
 rm -rf $FULLPATH/include-fixed $FULLPATH/include/ssp
 %if !%{build_ada}
 rm -f $FULLEPATH/gnat*
 %endif
 %if 0%{?gccv:1}
-rm -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.so{,.?}
-rm %{buildroot}/%{_lib}/libgcc_s.so.1 #%{buildroot}/%{_prefix}/%{_lib}/libgcc_s*
+rm -f %{buildroot}%{_libdir}/libstdc++.so{,.?}
+rm %{buildroot}%{_libdir}/libgcc_s.so.1 #%{buildroot}/%{_prefix}/%{_lib}/libgcc_s*
 rm -f %{buildroot}%{_infodir}/gccinstall*
-rm -f %{buildroot}%{_prefix}/%{_lib}/libvtv* || :
+rm -f %{buildroot}%{_libdir}/libvtv* || :
 %endif #?gccv
 
 # man pages not related to gcc
@@ -1863,24 +1230,11 @@ rm -f %{buildroot}%{_mandir}/man7/*
 # the file from the %{_lib} was installed, get rid of the other copy
 rm -f %{buildroot}%{_prefix}/lib*/lib{gomp,gfortran,itm,cilkrts,sanitizer,mpx}.spec
 # for now we don't expose the .so libs to the general public for these internally shared libs
-rm -f %{buildroot}%{_prefix}/%{_lib}/lib{gcc_s,gomp,objc,quadmath,stdc++,go,gfortran,itm,asan,atomic,lsan,tsan,ubsan,cilkrts,mpx,mpxwrappers}.so
+rm -f %{buildroot}%{_libdir}/lib{gcc_s,gomp,objc,quadmath,stdc++,go,gfortran,itm,asan,atomic,lsan,tsan,ubsan,cilkrts,mpx,mpxwrappers}.so
 
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-ar || :
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-nm || :
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-ranlib || :
-
-%if %{build_multilib}
-%ifarch %{multilib_64_archs}
-# Remove libraries for the other arch on multilib arches
-rm -f %{buildroot}%{_prefix}/lib/lib*.so*
-rm -f %{buildroot}%{_prefix}/lib/lib*.a
-rm -f %{buildroot}/lib/libgcc_s*.so*
-%if %{build_go}
-rm -rf %{buildroot}%{_prefix}/lib/go/%{gcc_major}/%{gcc_target_platform}
-ln -sf %{multilib_32_arch}-%{_vendor}-%{_target_os} %{buildroot}%{_prefix}/lib/go/%{gcc_major}/%{gcc_target_platform}
-%endif
-%endif # multilib_64_archs
-%endif # build_multilib
+rm -f %{buildroot}%{_bindir}/%{_target_platform}-gcc%{?gccv}-ar || :
+rm -f %{buildroot}%{_bindir}/%{_target_platform}-gcc%{?gccv}-nm || :
+rm -f %{buildroot}%{_bindir}/%{_target_platform}-gcc%{?gccv}-ranlib || :
 
 ## not shipping ffi.... we have a separate libffi package for this
 rm -f $FULLPATH/include/ffi*
@@ -1889,402 +1243,34 @@ rm -f %{buildroot}%{_mandir}/man3/ffi*
 # Help plugins find out nvra.
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
-%check
-%if !0%{?_skip_check}
-cd obj-%{gcc_target_platform}
-
-# run the tests.
-make %{?_smp_mflags} -k check ALT_CC_UNDER_TEST=gcc ALT_CXX_UNDER_TEST=g++ \
-%if 0%{?fedora} >= 20
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector-strong}'" || :
-%else
-     RUNTESTFLAGS="--target_board=unix/'{,-fstack-protector}'" || :
-%endif
-echo ====================TESTING=========================
-( LC_ALL=C ../contrib/test_summary || : ) 2>&1 | sed -n '/^cat.*EOF/,/^EOF/{/^cat.*EOF/d;/^EOF/d;/^LAST_UPDATED:/d;p;}'
-echo ====================TESTING END=====================
-mkdir testlogs-%{_target_platform}-%{version}-%{release}
-for i in `find . -name \*.log | grep -F testsuite/ | grep -v 'config.log\|acats.*/tests/'`; do
-  ln $i testlogs-%{_target_platform}-%{version}-%{release}/ || :
-done
-rm -rf testlogs-%{_target_platform}-%{version}-%{release}
-%endif # _skip_check
-
 %clean
 rm -rf %{buildroot}
 
-%post
-if [ -f %{_infodir}/gcc%{?gccv}.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gcc%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/gcc gcc %{_bindir}/gcc%{gccv} %{gcc_prio} \
-    --slave %{_bindir}/cc cc %{_bindir}/gcc%{gccv} \
-    --slave %{_bindir}/c89 c89 %{_bindir}/gcc%{gccv}-c89 \
-    --slave %{_bindir}/c99 c99 %{_bindir}/gcc%{gccv}-c99 \
-    --slave %{_mandir}/man1/gcc.1.gz gcc.1 %{_mandir}/man1/gcc%{gccv}.1.gz \
-    --slave %{_bindir}/gcov gcov %{_bindir}/gcov%{gccv} \
-    --slave %{_mandir}/man1/gcov.1.gz gcov.1 %{_mandir}/man1/gcov%{gccv}.1.gz \
-    --slave %{_bindir}/gcov-tool gcov-tool %{_bindir}/gcov%{gccv}-tool \
-    --slave %{_mandir}/man1/gcov-tool.1.gz gcov-tool.1 %{_mandir}/man1/gcov%{gccv}-tool.1.gz \
-    --slave %{_bindir}/gcov-dump gcov-dump %{_bindir}/gcov%{gccv}-dump \
-    --slave %{_mandir}/man1/gcov-dump.1.gz gcov-dump.1 %{_mandir}/man1/gcov%{gccv}-dump.1.gz
-%endif
-
-%preun
-if [ $1 = 0 ]; then
-if [ -f %{_infodir}/gcc%{?gccv}.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gcc%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --remove gcc %{_bindir}/gcc%{gccv}
-%endif
-fi
-
-%posttrans
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --auto gcc
-%endif
-exit 0
-
-%post -n cpp%{?gccv}
-if [ -f %{_infodir}/cpp%{?gccv}.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/cpp%{?gccv}.info.gz || :
-fi
-if [ -f %{_infodir}/cpp%{?gccv}internals.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/cpp%{?gccv}internals.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/cpp cpp %{_bindir}/cpp%{gccv} %{gcc_prio} \
-    --slave /lib/cpp libcpp %{_bindir}/cpp%{gccv} \
-    --slave %{_mandir}/man1/cpp.1.gz cpp.1 %{_mandir}/man1/cpp%{gccv}.1.gz
-%endif
-
-%preun -n cpp%{?gccv}
-if [ $1 = 0 ] ; then
-if [ -f %{_infodir}/cpp%{?gccv}.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/cpp%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --remove cpp %{_bindir}/cpp%{gccv}
-%endif
-fi
-
-%posttrans -n cpp%{?gccv}
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --auto cpp
-%endif
-exit 0
-
-%post c++
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/g++ g++ %{_bindir}/g++%{gccv} %{gcc_prio} \
-    --slave %{_bindir}/c++ c++ %{_bindir}/g++%{gccv} \
-    --slave %{_mandir}/man1/g++.1.gz g++.1 %{_mandir}/man1/g++%{gccv}.1.gz \
-    --slave %{_mandir}/man1/c++.1.gz c++.1 %{_mandir}/man1/g++%{gccv}.1.gz \
-    --slave %{_libdir}/libstdc++.so libstdc++.so %{_libdir}/libstdc++.so.%{libstdcplusplus_ver}
-%endif
-exit 0
-
-%preun c++
-%if 0%{?gccv:1}
-if [ $1 = 0 ] ; then
-    %{_sbindir}/alternatives --remove g++ %{_bindir}/g++%{gccv}
-fi
-%endif
-exit 0
-
-%posttrans c++
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --auto g++
-%endif
-exit 0
-
-%post gfortran
-if [ -f %{_infodir}/gfortran%{?gccv}.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gfortran%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/gfortran gfortran %{_bindir}/gfortran%{gccv} %{gcc_prio} \
-    --slave %{_bindir}/f95 f95 %{_bindir}/gfortran%{gccv} \
-    --slave %{_mandir}/man1/gfortran.1.gz gfortran.1 %{_mandir}/man1/gfortran%{gccv}.1.gz
-%endif
-
-%preun gfortran
-if [ $1 = 0 ] ; then
-if [ -f %{_infodir}/gfortran%{?gccv}.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gfortran%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --remove gfortran %{_bindir}/gfortran%{gccv}
-%endif
-fi
-
-%posttrans gfortran
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --auto gfortran
-%endif
-exit 0
-
-%post gnat
-if [ -f %{_infodir}/gnat%{?gccv}_rm.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}_rm.info.gz || :
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}_ugn.info.gz || :
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}-style.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/gnat gnat %{_bindir}/gnat%{gccv} %{gcc_prio} \
-    --slave %{_bindir}/gnatbind gnatbind %{_bindir}/gnatbind%{gccv} \
-    --slave %{_bindir}/gnatchop gnatchop %{_bindir}/gnatchop%{gccv} \
-    --slave %{_bindir}/gnatclean gnatclean %{_bindir}/gnatclean%{gccv} \
-    --slave %{_bindir}/gnatfind gnatfind %{_bindir}/gnatfind%{gccv} \
-    --slave %{_bindir}/gnatgcc gnatgcc %{_bindir}/gnatgcc%{gccv} \
-    --slave %{_bindir}/gnatkr gnatkr %{_bindir}/gnatkr%{gccv} \
-    --slave %{_bindir}/gnatlink gnatlink %{_bindir}/gnatlink%{gccv} \
-    --slave %{_bindir}/gnatls gnatls %{_bindir}/gnatls%{gccv} \
-    --slave %{_bindir}/gnatmake gnatmake %{_bindir}/gnatmake%{gccv} \
-    --slave %{_bindir}/gnatname gnatname %{_bindir}/gnatname%{gccv} \
-    --slave %{_bindir}/gnatprep gnatprep %{_bindir}/gnatprep%{gccv} \
-    --slave %{_bindir}/gnatxref gnatxref %{_bindir}/gnatxref%{gccv}
-%endif
-
-%preun gnat
-if [ $1 = 0 ] ; then
-if [ -f %{_infodir}/gnat%{?gccv}_rm.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}_rm.info.gz || :
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}_ugn.info.gz || :
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gnat%{?gccv}-style.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --remove gnat %{_bindir}/gnat%{gccv}
-%endif
-fi
-
-%posttrans gnat
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --auto gnat
-%endif
-exit 0
-
-# Because glibc Prereq's libgcc and /sbin/ldconfig
-# comes from glibc, it might not exist yet when
-# libgcc is installed
-%post -n libgcc%{?gccv} -p <lua>
-if posix.access ("/sbin/ldconfig", "x") then
-  local pid = posix.fork ()
-  if pid == 0 then
-    posix.exec ("/sbin/ldconfig")
-  elseif pid ~= -1 then
-    posix.wait (pid)
-  end
-end
-
-%postun -n libgcc%{?gccv} -p <lua>
-if posix.access ("/sbin/ldconfig", "x") then
-  local pid = posix.fork ()
-  if pid == 0 then
-    posix.exec ("/sbin/ldconfig")
-  elseif pid ~= -1 then
-    posix.wait (pid)
-  end
-end
-
-%triggerpostun -n libgcc%{?gccv} -p <lua> -- libgcc < %{hard_obsolete_ver}
-if posix.access ("/sbin/ldconfig", "x") then
-  local pid = posix.fork ()
-  if pid == 0 then
-    posix.exec ("/sbin/ldconfig")
-  elseif pid ~= -1 then
-    posix.wait (pid)
-  end
-end
-
-%post -n libstdc++%{?gccv} -p /sbin/ldconfig
-
-%postun -n libstdc++%{?gccv} -p /sbin/ldconfig
-
-%triggerpostun -n libstdc++%{?gccv} -- libstdc++ < %{hard_obsolete_ver}
-/sbin/ldconfig
-exit 0
-
-%if %{build_objc}
-%post -n libobjc%{?gccv} -p /sbin/ldconfig
-
-%postun -n libobjc%{?gccv} -p /sbin/ldconfig
-%endif
-
-%if %{build_fortran}
-%post -n libgfortran -p /sbin/ldconfig
-
-%postun -n libgfortran -p /sbin/ldconfig
-%endif
-
-%if %{build_ada}
-%post -n libgnat%{?gccv} -p /sbin/ldconfig
-
-%postun -n libgnat%{?gccv} -p /sbin/ldconfig
-%endif
-
-%if %{build_libgomp}
-%post -n libgomp
-/sbin/ldconfig
-if [ -f %{_infodir}/libgomp.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/libgomp.info.gz || :
-fi
-
-%preun -n libgomp
-if [ $1 = 0 -a -f %{_infodir}/libgomp.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/libgomp.info.gz || :
-fi
-
-%postun -n libgomp -p /sbin/ldconfig
-%endif #libgomp
-
-%post gdb-plugin -p /sbin/ldconfig
-
-%postun gdb-plugin -p /sbin/ldconfig
-
-%if %{build_libgccjit}
-%post -n libgccjit -p /sbin/ldconfig
-
-%postun -n libgccjit -p /sbin/ldconfig
-
-%post -n libgccjit-devel
-if [ -f %{_infodir}/libgccjit.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/libgccjit.info.gz || :
-fi
-
-%preun -n libgccjit-devel
-if [ $1 = 0 -a -f %{_infodir}/libgccjit.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/libgccjit.info.gz || :
-fi
-%endif #build_libgccjit
-
-%post -n libquadmath
-/sbin/ldconfig
-if [ -f %{_infodir}/libquadmath.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/libquadmath.info.gz || :
-fi
-
-%preun -n libquadmath
-if [ $1 = 0 -a -f %{_infodir}/libquadmath.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/libquadmath.info.gz || :
-fi
-
-%postun -n libquadmath -p /sbin/ldconfig
-
-%post -n libitm
-/sbin/ldconfig
-if [ -f %{_infodir}/libitm.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/libitm.info.gz || :
-fi
-
-%preun -n libitm
-if [ $1 = 0 -a -f %{_infodir}/libitm.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/libitm.info.gz || :
-fi
-
-%postun -n libitm -p /sbin/ldconfig
-
-%post -n libatomic -p /sbin/ldconfig
-
-%postun -n libatomic -p /sbin/ldconfig
-
-%post -n libsanitizer -p /sbin/ldconfig
-
-%postun -n libsanitizer -p /sbin/ldconfig
-
-%post -n libcilkrts -p /sbin/ldconfig
-
-%postun -n libcilkrts -p /sbin/ldconfig
-
-%post -n libmpx -p /sbin/ldconfig
-
-%postun -n libmpx -p /sbin/ldconfig
-
-%post -n libgo -p /sbin/ldconfig
-
-%postun -n libgo -p /sbin/ldconfig
-
-%post go
-if [ -f %{_infodir}/gccgo%{?gccv}.info.gz ]; then
-  /sbin/install-info \
-    --info-dir=%{_infodir} %{_infodir}/gccgo%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --install %{_bindir}/gccgo gccgo %{_bindir}/gccgo%{gccv} %{gcc_prio} \
-    --slave %{_mandir}/man1/gccgo.1.gz gccgo.1 %{_mandir}/man1/gccgo%{gccv}.1.gz \
-    --slave %{_prefix}/bin/go go %{_prefix}/bin/go.gcc%{gccv} \
-    --slave %{_prefix}/bin/gofmt gofmt %{_prefix}/bin/gofmt.gcc%{gccv}
-%endif
-
-%preun go
-if [ $1 = 0 ] ; then
-if [ -f %{_infodir}/gccgo%{?gccv}.info.gz ]; then
-  /sbin/install-info --delete \
-    --info-dir=%{_infodir} %{_infodir}/gccgo%{?gccv}.info.gz || :
-fi
-%if 0%{?gccv:1}
-%{_sbindir}/alternatives --remove gccgo %{_bindir}/gccgo%{gccv}
-%endif
-fi
-
-%if 0%{?gccv:1}
-%posttrans go
-%{_sbindir}/alternatives --auto gccgo
-exit 0
-%endif
-
-%files -f gcc.lang
+%files
+%license gcc/COPYING* COPYING.RUNTIME
 %defattr(-,root,root,-)
-%{_prefix}/bin/%{?gccv:%{name}-}c89
-%{_prefix}/bin/%{?gccv:%{name}-}c99
-%{_prefix}/bin/gcc%{?gccv}
-%{_prefix}/bin/gcov%{?gccv}
-%{_prefix}/bin/gcov%{?gccv}-dump
-%{_prefix}/bin/gcov%{?gccv}-tool
-%{_prefix}/bin/gcc%{?gccv}-ar
-%{_prefix}/bin/gcc%{?gccv}-nm
-%{_prefix}/bin/gcc%{?gccv}-ranlib
+%{_bindir}/%{?gccv:%{name}-}c89
+%{_bindir}/%{?gccv:%{name}-}c99
+%{_bindir}/gcc%{?gccv}
+%{_bindir}/gcov%{?gccv}
+%{_bindir}/gcov%{?gccv}-dump
+%{_bindir}/gcov%{?gccv}-tool
+%{_bindir}/gcc%{?gccv}-ar
+%{_bindir}/gcc%{?gccv}-nm
+%{_bindir}/gcc%{?gccv}-ranlib
 
-%{_prefix}/bin/%{gcc_target_platform}-gcc%{?gccv}
-%{_prefix}/bin/%{gcc_target_platform}-gcc-%{gcc_major}
-%{_mandir}/man1/gcc%{?gccv}.1*
-%{_mandir}/man1/gcov%{?gccv}.1*
-%{_mandir}/man1/gcov%{?gccv}-dump.1*
-%{_mandir}/man1/gcov%{?gccv}-tool.1*
-%{_infodir}/gcc%{?gccv}*
+%{_bindir}/%{gcc_target_platform}-gcc%{?gccv}
+%{_bindir}/%{gcc_target_platform}-gcc-%{gcc_major}
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/lto1
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/lto-wrapper
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/liblto_plugin.so*
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/lto1
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/lto-wrapper
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/liblto_plugin.so*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/rpmver
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include/stddef.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include/stdarg.h
@@ -2409,49 +1395,6 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libitm.spec
 %endif
 
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/crt*.o
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgcc.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgcov.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgcc_eh.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgcc_s.so
-%if %{build_libgomp}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgomp.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgomp.so
-%endif
-%if %{build_libquadmath}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libquadmath.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libquadmath.so
-%endif
-%if %{build_libitm}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libitm.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libitm.so
-%endif
-%if %{build_libatomic}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libatomic.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libatomic.so
-%endif
-%if %{build_libsanitizer}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libasan.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libasan.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libasan_preinit.o
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libubsan.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libubsan.so
-%endif
-%if %{build_libcilkrts}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libcilkrts.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libcilkrts.so
-%endif
-%if %{build_libmpx}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libmpx.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libmpx.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libmpxwrappers.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libmpxwrappers.so
-%endif
-%endif # multilib
-%endif # multilib_64_archs
 %if %{build_libatomic}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libatomic.so
 %endif
@@ -2472,27 +1415,21 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpx.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpxwrappers.so
 %endif
-%{_prefix}/libexec/getconf/default
-%doc gcc/README* rpm.doc/changelogs/gcc/ChangeLog* 
-%{!?_licensedir:%global license %%doc}
-%license gcc/COPYING* COPYING.RUNTIME
+%{_libexecdir}/getconf/default
 
 # MERGED SUBPACKAGES
 %if %{build_libatomic}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libatomic.a
-%doc rpm.doc/changelogs/libatomic/ChangeLog*
 %endif
 %if %{build_libitm}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libitm.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libitm.a
-%doc rpm.doc/libitm/ChangeLog*
 %endif
 %if %{build_libquadmath}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include/quadmath.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include/quadmath_weak.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libquadmath.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libquadmath.a
-%doc rpm.doc/libquadmath/ChangeLog*
 %endif
 %if %{build_ada}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/adainclude
@@ -2505,37 +1442,30 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libtsan.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/liblsan.a
 %endif
-%doc rpm.doc/changelogs/libsanitizer/ChangeLog*
-%{!?_licensedir:%global license %%doc}
 %license libsanitizer/LICENSE.TXT
 %endif
 %if %{build_libcilkrts}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libcilkrts.a
-%doc rpm.doc/changelogs/libcilkrts/ChangeLog* libcilkrts/README
 %endif
 %if %{build_libmpx}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpx.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpxwrappers.a
-%doc rpm.doc/changelogs/libmpx/ChangeLog*
 %endif
 
-%files -n cpp%{?gccv} -f cpplib.lang
+%files -n cpp%{?gccv}
 %defattr(-,root,root,-)
 %{_prefix}/bin/cpp%{?gccv}
-%{_mandir}/man1/cpp%{?gccv}.1*
-%{_infodir}/cpp*
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cc1
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1
 
 %files -n libgcc%{?gccv}
 %defattr(-,root,root,-)
-/%{_lib}/libgcc_s-%{gcc_major}-%{DATE}.so.1
+%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
 %if ! 0%{?gccv:1}
-/%{_lib}/libgcc_s.so.1
+%{_libdir}/libgcc_s.so.1
 %endif
-%{!?_licensedir:%global license %%doc}
 %license gcc/COPYING* COPYING.RUNTIME
 
 %files c++
@@ -2543,24 +1473,13 @@ exit 0
 %{_prefix}/bin/%{gcc_target_platform}-*++%{?gccv}
 %{_prefix}/bin/g++%{?gccv}
 %{_prefix}/bin/c++%{?gccv}
-%{_mandir}/man1/g++%{?gccv}.1*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cc1plus
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libstdc++.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libstdc++.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libstdc++fs.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libsupc++.a
-%endif # multilib
-%endif
-%doc rpm.doc/changelogs/gcc/cp/ChangeLog*
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1plus
 %{_prefix}/include/c++/%{gcc_major}/[^gjos]*
 %{_prefix}/include/c++/%{gcc_major}/optional
 %{_prefix}/include/c++/%{gcc_major}/os*
@@ -2569,61 +1488,26 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libsupc++.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libstdc++fs.a
-%doc rpm.doc/changelogs/libstdc++-v3/ChangeLog* libstdc++-v3/README*
-
-%files -n libstdc++%{?gccv}
-%defattr(-,root,root,-)
-%{_prefix}/%{_lib}/libstdc++.so.6.*
-%if ! 0%{?gccv:1}
-%{_prefix}/%{_lib}/libstdc++.so.6
-%endif
-%dir %{_datadir}/gdb
-%dir %{_datadir}/gdb/auto-load
-%dir %{_datadir}/gdb/auto-load/%{_prefix}
-%dir %{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
-%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc*gdb.py*
-%if 0%{?_sys_python_major} >= 3
-%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/__pycache__
-%endif
-%dir %{_prefix}/share/gcc-%{gcc_major}
-%dir %{_prefix}/share/gcc-%{gcc_major}/python
-%{_prefix}/share/gcc-%{gcc_major}/python/libstdcxx
-
-%if %{build_libstdcxx_docs}
-%files -n libstdc++-docs
-%defattr(-,root,root)
-%{_mandir}/man3/*
-%doc rpm.doc/libstdc++-v3/html
-%endif
 
 %if %{build_objc}
 %files objc
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/include/objc
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cc1obj
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1obj
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libobjc.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libobjc.so
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libobjc.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libobjc.so
-%endif # multilib
-%endif
-%doc rpm.doc/objc/*
-%doc libobjc/THREADS* rpm.doc/changelogs/libobjc/ChangeLog*
 
 %files objc++
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cc1objplus
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1objplus
 
 %files -n libobjc%{?gccv}
 %defattr(-,root,root,-)
@@ -2635,14 +1519,12 @@ exit 0
 %defattr(-,root,root,-)
 %{_prefix}/bin/gfortran%{?gccv}
 %{_prefix}/bin/%{_target_platform}-gfortran%{?gccv}
-%{_mandir}/man1/gfortran%{?gccv}.1*
-%{_infodir}/gfortran*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude/omp_lib.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude/omp_lib.f90
@@ -2655,20 +1537,10 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude/ieee_arithmetic.mod
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude/ieee_exceptions.mod
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/finclude/ieee_features.mod
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/f951
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/f951
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgfortran.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libcaf_single.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgfortran.so
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libcaf_single.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgfortran.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgfortran.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/finclude
-%endif # build_multilib
-%endif
-%doc rpm.doc/gfortran/*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgfortran.a
 
 %files -n libgfortran
@@ -2693,22 +1565,13 @@ exit 0
 %{_prefix}/bin/gnatbind%{?gccv}
 %{_prefix}/bin/gnatprep%{?gccv}
 %{_prefix}/bin/gnatclean%{?gccv}
-%{_infodir}/gnat*
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/adainclude
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/adalib
-%endif # multilib
-%endif
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/gnat1
-%doc rpm.doc/changelogs/gcc/ada/ChangeLog*
 
 %files -n libgnat%{?gccv}
 %defattr(-,root,root,-)
@@ -2721,22 +1584,17 @@ exit 0
 %{_prefix}/%{_lib}/libgomp.so.1*
 #%{_prefix}/%{_lib}/libgomp-plugin-host_nonshm.so.1*
 #%{_prefix}/%{_lib}/libgomp-plugin-host_nonshm.so
-%{_infodir}/libgomp.info*
-%doc rpm.doc/changelogs/libgomp/ChangeLog*
 %endif # libgomp
 
 %if %{build_libquadmath}
 %files -n libquadmath
 %{_prefix}/%{_lib}/libquadmath.so.0*
-%{_infodir}/libquadmath.info*
-%{!?_licensedir:%global license %%doc}
 %license rpm.doc/libquadmath/COPYING*
 %endif #build_libquadmath
 
 %if %{build_libitm}
 %files -n libitm
 %{_prefix}/%{_lib}/libitm.so.1*
-%{_infodir}/libitm.info*
 %endif #build_libitm
 
 %if %{build_libatomic}
@@ -2752,22 +1610,18 @@ exit 0
 %{_prefix}/%{_lib}/libtsan.so.0*
 %{_prefix}/%{_lib}/liblsan.so.0*
 %endif
-%doc rpm.doc/changelogs/libsanitizer/ChangeLog*
-%{!?_licensedir:%global license %%doc}
 %license libsanitizer/LICENSE.TXT
 %endif #build_libsanitizer
 
 %if %{build_libcilkrts}
 %files -n libcilkrts
 %{_prefix}/%{_lib}/libcilkrts.so.5*
-%doc rpm.doc/changelogs/libcilkrts/ChangeLog* libcilkrts/README
 %endif #build_libcilkrts
 
 %if %{build_libmpx}
 %files -n libmpx
 %{_prefix}/%{_lib}/libmpx.so.2*
 %{_prefix}/%{_lib}/libmpxwrappers.so.2*
-%doc rpm.doc/changelogs/libmpx/ChangeLog*
 %endif #build_libmpx
 
 %if %{build_go}
@@ -2775,40 +1629,17 @@ exit 0
 %defattr(-,root,root,-)
 %{_prefix}/bin/gccgo%{?gccv}
 %{_prefix}/bin/%{_target_platform}-gccgo%{?gccv}
-%{_mandir}/man1/gccgo%{?gccv}.1*
-%{_mandir}/man1/go%{?gccv}.1*
-%{_mandir}/man1/gofmt%{?gccv}.1*
-%{_infodir}/gccgo%{?gccv}.info*
 %{_prefix}/bin/go.gcc%{?gccv}
 %{_prefix}/bin/gofmt.gcc%{?gccv}
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/go1
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/cgo
-%ifarch %{multilib_64_archs}
-%if %{build_multilib}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgo.so
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgo.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgobegin.a
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/32/libgolibbegin.a
-%endif # multilib
-%endif
-%ifarch sparcv9 ppc %{multilib_64_archs}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgo.so
-%endif
-%doc rpm.doc/go/*
+%dir %{_libexecdir}/gcc
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}
+%dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/go1
+%{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cgo
 %{_prefix}/%{_lib}/go/%{gcc_major}/%{gcc_target_platform}
-
-%ifarch %{multilib_64_archs}
-%dir %{_prefix}/lib/go
-%dir %{_prefix}/lib/go/%{gcc_major}
-%{_prefix}/lib/go/%{gcc_major}/%{gcc_target_platform}
-%endif
 
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgobegin.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgolibbegin.a
@@ -2816,7 +1647,6 @@ exit 0
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgo.a
 
 %files -n libgo
-%doc rpm.doc/libgo/*
 %{_prefix}/%{_lib}/libgo.so.11*
 
 %dir %{_prefix}/lib/gcc
@@ -2830,27 +1660,7 @@ exit 0
 %if %{build_libgccjit}
 %files -n libgccjit
 %{_prefix}/%{_lib}/libgccjit.so.*
-%doc rpm.doc/changelogs/gcc/jit/ChangeLog*
-
-%files -n libgccjit-devel
-%{_prefix}/%{_lib}/libgccjit.so
-%{_prefix}/include/libgccjit*.h
-%{_infodir}/libgccjit.info*
-%doc rpm.doc/libgccjit-devel/*
-%doc gcc/jit/docs/examples
 %endif
-
-%files plugin-devel
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/gtype.state
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/include
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/plugin
 
 %files gdb-plugin
 %{_prefix}/%{_lib}/libcc1.so*
@@ -2860,9 +1670,21 @@ exit 0
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/libcc1plugin.so*
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/libcp1plugin.so*
-%doc rpm.doc/changelogs/libcc1/ChangeLog*
+
+%exclude %{_mandir}
+%exclude %{_infodir}
+%exclude %{_datadir}/locale
+%exclude %{_libdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/include
+%exclude %{_libdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/gtype.state
+%exclude %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/gengtype
+%exclude %{_libdir}/libstdc++.so.6.*
+%exclude %{_datadir}/gdb/auto-load/%{_libdir}/libstdc*gdb.py*
+%exclude %{_prefix}/share/gcc-%{gcc_major}/python/libstdcxx
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sat Jan 13 2018 Cristian Gafton <gafton@amazon.com>
 - build a minimal compiler with retpoline support
 
