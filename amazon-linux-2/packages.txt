@@ -485,6 +485,7 @@ php-snmp.x86_64              7.3.9-1.lambda2.0.1                         lambda2
 php-soap.x86_64              7.3.9-1.lambda2.0.1                         lambda2
 php-xml.x86_64               7.3.9-1.lambda2.0.1                         lambda2
 php-xmlrpc.x86_64            7.3.9-1.lambda2.0.1                         lambda2
+pinentry.x86_64              0.8.1-17.lambda2.0.2                        lambda2
 pixman.x86_64                0.34.0-1.lambda2.0.2                        lambda2
 poppler.x86_64               0.26.5-38.lambda2                           lambda2
 poppler-cpp.x86_64           0.26.5-38.lambda2                           lambda2

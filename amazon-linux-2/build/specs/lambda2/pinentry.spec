@@ -1,20 +1,4 @@
 
-%if 0%{?fedora} > 8 || 0%{?rhel} > 5
-%define _enable_pinentry_qt4 --enable-pinentry-qt4
-%define _enable_pinentry_qt --enable-pinentry-qt
-%define qt_major 3
-%define qt3 qt3
-%else
-%define qt3 qt
-%define _enable_pinentry_qt --enable-pinentry-qt
-%endif
-
-%if 0%{?fedora} && 0%{?fedora} > 12
-%define _enable_pinentry_qt4 --enable-pinentry-qt4
-%define qt_major 4
-%undefine _enable_pinentry_qt
-%endif
-
 Name:    pinentry
 Version: 0.8.1
 Release: 17%{?dist}.0.2
@@ -40,70 +24,18 @@ Patch201: 0001-Check-if-we-are-on-tty-before-initializing-curses.patch
 
 BuildRequires: gettext-devel
 BuildRequires: autoconf, automake
-BuildRequires: gtk2-devel
 BuildRequires: libcap-devel
 BuildRequires: ncurses-devel
-%if 0%{?_enable_pinentry_qt:1}
-BuildRequires: %{qt3}-devel
-%endif
-%if 0%{?_enable_pinentry_qt4:1}
-BuildRequires: qt4-devel
-%endif
-
-Requires(pre): %{_sbindir}/update-alternatives
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 
 Provides: %{name}-curses = %{version}-%{release}
+
+Prefix: %{_prefix}
 
 %description
 Pinentry is a collection of simple PIN or passphrase entry dialogs which
 utilize the Assuan protocol as described by the aegypten project; see
 http://www.gnupg.org/aegypten/ for details.
 This package contains the curses (text) based version of the PIN entry dialog.
-
-%package gtk
-Summary: Passphrase/PIN entry dialog based on GTK+
-Group:   Applications/System
-Requires: %{name} = %{version}-%{release}
-Provides: %{name}-gui = %{version}-%{release}
-%description gtk
-Pinentry is a collection of simple PIN or passphrase entry dialogs which
-utilize the Assuan protocol as described by the aegypten project; see
-http://www.gnupg.org/aegypten/ for details.
-This package contains the GTK GUI based version of the PIN entry dialog.
-
-%package qt
-Summary: Passphrase/PIN entry dialog based on Qt%{?qt_major}
-Group:   Applications/System
-# Original license for secq* files doesn't allow higher GPL versions to be used
-License: GPLv2
-Requires: %{name} = %{version}-%{release}
-Provides: %{name}-gui = %{version}-%{release}
-%if ! 0%{?_enable_pinentry_qt:1}
-Obsoletes: %{name}-qt4 < 0.8.0-2
-Provides:  %{name}-qt4 = %{version}-%{release}
-%endif
-%description qt
-Pinentry is a collection of simple PIN or passphrase entry dialogs which
-utilize the Assuan protocol as described by the aegypten project; see
-http://www.gnupg.org/aegypten/ for details.
-This package contains the Qt%{?qt_major} GUI based version of the PIN entry dialog.
-
-%package qt4
-Summary: Passphrase/PIN entry dialog based on Qt4
-Group:   Applications/System
-# original code for secstring.cpp doesn't allow GPL versions higher than 3 to be
-# used
-License: GPLv2 or GPLv3
-Requires: %{name} = %{version}-%{release}
-Provides: %{name}-gui = %{version}-%{release}
-%description qt4
-Pinentry is a collection of simple PIN or passphrase entry dialogs which
-utilize the Assuan protocol as described by the aegypten project; see
-http://www.gnupg.org/aegypten/ for details.
-This package contains the Qt4 GUI based version of the PIN entry dialog.
-Support for Qt4 is new, and a bit experimental.
 
 
 %prep
@@ -116,26 +48,17 @@ Support for Qt4 is new, and a bit experimental.
 # patch200 changes configure.ac so we need to regenerate
 ./autogen.sh
 
-# hack around auto* madness, lack of proper support for moc
-%if %{?_enable_pinentry_qt4:1}
-pushd qt4
-moc-qt4 pinentrydialog.h > pinentrydialog.moc
-moc-qt4 qsecurelineedit.h > qsecurelineedit.moc
-popd
-%endif
-
 %build
-%if 0%{?_enable_pinentry_qt:1}
-unset QTDIR || : ; . /etc/profile.d/qt.sh
-%endif
 
 %configure \
   --disable-rpath \
   --disable-dependency-tracking \
   --disable-pinentry-gtk \
+  --disable-pinentry-gtk2 \
   --without-libcap \
-  %{?_enable_pinentry_qt} %{!?_enable_pinentry_qt:--disable-pinentry-qt} \
-  %{?_enable_pinentry_qt4} %{!?_enable_pinentry_qt4:--disable-pinentry-qt4}
+  --disable-pinentry-qt \
+  --disable-pinentry-qt4 \
+  --without-x
 
 make %{?_smp_mflags}
 
@@ -144,12 +67,6 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 
 make install DESTDIR=$RPM_BUILD_ROOT
-
-# Backwards compatibility
-ln -s pinentry-gtk-2 $RPM_BUILD_ROOT%{_bindir}/pinentry-gtk
-%if ! 0%{?_enable_pinentry_qt:1}
-ln -s pinentry-qt4 $RPM_BUILD_ROOT%{_bindir}/pinentry-qt
-%endif
 
 install -p -m755 -D %{SOURCE10} $RPM_BUILD_ROOT%{_bindir}/pinentry
 
@@ -161,51 +78,18 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 rm -rf $RPM_BUILD_ROOT
 
 
-# alternatives dropped at 0.7.6-3 (use %%trigger instead?)
-%pre
-%{_sbindir}/update-alternatives --remove pinentry %{_bindir}/pinentry-curses ||:
-%{_sbindir}/update-alternatives --remove pinentry %{_bindir}/pinentry-gtk ||:
-%{_sbindir}/update-alternatives --remove pinentry %{_bindir}/pinentry-qt ||:
-
-%post
-if [ -f %{_infodir}/pinentry.info* ]; then
-/sbin/install-info %{_infodir}/pinentry.info %{_infodir}/dir ||:
-fi
-
-%preun
-if [ $1 -eq 0 -a -f %{_infodir}/pinentry.info* ] ; then
-  /sbin/install-info --delete %{_infodir}/pinentry.info %{_infodir}/dir ||:
-fi
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING NEWS README THANKS TODO
+%license COPYING
 %{_bindir}/pinentry-curses
 %{_bindir}/pinentry
-%{_infodir}/pinentry.info*
 
-%files gtk
-%defattr(-,root,root,-)
-%{_bindir}/pinentry-gtk
-%{_bindir}/pinentry-gtk-2
-
-%files qt
-%defattr(-,root,root,-)
-%{_bindir}/pinentry-qt
-%if ! 0%{?_enable_pinentry_qt:1}
-%{_bindir}/pinentry-qt4
-%else
-
-%if 0%{?_enable_pinentry_qt4:1}
-%files qt4
-%defattr(-,root,root,-)
-%{_bindir}/pinentry-qt4
-%endif
-%endif
-
+%exclude %{_infodir}
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Mar 17 2016 Boris Ranto <branto@redhat.com> - 0.8.1-17
 - actually apply the previous patch in the spec file
 - resolves: rhbz#1058972
