@@ -18,15 +18,15 @@
 #
 # You must always run the testsuite for production builds.
 # Default: Always run the testsuite.
-%bcond_without testsuite
+%bcond_with testsuite
 # Default: Always build the benchtests.
-%bcond_without benchtests
+%bcond_with benchtests
 # Default: Not bootstrapping.
 %bcond_with bootstrap
 # Default: Enable using -Werror
 %bcond_without werror
 # Default: Always build documentation.
-%bcond_without docs
+%bcond_with docs
 # Default: Don't run valgrind tests
 %bcond_with valgrind
 
@@ -1593,10 +1593,7 @@ Provides: ld-linux.so.3(GLIBC_2.4)
 # https://lists.fedoraproject.org/pipermail/devel/2011-December/160497.html
 Provides: nss_db
 
-Requires: glibc-common = %{version}-%{release}
-
-# Require libgcc in case some program calls pthread_cancel in its %%post
-Requires(pre): basesystem, libgcc%{?_isa}
+Requires: glibc-common >= %{version}
 
 # This is for building auxiliary programs like memusage, nscd
 # For initial glibc bootstraps it can be commented out
@@ -1696,6 +1693,8 @@ Conflicts: audit < 2.3.0
 # the package and should be examined by any other tool.
 %global __filter_GLIBC_PRIVATE 1
 
+Prefix: %{_prefix}
+
 %description
 The glibc package contains standard libraries which are used by
 multiple programs on the system. In order to save disk space and
@@ -1706,32 +1705,14 @@ library and the standard math library. Without these two libraries, a
 Linux system will not function.
 
 ##############################################################################
-# glibc "xen" sub-package
-##############################################################################
-%if %{xenpackage}
-%package xen
-Summary: The GNU libc libraries (optimized for running under Xen)
-Group: System Environment/Libraries
-Requires: glibc%{?_isa} = %{version}-%{release}, glibc-utils = %{version}-%{release}
-
-%description xen
-The standard glibc package is optimized for native kernels and does not
-perform as well under the Xen hypervisor.  This package provides alternative
-library binaries that will be selected instead when running under Xen.
-
-Install glibc-xen if you might run your system under the Xen hypervisor.
-%endif
-
-##############################################################################
 # glibc "devel" sub-package
 ##############################################################################
 %package devel
 Summary: Object files for development using standard C libraries.
 Group: Development/Libraries
-Requires(pre): /sbin/install-info
-Requires(pre): %{name}-headers
-Requires: %{name}-headers = %{version}-%{release}
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}-headers >= %{version}
+Requires: %{name}%{?_isa} >= %{version}
+Prefix: %{_prefix}
 
 %description devel
 The glibc-devel package contains the object files necessary
@@ -1743,19 +1724,6 @@ executables.
 
 Install glibc-devel if you are going to develop programs which will
 use the standard C libraries.
-
-##############################################################################
-# glibc "static" sub-package
-##############################################################################
-%package static
-Summary: C library static libraries for -static linking.
-Group: Development/Libraries
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
-
-%description static
-The glibc-static package contains the C library static libraries
-for -static linking.  You don't need these, unless you link statically,
-which is highly discouraged.
 
 ##############################################################################
 # glibc "headers" sub-package
@@ -1777,9 +1745,9 @@ Provides: %{name}-headers(%{_target_cpu})
 Obsoletes: %{name}-headers(i586)
 Obsoletes: %{name}-headers(i686)
 %endif
-Requires(pre): kernel-headers
-Requires: kernel-headers >= 2.2.1, %{name}%{?_isa} = %{version}-%{release}
+Requires: kernel-headers >= 2.2.1, %{name}%{?_isa} >= %{version}
 BuildRequires: kernel-headers >= 2.6.22
+Prefix: %{_prefix}
 
 %description headers
 The glibc-headers package contains the header files necessary
@@ -1793,36 +1761,16 @@ Install glibc-headers if you are going to develop programs which will
 use the standard C libraries.
 
 ##############################################################################
-# glibc "common" sub-package
-##############################################################################
-%package common
-Summary: Common binaries and locale data for glibc
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: tzdata >= 2003a
-Group: System Environment/Base
-
-%description common
-The glibc-common package includes common binaries for the GNU libc
-libraries, as well as national language (locale) support.
-
-##############################################################################
 # glibc "nscd" sub-package
 ##############################################################################
 %package -n nscd
 Summary: A Name Service Caching Daemon (nscd).
 Group: System Environment/Daemons
-Requires: %{name} = %{version}-%{release}
+Requires: %{name} >= %{version}
 %if %{without bootstrap}
 Requires: libselinux >= 1.17.10-1
 %endif
 Requires: audit-libs >= 1.1.3
-Requires(pre): /usr/sbin/useradd, coreutils, sh-utils
-%if %{with systemd}
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-%endif
-Requires(postun): /usr/sbin/userdel
 
 %description -n nscd
 Nscd caches name service lookups and can dramatically improve
@@ -1834,7 +1782,7 @@ performance with NIS+, and may help with DNS as well.
 %package utils
 Summary: Development utilities from GNU C library
 Group: Development/Tools
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} >= %{version}
 
 %description utils
 The glibc-utils package contains memusage, a memory usage profiler,
@@ -1842,56 +1790,6 @@ mtrace, a memory leak tracer and xtrace, a function call tracer
 which can be helpful during program debugging.
 
 If unsure if you need this, don't install this package.
-
-%if 0%{?_enable_debug_packages}
-%define debug_package %{nil}
-%define __debug_install_post %{nil}
-%global __debug_package 1
-
-##############################################################################
-# glibc core "debuginfo" sub-package
-##############################################################################
-%package debuginfo
-Summary: Debug information for package %{name}
-Group: Development/Debug
-AutoReqProv: no
-%ifarch %{debuginfocommonarches}
-Requires: glibc-debuginfo-common = %{version}-%{release}
-%else
-%ifarch %{ix86} %{sparc}
-Obsoletes: glibc-debuginfo-common
-%endif
-%endif
-
-%description debuginfo
-This package provides debug information for package %{name}.
-Debug information is useful when developing applications that use this
-package or when debugging this package.
-
-This package also contains static standard C libraries with
-debugging information.  You need this only if you want to step into
-C library routines during debugging programs statically linked against
-one or more of the standard C libraries.
-To use this debugging information, you need to link binaries
-with -static -L%{_prefix}/lib/debug%{_prefix}/%{_lib} compiler options.
-
-##############################################################################
-# glibc common "debuginfo-common" sub-package
-##############################################################################
-%ifarch %{debuginfocommonarches}
-
-%package debuginfo-common
-Summary: Debug information for package %{name}
-Group: Development/Debug
-AutoReqProv: no
-
-%description debuginfo-common
-This package provides debug information for package %{name}.
-Debug information is useful when developing applications that use this
-package or when debugging this package.
-
-%endif # %{debuginfocommonarches}
-%endif # 0%{?_enable_debug_packages}
 
 ##############################################################################
 # Prepare for the build.
@@ -2858,19 +2756,6 @@ else
     exit 1
 fi
 
-# XXX: This sounds entirely out of date, particularly in light of the fact
-#      that we want to be building newer Power support. We should review this
-#      and potentially remove this workaround. However it will require
-#      determining which arches we support building for on our distributions.
-# ~~~
-# On powerpc32, hp timing is only available in power4/power6
-# libs, not in base, so pre-power4 dynamic linker is incompatible
-# with power6 libs.
-# ~~~
-%if %{buildpower6}
-rm -f sysdeps/powerpc/powerpc32/power4/hp-timing.[ch]
-%endif
-
 # Remove all files generated from patching.
 find . -type f -size 0 -o -name "*.orig" -exec rm -f {} \;
 
@@ -2896,73 +2781,7 @@ cat /proc/cpuinfo
 cat /proc/meminfo
 df
 
-##############################################################################
-# %%build - x86 options.
-##############################################################################
-# On x86 we build for the specific target cpu rpm is using.
-%ifarch %{ix86}
-BuildFlags="-march=%{_target_cpu} -mtune=generic"
-%endif
-%ifarch i686
-BuildFlags="-march=i686 -mtune=generic"
-%endif
-%ifarch i386 i486 i586
-BuildFlags="$BuildFlags -mno-tls-direct-seg-refs"
-%endif
-%ifarch x86_64
 BuildFlags="-mtune=generic"
-%endif
-
-##############################################################################
-# %%build - SPARC options.
-##############################################################################
-%ifarch sparc
-BuildFlags="-fcall-used-g6"
-GCC="$GCC -m32"
-GXX="$GXX -m32"
-%endif
-%ifarch sparcv9
-BuildFlags="-mcpu=ultrasparc -fcall-used-g6"
-GCC="$GCC -m32"
-GXX="$GXX -m32"
-%endif
-%ifarch sparcv9v
-BuildFlags="-mcpu=niagara -fcall-used-g6"
-GCC="$GCC -m32"
-GXX="$GXX -m32"
-%endif
-%ifarch sparc64
-BuildFlags="-mcpu=ultrasparc -mvis -fcall-used-g6"
-GCC="$GCC -m64"
-GXX="$GXX -m64"
-%endif
-%ifarch sparc64v
-BuildFlags="-mcpu=niagara -mvis -fcall-used-g6"
-GCC="$GCC -m64"
-GXX="$GXX -m64"
-%endif
-
-##############################################################################
-# %%build - POWER options.
-##############################################################################
-%ifarch ppc
-BuildFlags=""
-GCC="$GCC -mcpu=power7 -mtune=power7"
-GXX="$GXX -mcpu=power7 -mtune=power7"
-core_with_options="--with-cpu=power7"
-%endif
-%ifarch %{power64}
-BuildFlags=""
-%ifarch ppc64le
-GCC="$GCC -mcpu=power8 -mtune=power8"
-GXX="$GXX -mcpu=power8 -mtune=power8"
-core_with_options="--with-cpu=power8"
-%else
-GCC="$GCC -m64 -mcpu=power7 -mtune=power7"
-GXX="$GXX -m64 -mcpu=power7 -mtune=power7"
-core_with_options="--with-cpu=power7"
-%endif
-%endif
 
 ##############################################################################
 # %%build - Generic options.
@@ -3006,7 +2825,7 @@ configure_CFLAGS="$build_CFLAGS -fno-asynchronous-unwind-tables"
 ../configure CC="$GCC" CXX="$GXX" CFLAGS="$configure_CFLAGS" \
 	--prefix=%{_prefix} \
 	--enable-add-ons=nptl$AddOns \
-	--with-headers=%{_prefix}/include $EnableKernel --enable-bind-now \
+	--with-headers=%{_includedir} $EnableKernel --enable-bind-now \
 	--build=%{target} \
 %ifarch %{multiarcharches}
         --enable-multi-arch \
@@ -3018,6 +2837,7 @@ configure_CFLAGS="$build_CFLAGS -fno-asynchronous-unwind-tables"
 %endif
 	--enable-obsolete-rpc \
 	--enable-systemtap \
+  --disable-static \
 	${core_with_options} \
 %if %{without werror}
 	--disable-werror \
@@ -3041,64 +2861,6 @@ popd
 build
 
 ##############################################################################
-# Build glibc for xen:
-# If we support xen build glibc again for xen support.
-##############################################################################
-%if %{buildxen}
-build nosegneg -mno-tls-direct-seg-refs
-%endif
-
-##############################################################################
-# Build glibc for power6:
-# If we support building a power6 alternate runtime then built glibc again for
-# power6.
-# XXX: We build in a sub-shell for no apparent reason.
-##############################################################################
-%if %{buildpower6}
-(
-platform=`LD_SHOW_AUXV=1 /bin/true | sed -n 's/^AT_PLATFORM:[[:blank:]]*//p'`
-if [ "$platform" != power6 ]; then
-  mkdir -p power6emul/{lib,lib64}
-  $GCC -shared -O2 -fpic -o power6emul/%{_lib}/power6emul.so releng/power6emul.c -Wl,-z,initfirst
-%ifarch ppc
-  gcc -shared -nostdlib -O2 -fpic -m64 -o power6emul/lib64/power6emul.so -xc - </dev/null
-%endif
-%ifarch ppc64
-  gcc -shared -nostdlib -O2 -fpic -m32 -o power6emul/lib/power6emul.so -xc - < /dev/null
-%endif
-  export LD_PRELOAD=`pwd`/power6emul/\$LIB/power6emul.so
-fi
-GCC="$GCC -mcpu=power6"
-GXX="$GXX -mcpu=power6"
-core_with_options="--with-cpu=power6"
-build power6
-)
-%endif
-
-%if %{buildpower8}
-(
-  GCC="$GCC -mcpu=power8 -mtune=power8"
-  GXX="$GXX -mcpu=power8 -mtune=power8"
-  core_with_options="--with-cpu=power8"
-  build power8
-)
-%endif
-
-##############################################################################
-# Build the glibc post-upgrade program:
-# We only build one of these with the default set of options. This program
-# must be able to run on all hardware for the lowest common denomintor since
-# we only build it once.
-##############################################################################
-pushd build-%{target}
-$GCC -static -L. -Os -g ../releng/glibc_post_upgrade.c -o glibc_post_upgrade.%{_target_cpu} \
-  '-DLIBTLS="/%{_lib}/tls/"' \
-  '-DGCONV_MODULES_DIR="%{_prefix}/%{_lib}/gconv"' \
-  '-DLD_SO_CONF="/etc/ld.so.conf"' \
-  '-DICONVCONFIG="%{_sbindir}/iconvconfig.%{_target_cpu}"'
-popd
-
-##############################################################################
 # Install glibc...
 ##############################################################################
 %install
@@ -3119,235 +2881,47 @@ GCC=`cat Gcc`
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
 make -j1 install_root=$RPM_BUILD_ROOT install -C build-%{target} %{silentrules}
-# If we are not building an auxiliary arch then install all of the supported
-# locales.
-%ifnarch %{auxarches}
-pushd build-%{target}
-make %{?_smp_mflags} install_root=$RPM_BUILD_ROOT install-locales -C ../localedata objdir=`pwd`
-popd
-%endif
-
-librtso=`basename $RPM_BUILD_ROOT/%{_lib}/librt.so.*`
-
-##############################################################################
-# Install rtkaio libraries.
-##############################################################################
-%ifarch %{rtkaioarches}
-rm -f $RPM_BUILD_ROOT{,%{_prefix}}/%{_lib}/librtkaio.*
-rm -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/librt.so.*
-mkdir -p $RPM_BUILD_ROOT/%{_lib}/rtkaio
-mv $RPM_BUILD_ROOT/%{_lib}/librtkaio-*.so $RPM_BUILD_ROOT/%{_lib}/rtkaio/
-rm -f $RPM_BUILD_ROOT/%{_lib}/$librtso
-ln -sf `basename $RPM_BUILD_ROOT/%{_lib}/librt-*.so` $RPM_BUILD_ROOT/%{_lib}/$librtso
-ln -sf `basename $RPM_BUILD_ROOT/%{_lib}/rtkaio/librtkaio-*.so` $RPM_BUILD_ROOT/%{_lib}/rtkaio/$librtso
-%endif
-
-##############################################################################
-# Install the xen build files.
-##############################################################################
-%if %{buildxen}
-%define nosegneg_subdir_base i686
-%define nosegneg_subdir i686/nosegneg
-%define nosegneg_subdir_up ../..
-pushd build-%{target}-nosegneg
-destdir=$RPM_BUILD_ROOT/%{_lib}/%{nosegneg_subdir}
-mkdir -p $destdir
-for lib in libc math/libm nptl/libpthread rt/librt nptl_db/libthread_db
-do
-  libbase=${lib#*/}
-  libbaseso=$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}-*.so)
-  # Only install if different from base lib
-  if cmp -s ${lib}.so ../build-%{target}/${lib}.so; then
-    ln -sf %{nosegneg_subdir_up}/$libbaseso $destdir/$libbaseso
-  else
-    cp -a ${lib}.so $destdir/$libbaseso
-  fi
-  ln -sf $libbaseso $destdir/$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}.so.*)
-done
-%ifarch %{rtkaioarches}
-destdir=$RPM_BUILD_ROOT/%{_lib}/rtkaio/%{nosegneg_subdir}
-mkdir -p $destdir
-librtkaioso=$(basename $RPM_BUILD_ROOT/%{_lib}/librt-*.so | sed s/librt-/librtkaio-/)
-if cmp -s rtkaio/librtkaio.so ../build-%{target}/rtkaio/librtkaio.so; then
-  ln -s %{nosegneg_subdir_up}/$librtkaioso $destdir/$librtkaioso
-else
-  cp -a rtkaio/librtkaio.so $destdir/$librtkaioso
-fi
-ln -sf $librtkaioso $destdir/$librtso
-%endif
-popd
-%endif
-
-##############################################################################
-# Install the power6 build files.
-##############################################################################
-%if %{buildpower6}
-pushd build-%{target}-power6
-destdir=$RPM_BUILD_ROOT/%{_lib}/power6
-mkdir -p ${destdir}
-for lib in libc math/libm nptl/libpthread rt/librt nptl_db/libthread_db
-do
-  libbase=${lib#*/}
-  libbaseso=$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}-*.so)
-  cp -a ${lib}.so $destdir/$libbaseso
-  ln -sf $libbaseso $destdir/$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}.so.*)
-done
-mkdir -p ${destdir}x
-pushd ${destdir}x
-ln -sf ../power6/*.so .
-cp -a ../power6/*.so.* .
-popd
-%ifarch %{rtkaioarches}
-destdir=$RPM_BUILD_ROOT/%{_lib}/rtkaio/power6
-mkdir -p $destdir
-librtkaioso=$(basename $RPM_BUILD_ROOT/%{_lib}/librt-*.so | sed s/librt-/librtkaio-/)
-cp -a rtkaio/librtkaio.so $destdir/$librtkaioso
-ln -sf $librtkaioso $destdir/$librtso
-mkdir -p ${destdir}x
-pushd ${destdir}x
-ln -sf ../power6/*.so .
-cp -a ../power6/*.so.* .
-popd
-%endif
-popd
-%endif
-
-%if %{buildpower8}
-pushd build-%{target}-power8
-destdir=$RPM_BUILD_ROOT/%{_lib}/power8
-mkdir -p ${destdir}
-for lib in libc math/libm nptl/libpthread rt/librt nptl_db/libthread_db
-do
-  libbase=${lib#*/}
-  libbaseso=$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}-*.so)
-  cp -a ${lib}.so $destdir/$libbaseso
-  ln -sf $libbaseso $destdir/$(basename $RPM_BUILD_ROOT/%{_lib}/${libbase}.so.*)
-done
-%ifarch %{rtkaioarches}
-destdir=$RPM_BUILD_ROOT/%{_lib}/rtkaio/power8
-mkdir -p $destdir
-librtkaioso=$(basename $RPM_BUILD_ROOT/%{_lib}/librt-*.so | sed s/librt-/librtkaio-/)
-cp -a rtkaio/librtkaio.so $destdir/$librtkaioso
-ln -sf $librtkaioso $destdir/$librtso
-%endif
-popd
-%endif
-
-##############################################################################
-# Remove the files we don't want to distribute
-##############################################################################
-
-# Remove the libNoVersion files.
-# XXX: This looks like a bug in glibc that accidentally installed these
-#      wrong files. We probably don't need this today.
-rm -f $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libNoVersion*
-rm -f $RPM_BUILD_ROOT/%{_lib}/libNoVersion*
 
 # NPTL <bits/stdio-lock.h> is not usable outside of glibc, so include
 # the generic one (#162634)
-cp -a bits/stdio-lock.h $RPM_BUILD_ROOT%{_prefix}/include/bits/stdio-lock.h
+cp -a bits/stdio-lock.h $RPM_BUILD_ROOT%{_includedir}/bits/stdio-lock.h
 # And <bits/libc-lock.h> needs sanitizing as well.
-cp -a releng/libc-lock.h $RPM_BUILD_ROOT%{_prefix}/include/bits/libc-lock.h
-
-%if %{with docs}
-# Move the info files if glibc installed them into the wrong location.
-if [ -d $RPM_BUILD_ROOT%{_prefix}/info -a "%{_infodir}" != "%{_prefix}/info" ]; then
-  mkdir -p $RPM_BUILD_ROOT%{_infodir}
-  mv -f $RPM_BUILD_ROOT%{_prefix}/info/* $RPM_BUILD_ROOT%{_infodir}
-  rm -rf $RPM_BUILD_ROOT%{_prefix}/info
-fi
-
-# Compress all of the info files.
-gzip -9nvf $RPM_BUILD_ROOT%{_infodir}/libc*
-
-%else
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-rm -f $RPM_BUILD_ROOT%{_infodir}/libc.info*
-%endif
+cp -a releng/libc-lock.h $RPM_BUILD_ROOT%{_includedir}/bits/libc-lock.h
 
 # XXX: What is this for?
-ln -sf libbsd-compat.a $RPM_BUILD_ROOT%{_prefix}/%{_lib}/libbsd.a
+ln -sf libbsd-compat.a $RPM_BUILD_ROOT%{_libdir}/libbsd.a
 
 ##############################################################################
 # Install configuration files for services
 ##############################################################################
 
-install -p -m 644 releng/nsswitch.conf $RPM_BUILD_ROOT/etc/nsswitch.conf
+install -p -m 644 releng/nsswitch.conf $RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.conf
 
-%ifnarch %{auxarches}
-mkdir -p $RPM_BUILD_ROOT/etc/default
-install -p -m 644 nis/nss $RPM_BUILD_ROOT/etc/default/nss
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/default
+install -p -m 644 nis/nss $RPM_BUILD_ROOT%{_sysconfdir}/default/nss
 
 # This is for ncsd - in glibc 2.2
-install -m 644 nscd/nscd.conf $RPM_BUILD_ROOT/etc
-%if %{with systemd}
-mkdir -p $RPM_BUILD_ROOT%{_tmpfilesdir}
-install -m 644 releng/nscd.conf %{buildroot}%{_tmpfilesdir}
-mkdir -p $RPM_BUILD_ROOT/lib/systemd/system
-install -m 644 releng/nscd.service releng/nscd.socket $RPM_BUILD_ROOT/lib/systemd/system
-%else
+install -m 644 nscd/nscd.conf $RPM_BUILD_ROOT%{_sysconfdir}
 mkdir -p $RPM_BUILD_ROOT/%{_initddir}
 install -m 755 nscd/nscd.init $RPM_BUILD_ROOT/%{_initddir}/nscd
-%endif #systemd
-%endif #auxarches
 
 # Include ld.so.conf
-echo 'include ld.so.conf.d/*.conf' > $RPM_BUILD_ROOT/etc/ld.so.conf
-> $RPM_BUILD_ROOT/etc/ld.so.cache
-chmod 644 $RPM_BUILD_ROOT/etc/ld.so.conf
-mkdir -p $RPM_BUILD_ROOT/etc/ld.so.conf.d
-%ifnarch %{auxarches}
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-> $RPM_BUILD_ROOT/etc/sysconfig/nscd
-> $RPM_BUILD_ROOT/etc/gai.conf
-%endif
+echo 'include ld.so.conf.d/*.conf' > $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+> $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.cache
+chmod 644 $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf.d
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
+> $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/nscd
+> $RPM_BUILD_ROOT%{_sysconfdir}/gai.conf
 
 # Include %{_prefix}/%{_lib}/gconv/gconv-modules.cache
 > $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gconv/gconv-modules.cache
 chmod 644 $RPM_BUILD_ROOT%{_prefix}/%{_lib}/gconv/gconv-modules.cache
 
-# Install the upgrade program
-install -m 700 build-%{target}/glibc_post_upgrade.%{_target_cpu} \
-  $RPM_BUILD_ROOT/usr/sbin/glibc_post_upgrade.%{_target_cpu}
-
 strip -g $RPM_BUILD_ROOT%{_prefix}/%{_lib}/*.o
-
-##############################################################################
-# Install debug copies of unstripped static libraries
-##############################################################################
-
-# If we are building a debug package then copy all of the static archives
-# into the debug directory to keep them as unstripped copies.
-%if 0%{?_enable_debug_packages}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/%{_lib}
-cp -a $RPM_BUILD_ROOT%{_prefix}/%{_lib}/*.a \
-  $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/%{_lib}/
-rm -f $RPM_BUILD_ROOT%{_prefix}/lib/debug%{_prefix}/%{_lib}/*_p.a
-%endif
 
 # rquota.x and rquota.h are now provided by quota
 rm -f $RPM_BUILD_ROOT%{_prefix}/include/rpcsvc/rquota.[hx]
-
-##############################################################################
-# Install locale files
-##############################################################################
-
-# Create archive of locale files
-%ifnarch %{auxarches}
-olddir=`pwd`
-pushd ${RPM_BUILD_ROOT}%{_prefix}/lib/locale
-rm locale-archive || :
-# Intentionally we do not pass --alias-file=, aliases will be added
-# by build-locale-archive.
-$olddir/build-%{target}/elf/ld.so \
-  --library-path $olddir/build-%{target}/ \
-  $olddir/build-%{target}/locale/localedef \
-    --prefix ${RPM_BUILD_ROOT} --add-to-archive \
-    *_*
-rm -rf *_*
-mv locale-archive{,.tmpl}
-popd
-%endif
 
 # Remove the old nss modules.
 rm -f ${RPM_BUILD_ROOT}/%{_lib}/libnss1-*
@@ -3359,748 +2933,122 @@ ln -f ${RPM_BUILD_ROOT}%{_sbindir}/iconvconfig{,.%{_target_cpu}}
 # In F7+ this is provided by rpcbind rpm
 rm -f $RPM_BUILD_ROOT%{_sbindir}/rpcinfo
 
-##############################################################################
-# Build the file lists used for describing the package and subpackages.
-##############################################################################
-# There are 11 file lists:
-# * rpm.fileslist
-#	- Master file list. Eventually, after removing files from this list
-#	  we are left with the list of files for the glibc package.
-# * common.filelist
-#	- Contains the list of flies for the common subpackage.
-# * utils.filelist
-#	- Contains the list of files for the utils subpackage.
-# * nscd.filelist
-#	- Contains the list of files for the nscd subpackage.
-# * devel.filelist
-#	- Contains the list of files for the devel subpackage.
-# * headers.filelist
-#	- Contains the list of files for the headers subpackage.
-# * static.filelist
-#	- Contains the list of files for the static subpackage.
-# * nosegneg.filelist
-#	- Contains the list of files for the xen subpackage.
-# * debuginfo.filelist
-#	- Contains the list of files for the glibc debuginfo package.
-# * debuginfocommon.filelist
-#	- Contains the list of files for the glibc common debuginfo package.
-#
-
-# BUILD THE FILE LIST
-{
-  find $RPM_BUILD_ROOT \( -type f -o -type l \) \
-       \( \
-         -name etc -printf "%%%%config " -o \
-         -name gconv-modules \
-         -printf "%%%%verify(not md5 size mtime) %%%%config(noreplace) " -o \
-         -name gconv-modules.cache \
-         -printf "%%%%verify(not md5 size mtime) " \
-         , \
-         ! -path "*/lib/debug/*" -printf "/%%P\n" \)
-  find $RPM_BUILD_ROOT -type d \
-       \( -path '*%{_prefix}/share/*' \
-%if %{with docs}
-	! -path '*%{_infodir}' -o \
-%endif
-	  -path "*%{_prefix}/include/*" \
-       \) -printf "%%%%dir /%%P\n"
-} | {
-
-  # primary filelist
-  SHARE_LANG='s|.*/share/locale/\([^/_]\+\).*/LC_MESSAGES/.*\.mo|%lang(\1) &|'
-  LIB_LANG='s|.*/lib/locale/\([^/_]\+\)|%lang(\1) &|'
-  # rpm does not handle %lang() tagged files hardlinked together accross
-  # languages very well, temporarily disable
-  LIB_LANG=''
-  sed -e "$LIB_LANG" -e "$SHARE_LANG" \
-      -e '\,/etc/\(localtime\|nsswitch.conf\|ld\.so\.conf\|ld\.so\.cache\|default\|rpc\|gai\.conf\),d' \
-      -e '\,/%{_lib}/lib\(pcprofile\|memusage\)\.so,d' \
-      -e '\,bin/\(memusage\|mtrace\|xtrace\|pcprofiledump\),d'
-} | sort > rpm.filelist
-
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/%{_lib}
-mv -f $RPM_BUILD_ROOT/%{_lib}/lib{pcprofile,memusage}.so $RPM_BUILD_ROOT%{_prefix}/%{_lib}
-
-# The xtrace and memusage scripts have hard-coded paths that need to be
-# translated to a correct set of paths using the $LIB token which is
-# dynamically translated by ld.so as the default lib directory.
-for i in $RPM_BUILD_ROOT%{_prefix}/bin/{xtrace,memusage}; do
-  sed -e 's~=/%{_lib}/libpcprofile.so~=%{_prefix}/%{_lib}/libpcprofile.so~' \
-      -e 's~=/%{_lib}/libmemusage.so~=%{_prefix}/%{_lib}/libmemusage.so~' \
-      -e 's~='\''/\\\$LIB/libpcprofile.so~='\''%{_prefix}/\\$LIB/libpcprofile.so~' \
-      -e 's~='\''/\\\$LIB/libmemusage.so~='\''%{_prefix}/\\$LIB/libmemusage.so~' \
-      -i $i
-done
-
-%if %{with docs}
-# Put the info files into the devel file list.
-grep '%{_infodir}' < rpm.filelist | grep -v '%{_infodir}/dir' > devel.filelist
-%endif
-
-# The glibc-headers package includes only common files which are identical
-# across all multilib packages. We must keep gnu/stubs.h and gnu/lib-names.h
-# in the glibc-headers package, but the -32, -64, -64-v1, and -64-v2 versions
-# go into the development packages.
-grep '%{_prefix}/include/gnu/stubs-.*\.h$' < rpm.filelist >> devel.filelist || :
-grep '%{_prefix}/include/gnu/lib-names-.*\.h$' < rpm.filelist >> devel.filelist || :
-
-# Put the include files into headers file list.
-grep '%{_prefix}/include' < rpm.filelist \
-  | egrep -v '%{_prefix}/include/gnu/stubs-.*\.h$' \
-  | egrep -v '%{_prefix}/include/gnu/lib-names-.*\.h$' \
-  > headers.filelist
-
-# Remove partial (lib*_p.a) static libraries, include files, and info files from
-# the core glibc package.
-sed -i -e '\|%{_prefix}/%{_lib}/lib.*_p.a|d' \
-       -e '\|%{_prefix}/include|d' \
-       -e '\|%{_infodir}|d' \
-	rpm.filelist
-
-# Put some static files into the devel package.
-grep '%{_prefix}/%{_lib}/lib.*\.a' < rpm.filelist \
-  | grep '/lib\(\(c\|pthread\|nldbl\)_nonshared\|bsd\(\|-compat\)\|g\|ieee\|mcheck\|rpcsvc\)\.a$' \
-  >> devel.filelist
-
-# Put the rest of the static files into the static package.
-grep '%{_prefix}/%{_lib}/lib.*\.a' < rpm.filelist \
-  | grep -v '/lib\(\(c\|pthread\|nldbl\)_nonshared\|bsd\(\|-compat\)\|g\|ieee\|mcheck\|rpcsvc\)\.a$' \
-  > static.filelist
-
-# Put all of the object files and *.so (not the versioned ones) into the
-# devel package.
-grep '%{_prefix}/%{_lib}/.*\.o' < rpm.filelist >> devel.filelist
-grep '%{_prefix}/%{_lib}/lib.*\.so' < rpm.filelist >> devel.filelist
-
-# Remove all of the static, object, unversioned DSOs, and nscd from the core
-# glibc package.
-sed -i -e '\|%{_prefix}/%{_lib}/lib.*\.a|d' \
-       -e '\|%{_prefix}/%{_lib}/.*\.o|d' \
-       -e '\|%{_prefix}/%{_lib}/lib.*\.so|d' \
-       -e '\|nscd|d' rpm.filelist
-
-# All of the bin and certain sbin files go into the common package.
-# We explicitly exclude certain sbin files that need to go into
-# the core glibc package for use during upgrades.
-grep '%{_prefix}/bin' < rpm.filelist >> common.filelist
-grep '%{_prefix}/sbin/[^gi]' < rpm.filelist >> common.filelist
-# All of the files under share go into the common package since
-# they should be multilib-independent.
-grep '%{_prefix}/share' < rpm.filelist | \
-  grep -v -e '%{_prefix}/share/zoneinfo' -e '%%dir %{prefix}/share' \
-       >> common.filelist
-
-# Remove the bin, locale, some sbin, and share from the
-# core glibc package. We cheat a bit and use the slightly dangerous
-# /usr/sbin/[^gi] to match the inverse of the search that put the
-# files into common.filelist. It's dangerous in that additional files
-# that start with g, or i would get put into common.filelist and
-# rpm.filelist.
-sed -i -e '\|%{_prefix}/bin|d' \
-       -e '\|%{_prefix}/lib/locale|d' \
-       -e '\|%{_prefix}/sbin/[^gi]|d' \
-       -e '\|%{_prefix}/share|d' rpm.filelist
-
-##############################################################################
-# Build the xen package file list (nosegneg.filelist)
-##############################################################################
-> nosegneg.filelist
-%if %{xenpackage}
-grep '/%{_lib}/%{nosegneg_subdir}' < rpm.filelist >> nosegneg.filelist
-sed -i -e '\|/%{_lib}/%{nosegneg_subdir}|d' rpm.filelist
-# TODO: There are files in the nosegneg list which should be in the devel
-#	pacakge, but we leave them instead in the xen subpackage. We may
-#	wish to clean that up at some point.
-%endif
-
-# Add the binary to build localse to the common subpackage.
-echo '%{_prefix}/sbin/build-locale-archive' >> common.filelist
-
-# The nscd binary must go into the nscd subpackage.
-echo '%{_prefix}/sbin/nscd' > nscd.filelist
-
-# The memusage and pcprofile libraries are put back into the core
-# glibc package even though they are only used by utils package
-# scripts..
-cat >> rpm.filelist <<EOF
-%{_prefix}/%{_lib}/libmemusage.so
-%{_prefix}/%{_lib}/libpcprofile.so
-EOF
-
-# Add the utils scripts and programs to the utils subpackage.
-cat > utils.filelist <<EOF
-%{_prefix}/bin/memusage
-%{_prefix}/bin/memusagestat
-%{_prefix}/bin/mtrace
-%{_prefix}/bin/pcprofiledump
-%{_prefix}/bin/xtrace
-EOF
-
-%if ! %{with systemd}
-# /etc/localtime is handled by systemd when available
-rm -f $RPM_BUILD_ROOT/etc/localtime
-# hack alert - this or repatch glibc sources to put back zoneinfo generation....
-cp -f %{_prefix}/share/zoneinfo/UTC $RPM_BUILD_ROOT/etc/localtime
-touch -r timezone/northamerica $RPM_BUILD_ROOT/etc/localtime
-%endif
-
-# Remove the zoneinfo files
-# XXX: Why isn't this don't earlier when we are removing files?
-#      Won't this impact what is shipped?
-rm -rf $RPM_BUILD_ROOT%{_prefix}/share/zoneinfo
-
 # Make sure %config files have the same timestamp
-touch -r releng/glibc.spec.in $RPM_BUILD_ROOT/etc/ld.so.conf
-touch -r sunrpc/etc.rpc $RPM_BUILD_ROOT/etc/rpc
+touch -r releng/glibc.spec.in $RPM_BUILD_ROOT%{_sysconfdir}/ld.so.conf
+touch -r sunrpc/etc.rpc $RPM_BUILD_ROOT%{_sysconfdir}/rpc
 
-# We allow undefined symbols in shared libraries because the libraries
-# referenced at link time here, particularly ld.so, may be different than
-# the one used at runtime.  This is really only needed during the ARM
-# transition from ld-linux.so.3 to ld-linux-armhf.so.3, and not at all for
-# static builds.
-pushd releng
-$GCC -Os -g -static -o build-locale-archive build-locale-archive.c \
-  ../build-%{target}/locale/locarchive.o \
-  ../build-%{target}/locale/md5.o \
-  -DDATADIR=\"%{_datadir}\" -DPREFIX=\"%{_prefix}\" \
-  -L../build-%{target} \
-  -Wl,--allow-shlib-undefined \
-  -B../build-%{target}/csu/ -lc -lc_nonshared
-
-%ifnarch %{auxarches}
-# Test run, to make sure the locale archive is not corrupt.  The test
-# runs against a directory tree under tmp-proot, using --prefix option
-# of build-locale-archive.
-mkdir -p tmp-root/usr/{lib,share}/locale
-touch tmp-root/usr/share/locale/locale.alias
-cp ${RPM_BUILD_ROOT}%{_prefix}/lib/locale/locale-archive.tmpl \
-  tmp-root/usr/lib/locale/locale-archive.tmpl
-# Capture locale list, before build-locale-archive destroys the input file.
-../build-%{target}/testrun.sh ../build-%{target}/locale/localedef \
-    --list-archive tmp-root/usr/lib/locale/locale-archive.tmpl \
-  | sort -o tmp-root/tmpl.list
-
-./build-locale-archive --verbose --install-langs all --prefix tmp-root
-
-# Compare the results, to check that no locales were dropped.
-../build-%{target}/testrun.sh ../build-%{target}/locale/localedef \
-    --list-archive tmp-root/usr/lib/locale/locale-archive \
-  | sort -o tmp-root/list
-diff -u tmp-root/tmpl.list tmp-root/list
-rm -rf tmp-root
-%endif
-
-install -m 700 build-locale-archive $RPM_BUILD_ROOT/usr/sbin/build-locale-archive
-popd
-
-# Lastly copy some additional documentation for the packages.
-rm -rf documentation
-mkdir documentation
-cp crypt/README.ufc-crypt documentation/README.ufc-crypt
-cp timezone/README documentation/README.timezone
-cp ChangeLog{,.15,.16} documentation
-bzip2 -9 documentation/ChangeLog*
-cp posix/gai.conf documentation/
-
-%ifarch s390x
-# Compatibility symlink
-mkdir -p $RPM_BUILD_ROOT/lib
-ln -sf /%{_lib}/ld64.so.1 $RPM_BUILD_ROOT/lib/ld64.so.1
-%endif
-
-# Leave a compatibility symlink for the dynamic loader on armhfp targets,
-# at least until the world gets rebuilt
-%ifarch armv7hl armv7hnl
-ln -sf /lib/ld-linux-armhf.so.3 $RPM_BUILD_ROOT/lib/ld-linux.so.3
-%endif
-
-##############################################################################
-# Run the glibc testsuite
-##############################################################################
-%if %{with testsuite}
-# Increase timeouts
-export TIMEOUTFACTOR=16
-parent=$$
-echo ====================TESTING=========================
-##############################################################################
-# - Test the default runtime.
-##############################################################################
-pushd build-%{target}
-( make %{?_smp_mflags} -k check %{silentrules} 2>&1
-  sleep 10s
-  teepid="`ps -eo ppid,pid,command | awk '($1 == '${parent}' && $3 ~ /^tee/) { print $2 }'`"
-  [ -n "$teepid" ] && kill $teepid
-) | tee check.log || :
-popd
-%if %{buildxen}
-echo ====================TESTING -mno-tls-direct-seg-refs=============
-##############################################################################
-# - Test the xen runtimes (nosegneg).
-##############################################################################
-pushd build-%{target}-nosegneg
-( make %{?_smp_mflags} -k check %{silentrules} 2>&1
-  sleep 10s
-  teepid="`ps -eo ppid,pid,command | awk '($1 == '${parent}' && $3 ~ /^tee/) { print $2 }'`"
-  [ -n "$teepid" ] && kill $teepid
-) | tee check.log || :
-popd
-%endif
-%if %{buildpower6}
-echo ====================TESTING -mcpu=power6=============
-##############################################################################
-# - Test the power6 runtimes.
-##############################################################################
-pushd build-%{target}-power6
-( if [ -d ../power6emul ]; then
-    export LD_PRELOAD=`cd ../power6emul; pwd`/\$LIB/power6emul.so
-  fi
-  make %{?_smp_mflags} -k check %{silentrules} 2>&1
-  sleep 10s
-  teepid="`ps -eo ppid,pid,command | awk '($1 == '${parent}' && $3 ~ /^tee/) { print $2 }'`"
-  [ -n "$teepid" ] && kill $teepid
-) | tee check.log || :
-popd
-%endif
-%if %{buildpower8}
-echo ====================TESTING POWER8 runtime =============
-##############################################################################
-# - Test the power8-tuned runtime.
-##############################################################################
-pushd build-%{target}-power8
-( make %{?_smp_mflags} -k check %{silentrules} 2>&1
-  sleep 10s
-  teepid="`ps -eo ppid,pid,command | awk '($1 == '${parent}' && $3 ~ /^tee/) { print $2 }'`"
-  [ -n "$teepid" ] && kill $teepid
-) | tee check.log || :
-popd
-%endif
-
-echo ====================TESTING DETAILS=================
-for i in `sed -n 's|^.*\*\*\* \[\([^]]*\.out\)\].*$|\1|p' build-*-linux*/check.log`; do
-  echo =====$i=====
-  cat $i || :
-  echo ============
-done
-echo ====================TESTING END=====================
-PLTCMD='/^Relocation section .*\(\.rela\?\.plt\|\.rela\.IA_64\.pltoff\)/,/^$/p'
-echo ====================PLT RELOCS LD.SO================
-readelf -Wr $RPM_BUILD_ROOT/%{_lib}/ld-*.so | sed -n -e "$PLTCMD"
-echo ====================PLT RELOCS LIBC.SO==============
-readelf -Wr $RPM_BUILD_ROOT/%{_lib}/libc-*.so | sed -n -e "$PLTCMD"
-echo ====================PLT RELOCS END==================
-
-%if %{with valgrind}
-# Finally, check if valgrind runs with the new glibc.
-# We want to fail building if valgrind is not able to run with this glibc so
-# that we can then coordinate with valgrind to get it fixed before we update
-# glibc.
-pushd build-%{target}
-elf/ld.so --library-path .:elf:nptl:dlfcn /usr/bin/valgrind \
-        elf/ld.so --library-path .:elf:nptl:dlfcn /usr/bin/true
-popd
-%endif
-
-%endif # %{run_glibc_tests}
-
-###############################################################################
-# Rebuild libpthread.a using --whole-archive to ensure all of libpthread
-# is included in a static link. This prevents any problems when linking
-# statically, using parts of libpthread, and other necessary parts not
-# being included. Upstream has decided that this is the wrong approach to
-# this problem and that the full set of dependencies should be resolved
-# such that static linking works and produces the most minimally sized
-# static application possible.
-###############################################################################
-pushd $RPM_BUILD_ROOT/usr/%{_lib}/
-$GCC -r -nostdlib -o libpthread.o -Wl,--whole-archive ./libpthread.a
-rm libpthread.a
-ar rcs libpthread.a libpthread.o
-rm libpthread.o
-popd
-###############################################################################
-
-%if 0%{?_enable_debug_packages}
-
-# The #line directives gperf generates do not give the proper
-# file name relative to the build directory.
-(cd locale; ln -s programs/*.gperf .)
-(cd iconv; ln -s ../locale/programs/charmap-kw.gperf .)
-
-# Print some diagnostic information in the builds about the
-# getconf binaries.
-# XXX: Why do we do this?
-ls -l $RPM_BUILD_ROOT/usr/bin/getconf
-ls -l $RPM_BUILD_ROOT/usr/libexec/getconf
-eu-readelf -hS $RPM_BUILD_ROOT/usr/bin/getconf $RPM_BUILD_ROOT/usr/libexec/getconf/*
-
-find_debuginfo_args='--strict-build-id -g'
-%ifarch %{debuginfocommonarches}
-find_debuginfo_args="$find_debuginfo_args \
-  -l common.filelist -l utils.filelist -l nscd.filelist \
-  -p '.*/(sbin|libexec)/.*' \
-  -o debuginfocommon.filelist \
-  -l rpm.filelist -l nosegneg.filelist \
-"
-%endif
-eval /usr/lib/rpm/find-debuginfo.sh "$find_debuginfo_args" -o debuginfo.filelist
-
-# List all of the *.a archives in the debug directory.
-list_debug_archives()
-{
-  local dir=%{_prefix}/lib/debug%{_prefix}/%{_lib}
-  find $RPM_BUILD_ROOT$dir -name "*.a" -printf "$dir/%%P\n"
-}
-
-%ifarch %{debuginfocommonarches}
-
-# Remove the source files from the common package debuginfo.
-sed -i '\#^%{_prefix}/src/debug/#d' debuginfocommon.filelist
-
-# Create a list of all of the source files we copied to the debug directory.
-find $RPM_BUILD_ROOT%{_prefix}/src/debug \
-     \( -type d -printf '%%%%dir ' \) , \
-     -printf '%{_prefix}/src/debug/%%P\n' > debuginfocommon.sources
-
-%ifarch %{biarcharches}
-
-# Add the source files to the core debuginfo package.
-cat debuginfocommon.sources >> debuginfo.filelist
-
-%else
-
-%ifarch %{ix86}
-%define basearch i686
-%endif
-%ifarch sparc sparcv9
-%define basearch sparc
-%endif
-
-# The auxarches get only these few source files.
-auxarches_debugsources=\
-'/(generic|linux|%{basearch}|nptl(_db)?)/|/%{glibcsrcdir}/build|/dl-osinfo\.h'
-
-# Place the source files into the core debuginfo pakcage.
-egrep "$auxarches_debugsources" debuginfocommon.sources >> debuginfo.filelist
-
-# Remove the source files from the common debuginfo package.
-egrep -v "$auxarches_debugsources" \
-  debuginfocommon.sources >> debuginfocommon.filelist
-
-%endif #biarcharches
-
-# Add the list of *.a archives in the debug directory to
-# the common debuginfo package.
-list_debug_archives >> debuginfocommon.filelist
-
-%endif # %{debuginfocommonarches}
-
-%else # 0%{?_enable_debug_packages}
 rm -rf $RPM_BUILD_ROOT%{_prefix}/lib/debug
 
-%endif # 0%{?_enable_debug_packages}
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/{db,run}/nscd
+touch $RPM_BUILD_ROOT%{_localstatedir}/{db,run}/nscd/{passwd,group,hosts,services}
+touch $RPM_BUILD_ROOT%{_localstatedir}/run/nscd/{socket,nscd.pid}
 
-%if %{with docs}
-# Remove the `dir' info-heirarchy file which will be maintained
-# by the system as it adds info files to the install.
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-%endif
-
-%ifarch %{auxarches}
-
-# Delete files that we do not intended to ship with the auxarch.
-echo Cutting down the list of unpackaged files
->> debuginfocommon.filelist
-sed -e '/%%dir/d;/%%config/d;/%%verify/d;s/%%lang([^)]*) //;s#^/*##' \
-    common.filelist devel.filelist static.filelist headers.filelist \
-    utils.filelist nscd.filelist debuginfocommon.filelist |
-(cd $RPM_BUILD_ROOT; xargs --no-run-if-empty rm -f 2> /dev/null || :)
-
-%else
-
-mkdir -p $RPM_BUILD_ROOT/var/{db,run}/nscd
-touch $RPM_BUILD_ROOT/var/{db,run}/nscd/{passwd,group,hosts,services}
-touch $RPM_BUILD_ROOT/var/run/nscd/{socket,nscd.pid}
-%endif
-
-%ifnarch %{auxarches}
-> $RPM_BUILD_ROOT/%{_prefix}/lib/locale/locale-archive
-%endif
-
-mkdir -p $RPM_BUILD_ROOT/var/cache/ldconfig
-> $RPM_BUILD_ROOT/var/cache/ldconfig/aux-cache
-
-%if 0
-#not all versions of rpm have a working rpm.vercmp() object
-%pre -p <lua>
--- Check that the running kernel is new enough
-required = '%{enablekernel}'
-rel = posix.uname("%r")
-if rpm.vercmp(rel, required) < 0 then
-  error("FATAL: kernel too old", 0)
-end
-%endif
-
-%post -p /usr/sbin/glibc_post_upgrade.%{_target_cpu}
-
-%postun -p /sbin/ldconfig
-
-%triggerin -p <lua> -- glibc < 2.17
-if posix.access("/bin/sh", "x") and posix.access("%{_initddir}/crond", "x")  then
-  pid = posix.fork()
-  if pid == 0 then
-    posix.exec("/bin/sh", "/sbin/service", "crond", "condrestart")
-  elseif pid > 0 then
-    posix.wait(pid)
-  end
-end
-
-%triggerin common -p <lua> -- glibc
-if posix.stat("%{_prefix}/lib/locale/locale-archive.tmpl", "size") > 0 then
-  pid = posix.fork()
-  if pid == 0 then
-    posix.exec("%{_prefix}/sbin/build-locale-archive", "--install-langs",
-               rpm.expand("%%{_install_langs}"))
-  elseif pid > 0 then
-    posix.wait(pid)
-  end
-end
-
-%post common -p <lua>
-if posix.access("/etc/ld.so.cache") then
-  if posix.stat("%{_prefix}/lib/locale/locale-archive.tmpl", "size") > 0 then
-    pid = posix.fork()
-    if pid == 0 then
-      posix.exec("%{_prefix}/sbin/build-locale-archive", "--install-langs",
-                 rpm.expand("%%{_install_langs}"))
-    elseif pid > 0 then
-      posix.wait(pid)
-    end
-  end
-end
-
-%if ! %{with systemd}
-%triggerin common -p <lua> -- tzdata
-function update (filename, new_data)
-  local fd = io.open(filename)
-  if not fd then return end
-  local data = fd:read("*a")
-  fd:close()
-  if not data then return end
-  -- Don't update the file unnecessarily.
-  if data == new_data then return end
-  local tempfilename = filename .. ".tzupdate"
-  fd = io.open(tempfilename, "w")
-  if not fd then return end
-  fd:write(new_data)
-  fd:close()
-  posix.chmod(tempfilename, 0644)
-  if not os.rename(tempfilename, filename) then
-    os.remove(tempfilename)
-  end
-end
-fd = io.open("/etc/sysconfig/clock")
-if not fd then return end
-zonename = nil
-for l in fd:lines() do
-  zone = string.match(l, "^[ \t]*ZONE[ \t]*=[ \t]*\"?([^ \t\n\"]*)");
-  if zone then
-    zonename = "/usr/share/zoneinfo/" .. zone
-    break
-  end
-end
-fd:close()
-if not zonename then return end
-fd = io.open(zonename)
-if not fd then return end
-data = fd:read("*a")
-fd:close()
-if not data then return end
-update("/etc/localtime", data)
-update("/var/spool/postfix/etc/localtime", data)
-%endif #!systemd
-
-%if %{with docs}
-%post devel
-/sbin/install-info %{_infodir}/libc.info.gz %{_infodir}/dir > /dev/null 2>&1 || :
-%endif
-
-%pre headers
-# this used to be a link and it is causing nightmares now
-if [ -L %{_prefix}/include/scsi ] ; then
-  rm -f %{_prefix}/include/scsi
-fi
-
-%if %{with docs}
-%preun devel
-if [ "$1" = 0 ]; then
-  /sbin/install-info --delete %{_infodir}/libc.info.gz %{_infodir}/dir > /dev/null 2>&1 || :
-fi
-%endif
-
-%post utils -p /sbin/ldconfig
-
-%postun utils -p /sbin/ldconfig
-
-%pre -n nscd
-getent group nscd >/dev/null || /usr/sbin/groupadd -g 28 -r nscd
-getent passwd nscd >/dev/null ||
-  /usr/sbin/useradd -M -o -r -d / -s /sbin/nologin \
-		    -c "NSCD Daemon" -u 28 -g nscd nscd
-
-%post -n nscd
-%if %{with systemd}
-%systemd_post nscd.service
-%else
-/sbin/chkconfig --add nscd
-%endif
-
-%preun -n nscd
-%if %{with systemd}
-%systemd_preun nscd.service
-%else
-if [ $1 = 0 ] ; then
-  /sbin/service nscd stop > /dev/null 2>&1
-  /sbin/chkconfig --del nscd
-fi
-%endif
-
-%postun -n nscd
-if test $1 = 0; then
-  /usr/sbin/userdel nscd > /dev/null 2>&1 || :
-fi
-%if %{with systemd}
-%systemd_postun_with_restart nscd.service
-%else
-if [ "$1" -ge "1" ]; then
-  service nscd condrestart > /dev/null 2>&1 || :
-fi
-%endif
-
-%if %{xenpackage}
-%post xen -p /sbin/ldconfig
-%postun xen -p /sbin/ldconfig
-%endif
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/ldconfig
 
 %clean
 rm -rf "$RPM_BUILD_ROOT"
 rm -f *.filelist*
 
-%files -f rpm.filelist
+%files devel
 %defattr(-,root,root)
-%dir /usr/%{_lib}/audit
-%ifarch %{rtkaioarches}
-%dir /%{_lib}/rtkaio
-%endif
-%if %{buildxen} && !%{xenpackage}
-%dir /%{_lib}/%{nosegneg_subdir_base}
-%dir /%{_lib}/%{nosegneg_subdir}
-%ifarch %{rtkaioarches}
-%dir /%{_lib}/rtkaio/%{nosegneg_subdir_base}
-%dir /%{_lib}/rtkaio/%{nosegneg_subdir}
-%endif
-%endif
-%if %{buildpower6}
-%dir /%{_lib}/power6
-%dir /%{_lib}/power6x
-%ifarch %{rtkaioarches}
-%dir /%{_lib}/rtkaio/power6
-%dir /%{_lib}/rtkaio/power6x
-%endif
-%endif
-%if %{buildpower8}
-%dir /%{_lib}/power8
-%ifarch %{rtkaioarches}
-%dir /%{_lib}/rtkaio/power8
-%endif
-%endif
-%ifarch s390x
-/lib/ld64.so.1
-%endif
-%ifarch armv7hl armv7hnl
-/lib/ld-linux.so.3
-%endif
-%if ! %{with systemd}
-%verify(not md5 size mtime) %config(noreplace) /etc/localtime
-%endif
-%verify(not md5 size mtime) %config(noreplace) /etc/nsswitch.conf
-%verify(not md5 size mtime) %config(noreplace) /etc/ld.so.conf
-%verify(not md5 size mtime) %config(noreplace) /etc/rpc
-%dir /etc/ld.so.conf.d
-%dir %{_prefix}/libexec/getconf
-%dir %{_prefix}/%{_lib}/gconv
-%dir %attr(0700,root,root) /var/cache/ldconfig
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/cache/ldconfig/aux-cache
-%attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /etc/ld.so.cache
-%attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /etc/gai.conf
-%doc README NEWS INSTALL BUGS PROJECTS CONFORMANCE elf/rtld-debugger-interface.txt
-%doc COPYING COPYING.LIB LICENSES
-%doc hesiod/README.hesiod
+%{_includedir}/gnu/stubs-64.h
+%{_libdir}/Mcrt1.o
+%{_libdir}/Scrt1.o
+%{_libdir}/crt1.o
+%{_libdir}/crti.o
+%{_libdir}/crtn.o
+%{_libdir}/gcrt1.o
+%{_libdir}/libBrokenLocale.so
+%{_libdir}/libanl.so
+%{_libdir}/libbsd-compat.a
+%{_libdir}/libbsd.a
+%{_libdir}/libc.so
+%{_libdir}/libc_nonshared.a
+%{_libdir}/libcidn.so
+%{_libdir}/libcrypt.so
+%{_libdir}/libdl.so
+%{_libdir}/libg.a
+%{_libdir}/libieee.a
+%{_libdir}/libm.so
+%{_libdir}/libmcheck.a
+%{_libdir}/libnsl.so
+%{_libdir}/libnss_compat.so
+%{_libdir}/libnss_db.so
+%{_libdir}/libnss_dns.so
+%{_libdir}/libnss_files.so
+%{_libdir}/libnss_hesiod.so
+%{_libdir}/libnss_nis.so
+%{_libdir}/libnss_nisplus.so
+%{_libdir}/libpthread.so
+%{_libdir}/libpthread_nonshared.a
+%{_libdir}/libresolv.so
+%{_libdir}/librpcsvc.a
+%{_libdir}/librt.so
+%{_libdir}/libthread_db.so
+%{_libdir}/libutil.so
 
-%if %{xenpackage}
-%files -f nosegneg.filelist xen
+%files headers
 %defattr(-,root,root)
-%dir /%{_lib}/%{nosegneg_subdir_base}
-%dir /%{_lib}/%{nosegneg_subdir}
-%endif
+%exclude %{_includedir}/gnu/stubs-64.h
+%{_includedir}/*
 
-%ifnarch %{auxarches}
-%files -f common.filelist common
+%files utils
 %defattr(-,root,root)
-%attr(0644,root,root) %verify(not md5 size mtime) %{_prefix}/lib/locale/locale-archive.tmpl
-%attr(0644,root,root) %verify(not md5 size mtime mode) %ghost %config(missingok,noreplace) %{_prefix}/lib/locale/locale-archive
-%dir %attr(755,root,root) /etc/default
-%verify(not md5 size mtime) %config(noreplace) /etc/default/nss
-%doc documentation/*
+%{_bindir}/memusage
+%{_bindir}/memusagestat
+%{_bindir}/mtrace
+%{_bindir}/pcprofiledump
+%{_bindir}/xtrace
 
-%files -f devel.filelist devel
+%files -n nscd
 %defattr(-,root,root)
-
-%files -f static.filelist static
-%defattr(-,root,root)
-
-%files -f headers.filelist headers
-%defattr(-,root,root)
-
-%files -f utils.filelist utils
-%defattr(-,root,root)
-
-%files -f nscd.filelist -n nscd
-%defattr(-,root,root)
-%config(noreplace) /etc/nscd.conf
-%dir %attr(0755,root,root) /var/run/nscd
-%dir %attr(0755,root,root) /var/db/nscd
-%if %{with systemd}
-/lib/systemd/system/nscd.service
-/lib/systemd/system/nscd.socket
-%{_tmpfilesdir}/nscd.conf
-%else
+%config(noreplace) %{_sysconfdir}/nscd.conf
+%dir %attr(0755,root,root) %{_localstatedir}/run/nscd
+%dir %attr(0755,root,root) %{_localstatedir}/db/nscd
 %config %{_initddir}/nscd
-%endif
-%attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/nscd.pid
-%attr(0666,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/socket
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/passwd
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/group
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/hosts
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/run/nscd/services
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/db/nscd/passwd
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/db/nscd/group
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/db/nscd/hosts
-%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/db/nscd/services
-%ghost %config(missingok,noreplace) /etc/sysconfig/nscd
-%endif
+%attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/nscd.pid
+%attr(0666,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/socket
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/passwd
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/group
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/hosts
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/run/nscd/services
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/db/nscd/passwd
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/db/nscd/group
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/db/nscd/hosts
+%attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) %{_localstatedir}/db/nscd/services
+%ghost %config(missingok,noreplace) %{_sysconfdir}/sysconfig/nscd
+%{_sbindir}/nscd
 
-%if 0%{?_enable_debug_packages}
-%files debuginfo -f debuginfo.filelist
-%defattr(-,root,root)
-%ifarch %{debuginfocommonarches}
-%ifnarch %{auxarches}
-%files debuginfo-common -f debuginfocommon.filelist
-%defattr(-,root,root)
-%endif
-%endif
-%endif
+%exclude %{_datadir}
+%exclude %{_bindir}
+%exclude %{_sbindir}
+%exclude %{_libexecdir}
+%exclude %{_localstatedir}
+%exclude %{_sysconfdir}
+%exclude %{_libdir}
+%exclude %{_prefix}/var/db/Makefile
+# %exclude %{_libdir}/audit
+# %exclude %{_libdir}/gconv
+# %exclude %{_libdir}/*.a
+# %exclude %{_libdir}/*.so.*
+# %exclude %{_libdir}/ld*
+# %exclude %{_libdir}/libB*
+# %exclude %{_libdir}/libS*
+# %exclude %{_libdir}/liba*
+# %exclude %{_libdir}/libc-2.17.so
+# %exclude %{_libdir}/libcidn-2.17.so
+# %exclude %{_libdir}/libd*
+# %exclude %{_libdir}/libm*
+# %exclude %{_libdir}/libn*
+# %exclude %{_libdir}/libp*
+# %exclude %{_libdir}/libr*
+# %exclude %{_libdir}/libt*
+# %exclude %{_libdir}/libu*
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Nov 14 2018 Andrew Egelhofer <egelhofe@amazon.com>
 - Patch gen-posix-conf-vars.awk script to work with AWK3
 - import source package EL7/glibc-2.17-260.el7
