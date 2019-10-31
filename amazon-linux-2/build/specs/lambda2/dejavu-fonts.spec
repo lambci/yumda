@@ -34,6 +34,8 @@ BuildRequires: unicode-ucd
 BuildArch:     noarch
 BuildRequires: fontpackages-devel
 
+Prefix: %{_prefix}
+
 %description
 %common_desc
 
@@ -45,6 +47,8 @@ Requires: fontpackages-filesystem
 Obsoletes: dejavu-fonts-doc < 2.26-6
 Obsoletes: %{name}-compat < 2.29-3
 Obsoletes: %{name}-lgc-compat < 2.29-3
+
+Prefix: %{_prefix}
 
 %description common
 %common_desc
@@ -60,6 +64,8 @@ Conflicts: dejavu-fonts < 2.26-3
 Conflicts: dejavu-fonts-experimental < 2.26-3
 
 Obsoletes: %{name}-sans < 2.28-2
+
+Prefix: %{_prefix}
 
 %description -n %{fontname}-sans-fonts
 %common_desc
@@ -79,6 +85,8 @@ Conflicts: dejavu-fonts-experimental < 2.26-3
 
 Obsoletes: %{name}-serif < 2.28-2
 
+Prefix: %{_prefix}
+
 %description -n %{fontname}-serif-fonts
 %common_desc
 
@@ -97,6 +105,8 @@ Conflicts: dejavu-fonts-experimental < 2.26-3
 
 Obsoletes: %{name}-sans-mono < 2.28-2
 
+Prefix: %{_prefix}
+
 %description -n %{fontname}-sans-mono-fonts
 %common_desc
 
@@ -113,6 +123,8 @@ Requires: %{name}-common = %{version}-%{release}
 Conflicts: dejavu-lgc-fonts < 2.26-3
 
 Obsoletes: %{name}-lgc-sans < 2.28-2
+
+Prefix: %{_prefix}
 
 %description -n %{fontname}-lgc-sans-fonts
 %common_desc
@@ -131,6 +143,8 @@ Conflicts: dejavu-lgc-fonts < 2.26-3
 
 Obsoletes: %{name}-lgc-serif < 2.28-2
 
+Prefix: %{_prefix}
+
 %description -n %{fontname}-lgc-serif-fonts
 %common_desc
 
@@ -147,6 +161,8 @@ Requires: %{name}-common = %{version}-%{release}
 Conflicts: dejavu-lgc-fonts < 2.26-3
 
 Obsoletes: %{name}-lgc-sans-mono < 2.28-2
+
+Prefix: %{_prefix}
 
 %description -n %{fontname}-lgc-sans-mono-fonts
 %common_desc
@@ -166,10 +182,6 @@ make %{?_smp_mflags} VERSION=%{version} FC-LANG="" \
 
 # Stop the desktop people from complaining this file is too big
 bzip2 -9 build/status.txt
-
-
-%check
-make check
 
 
 %install
@@ -195,11 +207,13 @@ rm -fr %{buildroot}
 
 %files common
 %defattr(0644,root,root,0755)
-%doc AUTHORS BUGS LICENSE NEWS README
-%doc build/unicover.txt build/status.txt.bz2
+%license LICENSE
 
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.33-6
 - Mass rebuild 2013-12-27
 
