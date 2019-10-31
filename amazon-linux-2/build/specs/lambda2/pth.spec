@@ -18,6 +18,8 @@ Patch3:         pth-2.0.7-test_std.patch
 # bz 744740 / patch from Mikael Pettersson
 Patch4: pth-2.0.7-linux3.patch
 
+Prefix: %{_prefix}
+
 %description
 Pth is a very portable POSIX/ANSI-C based library for Unix platforms
 which provides non-preemptive priority-based scheduling for multiple
@@ -25,14 +27,6 @@ threads of execution ("multithreading") inside server applications.
 All threads run in the same address space of the server application,
 but each thread has it's own individual program-counter, run-time
 stack, signal mask and errno variable.
-
-%package devel
-Summary:        Development headers and libraries for GNU Pth
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Development headers and libraries for GNU Pth.
 
 
 %prep
@@ -80,14 +74,6 @@ make pth_p.h
 make %{?_smp_mflags}
 
 
-%check
-make test
-l=$($(pwd)/pth-config --libdir)
-if [ "%{_libdir}" == "/usr/lib64" ]; then
-    [ "$l" == "/usr/lib64" ]
-fi
-
-
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=${RPM_BUILD_ROOT} install
@@ -98,28 +84,22 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc ANNOUNCE AUTHORS COPYING ChangeLog HISTORY NEWS PORTING README
-%doc SUPPORT TESTS THANKS USERS
+%license COPYING
 %{_libdir}/*.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%doc HACKING
-%{_bindir}/*
-%{_includedir}/*
-%{_libdir}/*.so
-%{_mandir}/*/*
-%{_datadir}/aclocal/*
+%exclude %{_bindir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_mandir}
+%exclude %{_datadir}
 
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Aug 1 2014 Jeff Law <law@redhat.com>  - 2.0.7-23
 - update pth-config for ppc64le
 
