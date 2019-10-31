@@ -315,6 +315,7 @@ libtool.x86_64               2.4.2-22.2.lambda2.0.2                      lambda2
 libtool-ltdl.x86_64          2.4.2-22.2.lambda2.0.2                      lambda2
 libunistring.x86_64          0.9.3-9.lambda2.0.2                         lambda2
 libusb.x86_64                1:0.1.4-3.lambda2.0.2                       lambda2
+libusbx.x86_64               1.0.21-1.lambda2                            lambda2
 libuser.x86_64               0.60-9.lambda2                              lambda2
 libutempter.x86_64           1.1.6-4.lambda2.0.2                         lambda2
 libuuid.x86_64               2.30.2-2.lambda2.0.4                        lambda2

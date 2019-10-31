@@ -7,9 +7,11 @@ Source0:        http://downloads.sourceforge.net/libusb/libusb-%{version}.tar.bz
 License:        LGPLv2+
 Group:          System Environment/Libraries
 URL:            http://libusb.info/
-BuildRequires:  systemd-devel doxygen
+BuildRequires:  systemd-devel
 Provides:       libusb1 = %{version}-%{release}
 Obsoletes:      libusb1 <= 1.0.9
+
+Prefix: %{_prefix}
 
 %description
 This package provides a way for applications to access USB devices.
@@ -23,39 +25,13 @@ Note that this library is not compatible with the original libusb-0.1 series,
 if you need libusb-0.1 compatibility install the libusb package.
 
 
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Provides:       libusb1-devel = %{version}-%{release}
-Obsoletes:      libusb1-devel <= 1.0.9
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
-
-
-%package devel-doc
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Provides:       libusb1-devel-doc = %{version}-%{release}
-Obsoletes:      libusb1-devel-doc <= 1.0.9
-BuildArch:      noarch
-
-%description devel-doc
-This package contains API documentation for %{name}.
-
-
 %prep
 %setup -q -n libusb-%{version}
 
 %build
-%configure --disable-static --enable-examples-build
+%configure --disable-static
 # Parallel builds seem to be broken
 make
-pushd doc
-make docs
-popd
 
 
 %install
@@ -63,24 +39,18 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm $RPM_BUILD_ROOT%{_libdir}/*.la
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc AUTHORS COPYING README ChangeLog
+%license COPYING
 %{_libdir}/*.so.*
 
-%files devel
-%{_includedir}/libusb-1.0
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/libusb-1.0.pc
-
-%files devel-doc
-%doc doc/html examples/*.c
-
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig/libusb-1.0.pc
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Sep 21 2017 Victor Toso <victortoso@redhat.com> - 1.0.21-1
 - Upgrade to 1.0.21
 - Resolves: rhbz#1399752
