@@ -16,24 +16,11 @@ BuildRequires: gawk
 BuildRequires: libgpg-error-devel >= 1.8
 BuildRequires: pth-devel
 
+Prefix: %{_prefix}
+
 %description
 This is the IPC library used by GnuPG 2, GPGME and a few other
 packages.
-
-%package devel 
-Summary: GnuPG IPC library 
-Group: Development/Libraries
-Provides: libassuan2-devel = %{version}-%{release}
-Provides: libassuan2-devel%{?_isa} = %{version}-%{release}
-Requires: pth-devel
-Requires: libassuan%{?_isa} = %{version}-%{release}
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-%description devel 
-This is the IPC static library used by GnuPG 2, GPGME and a few other
-packages.
-
-This package contains files needed to develop applications using %{name}.
 
 
 %prep
@@ -57,38 +44,22 @@ rm -f %{buildroot}%{_infodir}/dir
 rm -f %{buildroot}%{_libdir}/lib*.la
 
 
-%check
-make check
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post devel 
-/sbin/install-info %{_infodir}/assuan.info %{_infodir}/dir &>/dev/null || :
-
-%preun devel 
-if [ $1 -eq 0 ]; then
-  /sbin/install-info --delete %{_infodir}/assuan.info %{_infodir}/dir &>/dev/null || :
-fi
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING COPYING.LIB NEWS README THANKS TODO
+%license COPYING COPYING.LIB
 %{_libdir}/libassuan.so.0*
 
-%files devel 
-%defattr(-,root,root,-)
-%{_bindir}/libassuan-config
-%{_includedir}/libassuan2/
-%{_libdir}/libassuan.so
-%{_datadir}/aclocal/libassuan.m4
-%{_infodir}/assuan.info*
+%exclude %{_bindir}/libassuan-config
+%exclude %{_includedir}
+%exclude %{_libdir}/libassuan.so
+%exclude %{_datadir}
+%exclude %{_infodir}
 
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.1.0-3
 - Mass rebuild 2014-01-24
 
