@@ -875,6 +875,7 @@ texlive-zapfchan.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
 texlive-zapfding.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
 tokyocabinet.x86_64          1.4.48-3.lambda2.0.2                        lambda2
 trousers.x86_64              0.3.14-2.lambda2.0.2                        lambda2
+ttmkfdir.x86_64              3.0.9-42.lambda2.0.2                        lambda2
 turbojpeg.x86_64             1.2.90-5.lambda2.0.3                        lambda2
 tzdata-java.noarch           2019b-1.lambda2                             lambda2
 unbound.x86_64               1.6.6-1.lambda2.0.2                         lambda2

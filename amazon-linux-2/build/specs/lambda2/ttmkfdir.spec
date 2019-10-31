@@ -30,6 +30,8 @@ BuildRequires: libtool
 Conflicts: XFree86-font-utils < 4.2.99.2-0.20021126.3
 Conflicts: freetype < 2.0.6-3
 
+Prefix: %{_prefix}
+
 %description
 ttmkfdir is a utility used to create fonts.scale files in
 TrueType font directories in order to prepare them for use
@@ -49,19 +51,19 @@ by the font server.
 %patch9 -p1
 
 %build
-make %{?_smp_mflags} OPTFLAGS="$RPM_OPT_FLAGS"
+make %{?_smp_mflags} OPTFLAGS="$RPM_OPT_FLAGS" PREFIX=%{_prefix}
 
 %install
-make DESTDIR=$RPM_BUILD_ROOT install INSTALL="install -p"
-mkdir -p %{buildroot}%{_mandir}/man1/
-cp -p %{SOURCE10} %{buildroot}%{_mandir}/man1/
+make DESTDIR=$RPM_BUILD_ROOT install INSTALL="install -p" PREFIX=%{_prefix}
 
 %files
-%doc README
+%license README
 %{_bindir}/ttmkfdir
-%{_mandir}/man1/ttmkfdir.1.gz
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Aug 02 2014 Pravin Satpute <psatpute@redhat.com> 3.0.9-42
 - Resolves: rh#1125703 ttmkfdir fails to build on arch: ppc64le (Generic build failure)
 - Patch from Peter Robinson <pbrobinson@redhat.com>
