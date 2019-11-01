@@ -66,6 +66,8 @@ Requires:       vulkan-filesystem = %{version}-%{release}
 Recommends:     mesa-vulkan-drivers
 %endif
 
+Prefix: %{_prefix}
+
 %description
 Vulkan is a new generation graphics and compute API that provides
 high-efficiency, cross-platform access to modern GPUs used in a wide variety of
@@ -74,16 +76,10 @@ devices from PCs and consoles to mobile phones and embedded platforms.
 This package contains the reference ICD loader and validation layers for
 Vulkan.
 
-%package devel
-Summary:        Vulkan development package
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Development headers for Vulkan applications.
-
 %package filesystem
 Summary:        Vulkan filesystem package
 BuildArch:      noarch
+Prefix: %{_prefix}
 
 %description filesystem
 Filesystem for Vulkan.
@@ -143,6 +139,10 @@ pushd build/
 %{make_install}
 popd
 
+%if "%{_lib}" != "lib64"
+  mv $RPM_BUILD_ROOT%{_prefix}/lib64 $RPM_BUILD_ROOT%{_libdir}
+%endif
+
 # create the filesystem
 mkdir -p %{buildroot}%{_sysconfdir}/vulkan/{explicit,implicit}_layer.d/ \
 %{buildroot}%{_datadir}/vulkan/{explicit,implicit}_layer.d/ \
@@ -151,21 +151,12 @@ mkdir -p %{buildroot}%{_sysconfdir}/vulkan/{explicit,implicit}_layer.d/ \
 # remove RPATH
 chrpath -d %{buildroot}%{_bindir}/vulkaninfo
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %license LICENSE.txt COPYRIGHT.txt
-%doc README.md CONTRIBUTING.md
 %{_bindir}/vulkaninfo
 %{_datadir}/vulkan/explicit_layer.d/*.json
 %{_libdir}/libVkLayer_*.so
 %{_libdir}/libvulkan.so.*
-
-%files devel
-%{_includedir}/vulkan/
-%{_libdir}/pkgconfig/vulkan.pc
-%{_libdir}/libvulkan.so
 
 %files filesystem
 %dir %{_sysconfdir}/vulkan/
@@ -177,7 +168,14 @@ chrpath -d %{buildroot}%{_bindir}/vulkaninfo
 %dir %{_datadir}/vulkan/icd.d/
 %dir %{_datadir}/vulkan/implicit_layer.d/
 
+%exclude %{_includedir}
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/libvulkan.so
+
 %changelog
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Oct 10 2017 Dave Airlie <airlied@redhat.com> - 1.0.61.1-2
 - fix 32-bit textrels
 
