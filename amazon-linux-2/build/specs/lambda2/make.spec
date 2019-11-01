@@ -71,9 +71,9 @@ Patch22: make-3.82-var.patch
 Patch23: make-3.82-jobserver-tokens.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 BuildRequires: procps
+
+Prefix: %{_prefix}
 
 %description
 A GNU tool for controlling the generation of executables and other
@@ -118,39 +118,24 @@ make %{?_smp_mflags}
 rm -rf ${RPM_BUILD_ROOT}
 make DESTDIR=$RPM_BUILD_ROOT install
 ln -sf make ${RPM_BUILD_ROOT}/%{_bindir}/gmake
-ln -sf make.1 ${RPM_BUILD_ROOT}/%{_mandir}/man1/gmake.1
 rm -f ${RPM_BUILD_ROOT}/%{_infodir}/dir
-
-%find_lang %name
-
-%check
-echo ============TESTING===============
-/usr/bin/env LANG=C make check
-echo ============END TESTING===========
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
-%post
-if [ -f %{_infodir}/make.info.gz ]; then # for --excludedocs
-   /sbin/install-info %{_infodir}/make.info.gz %{_infodir}/dir --entry="* Make: (make).                 The GNU make utility." || :
-fi
-
-%preun
-if [ $1 = 0 ]; then
-   if [ -f %{_infodir}/make.info.gz ]; then # for --excludedocs
-      /sbin/install-info --delete %{_infodir}/make.info.gz %{_infodir}/dir --entry="* Make: (make).                 The GNU make utility." || :
-   fi
-fi
-
-%files  -f %{name}.lang
+%files
 %defattr(-,root,root)
-%doc NEWS README COPYING AUTHORS
+%license COPYING
 %{_bindir}/*
-%{_mandir}/man*/*
-%{_infodir}/*.info*
+
+%exclude %{_mandir}
+%exclude %{_infodir}
+%exclude %{_localedir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jul 07 2016 Patsy Franklin <pfrankli@redhat.com> - 1:3.82-23
 - In very obscure situations we may incorrectly write the free token
   back to the pipe.

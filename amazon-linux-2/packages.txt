@@ -346,6 +346,7 @@ lua.x86_64                   5.1.4-15.lambda2.0.2                        lambda2
 lz4.x86_64                   1.7.5-2.lambda2.0.1                         lambda2
 m4.x86_64                    1.4.16-10.lambda2.0.2                       lambda2
 mailcap.noarch               2.1.41-2.lambda2                            lambda2
+make.x86_64                  1:3.82-23.lambda2.0.2                       lambda2
 malaga-suomi-voikko.x86_64   1.12-5.lambda2.0.2                          lambda2
 mariadb.x86_64               1:5.5.64-1.lambda2                          lambda2
 mariadb-embedded.x86_64      1:5.5.64-1.lambda2                          lambda2
