@@ -37,6 +37,8 @@ Provides: bdftopcf, fonttosfnt, mkfontdir, mkfontscale, ucs2any
 Provides: bdftruncate = %{epoch}:%{version}-%{release}
 Obsoletes: bdftruncate < %{epoch}:%{version}-%{release}
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 font utilities required for font installation, conversion,
 and generation.
@@ -84,15 +86,12 @@ rm -rf $RPM_BUILD_ROOT
 install -m 744 %{SOURCE5} ${RPM_BUILD_ROOT}%{_bindir}/xorg-x11-fonts-update-dirs
 sed -i "s:@DATADIR@:%{_datadir}:" ${RPM_BUILD_ROOT}%{_bindir}/xorg-x11-fonts-update-dirs
 
-install -d ${RPM_BUILD_ROOT}%{_mandir}/man1/
-install -m 644 -p %{SOURCE6} ${RPM_BUILD_ROOT}%{_mandir}/man1/xorg-x11-fonts-update-dirs.1
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc README-* COPYING-bdftopcf COPYING-[c-z]*
+%license COPYING-bdftopcf COPYING-[c-z]*
 %{_bindir}/bdftopcf
 %{_bindir}/bdftruncate
 %{_bindir}/fonttosfnt
@@ -104,16 +103,14 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/X11/fonts/util
 %{_datadir}/X11/fonts/util/map-*
 %{_datadir}/aclocal/fontutil.m4
-%{_libdir}/pkgconfig/fontutil.pc
-%{_mandir}/man1/bdftopcf.1*
-%{_mandir}/man1/bdftruncate.1*
-%{_mandir}/man1/fonttosfnt.1*
-%{_mandir}/man1/mkfontdir.1*
-%{_mandir}/man1/mkfontscale.1*
-%{_mandir}/man1/ucs2any.1*
-%{_mandir}/man1/xorg-x11-fonts-update-dirs.1*
+
+%exclude %{_mandir}
+%exclude %{_libdir}/pkgconfig/fontutil.pc
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue May 12 2015 Peter Robinson <pbrobinson@redhat.com> 1:7.5-20
 - rebuild
 

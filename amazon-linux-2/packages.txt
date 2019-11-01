@@ -895,6 +895,7 @@ uuidd.x86_64                 2.30.2-2.lambda2.0.4                        lambda2
 voikko-tools.x86_64          4.1.1-1.lambda2                             lambda2
 wavpack.x86_64               4.60.1-9.lambda2.0.1                        lambda2
 which.x86_64                 2.20-7.lambda2.0.2                          lambda2
+xorg-x11-font-utils.x86_64   1:7.5-20.lambda2.0.2                        lambda2
 xz.x86_64                    5.2.2-1.lambda2.0.2                         lambda2
 xz-compat-libs.x86_64        5.2.2-1.lambda2.0.2                         lambda2
 xz-libs.x86_64               5.2.2-1.lambda2.0.2                         lambda2
