@@ -40,35 +40,14 @@ sed -i 's/pthread-stubs //' configure.ac
 # autoreconf -f needed to expunge rpaths
 autoreconf -v -f --install
 %configure \
-  --enable-shm \
-  --enable-render \
-  --disable-static \
-  --disable-silent-rules \
-  --disable-devel-docs \
-  --without-doxygen \
-  --disable-damage \
-  --disable-dpms \
-  --disable-dri2 \
-  --disable-dri3 \
-  --disable-glx \
-  --disable-present \
-  --disable-randr \
-  --disable-record \
-  --disable-resource \
-  --disable-screensaver \
-  --disable-shape \
-  --enable-sync \
-  --disable-xevie \
-  --disable-xfixes \
-  --disable-xfree86-dri \
-  --disable-xinerama \
-  --disable-xinput \
-  --disable-xkb \
-  --disable-xprint \
-  --disable-selinux \
-  --disable-xtest \
-  --disable-xv \
-  --disable-xvmc
+    --disable-static \
+    --docdir=%{_pkgdocdir} \
+    --enable-selinux \
+    --enable-xkb \
+    --enable-xinput \
+    --enable-xevie \
+    --disable-xprint \
+    --disable-silent-rules
 
 # Remove rpath from libtool (extra insurance if autoreconf is ever dropped)
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
@@ -79,23 +58,45 @@ make %{?_smp_mflags}
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 
+find $RPM_BUILD_ROOT -name '*.la' -delete
+
 %files
 %license COPYING
 %{_libdir}/libxcb-composite.so.0*
+%{_libdir}/libxcb-damage.so.0*
+%{_libdir}/libxcb-dpms.so.0*
+%{_libdir}/libxcb-dri2.so.0*
+%{_libdir}/libxcb-dri3.so.0*
+%{_libdir}/libxcb-glx.so.0*
+%{_libdir}/libxcb-present.so.0*
+%{_libdir}/libxcb-randr.so.0*
+%{_libdir}/libxcb-record.so.0*
 %{_libdir}/libxcb-render.so.0*
+%{_libdir}/libxcb-res.so.0*
+%{_libdir}/libxcb-screensaver.so.0*
+%{_libdir}/libxcb-shape.so.0*
 %{_libdir}/libxcb-shm.so.0*
-%{_libdir}/libxcb.so.1*
 %{_libdir}/libxcb-sync.so.1*
+%{_libdir}/libxcb-xevie.so.0*
+%{_libdir}/libxcb-xf86dri.so.0*
+%{_libdir}/libxcb-xfixes.so.0*
+%{_libdir}/libxcb-xinerama.so.0*
+%{_libdir}/libxcb-xinput.so.0*
+%{_libdir}/libxcb-xkb.so.1*
+%{_libdir}/libxcb-xselinux.so.0*
+%{_libdir}/libxcb-xtest.so.0*
+%{_libdir}/libxcb-xv.so.0*
+%{_libdir}/libxcb-xvmc.so.0*
+%{_libdir}/libxcb.so.1*
 
 %exclude %{_includedir}
-%exclude %{_mandir}
-%exclude %{_libdir}/*.la
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
-%exclude %{_datadir}
+%exclude %{_mandir}
+%exclude %{_pkgdocdir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Wed May 18 2016 Adam Jackson <ajax@redhat.com> - 1.12-1
