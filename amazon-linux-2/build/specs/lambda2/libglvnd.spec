@@ -4,12 +4,8 @@
 #global date 20170818
 #global shortcommit0 %%(c=%%{commit0}; echo ${c:0:7})
 
-%if 0%{?rhel} && 0%{?rhel} < 7
-%global _without_mesa_glvnd_default 1
-%endif
-
 # Set to 0 to skip testsuite.
-%global with_tests 1
+%global with_tests 0
 
 Name:           libglvnd
 Version:        1.0.0
@@ -43,23 +39,6 @@ BuildRequires:  xorg-x11-server-Xvfb
 BuildRequires:  autoconf268
 %endif
 
-%{?_without_mesa_glvnd_default:
-%if (0%{?rhel} && 0%{?rhel} <= 6)
-
-%{?filter_setup:
-%filter_provides_in %{_libdir}/%{name}
-%filter_requires_in %{_libdir}/%{name}
-%filter_setup
-}
-
-%else
-
-%global __provides_exclude_from %{_libdir}/%{name}
-%global __requires_exclude_from %{_libdir}/%{name}
-
-%endif
-}
-
 Prefix: %{_prefix}
 
 %description
@@ -74,6 +53,33 @@ Prefix: %{_prefix}
 
 %description    opengl
 libOpenGL is the common dispatch interface for the workstation OpenGL API.
+
+
+%package        gles
+Summary:        GLES support for libglvnd
+Requires:       %{name}%{?_isa} = %{epoch}:%{version}-%{release}
+Prefix: %{_prefix}
+
+%description    gles
+libGLESv[12] are the common dispatch interface for the GLES API.
+
+
+%package        egl
+Summary:        EGL support for libglvnd
+Requires:       %{name}%{?_isa} = %{epoch}:%{version}-%{release}
+Prefix: %{_prefix}
+
+%description    egl
+libEGL are the common dispatch interface for the EGL API.
+
+
+%package        glx
+Summary:        GLX support for libglvnd
+Requires:       %{name}%{?_isa} = %{epoch}:%{version}-%{release}
+Prefix: %{_prefix}
+
+%description    glx
+libGL and libGLX are the common dispatch interface for the GLX API.
 
 
 %prep
@@ -101,18 +107,11 @@ autoreconf -vif
 %make_install INSTALL="install -p"
 find %{buildroot} -name '*.la' -delete
 
-%{?_without_mesa_glvnd_default:
-# Avoid conflict with mesa-libGL
-mkdir -p %{buildroot}%{_libdir}/%{name}
-for l in libEGL libGL libGLESv1_CM libGLESv2 libGLX; do
-  mv %{buildroot}%{_libdir}/${l}.so* \
-    %{buildroot}%{_libdir}/%{name}
-done
-}
-
 # Create directory layout
-mkdir -p %{buildroot}%{_sysconfdir}/glvnd
-mkdir -p %{buildroot}%{_datadir}/glvnd
+mkdir -p %{buildroot}%{_sysconfdir}/glvnd/egl_vendor.d
+mkdir -p %{buildroot}%{_datadir}/glvnd/egl_vendor.d
+mkdir -p %{buildroot}%{_sysconfdir}/egl/egl_external_platform.d
+mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d
 
 
 %files
@@ -124,17 +123,29 @@ mkdir -p %{buildroot}%{_datadir}/glvnd
 %files opengl
 %{_libdir}/libOpenGL.so.0*
 
-%exclude %{_libdir}/libGLES*.so.*
-%exclude %{_libdir}/libGL.so.*
-%exclude %{_libdir}/libGLX.so.*
-%exclude %{_libdir}/libEGL*.so.*
+%files gles
+%{_libdir}/libGLES*.so.*
+
+%files egl
+%dir %{_sysconfdir}/glvnd/egl_vendor.d
+%dir %{_datadir}/glvnd/egl_vendor.d
+%dir %{_sysconfdir}/egl/
+%dir %{_sysconfdir}/egl/egl_external_platform.d/
+%dir %{_datadir}/egl/
+%dir %{_datadir}/egl/egl_external_platform.d/
+%{_libdir}/libEGL*.so.*
+
+%files glx
+%{_libdir}/libGL.so.*
+%{_libdir}/libGLX.so.*
+
 %exclude %{_includedir}
 %exclude %{_libdir}/pkgconfig
 %exclude %{_libdir}/*.so
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Thu Nov 09 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:1.0.0-1
