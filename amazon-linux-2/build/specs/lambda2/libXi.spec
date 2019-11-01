@@ -27,19 +27,10 @@ BuildRequires: xmlto asciidoc >= 8.4.5
 
 Requires: libX11 >= 1.5.99.902
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXi runtime library
-
-%package devel
-Summary: X.Org X11 libXi development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-# required by xi.pc
-Requires: xorg-x11-proto-devel
-Requires: pkgconfig
-
-%description devel
-X.Org X11 libXi development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -67,28 +58,24 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING
+%license COPYING
 %{_libdir}/libXi.so.6
 %{_libdir}/libXi.so.6.1.0
 
-%files devel
-%defattr(-,root,root,-)
 %if %{with_static}
-%{_libdir}/libXi.a
+%exclude %{_libdir}/libXi.a
 %endif
-%{_includedir}/X11/extensions/XInput.h
-%{_includedir}/X11/extensions/XInput2.h
-%{_libdir}/libXi.so
-%{_libdir}/pkgconfig/xi.pc
-#%dir %{_mandir}/man3x
-%{_mandir}/man3/*.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 23 2017 Peter Hutterer <peter.hutterer@redhat.com> 1.7.9-1
 - libXi 1.7.9
 
