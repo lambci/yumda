@@ -17,16 +17,10 @@ BuildRequires: libICE-devel
 BuildRequires: libuuid-devel
 BuildRequires: xmlto
 
+Prefix: %{_prefix}
+
 %description
 The X.Org X11 SM (Session Management) runtime library.
-
-%package devel
-Summary: X.Org X11 SM development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-The X.Org X11 SM (Session Management) development package.
 
 %prep
 %setup -q
@@ -51,25 +45,20 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING ChangeLog
+%license COPYING
 %{_libdir}/libSM.so.6
 %{_libdir}/libSM.so.6.*
 
-%files devel
-%defattr(-,root,root,-)
-%dir %{_includedir}/X11/SM
-%{_includedir}/X11/SM/SM.h
-%{_includedir}/X11/SM/SMlib.h
-%{_includedir}/X11/SM/SMproto.h
-%{_libdir}/libSM.so
-%{_libdir}/pkgconfig/sm.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
