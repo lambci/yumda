@@ -25,16 +25,10 @@ BuildRequires: autoconf automake libtool
 BuildRequires: pkgconfig(xproto) pkgconfig(x11) pkgconfig(sm)
 BUildRequires: libX11-devel >= 1.5.99.902
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXt runtime library
-
-%package devel
-Summary: X.Org X11 libXt development package
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXt development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -55,63 +49,25 @@ make install DESTDIR=$RPM_BUILD_ROOT
 mkdir -p -m 0755 $RPM_BUILD_ROOT%{_datadir}/X11/app-defaults
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-# adding to installed docs in order to avoid using %%doc magic
-cp -p COPYING ${RPM_BUILD_ROOT}%{_datadir}/doc/%{name}/COPYING
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
+%license COPYING
 %{_libdir}/libXt.so.6
 %{_libdir}/libXt.so.6.0.0
 %dir %{_datadir}/X11/app-defaults
-# not using %%doc because of side-effect (#1001246)
-%dir %{_docdir}/%{name}
-%{_docdir}/%{name}/COPYING
 
-%files devel
-%{_docdir}/%{name}/*.xml
-%{_includedir}/X11/CallbackI.h
-%{_includedir}/X11/Composite.h
-%{_includedir}/X11/CompositeP.h
-%{_includedir}/X11/ConstrainP.h
-%{_includedir}/X11/Constraint.h
-%{_includedir}/X11/ConvertI.h
-%{_includedir}/X11/Core.h
-%{_includedir}/X11/CoreP.h
-%{_includedir}/X11/CreateI.h
-%{_includedir}/X11/EventI.h
-%{_includedir}/X11/HookObjI.h
-%{_includedir}/X11/InitialI.h
-%{_includedir}/X11/Intrinsic.h
-%{_includedir}/X11/IntrinsicI.h
-%{_includedir}/X11/IntrinsicP.h
-%{_includedir}/X11/Object.h
-%{_includedir}/X11/ObjectP.h
-%{_includedir}/X11/PassivGraI.h
-%{_includedir}/X11/RectObj.h
-%{_includedir}/X11/RectObjP.h
-%{_includedir}/X11/ResConfigP.h
-%{_includedir}/X11/ResourceI.h
-%{_includedir}/X11/SelectionI.h
-%{_includedir}/X11/Shell.h
-%{_includedir}/X11/ShellI.h
-%{_includedir}/X11/ShellP.h
-%{_includedir}/X11/StringDefs.h
-%{_includedir}/X11/ThreadsI.h
-%{_includedir}/X11/TranslateI.h
-%{_includedir}/X11/VarargsI.h
-%{_includedir}/X11/Vendor.h
-%{_includedir}/X11/VendorP.h
-%{_includedir}/X11/Xtos.h
-%{_libdir}/libXt.so
-%{_libdir}/pkgconfig/xt.pc
-%{_mandir}/man3/*.3*
+%exclude %{_docdir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 23 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.1.5-3
 - libXt 1.1.5
 - Merge F25:
