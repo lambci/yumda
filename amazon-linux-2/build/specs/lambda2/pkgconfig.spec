@@ -15,6 +15,8 @@ BuildRequires: glib2-devel
 
 Provides: pkgconfig(pkg-config) = %{version}
 
+Prefix: %{_prefix}
+
 %description
 The pkgconfig tool determines compilation options. For each required
 library, it reads the configuration file and outputs the necessary
@@ -40,14 +42,18 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/pkgconfig
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/pkg-config
 
 %files
-%doc AUTHORS README NEWS COPYING pkg-config-guide.html
-%{_mandir}/*/*
+%license COPYING
 %{_bindir}/*
 %{_libdir}/pkgconfig
 %{_datadir}/pkgconfig
 %{_datadir}/aclocal/*
 
+%exclude %{_mandir}
+
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1:0.27.1-4
 - Mass rebuild 2014-01-24
 
