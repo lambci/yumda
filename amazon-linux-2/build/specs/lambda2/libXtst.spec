@@ -28,17 +28,10 @@ BuildRequires: libXext-devel
 BuildRequires: libXi-devel
 BuildRequires: xmlto
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXtst runtime library
-
-%package devel
-Summary: X.Org X11 libXtst development package
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: libXi-devel%{?_isa}
-
-%description devel
-X.Org X11 libXtst development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -62,24 +55,21 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING
+%license COPYING
 %{_libdir}/libXtst.so.6
 %{_libdir}/libXtst.so.6.1.0
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/X11/extensions/XTest.h
-%{_includedir}/X11/extensions/record.h
-%{_libdir}/libXtst.so
-%{_libdir}/pkgconfig/xtst.pc
-%{_mandir}/man3/XTest*.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 23 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.2.3-1
 - libXtst 1.2.3
 
