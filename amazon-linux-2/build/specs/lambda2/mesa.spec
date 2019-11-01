@@ -7,8 +7,53 @@
 %endif
 
 %define with_vdpau 1
+%define with_wayland 1
 
+%ifnarch ppc
+%define with_radeonsi 1
+%endif
+
+%ifarch %{arm} aarch64
+%define with_freedreno 1
+%endif
+
+# S390 doesn't have video cards, but we need swrast for xserver's GLX
+# llvm (and thus llvmpipe) doesn't actually work on ppc32 or s390
+
+%ifnarch s390 ppc
 %define with_llvm 1
+%endif
+
+%ifarch s390 s390x
+%define with_hardware 0
+%ifarch s390
+%define base_drivers swrast
+%endif
+%else
+%define with_hardware 1
+%define base_drivers nouveau,radeon,r200
+%define base_vulkan_drivers radeon
+%ifarch %{ix86} x86_64
+%define platform_drivers ,i915,i965
+%define with_vmware 1
+%define platform_vulkan_drivers ,intel
+%endif
+%ifarch ppc
+%define platform_drivers ,swrast
+%endif
+%endif
+
+%ifarch x86_64 ppc64le
+%define with_vulkan 1
+%else
+%define with_vulkan 0
+%endif
+
+%define dri_drivers --with-dri-drivers=%{?base_drivers}%{?platform_drivers}
+
+%if 0%{?with_vulkan}
+%define vulkan_drivers --with-vulkan-drivers=%{?base_vulkan_drivers}%{?platform_vulkan_drivers}
+%endif
 
 %define _default_patch_fuzz 2
 
@@ -55,8 +100,10 @@ Patch40: 0001-intel-Add-more-Coffee-Lake-PCI-IDs.patch
 Patch1000: glvnd-fix-gl-dot-pc.patch
 
 BuildRequires: pkgconfig autoconf automake libtool
+%if %{with_hardware}
 BuildRequires: kernel-headers
 BuildRequires: xorg-x11-server-devel
+%endif
 BuildRequires: libatomic
 BuildRequires: libdrm-devel >= 2.4.83
 BuildRequires: libXxf86vm-devel
@@ -74,18 +121,22 @@ BuildRequires: elfutils
 BuildRequires: python
 BuildRequires: python-mako
 BuildRequires: gettext
+%if 0%{?with_llvm}
 %if 0%{?with_private_llvm}
 BuildRequires: llvm-private-devel >= 5.0
 %else
 BuildRequires: llvm-devel >= 3.0
 %endif
+%endif
 BuildRequires: elfutils-libelf-devel
 BuildRequires: libxml2-python
 BuildRequires: libudev-devel
 BuildRequires: bison flex
+%if %{with wayland}
 BuildRequires: pkgconfig(wayland-client) >= 1.11
 BuildRequires: pkgconfig(wayland-server) >= 1.11
 BuildRequires: pkgconfig(wayland-protocols) >= 1.8.0
+%endif
 BuildRequires: mesa-libGL-devel
 %if 0%{?with_vdpau}
 BuildRequires: libvdpau-devel
@@ -98,6 +149,37 @@ Prefix: %{_prefix}
 %description
 Mesa
 
+%package libGL
+Summary: Mesa libGL runtime libraries and DRI drivers
+Group: System Environment/Libraries
+Requires: mesa-libglapi = %{version}-%{release}
+Requires: libdrm >= 2.4.83
+Requires:       libglvnd-glx
+Prefix: %{_prefix}
+
+%description libGL
+Mesa libGL runtime library.
+
+%package libEGL
+Summary: Mesa libEGL runtime libraries
+Group: System Environment/Libraries
+Requires: mesa-libgbm = %{version}-%{release}
+Requires:       libglvnd-egl
+Prefix: %{_prefix}
+
+%description libEGL
+Mesa libEGL runtime libraries
+
+%package libGLES
+Summary: Mesa libGLES runtime libraries
+Group: System Environment/Libraries
+Requires: mesa-libglapi = %{version}-%{release}
+Requires: libglvnd-gles
+Prefix: %{_prefix}
+
+%description libGLES
+Mesa GLES runtime libraries
+
 %package filesystem
 Summary: Mesa driver filesystem
 Group: User Interface/X Hardware Support
@@ -106,6 +188,27 @@ Obsoletes: mesa-dri-filesystem < %{version}-%{release}
 Prefix: %{_prefix}
 %description filesystem
 Mesa driver filesystem
+
+%package dri-drivers
+Summary: Mesa-based DRI drivers
+Group: User Interface/X Hardware Support
+Requires: mesa-filesystem%{?_isa}
+Requires: libdrm >= 2.4.83
+Obsoletes: mesa-dri1-drivers < 7.12
+Obsoletes: mesa-dri-llvmcore <= 7.12
+Prefix: %{_prefix}
+%description dri-drivers
+Mesa-based DRI drivers.
+
+%if 0%{?with_vdpau}
+%package vdpau-drivers
+Summary: Mesa-based DRI drivers
+Group: User Interface/X Hardware Support
+Requires: mesa-filesystem%{?_isa}
+Prefix: %{_prefix}
+%description vdpau-drivers
+Mesa-based VDPAU drivers.
+%endif
 
 %package libOSMesa
 Summary: Mesa offscreen rendering libraries
@@ -118,6 +221,19 @@ Prefix: %{_prefix}
 Mesa offscreen rendering libraries
 
 
+%package libgbm
+Summary: Mesa gbm library
+Group: System Environment/Libraries
+Provides: libgbm
+Requires: libdrm >= 2.4.83
+Requires: mesa-libglapi = %{version}-%{release}
+Prefix: %{_prefix}
+
+%description libgbm
+Mesa gbm runtime library.
+
+
+%if %{with wayland}
 %package libwayland-egl
 Summary: Mesa libwayland-egl library
 Group: System Environment/Libraries
@@ -126,7 +242,19 @@ Prefix: %{_prefix}
 
 %description libwayland-egl
 Mesa libwayland-egl runtime library.
+%endif
 
+
+%if 0%{?with_vmware}
+%package libxatracker
+Summary: Mesa XA state tracker for vmware
+Group: System Environment/Libraries
+Provides: libxatracker
+Prefix: %{_prefix}
+
+%description libxatracker
+Mesa XA state tracker for vmware
+%endif
 
 %package libglapi
 Summary: Mesa shared glapi
@@ -135,6 +263,16 @@ Prefix: %{_prefix}
 
 %description libglapi
 Mesa shared glapi
+
+%if 0%{?with_vulkan}
+%package vulkan-drivers
+Summary:        Mesa Vulkan drivers
+Requires:       vulkan%{_isa}
+Prefix: %{_prefix}
+
+%description vulkan-drivers
+The drivers with support for the Vulkan API.
+%endif
 
 %prep
 #setup -q -n Mesa-%{version}%{?snapshot}
@@ -173,8 +311,6 @@ sed -i 's/\[llvm-config\]/\[llvm-private-config-%{__isa_bits}\]/g' configure.ac
 sed -i 's/`$LLVM_CONFIG --version`/$LLVM_VERSION_MAJOR.$LLVM_VERSION_MINOR-rhel/' configure.ac
 %endif
 
-sed -i 's|LIBGLVND_DATADIR=.*$|LIBGLVND_DATADIR="%{_datadir}"|' configure.ac
-
 # need to use libdrm_nouveau2 on F17
 %if !0%{?rhel}
 %if 0%{?fedora} < 18
@@ -186,7 +322,7 @@ cp %{SOURCE4} docs/
 
 %build
 
-autoreconf --install
+autoreconf --install  
 
 export CFLAGS="$RPM_OPT_FLAGS"
 # C++ note: we never say "catch" in the source.  we do say "typeid" once,
@@ -200,7 +336,7 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-rtti -fno-exceptions"
 %define asm_flags --disable-asm
 %endif
 
-%configure \
+%configure LIBGLVND_DATADIR=%{_datadir} \
     %{?asm_flags} \
     --enable-selinux \
     --enable-osmesa \
@@ -209,61 +345,220 @@ export CXXFLAGS="$RPM_OPT_FLAGS -fno-rtti -fno-exceptions"
     --disable-gles1 \
     --enable-gles2 \
     --disable-xvmc \
-    --enable-vdpau \
-    --with-platforms=x11,drm,wayland \
+    %{?with_vdpau:--enable-vdpau} \
+    --with-egl-platforms=x11,drm%{?with_wayland:,wayland} \
     --enable-shared-glapi \
     --enable-gbm \
     --disable-opencl \
     --enable-glx-tls \
     --enable-libglvnd \
     --enable-texture-float=yes \
-    --with-vulkan-drivers=radeon,intel \
-    --enable-llvm \
+%if %{with_vulkan}
+    %{?vulkan_drivers} \
+%endif
+    %{?with_llvm:--enable-gallium-llvm} \
     --enable-dri \
-    --enable-xa \
-    --with-gallium-drivers=svga,radeonsi,swrast,r600,r300,nouveau,virgl \
-    --with-dri-drivers=nouveau,radeon,r200,i915,i965
+%if %{with_hardware}
+    %{?with_vmware:--enable-xa} \
+    --with-gallium-drivers=%{?with_vmware:svga,}%{?with_radeonsi:radeonsi,}%{?with_llvm:swrast,r600,r300,}%{?with_freedreno:freedreno,}nouveau,virgl \
+%else
+    --with-gallium-drivers=%{?with_llvm:swrast} \
+%endif
+    %{?dri_drivers}
+
+# this seems to be neccessary for s390
+make -C src/mesa/drivers/dri/common/xmlpool/
 
 make %{?_smp_mflags} MKDEP=/bin/true
 
 %install
+rm -rf $RPM_BUILD_ROOT
+
 make install DESTDIR=$RPM_BUILD_ROOT
+
+%if 0%{?rhel}
+# remove pre-DX9 drivers
+rm -f $RPM_BUILD_ROOT%{_libdir}/dri/{radeon,r200,nouveau_vieux}_dri.*
+# remove r300 vdpau
+rm -f $RPM_BUILD_ROOT%{_libdir}/vdpau/libvdpau_r300.*
+%endif
+
+%if !%{with_hardware}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/drirc
+%endif
+
+# libvdpau opens the versioned name, don't bother including the unversioned
+rm -f $RPM_BUILD_ROOT%{_libdir}/vdpau/*.so
+# likewise glvnd
+rm -f %{buildroot}%{_libdir}/libGLX_mesa.so
+rm -f %{buildroot}%{_libdir}/libEGL_mesa.so
+# XXX can we just not build this
+rm -f %{buildroot}%{_libdir}/libGLES*
+
+# glvnd needs a default provider for indirect rendering where it cannot
+# determine the vendor
+ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
+
+
+
+# strip out useless headers
+rm -f $RPM_BUILD_ROOT%{_includedir}/GL/w*.h
+
+rm -rf $RPM_BUILD_ROOT%{_libdir}/gallium-pipe/
+
+rm -f $RPM_BUILD_ROOT%{_includedir}/vulkan/vulkan_intel.h
+
+# remove .la files
+find $RPM_BUILD_ROOT -name \*.la | xargs rm -f
+
+# this keeps breaking, check it early.  note that the exit from eu-ftr is odd.
+pushd $RPM_BUILD_ROOT%{_libdir}
+for i in libOSMesa*.so libGL.so ; do
+    eu-findtextrel $i && exit 1
+done
+popd
+
+# It seems LIBGLVND_DATADIR isn't configurable
+%if "%{_datadir}" != "/usr/share"
+if [ -f $RPM_BUILD_ROOT/usr/share/glvnd/egl_vendor.d/50_mesa.json ]; then
+  mkdir -p $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d
+  mv $RPM_BUILD_ROOT/usr/share/glvnd/egl_vendor.d/50_mesa.json $RPM_BUILD_ROOT%{_datadir}/glvnd/egl_vendor.d/
+fi
+%endif
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files libGL
+%defattr(-,root,root,-)
+%{_libdir}/libGLX_mesa.so.0*
+%{_libdir}/libGLX_indirect.so.0*
+
+%files libEGL
+%defattr(-,root,root,-)
+%{_datadir}/glvnd/egl_vendor.d/50_mesa.json
+%{_libdir}/libEGL_mesa.so.0*
+
+%files libGLES
+%defattr(-,root,root,-)
+# No files, all provided by libglvnd
 
 %files filesystem
 %defattr(-,root,root,-)
 %license docs/Mesa-MLAA-License-Clarification-Email.txt
 %dir %{_libdir}/dri
+%if %{with_hardware}
+%if 0%{?with_vdpau}
 %dir %{_libdir}/vdpau
+%endif
+%endif
 
 %files libglapi
 %{_libdir}/libglapi.so.0
 %{_libdir}/libglapi.so.0.*
 
+%files dri-drivers
+%defattr(-,root,root,-)
+%if %{with_hardware}
+%config(noreplace) %{_sysconfdir}/drirc
+%if !0%{?rhel}
+%{_libdir}/dri/radeon_dri.so
+%{_libdir}/dri/r200_dri.so
+%{_libdir}/dri/nouveau_vieux_dri.so
+%endif
+%if 0%{?with_llvm}
+%{_libdir}/dri/r300_dri.so
+%{_libdir}/dri/r600_dri.so
+%if 0%{?with_radeonsi}
+%{_libdir}/dri/radeonsi_dri.so
+%endif
+%endif
+%ifarch %{ix86} x86_64
+%{_libdir}/dri/i915_dri.so
+%{_libdir}/dri/i965_dri.so
+%endif
+%if 0%{?with_freedreno}
+%{_libdir}/dri/kgsl_dri.so
+%{_libdir}/dri/msm_dri.so
+%endif
+%{_libdir}/dri/nouveau_dri.so
+%{_libdir}/dri/virtio_gpu_dri.so
+%if 0%{?with_vmware}
+%{_libdir}/dri/vmwgfx_dri.so
+%endif
+%endif
+# this is funky; it doesn't get built for gallium drivers, so it doesn't
+# exist on s390x where swrast is llvmpipe, but does exist on s390 where
+# swrast is classic mesa.  this seems like a bug?  in that it probably
+# means the gallium drivers are linking dricore statically?  fixme.
+%{_libdir}/dri/swrast_dri.so
+%if 0%{?with_llvm}
+%{_libdir}/dri/kms_swrast_dri.so
+%endif
+
+%if %{with_hardware}
+%if 0%{?with_vdpau}
+%files vdpau-drivers
+%defattr(-,root,root,-)
+%{_libdir}/vdpau/libvdpau_nouveau.so.1*
+%if 0%{?with_llvm}
+%{_libdir}/vdpau/libvdpau_r600.so.1*
+%{_libdir}/vdpau/libvdpau_radeonsi.so.1*
+%endif
+%endif
+%endif
+
 %files libOSMesa
 %defattr(-,root,root,-)
 %{_libdir}/libOSMesa.so.8*
 
+%files libgbm
+%defattr(-,root,root,-)
+%{_libdir}/libgbm.so.1
+%{_libdir}/libgbm.so.1.*
+
+%if %{with wayland}
 %files libwayland-egl
 %defattr(-,root,root,-)
 %{_libdir}/libwayland-egl.so.1
 %{_libdir}/libwayland-egl.so.1.*
+%endif
 
-%exclude %{_sysconfdir}
+%if 0%{?with_vmware}
+%files libxatracker
+%defattr(-,root,root,-)
+%if %{with_hardware}
+%{_libdir}/libxatracker.so.2
+%{_libdir}/libxatracker.so.2.*
+%endif
+%endif
+
+%if 0%{?with_vulkan}
+%files vulkan-drivers
+%ifarch x86_64
+%{_libdir}/libvulkan_intel.so
+%{_datadir}/vulkan/icd.d/intel_icd.x86_64.json
+%endif
+%{_libdir}/libvulkan_radeon.so
+%ifarch x86_64
+%{_datadir}/vulkan/icd.d/radeon_icd.x86_64.json
+%endif
+%ifarch ppc64le
+%{_datadir}/vulkan/icd.d/radeon_icd.powerpc64le.json
+%endif
+%endif
+
 %exclude %{_includedir}
-%exclude %{_datadir}
-%exclude %{_libdir}/*.la
-%exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
-%exclude %{_libdir}/dri
-%exclude %{_libdir}/vdpau
-%exclude %{_libdir}/libEGL*
-%exclude %{_libdir}/libGLES*
-%exclude %{_libdir}/libGLX*
-%exclude %{_libdir}/libgbm*
-%exclude %{_libdir}/libxatracker*
+%exclude %{_libdir}/libwayland-egl.so
+%exclude %{_libdir}/libgbm.so
+%exclude %{_libdir}/libglapi.so
+%exclude %{_libdir}/libOSMesa.so
+%exclude %{_libdir}/libxatracker.so
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Tue Jun 12 2018 Praveen Paladugu <praween@amazon.com> - 17.2.3-8.20171019.0.1
