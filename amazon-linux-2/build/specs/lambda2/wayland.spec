@@ -19,6 +19,8 @@ BuildRequires:  libxslt
 BuildRequires:  pkgconfig(libffi)
 BuildRequires:  xmlto
 
+Prefix: %{_prefix}
+
 %description
 Wayland is a protocol for a compositor to talk to its clients as well as a C
 library implementation of that protocol. The compositor can be a standalone
@@ -26,44 +28,22 @@ display server running on Linux kernel modesetting and evdev input devices,
 an X application, or a wayland client itself. The clients can be traditional
 applications, X servers (rootless or fullscreen) or other display servers.
 
-%package        devel
-Summary:        Development files for %{name}
-Requires:       libwayland-client%{?_isa} = %{version}-%{release}
-Requires:       libwayland-cursor%{?_isa} = %{version}-%{release}
-Requires:       libwayland-server%{?_isa} = %{version}-%{release}
-# For upgrade path from F24
-Provides:       libwayland-client-devel = %{version}-%{release}
-Obsoletes:      libwayland-client-devel < 1.11.91
-Provides:       libwayland-cursor-devel = %{version}-%{release}
-Obsoletes:      libwayland-cursor-devel < 1.11.91
-Provides:       libwayland-server-devel = %{version}-%{release}
-Obsoletes:      libwayland-server-devel < 1.11.91
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
-
-%package doc
-Summary: Wayland development documentation
-BuildArch: noarch
-# For upgrade path from F22
-Obsoletes: wayland < 1.8.91
-%description doc
-Wayland development documentation
-
 %package -n libwayland-client
 Summary: Wayland client library
+Prefix: %{_prefix}
 %description -n libwayland-client
 Wayland client library
 
 %package -n libwayland-cursor
 Summary: Wayland cursor library
 Requires: libwayland-client%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
 %description -n libwayland-cursor
 Wayland cursor library
 
 %package -n libwayland-server
 Summary: Wayland server library
+Prefix: %{_prefix}
 %description -n libwayland-server
 Wayland server library
 
@@ -73,7 +53,7 @@ Wayland server library
 %patch1 -p1 -b .xcursor
 
 %build
-%configure --disable-static --enable-documentation
+%configure --disable-static --disable-documentation
 make %{?_smp_mflags}
 
 
@@ -84,38 +64,6 @@ find $RPM_BUILD_ROOT -name \*.la | xargs rm -f
 
 # Remove lib64 rpaths
 chrpath -d $RPM_BUILD_ROOT%{_libdir}/libwayland-cursor.so
-
-%check
-mkdir -m 700 tests/run
-XDG_RUNTIME_DIR=$PWD/tests/run make check || \
-{ rc=$?; cat test-suite.log; exit $rc; }
-
-
-%post -n libwayland-client -p /sbin/ldconfig
-%postun -n libwayland-client -p /sbin/ldconfig
-
-%post -n libwayland-cursor -p /sbin/ldconfig
-%postun -n libwayland-cursor -p /sbin/ldconfig
-
-%post -n libwayland-server -p /sbin/ldconfig
-%postun -n libwayland-server -p /sbin/ldconfig
-
-
-%files devel
-%{_bindir}/wayland-scanner
-%{_includedir}/wayland-*.h
-%{_libdir}/pkgconfig/wayland-*.pc
-%{_libdir}/libwayland-*.so
-%{_datadir}/aclocal/wayland-scanner.m4
-%dir %{_datadir}/wayland
-%{_datadir}/wayland/wayland-scanner.mk
-%{_datadir}/wayland/wayland.xml
-%{_datadir}/wayland/wayland.dtd
-%{_mandir}/man3/*.3*
-
-%files doc
-%doc README TODO
-%{_datadir}/doc/wayland/
 
 %files -n libwayland-client
 %license COPYING
@@ -129,7 +77,17 @@ XDG_RUNTIME_DIR=$PWD/tests/run make check || \
 %license COPYING
 %{_libdir}/libwayland-server.so.0*
 
+%exclude %{_bindir}/wayland-scanner
+%exclude %{_includedir}
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/*.so
+%exclude %{_datadir}
+%exclude %{_mandir}
+
 %changelog
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Nov 29 2017 Olivier Fourdan <ofourdan@redhat.com> - 1.14.0-2
 - Add libwayland-cursor heap overflow fix (#1518615)
 
