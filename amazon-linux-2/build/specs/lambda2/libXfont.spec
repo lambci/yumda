@@ -15,17 +15,10 @@ BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
 BuildRequires: libfontenc-devel
 BuildRequires: freetype-devel
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXfont runtime library
-
-%package devel
-Summary: X.Org X11 libXfont development package
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: libfontenc-devel%{?_isa}
-
-%description devel
-X.Org X11 libXfont development package
 
 %prep
 %setup -q
@@ -42,34 +35,19 @@ make %{?_smp_mflags}
 # We intentionally don't ship *.la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
-%doc AUTHORS COPYING README ChangeLog
+%license COPYING
 %{_libdir}/libXfont.so.1
 %{_libdir}/libXfont.so.1.4.1
 
-%files devel
-%{_includedir}/X11/fonts/bdfint.h
-%{_includedir}/X11/fonts/bitmap.h
-%{_includedir}/X11/fonts/bufio.h
-%{_includedir}/X11/fonts/fntfil.h
-%{_includedir}/X11/fonts/fntfilio.h
-%{_includedir}/X11/fonts/fntfilst.h
-%{_includedir}/X11/fonts/fontconf.h
-%{_includedir}/X11/fonts/fontencc.h
-%{_includedir}/X11/fonts/fontmisc.h
-%{_includedir}/X11/fonts/fontshow.h
-%{_includedir}/X11/fonts/fontutil.h
-%{_includedir}/X11/fonts/fontxlfd.h
-%{_includedir}/X11/fonts/pcf.h
-%{_includedir}/X11/fonts/ft.h
-%{_includedir}/X11/fonts/ftfuncs.h
-%{_libdir}/libXfont.so
-%{_libdir}/pkgconfig/xfont.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/libXfont.so
+%exclude %{_libdir}/pkgconfig/xfont.pc
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 23 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.5.2-1
 - libXfont 1.5.2
 
