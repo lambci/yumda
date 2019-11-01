@@ -2,7 +2,7 @@
 # for debuginfo.
 %define debug_package %{nil}
 
-%define _catalogue /etc/X11/fontpath.d
+%define _catalogue %{_sysconfdir}/X11/fontpath.d
 
 # FIXME: The _sysfontdir stuff doesn't work yet, so don't use it.  Once
 # upstream fonts have a build time configureable output directory that is
@@ -94,19 +94,20 @@ Conflicts: xorg-x11-server-Xvfb < 1.3.0.0-10
 Conflicts: xorg-x11-server-Xephyr < 1.3.0.0-10
 Conflicts: xorg-x11-xfs < 1.0.4-1
 
+Prefix: %{_prefix}
+
 %description
 X.Org X Window System fonts
 
 %package misc
 Summary: misc bitmap fonts for the X Window System
 Group: User Interface/X
-Requires(post): mkfontdir, fontconfig
-Requires(postun): mkfontdir, fontconfig
 Obsoletes: XFree86-base-fonts
 Obsoletes: xorg-x11-base-fonts
 Obsoletes: fonts-xorg-base
 Obsoletes: xorg-x11-fonts-base
 Provides: xorg-x11-fonts-base
+Prefix: %{_prefix}
 
 %description misc
 This package contains misc bitmap Chinese, Japanese, Korean, Indic, and Arabic
@@ -115,11 +116,10 @@ fonts for use with X Window System.
 %package Type1
 Summary: Type1 fonts provided by the X Window System
 Group: User Interface/X
-Requires(post): mkfontdir, fontconfig, ttmkfdir
-Requires(postun): mkfontdir, fontconfig, ttmkfdir
 Obsoletes: XFree86-base-fonts
 Obsoletes: xorg-x11-base-fonts
 Obsoletes: fonts-xorg-base
+Prefix: %{_prefix}
 
 %description Type1
 A collection of Type1 fonts which are part of the core X Window System
@@ -129,8 +129,7 @@ distribution.
 %package ethiopic
 Summary: Ethiopic fonts
 Group: User Interface/X
-Requires(post): mkfontdir, ttmkfdir, mkfontscale, fontconfig
-Requires(postun): mkfontdir, ttmkfdir, mkfontscale, fontconfig
+Prefix: %{_prefix}
 
 %description ethiopic
 Ethiopic fonts which are part of the core X Window System distribution.
@@ -139,11 +138,10 @@ Ethiopic fonts which are part of the core X Window System distribution.
 %package 75dpi
 Summary: A set of 75dpi resolution fonts for the X Window System.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-75dpi-fonts
 Obsoletes: xorg-x11-75dpi-fonts
 Obsoletes: fonts-xorg-75dpi
+Prefix: %{_prefix}
 
 %description 75dpi
 A set of 75 dpi fonts used by the X window system.
@@ -151,11 +149,10 @@ A set of 75 dpi fonts used by the X window system.
 %package 100dpi
 Summary: A set of 100dpi resolution fonts for the X Window System.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-100dpi-fonts
 Obsoletes: xorg-x11-100dpi-fonts
 Obsoletes: fonts-xorg-100dpi
+Prefix: %{_prefix}
 
 %description 100dpi
 A set of 100 dpi fonts used by the X window system.
@@ -163,13 +160,12 @@ A set of 100 dpi fonts used by the X window system.
 %package ISO8859-1-75dpi
 Summary: A set of 75dpi ISO-8859-1 fonts for X.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-75dpi-fonts
 Obsoletes: xorg-x11-75dpi-fonts
 # The ISO8859-1 fonts used to be coupled with the UCS fonts.
 Obsoletes: fonts-xorg-75dpi
 Conflicts: fonts-xorg-75dpi
+Prefix: %{_prefix}
 
 %description ISO8859-1-75dpi
 Contains a set of 75dpi fonts for ISO-8859-1.
@@ -177,13 +173,12 @@ Contains a set of 75dpi fonts for ISO-8859-1.
 %package ISO8859-1-100dpi
 Summary: A set of 100dpi ISO-8859-1 fonts for X.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-100dpi-fonts
 Obsoletes: xorg-x11-100dpi-fonts
 # The ISO8859-1 fonts used to be coupled with the UCS fonts.
 Obsoletes: fonts-xorg-100dpi
 Conflicts: fonts-xorg-100dpi
+Prefix: %{_prefix}
 
 %description ISO8859-1-100dpi
 Contains a set of 100dpi fonts for ISO-8859-1.
@@ -191,11 +186,10 @@ Contains a set of 100dpi fonts for ISO-8859-1.
 %package ISO8859-2-75dpi
 Summary: A set of 75dpi Central European language fonts for X.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-2-75dpi-fonts
 Obsoletes: xorg-x11-ISO8859-2-75dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-2-75dpi
+Prefix: %{_prefix}
 
 %description ISO8859-2-75dpi
 Contains a set of 75dpi fonts for Central European languages.
@@ -203,11 +197,10 @@ Contains a set of 75dpi fonts for Central European languages.
 %package ISO8859-2-100dpi
 Summary: A set of 100dpi Central European language fonts for X.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-2-100dpi-fonts
 Obsoletes: xorg-x11-ISO8859-2-100dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-2-100dpi
+Prefix: %{_prefix}
 
 %description ISO8859-2-100dpi
 Contains a set of 100dpi fonts for Central European languages.
@@ -215,11 +208,10 @@ Contains a set of 100dpi fonts for Central European languages.
 %package ISO8859-9-75dpi
 Summary: ISO8859-9-75dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-9-75dpi-fonts
 Obsoletes: xorg-x11-ISO8859-9-75dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-9-75dpi
+Prefix: %{_prefix}
 
 %description ISO8859-9-75dpi
 Contains a set of 75dpi fonts for the Turkish language.
@@ -227,11 +219,10 @@ Contains a set of 75dpi fonts for the Turkish language.
 %package ISO8859-9-100dpi
 Summary: ISO8859-9-100dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-9-100dpi-fonts
 Obsoletes: xorg-x11-ISO8859-9-100dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-9-100dpi
+Prefix: %{_prefix}
 
 %description ISO8859-9-100dpi
 Contains a set of 100dpi fonts for the Turkish language.
@@ -239,11 +230,10 @@ Contains a set of 100dpi fonts for the Turkish language.
 %package ISO8859-14-75dpi
 Summary: ISO8859-14-75dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-14-75dpi-fonts
 Obsoletes: xorg-x11-ISO8859-14-75dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-14-75dpi
+Prefix: %{_prefix}
 
 %description ISO8859-14-75dpi
 Contains a set of 75dpi fonts in the ISO8859-14 encoding which
@@ -252,11 +242,10 @@ provide Welsh support.
 %package ISO8859-14-100dpi
 Summary: ISO8859-14-100dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-14-100dpi-fonts
 Obsoletes: xorg-x11-ISO8859-14-100dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-14-100dpi
+Prefix: %{_prefix}
 
 %description ISO8859-14-100dpi
 Contains a set of 100dpi fonts in the ISO8859-14 encoding which
@@ -265,11 +254,10 @@ provide Welsh support.
 %package ISO8859-15-75dpi
 Summary: ISO8859-15-75dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-15-75dpi-fonts
 Obsoletes: xorg-x11-ISO8859-15-75dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-15-75dpi
+Prefix: %{_prefix}
 
 %description ISO8859-15-75dpi
 Contains a set of 75dpi fonts in the ISO8859-15 encoding which
@@ -278,11 +266,10 @@ provide Euro support.
 %package ISO8859-15-100dpi
 Summary: ISO8859-15-100dpi fonts
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-ISO8859-15-100dpi-fonts
 Obsoletes: xorg-x11-ISO8859-15-100dpi-fonts
 Obsoletes: fonts-xorg-ISO8859-15-100dpi
+Prefix: %{_prefix}
 
 %description ISO8859-15-100dpi
 Contains a set of 100dpi fonts in the ISO8859-15 encoding which
@@ -291,11 +278,10 @@ provide Euro support.
 %package cyrillic
 Summary: Cyrillic fonts for X.
 Group: User Interface/X
-Requires(post): mkfontdir
-Requires(postun): mkfontdir
 Obsoletes: XFree86-cyrillic-fonts
 Obsoletes: xorg-x11-cyrillic-fonts
 Obsoletes: fonts-xorg-cyrillic
+Prefix: %{_prefix}
 
 %description cyrillic
 Contains a set of Cyrillic fonts.
@@ -376,190 +362,6 @@ done
         done
     done
 }
-
-#--------------------------------------------------------------------------
-# xorg-x11-fonts-update-dirs is provided by xorg-x11-font-utils to
-# deduplicate stuff run in %post
-
-%post misc
-{
-# Only run fc-cache in the Type1 dir, gzipped pcf's take forever
-  xorg-x11-fonts-update-dirs --skip-fontscale %{_x11fontdir}/misc
-}
-
-%postun misc
-{
-  # Rebuild fonts.dir when uninstalling package. (exclude the local, CID dirs)
-  if [ "$1" = "0" -a -d %{_x11fontdir}/misc ]; then
-    xorg-x11-fonts-update-dirs --skip-fontscale %{_x11fontdir}/misc
-  fi
-}
-
-%post Type1
-{
-  xorg-x11-fonts-update-dirs %{_x11fontdir}/Type1
-} 
-
-%postun Type1
-{
-  FONTDIR=%{_type1_fontdir}/Type1
-  if [ "$1" = "0" -a -d $FONTDIR ]; then
-    xorg-x11-fonts-update-dirs $FONTDIR
-  fi
-}
-
-%if %{with_ethiopic_fonts}
-%post ethiopic
-{
-  xorg-x11-fonts-update-dirs --skip-fontscale --need-ttmkfdir %{_ttf_fontdir}/TTF
-  xorg-x11-fonts-update-dirs %{_ttf_fontdir}/OTF
-}
-
-%postun ethiopic
-{
-  FONTDIR=%{_ttf_fontdir}/TTF
-  if [ "$1" = "0" -a -d $FONTDIR ]; then
-    xorg-x11-fonts-update-dirs --skip-fontscale --need-ttmkfdir $FONTDIR
-  fi
-  FONTDIR=%{_otf_fontdir}/OTF
-  if [ "$1" = "0" -a -d $FONTDIR ]; then
-    xorg-x11-fonts-update-dirs $FONTDIR
-  fi
-}
-%endif
-
-%post 75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post 100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post ISO8859-1-75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post ISO8859-1-100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post ISO8859-2-75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post ISO8859-2-100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post ISO8859-9-75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post ISO8859-9-100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post ISO8859-14-75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post ISO8859-14-100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post ISO8859-15-75dpi
-mkfontdir %{_x11fontdir}/75dpi
-
-%post ISO8859-15-100dpi
-mkfontdir %{_x11fontdir}/100dpi
-
-%post cyrillic
-mkfontdir %{_x11fontdir}/cyrillic
-
-%postun 75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun 100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun ISO8859-1-75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun ISO8859-1-100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun ISO8859-2-75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun ISO8859-2-100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi  ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun ISO8859-9-75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun ISO8859-9-100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi  ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun ISO8859-14-75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun ISO8859-14-100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi  ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun ISO8859-15-75dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/75dpi ]; then
-    mkfontdir %{_x11fontdir}/75dpi
-  fi
-}
-
-%postun ISO8859-15-100dpi
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/100dpi  ]; then
-    mkfontdir %{_x11fontdir}/100dpi
-  fi
-}
-
-%postun cyrillic
-{
-  if [ "$1" = "0" -a -d %{_x11fontdir}/cyrillic ]; then
-    mkfontdir %{_x11fontdir}/cyrillic
-  fi
-}
-
-#--------------------------------------------------------------------------
-%check
 
 #--------------------------------------------------------------------------
 %clean
@@ -1057,6 +859,9 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %{_x11fontdir}/cyrillic/fonts.cache-*
 
 %changelog
+* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 7.5-9
 - Mass rebuild 2013-12-27
 

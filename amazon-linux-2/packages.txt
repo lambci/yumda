@@ -898,6 +898,34 @@ voikko-tools.x86_64          4.1.1-1.lambda2                             lambda2
 wavpack.x86_64               4.60.1-9.lambda2.0.1                        lambda2
 which.x86_64                 2.20-7.lambda2.0.2                          lambda2
 xorg-x11-font-utils.x86_64   1:7.5-20.lambda2.0.2                        lambda2
+xorg-x11-fonts-100dpi.noarch 7.5-9.lambda2                               lambda2
+xorg-x11-fonts-75dpi.noarch  7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-1-100dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-1-75dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-14-100dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-14-75dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-15-100dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-15-75dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-2-100dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-2-75dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-9-100dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ISO8859-9-75dpi.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-Type1.noarch  7.5-9.lambda2                               lambda2
+xorg-x11-fonts-cyrillic.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-ethiopic.noarch
+                             7.5-9.lambda2                               lambda2
+xorg-x11-fonts-misc.noarch   7.5-9.lambda2                               lambda2
 xz.x86_64                    5.2.2-1.lambda2.0.2                         lambda2
 xz-compat-libs.x86_64        5.2.2-1.lambda2.0.2                         lambda2
 xz-libs.x86_64               5.2.2-1.lambda2.0.2                         lambda2
