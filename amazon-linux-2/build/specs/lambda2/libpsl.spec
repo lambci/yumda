@@ -14,6 +14,8 @@ BuildRequires:  libicu-devel
 BuildRequires:  libtool
 BuildRequires:  libxslt
 
+Prefix: %{_prefix}
+
 %description
 libpsl is a C library to handle the Public Suffix List. A "public suffix" is a
 domain name under which Internet users can directly register own names.
@@ -37,14 +39,6 @@ Libpsl...
 - is thread-safe;
 - handles IDNA2008 UTS#46;
 
-%package        devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-This package contains libraries and header files for
-developing applications that use %{name}.
-
 %package -n     psl
 Summary:        Commandline utility to explore the Public Suffix List
 
@@ -60,8 +54,8 @@ is acceptable for domains and so on.
 [ -f configure ] || autoreconf -fiv
 %configure --disable-silent-rules \
            --disable-static       \
-           --enable-man           \
-           --enable-gtk-doc
+           --disable-man           \
+           --disable-gtk-doc
 
 make %{?_smp_mflags}
 
@@ -70,33 +64,23 @@ make %{?_smp_mflags}
 
 find %{buildroot} -name '*.la' -delete -print
 
-%check
-make check
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %license COPYING
 %{_libdir}/libpsl.so.*
 
-%files devel
-%doc AUTHORS NEWS
-%{_datadir}/gtk-doc/html/libpsl/
-%{_datadir}/libpsl/
-%exclude %{_datadir}/libpsl/test_psl.txt
-%{_includedir}/libpsl.h
-%{_libdir}/libpsl.so
-%{_libdir}/pkgconfig/libpsl.pc
-%{_mandir}/man3/libpsl.3*
-
 %files -n psl
-%doc AUTHORS NEWS
 %license COPYING
 %{_bindir}/psl
 
+%exclude %{_datadir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Feb 02 2015 Christopher Meng <rpm@cicku.me> - 0.7.0-1
 - Update to 0.7.0
 
