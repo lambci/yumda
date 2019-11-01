@@ -230,6 +230,7 @@ lcms2.x86_64                 2.6-3.lambda2.0.2                           lambda2
 lcms2-utils.x86_64           2.6-3.lambda2.0.2                           lambda2
 lemon.x86_64                 3.7.17-8.lambda2.0.2                        lambda2
 less.x86_64                  458-9.lambda2.0.2                           lambda2
+libICE.x86_64                1.0.9-9.lambda2.0.2                         lambda2
 libX11.x86_64                1.6.5-2.lambda2.0.2                         lambda2
 libX11-common.noarch         1.6.5-2.lambda2.0.2                         lambda2
 libXau.x86_64                1.0.8-2.1.lambda2.0.2                       lambda2

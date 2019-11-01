@@ -17,16 +17,10 @@ BuildRequires: pkgconfig
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-5
 
+Prefix: %{_prefix}
+
 %description
 The X.Org X11 ICE (Inter-Client Exchange) runtime library.
-
-%package devel
-Summary: X.Org X11 ICE development package
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-The X.Org X11 ICE (Inter-Client Exchange) development package.
 
 %prep
 %setup -q
@@ -48,33 +42,23 @@ make install DESTDIR=$RPM_BUILD_ROOT
 # We intentionally don't ship *.la files
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-# adding to installed docs in order to avoid using %%doc magic
-for f in AUTHORS ChangeLog COPYING ; do
-    cp -p $f ${RPM_BUILD_ROOT}%{_docdir}/%{name}/${f}
-done
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
+%license COPYING
 %{_libdir}/libICE.so.6
 %{_libdir}/libICE.so.6.3.0
-# not using %%doc because of side-effect (#1001256)
-%dir %{_docdir}/%{name}
-%{_docdir}/%{name}/AUTHORS
-%{_docdir}/%{name}/ChangeLog
-%{_docdir}/%{name}/COPYING
 
-%files devel
-%{_docdir}/%{name}/*.xml
-%{_includedir}/X11/ICE
-%{_libdir}/libICE.so
-%{_libdir}/pkgconfig/ice.pc
+%exclude %{_docdir}
+%exclude %{_includedir}
+%exclude %{_libdir}/libICE.so
+%exclude %{_libdir}/pkgconfig/ice.pc
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed May 03 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.0.9-9
 - Add upstream patch to not pull libbsd
 - Add custom patch for Fedora 24 & 25
