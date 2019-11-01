@@ -16,16 +16,10 @@ BuildRequires: xorg-x11-proto-devel
 BuildRequires: zlib-devel
 BuildRequires: xorg-x11-font-utils
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libfontenc runtime library
-
-%package devel
-Summary: X.Org X11 libfontenc development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libfontenc development package
 
 %prep
 %setup -q
@@ -41,20 +35,19 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 # Remove all libtool archives (*.la)
 find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
-%doc COPYING README ChangeLog
+%license COPYING
 %{_libdir}/libfontenc.so.1
 %{_libdir}/libfontenc.so.1.0.0
 
-%files devel
-%{_includedir}/X11/fonts/fontenc.h
-%{_libdir}/libfontenc.so
-%{_libdir}/pkgconfig/fontenc.pc
+%exclude %{_includedir}/X11/fonts/fontenc.h
+%exclude %{_libdir}/libfontenc.so
+%exclude %{_libdir}/pkgconfig/fontenc.pc
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 09 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.1.3-3
 - libfontenc 1.1.3 (Merge fedora 25)
 
