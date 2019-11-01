@@ -13,16 +13,10 @@ BuildRequires: autoconf automake libtool
 BuildRequires: pkgconfig(compositeproto) >= 0.4
 BuildRequires: pkgconfig(xfixes) pkgconfig(xext)
 
+Prefix: %{_prefix}
+
 %description
 X Composite Extension library
-
-%package devel
-Summary: Development files for %{name}
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXcomposite development package
 
 %prep
 %setup -q
@@ -40,23 +34,21 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING README ChangeLog
+%license COPYING
 %{_libdir}/libXcomposite.so.1
 %{_libdir}/libXcomposite.so.1.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/X11/extensions/Xcomposite.h
-%{_libdir}/libXcomposite.so
-%{_libdir}/pkgconfig/xcomposite.pc
-%{_mandir}/man3/X?omposite*.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Feb 12 2014 Adam Jackson <ajax@redhat.com> 0.4.4-4.1
 - Mass rebuild
 
