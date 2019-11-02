@@ -16,6 +16,8 @@ apr-util-odbc.x86_64         1.6.1-5.lambda2.0.2                         lambda2
 apr-util-openssl.x86_64      1.6.1-5.lambda2.0.2                         lambda2
 apr-util-pgsql.x86_64        1.6.1-5.lambda2.0.2                         lambda2
 apr-util-sqlite.x86_64       1.6.1-5.lambda2.0.2                         lambda2
+arduino-builder.x86_64       1.3.25-1.lambda2                            lambda2
+arduino-ctags.x86_64         5.8-8.arduino11.lambda2                     lambda2
 aspell.x86_64                12:0.60.6.1-9.lambda2.0.1                   lambda2
 audispd-plugins.x86_64       2.8.1-3.lambda2.1                           lambda2
 audit.x86_64                 2.8.1-3.lambda2.1                           lambda2

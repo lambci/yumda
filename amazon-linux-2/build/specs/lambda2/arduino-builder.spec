@@ -10,21 +10,18 @@ Patch1:         fix-paths-to-ctags-avrdude.patch
 
 Requires:       arduino-ctags
 
-ExclusiveArch:  %{go_arches}
+# ExclusiveArch:  %{go_arches}
 
 BuildRequires:  gcc
 BuildRequires:  golang >= 1.4.3
 BuildRequires:  git
 
-BuildRequires:  golang(github.com/go-errors/errors)
+# BuildRequires:  golang(github.com/go-errors/errors)
 
 # Needed for unit tests
-BuildRequires:  golang(github.com/stretchr/testify)
-# These are not available, check will not be enabled
-#BuildRequires:  golang(github.com/jstemmer/go-junit-report)
-#BuildRequires:  golang(golang.org/x/codereview/patch)
-#BuildRequires:  golang(golang.org/x/tools/cmd/vet)
+# BuildRequires:  golang(github.com/stretchr/testify)
 
+Prefix: %{_prefix}
 
 %description
 This tool is able to parse Arduino Hardware specifications, properly run
@@ -45,6 +42,8 @@ providing gcc with all the needed -I params.
 mkdir -p ./_build
 ln -s $(pwd)/src ./_build/
 
+git clone https://github.com/go-errors/errors ./_build/src/github.com/go-errors/errors
+
 export GOPATH=$(pwd)/_build:%{gopath}
 
 # Fix missing build-id
@@ -61,19 +60,15 @@ install -d %{buildroot}%{_datadir}/arduino/hardware
 install -p src/arduino.cc/builder/hardware/*.txt %{buildroot}%{_datadir}/arduino/hardware
 
 
-# Check needs golang.org/x/ libraries that are not available
-#%%check
-#export GOPATH=$(pwd)/_build:%%{gopath}
-#go test -v ./src/arduino.cc/builder/test/...
-
-
 %files
 %license LICENSE.txt
-%doc CONTRIBUTING.md README.md
 %{_bindir}/arduino-builder
 %{_datadir}/arduino/hardware
 
 %changelog
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Aug 15 2017 Tom Callaway <spot@fedoraproject.org> - 1.3.25-1
 - update to 1.3.25 for Arduino IDE 1.8.3
 

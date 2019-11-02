@@ -14,6 +14,9 @@ Patch0:         ctags-5.7-destdir.patch
 Patch1:         ctags-CVE-2014-7204.patch
 
 BuildRequires:  gcc
+
+Prefix: %{_prefix}
+
 %description
 An Arduino fork of exuberant ctags
 
@@ -33,16 +36,19 @@ rm -r gnu_regex
 
 
 %install
-%make_install DESTDIR=%{buildroot}
+%make_install
 
 %files
 %license COPYING
-%doc EXTENDING.html FAQ NEWS README
 %{_bindir}/arduino-ctags
-%{_mandir}/man1/arduino-ctags.1.gz
+
+%exclude %{_mandir}
 
 
 %changelog
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.8-8.arduino11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
