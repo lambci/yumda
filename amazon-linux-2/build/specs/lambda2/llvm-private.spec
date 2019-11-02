@@ -64,18 +64,12 @@ BuildRequires:  binutils-devel
 BuildRequires:  libstdc++-static
 BuildRequires:  python
 
+Prefix: %{_prefix}
+
 %description
 This package contains the LLVM-based runtime support for Mesa.  It is not a
 fully-featured build of LLVM, and use by any package other than Mesa is not
 supported.
-
-%package devel
-Summary:	Libraries and header files for LLVM
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-This package contains library and header files needed to build the LLVM
-support in Mesa.
 
 %prep
 %setup -T -q -b 2 -n cfe-%{version}.src
@@ -191,13 +185,12 @@ make install DESTDIR=%{buildroot}
 cd ../../cfe-%{version}.src/_build
 make install DESTDIR=%{buildroot}
 
+%if "%{_lib}" != "lib64"
+  mv $RPM_BUILD_ROOT%{_prefix}/lib64 $RPM_BUILD_ROOT%{_libdir}
+%endif
 
 # fix multi-lib
 mv -v %{buildroot}%{_bindir}/llvm-config %{buildroot}%{_bindir}/%{name}-config-%{__isa_bits}
-mv -v %{buildroot}%{_includedir}/llvm-private/llvm/Config/llvm-config{,-%{__isa_bits}}.h
-install -m 0644 %{SOURCE100} %{buildroot}%{_includedir}/llvm-private/llvm/Config/llvm-config.h
-mv -v %{buildroot}%{_includedir}/clang/Config/config{,-%{__isa_bits}}.h
-install -m 0644 %{SOURCE101} %{buildroot}%{_includedir}/clang/Config/config.h
 
 rm -f %{buildroot}%{_libdir}/*.a
 
@@ -242,34 +235,20 @@ mv %{buildroot}%{_includedir}/{,llvm-private}/clang-c
 mkdir %{buildroot}%{_libdir}/clang-private
 for f in `find %{buildroot}%{_libdir} -iname 'libclang*' `; do mv $f %{buildroot}%{_libdir}/clang-private; done
 
-%check
-cd _build
-# 3.8.1 note: skx failures are XFAIL. the skylake backport does not wire
-# up AVX512 for skylake, but the tests are from code that expects that.
-# safe to ignore.
-make check-all || :
-
-cd ../../cfe-%{version}.src/_build
-make check-all || :
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %doc LICENSE.TXT
 %{_libdir}/libLLVM-%{maj_ver}.%{min_ver}*-%{llvm_lib_suffix}.so
 %{_libdir}/clang-private/libclang*.so*
 
-%files devel
-%{_bindir}/llvm-private*
-%{_includedir}/llvm-private/llvm
-%{_includedir}/llvm-private/llvm-c
-%{_libdir}/cmake/llvm/LLVMConfig.cmake
-%{_includedir}/llvm-private/clang
-%{_includedir}/llvm-private/clang-c
-%{_libdir}/clang/%{version}/include
+%exclude %{_includedir}
+%exclude %{_bindir}/llvm-private*
+%exclude %{_libdir}/cmake
+%exclude %{_libdir}/clang
 
 %changelog
+* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Dec 14 2017 Tom Stellard <tstellar@redhat.com> - 5.0.0-3
 - Backport r312612 from upstream llvm: [PowerPC] Don't use xscvdpspn on the P7
 
