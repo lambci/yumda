@@ -12,18 +12,11 @@ BuildRequires:	bison, byacc, flex
 BuildRequires:	cmake
 Requires:	tzdata
 
+Prefix: %{_prefix}
+
 %description
 Reference implementation of the iCalendar data type and serialization format
 used in dozens of calendaring and scheduling products.
-
-%package devel
-Summary:	Development files for libical
-Group:		Development/Libraries
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-The libical-devel package contains libraries and header files for developing 
-applications that use libical.
 
 %prep
 %setup -q
@@ -43,30 +36,21 @@ make install/fast DESTDIR=%{buildroot} -C %{_target_platform}
 # omit static libs
 rm -fv %{buildroot}%{_libdir}/lib*.a
 
-%check
-make test ARGS="-V" -C %{_target_platform}
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
-%doc LICENSE ReadMe.txt THANKS
+%license LICENSE
 %{_libdir}/libical.so.1*
 %{_libdir}/libicalss.so.1*
 %{_libdir}/libicalvcal.so.1*
 
-%files devel
-%doc doc/UsingLibical.txt
-%{_includedir}/ical.h
-%{_libdir}/libical.so
-%{_libdir}/libicalss.so
-%{_libdir}/libicalvcal.so
-%{_libdir}/pkgconfig/libical.pc
-%{_libdir}/cmake/LibIcal/
-%{_includedir}/libical/
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/cmake
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Jul 08 2015 Milan Crha <mcrha@redhat.com> - 1.0.1-1
 - Update to 1.0.1
 
