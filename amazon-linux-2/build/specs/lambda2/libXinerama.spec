@@ -27,16 +27,10 @@ BuildRequires: xorg-x11-proto-devel
 BuildRequires: libX11-devel >= 1.5.99.902
 BuildRequires: libXext-devel
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXinerama runtime library
-
-%package devel
-Summary: X.Org X11 libXinerama development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXinerama development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -58,24 +52,21 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING
+%license COPYING
 %{_libdir}/libXinerama.so.1
 %{_libdir}/libXinerama.so.1.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%{_libdir}/libXinerama.so
-%{_libdir}/pkgconfig/xinerama.pc
-%{_mandir}/man3/*.3*
-%{_includedir}/X11/extensions/Xinerama.h
-%{_includedir}/X11/extensions/panoramiXext.h
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
+%exclude %{_includedir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Feb 12 2014 Adam Jackson <ajax@redhat.com> 1.1.3-2.1
 - Mass rebuild
 
