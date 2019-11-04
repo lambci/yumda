@@ -95,17 +95,17 @@ rpm --addsign ~/rpmbuild/{SRPMS,RPMS/*}/*.rpm
 Amazon Linux 1:
 
 ```console
-cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda1/RPMS/Packages/
-cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda1/SRPMS/Packages/
-for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda1/$dir; done
+cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda1/RPMS/Packages/ && \
+  cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda1/SRPMS/Packages/ && \
+  for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda1/$dir; done
 ```
 
 Amazon Linux 2:
 
 ```console
-cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda2/RPMS/Packages/
-cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda2/SRPMS/Packages/
-for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda2/$dir; done
+cp ~/rpmbuild/RPMS/*/*.rpm /tmp/fs/lambda2/RPMS/Packages/ && \
+  cp ~/rpmbuild/SRPMS/*.rpm /tmp/fs/lambda2/SRPMS/Packages/ && \
+  for dir in RPMS SRPMS; do createrepo --update /tmp/fs/lambda2/$dir; done
 ```
 
 ## Syncing to S3
