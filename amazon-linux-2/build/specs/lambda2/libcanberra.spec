@@ -20,63 +20,18 @@ BuildRequires: gettext-devel
 BuildRequires: systemd-devel
 Requires: sound-theme-freedesktop
 Requires: pulseaudio-libs >= 0.9.15
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
+
+Prefix: %{_prefix}
 
 %description
 A small and lightweight implementation of the XDG Sound Theme Specification
 (http://0pointer.de/public/sound-theme-spec.html).
 
-%package gtk2
-Summary: Gtk+ 2.x Bindings for libcanberra
-Group: System Environment/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-# Some other stuff is included in the gtk3 package, so always pull that in.
-Requires: %{name}-gtk3%{?_isa} = %{version}-%{release}
-
-%description gtk2
-Gtk+ 2.x bindings for libcanberra
-
-%package gtk3
-Summary: Gtk+ 3.x Bindings for libcanberra
-Group: System Environment/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description gtk3
-Gtk+ 3.x bindings for libcanberra
-
-%package devel
-Summary: Development Files for libcanberra Client Development
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: gtk2-devel
-
-%description devel
-Development Files for libcanberra Client Development
-
-%post
-/sbin/ldconfig
-%systemd_post canberra-system-bootup.service canberra-system-shutdown.service canberra-system-shutdown-reboot.service
-
-%preun
-%systemd_preun canberra-system-bootup.service canberra-system-shutdown.service canberra-system-shutdown-reboot.service
-
-%postun
-/sbin/ldconfig
-%systemd_postun
-
-%post gtk2 -p /sbin/ldconfig
-%postun gtk2 -p /sbin/ldconfig
-
-%post gtk3 -p /sbin/ldconfig
-%postun gtk3 -p /sbin/ldconfig
-
 %prep
 %setup -q
 
 %build
-%configure --disable-static --enable-pulse --enable-alsa --enable-null --disable-oss --with-builtin=dso --with-systemdsystemunitdir=/usr/lib/systemd/system
+%configure --disable-static --enable-pulse --enable-alsa --enable-null --disable-oss --with-builtin=dso --with-systemdsystemunitdir=%{_libdir}/systemd/system
 make %{?_smp_mflags}
 
 %install
@@ -86,7 +41,7 @@ rm $RPM_BUILD_ROOT%{_docdir}/libcanberra/README
 
 %files
 %defattr(-,root,root)
-%doc README LGPL
+%license LGPL
 %{_libdir}/libcanberra.so.*
 %dir %{_libdir}/libcanberra-%{version}
 %{_libdir}/libcanberra-%{version}/libcanberra-alsa.so
@@ -94,52 +49,23 @@ rm $RPM_BUILD_ROOT%{_docdir}/libcanberra/README
 %{_libdir}/libcanberra-%{version}/libcanberra-null.so
 %{_libdir}/libcanberra-%{version}/libcanberra-multi.so
 %{_libdir}/libcanberra-%{version}/libcanberra-gstreamer.so
-%{_prefix}/lib/systemd/system/canberra-system-bootup.service
-%{_prefix}/lib/systemd/system/canberra-system-shutdown-reboot.service
-%{_prefix}/lib/systemd/system/canberra-system-shutdown.service
 %{_bindir}/canberra-boot
 
-%files gtk2
-%defattr(-,root,root)
-%{_libdir}/libcanberra-gtk.so.*
-%{_libdir}/gtk-2.0/modules/libcanberra-gtk-module.so
-
-%files gtk3
-%defattr(-,root,root)
-%{_libdir}/libcanberra-gtk3.so.*
-%{_libdir}/gtk-3.0/modules/libcanberra-gtk3-module.so
-%{_libdir}/gtk-3.0/modules/libcanberra-gtk-module.so
-%{_bindir}/canberra-gtk-play
-%{_datadir}/gnome/autostart/libcanberra-login-sound.desktop
-%{_datadir}/gnome/shutdown/libcanberra-logout-sound.sh
-# co-own these directories to avoid requiring GDM (#522998)
-%dir %{_datadir}/gdm/
-%dir %{_datadir}/gdm/autostart/
-%dir %{_datadir}/gdm/autostart/LoginWindow/
-%{_datadir}/gdm/autostart/LoginWindow/libcanberra-ready-sound.desktop
-# co-own these directories to avoid requiring g-s-d
-%dir %{_libdir}/gnome-settings-daemon-3.0/
-%dir %{_libdir}/gnome-settings-daemon-3.0/gtk-modules/
-%{_libdir}/gnome-settings-daemon-3.0/gtk-modules/canberra-gtk-module.desktop
-
-%files devel
-%defattr(-,root,root)
-%doc %{_datadir}/gtk-doc
-%{_includedir}/canberra-gtk.h
-%{_includedir}/canberra.h
-%{_libdir}/libcanberra-gtk.so
-%{_libdir}/libcanberra-gtk3.so
-%{_libdir}/libcanberra.so
-%{_libdir}/pkgconfig/libcanberra-gtk.pc
-%{_libdir}/pkgconfig/libcanberra-gtk3.pc
-%{_libdir}/pkgconfig/libcanberra.pc
-# co-own these directories to avoid requiring vala
-%dir %{_datadir}/vala
-%dir %{_datadir}/vala/vapi
-%{_datadir}/vala/vapi/libcanberra-gtk.vapi
-%{_datadir}/vala/vapi/libcanberra.vapi
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_bindir}/canberra-gtk-play
+%exclude %{_libdir}/systemd
+%exclude %{_libdir}/gnome-settings-daemon-3.0
+%exclude %{_libdir}/gtk-2.0
+%exclude %{_libdir}/gtk-3.0
+%exclude %{_libdir}/libcanberra-gtk*
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.30-5
 - Mass rebuild 2014-01-24
 

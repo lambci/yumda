@@ -288,6 +288,7 @@ libasyncns.x86_64            0.8-7.lambda2.0.2                           lambda2
 libatomic.x86_64             7.3.1-6.lambda2.0.4                         lambda2
 libatomic_ops.x86_64         7.6.2-3.lambda2.0.1                         lambda2
 libblkid.x86_64              2.30.2-2.lambda2.0.4                        lambda2
+libcanberra.x86_64           0.30-5.lambda2.0.2                          lambda2
 libcap-ng.x86_64             0.7.5-4.lambda2.0.4                         lambda2
 libcap-ng-python.x86_64      0.7.5-4.lambda2.0.4                         lambda2
 libcap-ng-utils.x86_64       0.7.5-4.lambda2.0.4                         lambda2
