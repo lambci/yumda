@@ -30,6 +30,7 @@ Patch18: 0006-Bound-tpacketv2-to-64k.patch
 Patch19: 0007-Add-support-for-AF_VSOCK.patch
 Patch20: 0008-Vlan-tpid-handling.patch
 
+Prefix: %{_prefix}
 
 %description
 Libpcap provides a portable framework for low-level network
@@ -42,23 +43,6 @@ in each application.
 
 Install libpcap if you need to do low-level network traffic monitoring
 on your network.
-
-%package devel
-Summary: Libraries and header files for the libpcap library
-Group: Development/Libraries
-Requires: %{name} = %{epoch}:%{version}-%{release}
-
-%description devel
-Libpcap provides a portable framework for low-level network
-monitoring.  Libpcap can provide network statistics collection,
-security monitoring and network debugging.  Since almost every system
-vendor provides a different interface for packet capture, the libpcap
-authors created this system-independent API to ease in porting and to
-alleviate the need for several system-dependent packet capture modules
-in each application.
-
-This package provides the libraries, include files, and other
-resources needed for developing libpcap applications.
 
 %prep
 %autosetup -S git
@@ -77,27 +61,20 @@ make %{?_smp_mflags}
 make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/libpcap.a
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
-%doc LICENSE README CHANGES CREDITS
+%license LICENSE
 %{_libdir}/libpcap.so.*
-%{_mandir}/man7/pcap*.7*
 
-%files devel
-%defattr(-,root,root)
-%{_bindir}/pcap-config
-%{_includedir}/pcap*.h
-%{_includedir}/pcap
-%{_libdir}/libpcap.so
-%{_mandir}/man1/pcap-config.1*
-%{_mandir}/man3/pcap*.3*
-%{_mandir}/man5/pcap*.5*
+%exclude %{_bindir}/pcap-config
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_mandir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Oct 17 2017 Michal Ruprich - 14:1.5.3-11
 - Resolves: #1427251 - tcpdump incorrectly shows 0x8100 tag for 802.1ad frames
 
