@@ -17,16 +17,10 @@ BuildRequires: libXext-devel
 BuildRequires: libXt-devel
 BuildRequires: xmlto
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXmu/libXmuu runtime libraries
-
-%package devel
-Summary: X.Org X11 libXmu development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXmu development package
 
 %prep
 %setup -q
@@ -50,49 +44,22 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING README ChangeLog
+%license COPYING
 %{_libdir}/libXmu.so.6
 %{_libdir}/libXmu.so.6.2.0
 %{_libdir}/libXmuu.so.1
 %{_libdir}/libXmuu.so.1.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%dir %{_includedir}/X11/Xmu
-%{_includedir}/X11/Xmu/Atoms.h
-%{_includedir}/X11/Xmu/CharSet.h
-%{_includedir}/X11/Xmu/CloseHook.h
-%{_includedir}/X11/Xmu/Converters.h
-%{_includedir}/X11/Xmu/CurUtil.h
-%{_includedir}/X11/Xmu/CvtCache.h
-%{_includedir}/X11/Xmu/DisplayQue.h
-%{_includedir}/X11/Xmu/Drawing.h
-%{_includedir}/X11/Xmu/Editres.h
-%{_includedir}/X11/Xmu/EditresP.h
-%{_includedir}/X11/Xmu/Error.h
-%{_includedir}/X11/Xmu/ExtAgent.h
-%{_includedir}/X11/Xmu/Initer.h
-%{_includedir}/X11/Xmu/Lookup.h
-%{_includedir}/X11/Xmu/Misc.h
-%{_includedir}/X11/Xmu/StdCmap.h
-%{_includedir}/X11/Xmu/StdSel.h
-%{_includedir}/X11/Xmu/SysUtil.h
-%{_includedir}/X11/Xmu/WhitePoint.h
-%{_includedir}/X11/Xmu/WidgetNode.h
-%{_includedir}/X11/Xmu/WinUtil.h
-%{_includedir}/X11/Xmu/Xct.h
-%{_includedir}/X11/Xmu/Xmu.h
-%{_libdir}/libXmu.so
-%{_libdir}/libXmuu.so
-%{_libdir}/pkgconfig/xmu.pc
-%{_libdir}/pkgconfig/xmuu.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
