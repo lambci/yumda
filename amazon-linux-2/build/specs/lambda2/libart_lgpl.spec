@@ -12,18 +12,11 @@ BuildRequires: automake autoconf
 BuildRequires: pkgconfig
 BuildRequires: libtool
 
+Prefix: %{_prefix}
+
 %description
 Graphics routines used by the GnomeCanvas widget and some other 
 applications. libart renders vector paths and the like.
-
-%package devel
-Summary: Libraries and headers for libart_lgpl
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 %prep
 %setup -q
@@ -39,51 +32,20 @@ make %{?_smp_mflags}
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
-# fix multilib issues
-%if %{__isa_bits} == 64
-%define wordsize 64
-%else
-%define wordsize 32
-%endif
-
-mv $RPM_BUILD_ROOT%{_includedir}/libart-2.0/libart_lgpl/art_config.h \
-   $RPM_BUILD_ROOT%{_includedir}/libart-2.0/libart_lgpl/art_config-%{wordsize}.h
-
-cat >$RPM_BUILD_ROOT%{_includedir}/libart-2.0/libart_lgpl/art_config.h <<EOF
-#ifndef LIBART_MULTILIB
-#define LIBART_MULTILIB
-
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 32
-# include "art_config-32.h"
-#elif __WORDSIZE == 64
-# include "art_config-64.h"
-#else
-# error "unexpected value for __WORDSIZE macro"
-#endif
-
-#endif 
-EOF
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING NEWS README
+%license COPYING
 %{_libdir}/lib*.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_libdir}/lib*.so
-%{_libdir}/pkgconfig/*
-%{_bindir}/libart2-config
-%{_includedir}/*
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_bindir}/libart2-config
+%exclude %{_includedir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Aug 18 2014 Peter Robinson <probinson@redhat.com> - 2.3.21-10
 - Generic 32/64 bit platform detection - fix ppc64le build
 
