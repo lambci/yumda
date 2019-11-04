@@ -26,16 +26,10 @@ BuildRequires: mesa-libGLES-devel
 BuildRequires: xorg-x11-util-macros
 BuildRequires: python
 
+Prefix: %{_prefix}
+
 %description
 A library for handling OpenGL function pointer management.
-
-%package devel
-Summary: Development files for libepoxy
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-This package contains libraries and header files for
-developing applications that use %{name}.
 
 %prep
 %setup -q
@@ -54,26 +48,19 @@ make install DESTDIR=$RPM_BUILD_ROOT
 # NOTE: We intentionally don't ship *.la files
 find $RPM_BUILD_ROOT -type f -name '*.la' -delete -print
 
-%check
-# In theory this is fixed in 1.2 but we still see errors on most platforms
-# https://github.com/anholt/libepoxy/issues/24
-make check # || ( cat test/test-suite.log ; objdump -T %{_libdir}/libdl.so.? )
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
-%doc README.md
+%license README.md
 %{_libdir}/libepoxy.so.0
 %{_libdir}/libepoxy.so.0.0.0
 
-%files devel
-%dir %{_includedir}/epoxy/
-%{_includedir}/epoxy/*
-%{_libdir}/libepoxy.so
-%{_libdir}/pkgconfig/epoxy.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Apr 11 2018 Debarshi Ray <rishi@fedoraproject.org> - 1.3.1-2
 - Prevent crash in epoxy_glx_version if GLX is not available
 Resolves: #1566101
