@@ -19,37 +19,22 @@ BuildRequires: flex bison
 BuildRequires: python
 BuildRequires: libtool autoconf automake
 
+Prefix: %{_prefix}
+
 %description
 This package contains a convenience library to simplify
 using the Linux kernel's netlink sockets interface for
 network manipulation
 
-%package devel
-Summary: Libraries and headers for using libnl3
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-Requires: %{name}-cli = %{version}-%{release}
-Requires: kernel-headers
-
-%description devel
-This package contains various headers for using libnl3
-
 %package cli
 Summary: Command line interface utils for libnl3
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description cli
 This package contains various libnl3 utils and additional
 libraries on which they depend
-
-%package doc
-Summary: API documentation for libnl3
-Group: Documentation
-Requires: %{name} = %{version}-%{release}
-
-%description doc
-This package contains libnl3 API documentation
 
 %prep
 %setup -q -n libnl-%{fullversion}
@@ -69,64 +54,27 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 find $RPM_BUILD_ROOT -name \*.la -delete
 
-# rhel-7.2 installed some cli tools to /usr/sbin. Recent libnl3 releases prefer to
-# install *all* cli tools bo /usr/bin. Also do that for rhel-7.3 but hardlink the
-# previous locations in /usr/sbin.
-mkdir -p "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/genl-ctrl-list"    "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-class-add"      "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-class-delete"   "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-classid-lookup" "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-class-list"     "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-cls-add"        "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-cls-delete"     "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-cls-list"       "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-link-list"      "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-pktloc-lookup"  "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-qdisc-add"      "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-qdisc-delete"   "%{buildroot}%{_sbindir}/"
-ln "%{buildroot}%{_bindir}/nl-qdisc-list"     "%{buildroot}%{_sbindir}/"
-
-%check
-make check
-
-%post -p /sbin/ldconfig
-%post cli -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-%postun cli -p /sbin/ldconfig
-
 %files
-%doc COPYING
+%license COPYING
 %exclude %{_libdir}/libnl-cli*.so.*
 %{_libdir}/libnl-*.so.*
 %config(noreplace) %{_sysconfdir}/*
 
-%files devel
-%doc COPYING
-%{_includedir}/libnl3/netlink/
-%dir %{_includedir}/libnl3/
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
-
 %files cli
-%doc COPYING
+%license COPYING
 %{_libdir}/libnl-cli*.so.*
 %{_libdir}/libnl/
-%{_sbindir}/*
 %{_bindir}/*
-%{_mandir}/man8/*
 
-%files doc
-%doc COPYING
-%doc libnl-doc-%{fullversion}/*.html
-%doc libnl-doc-%{fullversion}/*.css
-%doc libnl-doc-%{fullversion}/stylesheets/*
-%doc libnl-doc-%{fullversion}/images/*
-%doc libnl-doc-%{fullversion}/images/icons/*
-%doc libnl-doc-%{fullversion}/images/icons/callouts/*
-%doc libnl-doc-%{fullversion}/api/*
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Apr 18 2017 Thomas Haller <thaller@redhat.com> - 3.2.28-4
 * lib: check for integer overflow in nl_reserve() (rh#1440788, rh#1442723)
 
