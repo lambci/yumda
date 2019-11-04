@@ -25,16 +25,10 @@ BuildRequires: autoconf automake libtool
 BuildRequires: pkgconfig(videoproto) pkgconfig(xext)
 BuildRequires: libX11-devel >= 1.5.99.902
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXv runtime library
-
-%package devel
-Summary: X.Org X11 libXv development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXv development package
 
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -55,25 +49,21 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING
+%license COPYING
 %{_libdir}/libXv.so.1
 %{_libdir}/libXv.so.1.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%doc man/xv-library-v2.2.txt
-%{_includedir}/X11/extensions/Xvlib.h
-%{_libdir}/libXv.so
-%{_libdir}/pkgconfig/xv.pc
-#%dir %{_mandir}/man3x
-%{_mandir}/man3/*.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jan 23 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.0.11-1
 - libXv 1.0.11
 - fixes CVE-2016-5407
