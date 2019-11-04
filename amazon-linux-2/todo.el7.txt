@@ -285,7 +285,6 @@ globus-ftp-client-9.2-1.el7 11
 erlang-mnesia-R16B-03.18.el7 11
 drupal7-ctools-1.15-1.el7 11
 Judy-1.0.5-8.el7 11
-GraphicsMagick-1.3.32-1.el7 11
 xenlism-wildfire-0-0.1.20160511gitd3b9ad2.el7 10
 wxPython-2.8.12.0-9.el7 10
 wxGTK3-3.0.2-15.el7 10
@@ -381,7 +380,6 @@ libzstd-1.4.2-1.el7 9
 libzen-0.4.37-1.el7 9
 libssh-0.7.1-0.7.el7 9
 libknet1-1.12-1.el7 9
-libidn2-2.2.0-1.el7 9
 libgsasl-1.8.0-8.el7 9
 libgeotiff-1.2.5-14.el7 9
 kf5-kparts-5.52.0-1.el7 9
@@ -440,9 +438,6 @@ glite-lbjp-common-trio-2.3.13-3.el7 8
 glite-lbjp-common-gss-3.2.16-3.el7 8
 gl2ps-1.3.8-2.el7 8
 ghc-stm-2.4.2-26.el7 8
-ghc-blaze-html-0.6.1.1-2.el7 8
-ghc-HTTP-4000.2.8-33.el7 8
-ghc-Cabal-1.16.0-26.4.el7 8
 garcon-0.4.0-3.el7 8
 fping-3.10-4.el7 8
 erlang-xmerl-R16B-03.18.el7 8
@@ -525,13 +520,11 @@ lightdm-gobject-1.25.0-1.el7 7
 libtomcrypt-1.17-25.el7 7
 libmodplug-0.8.9.0-9.el7 7
 libewf-20140608-1.el7.1 7
-libdb4-4.8.30-13.el7 7
 leveldb-1.12.0-11.el7 7
 kim-api-2.1.3-1.el7 7
 kf5-sonnet-core-5.52.0-2.el7 7
 kf5-kwallet-libs-5.52.0-1.el7 7
 kf5-kglobalaccel-libs-5.52.0-1.el7 7
-jemalloc-3.6.0-1.el7 7
 imagefactory-plugins-1.1.8-4.el7 7
 imagefactory-1.1.8-2.el7 7
 hypre-openmpi-2.11.2-2.el7 7
@@ -547,7 +540,6 @@ globus-gass-cache-program-7.0-1.el7 7
 glib-1.2.10-41.el7 7
 ghc-terminfo-0.3.2.5-4.el7 7
 ghc-system-filepath-0.4.7-2.el7 7
-ghc-pcre-light-0.4-13.el7 7
 ghc-haskell-src-exts-1.13.5-5.el7 7
 firebird-libfbclient-2.5.9.27139.0-1.el7 7
 drupal7-entity-1.9-1.el7 7
@@ -659,13 +651,9 @@ google-roboto-slab-fonts-1.100263-0.3.20150923git.el7 6
 gnuradio-3.7.11-7.el7 6
 globus-gram-job-manager-15.4-1.el7 6
 glite-lbjp-common-log-1.3.11-3.el7 6
-ghc-xml-1.3.13-2.el7 6
 ghc-tagged-0.6-2.el7 6
 ghc-regex-posix-0.95.2-30.el7 6
-ghc-pandoc-types-1.12.3.1-3.el7 6
 ghc-haskeline-0.7.0.3-3.el7 6
-ghc-digest-0.0.1.2-2.el7 6
-ghc-base64-bytestring-1.0.0.1-3.el7 6
 ga-common-5.6.5-6.el7 6
 fusioninventory-agent-2.3.21-3.el7 6
 freexl-1.0.5-1.el7 6
@@ -832,21 +820,12 @@ gtksourceview2-2.11.2-15.el7 5
 globus-rsl-11.1-1.el7 5
 globus-gass-copy-10.5-1.el7 5
 girara-0.2.0-1.el7 5
-ghc-zip-archive-0.1.3.4-3.el7 5
-ghc-yaml-0.8.5.3-2.el7 5
 ghc-xhtml-3000.2.1-40.el7 5
 ghc-unix-compat-0.4.1.1-2.el7 5
 ghc-uniplate-1.6.10-5.el7 5
-ghc-texmath-0.6.6-2.el7 5
-ghc-temporary-1.1.2.4-4.el7 5
-ghc-tagsoup-0.12.8-4.el7 5
 ghc-system-fileio-0.3.11-2.el7 5
 ghc-split-0.2.2-2.el7 5
 ghc-regex-compat-0.95.1-35.el7 5
-ghc-hslua-0.3.10-1.1.el7 5
-ghc-hpc-0.6.0.0-26.4.el7 5
-ghc-hoopl-3.9.0.0-26.4.el7 5
-ghc-highlighting-kate-0.5.6-3.el7 5
 ghc-glib-0.12.5.0-2.el7 5
 ghc-entropy-0.2.2.4-2.el7 5
 ghc-dataenc-0.14.0.5-3.el7 5
@@ -1106,7 +1085,6 @@ libfm-qt-0.14.1-5.el7 4
 libfm-1.2.4-3.el7 4
 libebml-1.3.9-1.el7 4
 libdiscid-0.6.2-1.el7 4
-libdb4-cxx-4.8.30-13.el7 4
 libc-client-2007f-16.el7 4
 libburn1-1.5.0-1.el7 4
 libbson-1.3.5-6.el7 4
@@ -1144,12 +1122,10 @@ globus-gass-server-ez-6.1-1.el7 4
 ghc-xml-types-0.3.3-4.el7 4
 ghc-tar-0.4.0.1-4.el7 4
 ghc-regex-tdfa-1.1.8-11.el7 4
-ghc-pandoc-1.12.3.1-2.el7 4
 ghc-mmap-0.5.8-4.el7 4
 ghc-json-0.7-4.el7 4
 ghc-html-1.0.1.2-29.el7 4
 ghc-hslogger-1.2.1-2.el7 4
-ghc-ghc-7.6.3-26.4.el7 4
 ghc-crypto-api-0.11-4.el7 4
 ghc-case-insensitive-1.0.0.1-2.el7 4
 ghc-cairo-0.12.5.0-2.el7 4
@@ -1215,7 +1191,6 @@ artwiz-aleczapka-edges-fonts-1.3-19.el7 4
 artwiz-aleczapka-drift-fonts-1.3-19.el7 4
 airrac-1.00.1-1.el7 4
 GtkAda-2.24.2-8.el7 4
-GraphicsMagick-c++-1.3.32-1.el7 4
 CGSI-gSOAP-1.3.11-1.el7 4
 389-admin-1.1.46-1.el7 4
 zvbi-fonts-0.2.35-1.el7 3
@@ -1509,7 +1484,6 @@ perl-App-Nopaste-0.90-2.el7 3
 perl-Any-Moose-0.21-5.el7 3
 paraview-data-4.4.0-2.el7 3
 pangox-compat-0.0.2-2.el7 3
-pandoc-1.12.3.1-2.el7 3
 pam_wrapper-1.0.7-2.el7 3
 p7zip-plugins-16.02-10.el7 3
 osm-gps-map-1.1.0-2.el7 3
@@ -5524,8 +5498,6 @@ ghc-libraries-7.6.3-26.4.el7 1
 ghc-http-date-0.0.4-2.el7 1
 ghc-hlint-1.8.50-2.el7 1
 ghc-hint-0.4.2.0-3.el7 1
-ghc-haskell98-2.0.0.2-26.4.el7 1
-ghc-haskell2010-1.1.1.0-26.4.el7 1
 ghc-haskell-src-1.0.1.5-40.el7 1
 ghc-happstack-server-7.1.0-2.el7 1
 ghc-haddock-library-1.1.1-2.el7 1
@@ -8090,7 +8062,6 @@ ptpython2-0.41-1.el7 0
 ptpd-2.3.1-2.el7 0
 pssh-2.3.1-5.el7 0
 pspg-2.1.3-1.el7 0
-psl-0.7.0-1.el7 0
 pskctool-2.6.2-1.el7 0
 psi-plus-plugins-0.16-0.22.20141205git440.el7 0
 psi-plus-i18n-0.16-0.22.20141205git440.el7 0
@@ -8777,7 +8748,6 @@ parcimonie.sh-0-0.6.20160427gitfb8eab7.el7 0
 parallel-20160222-1.el7 0
 paperkey-1.4-1.el7 0
 paper-icon-theme-1.4.0-2.el7 0
-pandoc-pdf-1.12.3.1-2.el7 0
 pan-0.144-1.el7 0
 pamtester-0.1.2-4.el7 0
 pam_yubico-2.26-1.el7 0
@@ -9848,7 +9818,6 @@ libdirq-static-0.5-1.el7 0
 libdigidocpp-doc-3.13.9-1.el7 0
 libdc1394-tools-2.2.2-3.el7 0
 libdc1394-docs-2.2.2-3.el7 0
-libdb4-utils-4.8.30-13.el7 0
 libdb4-doc-4.8.30-13.el7 0
 libdap-doc-3.13.1-2.el7 0
 libcmocka-static-1.1.5-1.el7 0
