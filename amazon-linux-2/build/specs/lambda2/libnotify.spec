@@ -16,19 +16,13 @@ BuildRequires: gtk3-devel
 BuildRequires: gobject-introspection-devel
 Requires: glib2%{?_isa} >= %{glib2_version}
 
+Prefix: %{_prefix}
+
 %description
 libnotify is a library for sending desktop notifications to a notification
 daemon, as defined in the freedesktop.org Desktop Notifications spec. These
 notifications can be used to inform the user about an event or display some
 form of information without getting in the user's way.
-
-%package devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-This package contains libraries and header files needed for
-development of programs using %{name}.
 
 %prep
 %setup -q
@@ -46,27 +40,21 @@ chrpath --delete $RPM_BUILD_ROOT%{_bindir}/notify-send
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %license COPYING
-%doc NEWS AUTHORS
 %{_bindir}/notify-send
 %{_libdir}/libnotify.so.*
 %{_libdir}/girepository-1.0/Notify-0.7.typelib
 
-%files devel
-%dir %{_includedir}/libnotify
-%{_includedir}/libnotify/*
-%{_libdir}/libnotify.so
-%{_libdir}/pkgconfig/libnotify.pc
-%dir %{_datadir}/gtk-doc/html/libnotify
-%{_datadir}/gtk-doc/html/libnotify/*
-%{_datadir}/gir-1.0/Notify-0.7.gir
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Oct 14 2016 Kalev Lember <klember@redhat.com> - 0.7.7-1
 - Update to 0.7.7
 - Resolves: #1387013
