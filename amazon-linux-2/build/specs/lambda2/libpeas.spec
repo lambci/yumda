@@ -1,9 +1,3 @@
-%if 0%{?rhel} == 0
-%global use_python3 1
-%else
-%global use_python3 0
-%endif
-
 %global apiver 1.0
 
 Name:           libpeas
@@ -28,51 +22,11 @@ BuildRequires:  pkgconfig(gobject-introspection-1.0)
 BuildRequires:  pkgconfig(gtk+-3.0)
 BuildRequires:  pkgconfig(pygobject-3.0)
 BuildRequires:  python2-devel
-%if %{use_python3}
 BuildRequires:  python3-devel
-%endif
 
 %description
 libpeas is a convenience library making adding plug-ins support
 to glib-based applications.
-
-%package gtk
-Summary:        GTK+ plug-ins support for libpeas
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description gtk
-libpeas-gtk is a convenience library making adding plug-ins support
-to GTK+-based applications.
-
-%package loader-python
-Summary:        Python 2 loader for libpeas
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       python-gobject
-
-%description loader-python
-This package contains the Python 2 loader that is needed to
-run Python 2 plugins that use libpeas.
-
-%if %{use_python3}
-%package loader-python3
-Summary:        Python 3 loader for libpeas
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       python3-gobject
-
-%description loader-python3
-This package contains the Python 3 loader that is needed to
-run Python 3 plugins that use libpeas.
-%endif
-
-%package devel
-Summary:        Development files for libpeas
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       %{name}-gtk%{?_isa} = %{version}-%{release}
-
-%description devel
-This package contains development libraries and header files
-that are needed to write applications that use libpeas.
-
 %prep
 %autosetup
 
@@ -87,32 +41,13 @@ find $RPM_BUILD_ROOT%{_libdir} -type f -name '*.la' -print -delete
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
 chrpath --delete $RPM_BUILD_ROOT%{_bindir}/peas-demo
-%if %{use_python3}
-chrpath --delete $RPM_BUILD_ROOT%{_libdir}/libpeas-1.0/loaders/libpython3loader.so
-%endif
 chrpath --delete $RPM_BUILD_ROOT%{_libdir}/libpeas-1.0/loaders/libpythonloader.so
+chrpath --delete $RPM_BUILD_ROOT%{_libdir}/libpeas-1.0/loaders/libpython3loader.so
 chrpath --delete $RPM_BUILD_ROOT%{_libdir}/libpeas-gtk-1.0.so
 chrpath --delete $RPM_BUILD_ROOT%{_libdir}/peas-demo/plugins/helloworld/libhelloworld.so
 chrpath --delete $RPM_BUILD_ROOT%{_libdir}/peas-demo/plugins/secondtime/libsecondtime.so
 
-%find_lang libpeas
-
-%post
-/sbin/ldconfig
-touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
-
-%postun
-/sbin/ldconfig
-if [ $1 -eq 0 ]; then
-  touch --no-create %{_datadir}/icons/hicolor >&/dev/null || :
-  gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
-fi
-
-%posttrans
-gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
-
-%files -f libpeas.lang
-%doc AUTHORS NEWS README
+%files
 %license COPYING
 %{_libdir}/libpeas-%{apiver}.so.*
 %dir %{_libdir}/libpeas-%{apiver}/
@@ -121,35 +56,24 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor >&/dev/null || :
 %{_libdir}/girepository-1.0/Peas-%{apiver}.typelib
 %{_datadir}/icons/hicolor/*/actions/libpeas-plugin.*
 
-%files gtk
-%{_libdir}/libpeas-gtk-%{apiver}.so.*
-%{_libdir}/girepository-1.0/PeasGtk-%{apiver}.typelib
-
-%files loader-python
-%{_libdir}/libpeas-%{apiver}/loaders/libpythonloader.so
-
-%if %{use_python3}
-%files loader-python3
-%{_libdir}/libpeas-%{apiver}/loaders/libpython3loader.so
-%endif
-
-%files devel
-%{_bindir}/peas-demo
-%{_includedir}/libpeas-%{apiver}/
-%{_libdir}/peas-demo/
-%dir %{_datadir}/gtk-doc/
-%dir %{_datadir}/gtk-doc/html/
-%{_datadir}/gtk-doc/html/libpeas/
-%{_libdir}/libpeas-%{apiver}.so
-%{_libdir}/libpeas-gtk-%{apiver}.so
-%dir %{_datadir}/gir-1.0
-%{_datadir}/gir-1.0/Peas-%{apiver}.gir
-%{_datadir}/gir-1.0/PeasGtk-%{apiver}.gir
-%{_libdir}/pkgconfig/libpeas-%{apiver}.pc
-%{_libdir}/pkgconfig/libpeas-gtk-%{apiver}.pc
-%{_datadir}/glade/catalogs/libpeas-gtk.xml
+%exclude %{_localedir}
+%exclude %{_includedir}
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/*.so
+%exclude %{_bindir}/peas-demo
+%exclude %{_libdir}/peas-demo
+%exclude %{_datadir}/gtk-doc
+%exclude %{_datadir}/gir-1.0
+%exclude %{_datadir}/glade
+%exclude %{_libdir}/libpeas-gtk-%{apiver}.so.*
+%exclude %{_libdir}/girepository-1.0/PeasGtk-%{apiver}.typelib
+%exclude %{_libdir}/libpeas-%{apiver}/loaders/libpythonloader.so
+%exclude %{_libdir}/libpeas-%{apiver}/loaders/libpython3loader.so
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Sep 19 2016 Kalev Lember <klember@redhat.com> - 1.20.0-1
 - Update to 1.20.0
 - Resolves: #1387015
