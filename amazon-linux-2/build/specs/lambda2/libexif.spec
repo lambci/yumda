@@ -13,28 +13,12 @@ BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pkgconfig
 
+Prefix: %{_prefix}
+
 %description
 Most digital cameras produce EXIF files, which are JPEG files with
 extra tags that contain information about the image. The EXIF library
 allows you to parse an EXIF file and read the data from those tags.
-
-%package devel
-Summary:	Files needed for libexif application development
-Group:		Development/Libraries
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	pkgconfig
-
-%description devel
-The libexif-devel package contains the libraries and header files
-for writing programs that use libexif.
-
-%package doc
-Summary:	The EXIF Library API documentation
-Group:		Development/Libraries
-Requires:	%{name}%{?_isa} = %{version}-%{release}
-
-%description doc
-API Documentation for programmers wishing to use libexif in their programs.
 
 %prep
 %setup -q
@@ -48,28 +32,21 @@ make %{?_smp_mflags}
 make DESTDIR=%{buildroot} install
 find %{buildroot} -name "*.la" -exec rm -v {} \;
 rm -rf %{buildroot}%{_datadir}/doc/libexif
-cp -R doc/doxygen-output/libexif-api.html .
 iconv -f latin1 -t utf-8 < COPYING > COPYING.utf8; cp COPYING.utf8 COPYING
-iconv -f latin1 -t utf-8 < README > README.utf8; cp README.utf8 README
-%find_lang libexif-12
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%files -f libexif-12.lang
-%doc COPYING README NEWS
+%files
+%license COPYING
 %{_libdir}/libexif.so.*
 
-%files devel
-%{_includedir}/libexif
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/libexif.pc
-
-%files doc
-%doc libexif-api.html
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_localedir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.6.21-6
 - Mass rebuild 2014-01-24
 
