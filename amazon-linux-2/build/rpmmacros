@@ -73,6 +73,7 @@
 %python3_version_nodots 37
 %python3_sitearch %{_libdir}/python%{python3_version}/site-packages
 %python3_sitelib %{_libdir}/python%{python3_version}/site-packages
+%python3_abiflags m
 
 %python_version %{python3_version}
 %python_version_nodots %{python3_version_nodots}

@@ -365,17 +365,6 @@ functions and objects to Python, and vice versa, using no special
 tools -- just your C++ compiler.  This package contains run-time
 support for Boost Python Library compiled for Python 3.
 
-%package python3-devel
-Summary: Shared object symbolic links for Boost.Python 3
-Group: System Environment/Libraries
-Requires: boost-python3%{?_isa} = %{version}-%{release}
-Requires: boost-devel%{?_isa} = %{version}-%{release}
-Prefix: %{_prefix}
-
-%description python3-devel
-
-Shared object symbolic links for Python 3 variant of Boost.Python.
-
 %endif
 
 %package random
@@ -477,31 +466,6 @@ Run-Time support for the Boost.Wave library, a Standards conforming,
 and highly configurable implementation of the mandated C99/C++
 pre-processor functionality.
 
-%package build
-Summary: Cross platform build system for C++ projects
-Group: Development/Tools
-Requires: boost-jam
-BuildArch: noarch
-Prefix: %{_prefix}
-
-%description build
-Boost.Build is an easy way to build C++ projects, everywhere. You name
-your pieces of executable and libraries and list their sources.  Boost.Build
-takes care about compiling your sources with the right options,
-creating static and shared libraries, making pieces of executable, and other
-chores -- whether you're using GCC, MSVC, or a dozen more supported
-C++ compilers -- on Windows, OSX, Linux and commercial UNIX systems.
-
-%package jam
-Summary: A low-level build tool
-Group: Development/Tools
-Prefix: %{_prefix}
-
-%description jam
-Boost.Jam (BJam) is the low-level build engine tool for Boost.Build.
-Historically, Boost.Jam is based on on FTJam and on Perforce Jam but has grown
-a number of significant features and is now developed independently
-
 %prep
 %setup -q -n %{toplev_dirname}
 
@@ -558,14 +522,6 @@ a number of significant features and is now developed independently
 
 %patch10001 -p1
 
-# At least python2_version needs to be a macro so that it's visible in
-# %%install as well.
-%global python2_version %(/usr/bin/python2 %{SOURCE1})
-%if %{with python3}
-%global python3_version %(/usr/bin/python3 %{SOURCE1})
-%global python3_abiflags %(/usr/bin/python3-config --abiflags)
-%endif
-
 %build
 : PYTHON2_VERSION=%{python2_version}
 %if %{with python3}
@@ -580,7 +536,7 @@ using gcc : : : <compileflags>"$RPM_OPT_FLAGS -fno-strict-aliasing" ;
 %if %{with python3}
 # This _adds_ extra python version.  It doesn't replace whatever
 # python 2.X is default on the system.
-using python : %{python3_version} : /usr/bin/python3 : /usr/include/python%{python3_version}%{python3_abiflags} : : : : %{python3_abiflags} ;
+using python : %{python3_version} : %{_bindir}/python3 : %{_includedir}/python%{python3_version}%{python3_abiflags} : : : : %{python3_abiflags} ;
 %endif
 EOF
 
@@ -607,11 +563,6 @@ echo ============================= build serial ==================
 %endif
 	variant=release threading=single,multi debug-symbols=on pch=off \
 	python=%{python2_version} stage
-
-echo ============================= build Boost.Build ==================
-(cd tools/build/v2
- ./bootstrap.sh --with-toolset=gcc)
-
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -643,22 +594,6 @@ ln -s libboost_atomic-mt.so $RPM_BUILD_ROOT%{_libdir}/libboost_atomic.so
 # Check that we didn't forget about anything.
 find $RPM_BUILD_ROOT%{_libdir} -maxdepth 1 -name libboost_\*-mt.so \
 	| while read a; do test -e ${a/-mt/} || exit 1; done
-
-echo ============================= install Boost.Build ==================
-(cd tools/build/v2
- ./b2 --prefix=$RPM_BUILD_ROOT%{_prefix} install
- # Fix some permissions
- chmod -x $RPM_BUILD_ROOT%{_datadir}/boost-build/build/alias.py
- chmod +x $RPM_BUILD_ROOT%{_datadir}/boost-build/tools/doxproc.py
- # We don't want to distribute this
- rm -f $RPM_BUILD_ROOT%{_bindir}/b2
- # Not a real file
- rm -f $RPM_BUILD_ROOT%{_datadir}/boost-build/build/project.ann.py
- # Empty file
- rm -f $RPM_BUILD_ROOT%{_datadir}/boost-build/tools/doxygen/windows-paths-check.hpp
- # Install the unpatched gcc.jam
- %{__install} -p -m 644 tools/gcc.jam.buildflags -D $RPM_BUILD_ROOT%{_datadir}/boost-build/tools/gcc.jam
-)
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -739,11 +674,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %license LICENSE_1_0.txt
 %{_libdir}/libboost_python3*.so.%{sonamever}
-
-%files python3-devel
-%defattr(-, root, root, -)
-%license LICENSE_1_0.txt
-%{_libdir}/libboost_python3*.so
 %endif
 
 %files random
@@ -787,16 +717,6 @@ rm -rf $RPM_BUILD_ROOT
 %license LICENSE_1_0.txt
 %{_libdir}/libboost_wave*.so.%{sonamever}
 
-%files build
-%defattr(-, root, root, -)
-%license LICENSE_1_0.txt
-%{_datadir}/boost-build/
-
-%files jam
-%defattr(-, root, root, -)
-%license LICENSE_1_0.txt
-%{_bindir}/bjam
-
 %exclude %{_includedir}
 %exclude %{_libdir}/libboost_atomic*.so
 %exclude %{_libdir}/libboost_chrono*.so
@@ -815,6 +735,9 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_libdir}/libboost_program_options*.so
 %exclude %{_libdir}/libboost_python-mt.so
 %exclude %{_libdir}/libboost_python.so
+%if %{with python3}
+%exclude %{_libdir}/libboost_python3*.so
+%endif
 %exclude %{_libdir}/libboost_random*.so
 %exclude %{_libdir}/libboost_regex*.so
 %exclude %{_libdir}/libboost_serialization*.so
