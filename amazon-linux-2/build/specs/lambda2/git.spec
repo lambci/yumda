@@ -1,9 +1,7 @@
 %global gitexecdir          %{_libexecdir}/git-core
 
-%global _hardened_build     1
-
 Name:           git
-Version:        2.23.0
+Version:        2.24.0
 Release:        1%{?rcrev}%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
@@ -22,24 +20,10 @@ Source1:        https://mirrors.edge.kernel.org/pub/software/scm/git/%{?rcrev:te
 # https://git.kernel.org/cgit/git/git.git/blob/?h=junio-gpg-pub&id=7214aea37915ee2c4f6369eb9dea520aec7d855b
 Source9:        gpgkey-junio.asc
 
-# Local sources begin at 10 to allow for additional future upstream sources
-# Source10:       git-init.el
-# Source11:       git.xinetd.in
-# Source12:       git-gui.desktop
-# Source13:       gitweb-httpd.conf
-# Source14:       gitweb.conf.in
-# Source15:       git@.service.in
-# Source16:       git.socket
-
-# Script to print test failure output (used in %%check)
-Source99:       print-failed-test-output
-
-# BuildRequires:  desktop-file-utils
 BuildRequires:  expat-devel
 BuildRequires:  findutils
 BuildRequires:  gawk
 BuildRequires:  gcc
-# BuildRequires:  gettext
 BuildRequires:  gnupg2
 BuildRequires:  libcurl-devel
 BuildRequires:  make
@@ -47,23 +31,6 @@ BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
 BuildRequires:  sed
 BuildRequires:  zlib-devel >= 1.2
-
-# Test suite requirements
-BuildRequires:  acl
-%if 0%{?fedora} && 0%{?fedora} >= 27
-# Needed by t5540-http-push-webdav.sh
-BuildRequires: apr-util-bdb
-%endif
-BuildRequires:  bash
-BuildRequires:  gnupg
-# %if 0%{?fedora} || ( 0%{?rhel} && ( 0%{?rhel} == 6 || 0%{?rhel} >= 7 && %{_arch} != ppc64 ))
-# BuildRequires:  highlight
-# %endif
-# %if 0%{?fedora} && %{_arch} != s390x
-# BuildRequires:  jgit
-# %endif
-BuildRequires:  pcre
-BuildRequires:  time
 
 Requires:       git-core = %{version}-%{release}
 
@@ -115,27 +82,12 @@ rm -rf "$tar" "$gpghome" # Cleanup tar files and tmp gpg home dir
 # https://bugzilla.redhat.com/1310704
 %autosetup -p1 -n %{name}-%{version}%{?rcrev}
 
-# Install print-failed-test-output script
-install -p -m 755 %{SOURCE99} print-failed-test-output
-
-# Remove git-archimport from command list
-sed -i '/^git-archimport/d' command-list.txt
-
-# Remove git-cvs* from command list
-sed -i '/^git-cvs/d' command-list.txt
-
-# Remove git-p4 from command list
-sed -i '/^git-p4/d' command-list.txt
-
 # Use these same options for every invocation of 'make'.
 # Otherwise it will rebuild in %%install due to flags changes.
 cat << \EOF > config.mak
 V = 1
 CFLAGS = %{optflags}
 LDFLAGS = %{__global_ldflags}
-# NEEDS_CRYPTO_WITH_SSL = 1
-# USE_LIBPCRE2 = 1
-# GNU_ROFF = 1
 prefix = %{_prefix}
 
 NO_GETTEXT = 1
@@ -144,12 +96,6 @@ NO_TCLTK = 1
 NO_PYTHON = 1
 INSTALL_SYMLINKS = 1
 
-# Test options
-DEFAULT_TEST_TARGET = prove
-GIT_PROVE_OPTS = --verbose --normalize %{?_smp_mflags}
-GIT_TEST_OPTS = -x --verbose-log
-TEST_SHELL_PATH = /bin/bash
-NO_SVN_TESTS = 1
 EOF
 
 %build
@@ -180,7 +126,6 @@ find contrib -type f -print0 | xargs -r0 chmod -x
 %exclude %{gitexecdir}/git-filter-branch
 %exclude %{gitexecdir}/git-instaweb
 %exclude %{gitexecdir}/git-request-pull
-%exclude %{gitexecdir}/git-add--interactive
 %{gitexecdir}
 %{_bindir}/git
 %{_bindir}/git-receive-pack
@@ -188,12 +133,14 @@ find contrib -type f -print0 | xargs -r0 chmod -x
 %{_bindir}/git-upload-archive
 %{_bindir}/git-upload-pack
 %dir %{_datadir}/git-core/templates
+
 %exclude %{_datadir}/git-core/templates/*
+%exclude %{gitexecdir}/git-add--interactive
 %exclude %{gitexecdir}/git-cvsserver
 %exclude %{_bindir}/git-cvsserver
 
 %changelog
-* Sat Aug 17 2019 Michael Hart <michael@lambci.org> - 2.23.0-1
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org> - 2.24.0-1
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Nov 26 2018 Todd Zullinger <tmz@pobox.com> - 2.17.2-2

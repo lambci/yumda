@@ -45,7 +45,6 @@ diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --arc
 
 ```console
 yumdownloader --source gcc # etc...
-sudo yum-builddep -y *.src.rpm
 rpm -ivh *.src.rpm
 ```
 
@@ -76,6 +75,8 @@ cp ~/rpmbuild/SPECS/$CURSPEC /tmp/fs/specs/lambda2/
 ## Building specs
 
 ```console
+sudo yum-builddep -y /tmp/fs/specs/lambda2/$CURSPEC
+
 rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda2/$CURSPEC
 
 # If successful...
@@ -113,14 +114,16 @@ Amazon Linux 1:
 
 ```console
 aws s3 sync --delete ~/github/yumda/amazon-linux-1/build/lambda1 s3://rpm.lambci.org/lambda1 && \
-  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda1/RPMS/repodata/*"
+  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda1/RPMS/repodata/*" && \
+  docker run --rm lambci/yumda:1 yum list available > ../packages.txt
 ```
 
 Amazon Linux 2:
 
 ```console
 aws s3 sync --delete ~/github/yumda/amazon-linux-2/build/lambda2 s3://rpm.lambci.org/lambda2 && \
-  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda2/RPMS/repodata/*"
+  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda2/RPMS/repodata/*" && \
+  docker run --rm lambci/yumda:2 yum list available > ../packages.txt
 ```
 
 ## Checking that all RPMs install ok
