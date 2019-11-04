@@ -45,11 +45,16 @@ Patch33: libiscsi-iscsi-ls-skip-link-local-IPv6-addresses.patch
 # Amazon-specific patches
 Patch1000: Add-needed-include-for-readv-writev.patch
 
+# Lambda2-specific patch
+Patch10000: libiscsi-lambda2-inline.patch
+
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: popt-devel
 BuildRequires: libgcrypt-devel
+
+Prefix: %{_prefix}
 
 %description
 libiscsi is a library for attaching to iSCSI resources across
@@ -101,6 +106,9 @@ a network.
 # Amazon-specific patches
 %patch1000 -p1
 
+# Amazon-specific patches
+%patch10000 -p1
+
 %build
 sh autogen.sh
 %configure --libdir=%{libiscsi_libdir}
@@ -108,57 +116,43 @@ make %{?_smp_mflags}
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT install pkgconfigdir=%{_libdir}/pkgconfig %{?_smp_mflags}
-mkdir -p $RPM_BUILD_ROOT/etc/ld.so.conf.d
-echo %{libiscsi_libdir} > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}-%{_arch}.conf
 rm $RPM_BUILD_ROOT/%{libiscsi_libdir}/libiscsi.a
 rm $RPM_BUILD_ROOT/%{libiscsi_libdir}/libiscsi.la
 
 # Remove "*.old" files
 find $RPM_BUILD_ROOT -name "*.old" -exec rm -f {} \;
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
-%doc COPYING LICENCE-LGPL-2.1.txt README TODO
+%license COPYING LICENCE-LGPL-2.1.txt
 %{libiscsi_libdir}/libiscsi.so.*
-/etc/ld.so.conf.d/*
 
 %package utils
 Summary: iSCSI Client Utilities
 Group: Applications/System
 License: GPLv2+
 Requires: %{name}%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description utils
 The libiscsi-utils package provides a set of assorted utilities to connect
 to iSCSI servers without having to set up the Linux iSCSI initiator.
 
 %files utils
-%doc COPYING LICENCE-GPL-2.txt LICENCE-LGPL-2.1.txt README TODO
+%license COPYING LICENCE-GPL-2.txt LICENCE-LGPL-2.1.txt
 %{_bindir}/iscsi-ls
 %{_bindir}/iscsi-inq
 %{_bindir}/iscsi-readcapacity16
 
-%package devel
-Summary: iSCSI client development libraries
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-The libiscsi-devel package includes the header files for libiscsi.
-
-%files devel
-%defattr(-,root,root)
-%doc COPYING LICENCE-LGPL-2.1.txt README TODO
-%{libiscsi_includedir}/iscsi.h
-%{libiscsi_includedir}/scsi-lowlevel.h
-%{libiscsi_libdir}/libiscsi.so
-%{_libdir}/pkgconfig/libiscsi.pc
+%exclude %{libiscsi_includedir}/iscsi.h
+%exclude %{libiscsi_includedir}/scsi-lowlevel.h
+%exclude %{libiscsi_libdir}/libiscsi.so
+%exclude %{_libdir}/pkgconfig/libiscsi.pc
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu May 26 2016 Miroslav Rezanina <mrezanin@redhat.com> - 1.9.0-7.el7
 - libiscsi-Discovery-return-multiple-portals-for-the-same-disco.patch [bz#1266523]
 - libiscsi-iscsi-ls-skip-link-local-IPv6-addresses.patch [bz#1266523]
