@@ -25,35 +25,12 @@ BuildRequires: gettext
 
 Patch0: 0001-CVE-2013-0292-dbus-gproxy-Verify-sender-of-NameOwner.patch
 
+Prefix: %{_prefix}
+
 %description
 
 D-Bus add-on library to integrate the standard D-Bus library with
 the GLib thread abstraction and main loop.
-
-%package devel
-Summary: Libraries and headers for the D-Bus GLib bindings
-Group: Development/Libraries
-Requires: %name = %{version}-%{release}
-Requires: glib2-devel
-Requires: dbus-devel
-Requires: pkgconfig
-Obsoletes: dbus-devel < 0.90
-
-%description devel
-
-Headers and static libraries for the D-Bus GLib bindings
-
-%if 0
-%package gtk
-Summary: GTK based tools
-Group: Development/Tools
-Requires: %name = %{version}-%{release}
-Requires: gtk2 >= %{gtk_version}
-%description gtk
-
-D-Bus tools written using the gtk+ GUI libaries
-
-%endif
 
 %prep
 %setup -q
@@ -81,38 +58,26 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
 
-%doc COPYING NEWS
+%license COPYING
 
 %{_libdir}/*glib*.so.*
 %{_bindir}/dbus-binding-tool
 
-%files devel
-%defattr(-,root,root)
-
-%{_libdir}/lib*.so
-%{_libdir}/pkgconfig/dbus-glib-1.pc
-%{_includedir}/dbus-1.0/dbus/*
-%{_datadir}/gtk-doc/html/dbus-glib
-%{_mandir}/man1/*
-%{_sysconfdir}/bash_completion.d/dbus-bash-completion.sh
-%{_libexecdir}/dbus-bash-completion-helper
-
-%if 0
-%files gtk
-%defattr(-,root,root)
-
-%{_bindir}/dbus-viewer
-
-%endif
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_mandir}
+%exclude %{_sysconfdir}
+%exclude %{_libexecdir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.100-7
 - Mass rebuild 2014-01-24
 

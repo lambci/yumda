@@ -81,6 +81,7 @@ cyrus-sasl-plain.x86_64      2.1.26-23.lambda2                           lambda2
 cyrus-sasl-scram.x86_64      2.1.26-23.lambda2                           lambda2
 cyrus-sasl-sql.x86_64        2.1.26-23.lambda2                           lambda2
 dbus.x86_64                  1:1.10.24-7.lambda2                         lambda2
+dbus-glib.x86_64             0.100-7.2.lambda2                           lambda2
 dbus-libs.x86_64             1:1.10.24-7.lambda2                         lambda2
 dejavu-fonts-common.noarch   2.33-6.lambda2                              lambda2
 dejavu-lgc-sans-fonts.noarch 2.33-6.lambda2                              lambda2
