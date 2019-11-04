@@ -1,8 +1,3 @@
-%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%endif
-
 %define talloc_version 2.1.2
 %define tdb_version 1.3.5
 %define tevent_version 0.9.24
@@ -43,6 +38,8 @@ Provides: bundled(libtdb_compat)
 
 # Patches
 
+Prefix: %{_prefix}
+
 %description
 An extensible library that implements an LDAP like API to access remote LDAP
 servers, or use local tdb databases.
@@ -51,38 +48,10 @@ servers, or use local tdb databases.
 Group: Development/Libraries
 Summary: Tools to manage LDB files
 Requires: libldb%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description -n ldb-tools
 Tools to manage LDB files
-
-%package devel
-Group: Development/Libraries
-Summary: Developer tools for the LDB library
-Requires: libldb%{?_isa} = %{version}-%{release}
-Requires: libtdb-devel%{?_isa} >= %{tdb_version}
-Requires: libtalloc-devel%{?_isa} >= %{talloc_version}
-Requires: libtevent-devel%{?_isa} >= %{tevent_version}
-Requires: pkgconfig
-
-%description devel
-Header files needed to develop programs that link against the LDB library.
-
-%package -n pyldb
-Group: Development/Libraries
-Summary: Python bindings for the LDB library
-Requires: libldb%{?_isa} = %{version}-%{release}
-Requires: python-tdb%{?_isa} >= %{tdb_version}
-
-%description -n pyldb
-Python bindings for the LDB library
-
-%package -n pyldb-devel
-Group: Development/Libraries
-Summary: Development files for the Python bindings for the LDB library
-Requires: pyldb%{?_isa} = %{version}-%{release}
-
-%description -n pyldb-devel
-Development files for the Python bindings for the LDB library
 
 %prep
 %setup -q -n ldb-%{version}
@@ -99,7 +68,6 @@ Development files for the Python bindings for the LDB library
 # Don't build with multiple processors
 # It breaks due to a threading issue in WAF
 make V=1
-doxygen Doxyfile
 
 %install
 make install DESTDIR=%{buildroot}
@@ -111,19 +79,8 @@ rm -f %{buildroot}%{_libdir}/ldb/libcmocka-ldb.so
 # rpmbuild to strip them and include them in debuginfo
 find $RPM_BUILD_ROOT -name "*.so*" -exec chmod -c +x {} \;
 
-# Install API docs
-cp -a apidocs/man/* $RPM_BUILD_ROOT/%{_mandir}
-
-# LDB 1.1.8+ bug: remove manpage named after full
-# file path
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/_*
-
 %clean
 rm -rf %{buildroot}
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -142,43 +99,18 @@ rm -rf %{buildroot}
 %{_bindir}/ldbrename
 %{_bindir}/ldbsearch
 %{_libdir}/ldb/libldb-cmdline.so
-%{_mandir}/man1/ldbadd.1.*
-%{_mandir}/man1/ldbdel.1.*
-%{_mandir}/man1/ldbedit.1.*
-%{_mandir}/man1/ldbmodify.1.*
-%{_mandir}/man1/ldbrename.1.*
-%{_mandir}/man1/ldbsearch.1.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/ldb_module.h
-%{_includedir}/ldb_handlers.h
-%{_includedir}/ldb_errors.h
-%{_includedir}/ldb_version.h
-%{_includedir}/ldb.h
-%{_libdir}/libldb.so
-
-%{_libdir}/pkgconfig/ldb.pc
-%{_mandir}/man3/ldb*.gz
-%{_mandir}/man3/ldif*.gz
-
-%files -n pyldb
-%defattr(-,root,root,-)
-%{python_sitearch}/ldb.so
-%{_libdir}/libpyldb-util.so.1*
-%{python_sitearch}/_ldb_text.py*
-
-%files -n pyldb-devel
-%defattr(-,root,root,-)
-%{_includedir}/pyldb.h
-%{_libdir}/libpyldb-util.so
-%{_libdir}/pkgconfig/pyldb-util.pc
-%{_mandir}/man*/Py*.gz
-
-%post -n pyldb -p /sbin/ldconfig
-%postun -n pyldb -p /sbin/ldconfig
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/libpyldb*
+%exclude %{_prefix}/lib64
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Jun 27 2018 Jakub Hrozek <jhrozek@redhat.com> - 1.3.4-1
 - Resolves: rhbz#1558497 - Rebase libldb to enable samba rebase
 
