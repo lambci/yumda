@@ -259,6 +259,7 @@ libSM.x86_64                 1.2.2-2.lambda2.0.2                         lambda2
 libX11.x86_64                1.6.5-2.lambda2.0.2                         lambda2
 libX11-common.noarch         1.6.5-2.lambda2.0.2                         lambda2
 libXau.x86_64                1.0.8-2.1.lambda2.0.2                       lambda2
+libXaw.x86_64                1.0.13-4.lambda2.0.2                        lambda2
 libXcomposite.x86_64         0.4.4-4.1.lambda2.0.2                       lambda2
 libXdamage.x86_64            1.1.4-4.1.lambda2.0.2                       lambda2
 libXdmcp.x86_64              1.1.2-6.lambda2.0.2                         lambda2

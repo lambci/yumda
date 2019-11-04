@@ -15,18 +15,10 @@ BuildRequires: pkgconfig(xproto) pkgconfig(x11) pkgconfig(xt)
 BuildRequires: pkgconfig(xmu) pkgconfig(xpm) pkgconfig(xext)
 BuildRequires: xorg-x11-util-macros xmlto lynx
 
+Prefix: %{_prefix}
+
 %description
 Xaw is a widget set based on the X Toolkit Intrinsics (Xt) Library.
-
-%package devel
-Summary: Development files for %{name}
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-Requires: pkgconfig
-Requires: pkgconfig(xproto) pkgconfig(xmu) pkgconfig(xt) pkgconfig(xpm)
-
-%description devel
-X.Org X11 libXaw development package
 
 %prep
 %setup -q
@@ -45,40 +37,28 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
-install -pm 644 COPYING README ChangeLog $RPM_BUILD_ROOT%{_pkgdocdir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%dir %{_pkgdocdir}
-%{_pkgdocdir}/ChangeLog
-%{_pkgdocdir}/COPYING
-%{_pkgdocdir}/README
+%license COPYING
 %{_libdir}/libXaw.so.7
 %{_libdir}/libXaw7.so.7
 %{_libdir}/libXaw7.so.7.0.0
 
-%files devel
-%defattr(-,root,root,-)
-%dir %{_includedir}/X11/Xaw
-%{_includedir}/X11/Xaw/*.h
-# FIXME:  Is this C file really supposed to be here?
-%{_includedir}/X11/Xaw/Template.c
-%{_libdir}/libXaw.so
-%{_libdir}/libXaw7.so
-%{_libdir}/pkgconfig/xaw7.pc
-%{_mandir}/man3/*.3*
-%{_pkgdocdir}/*.xml
-#{_pkgdocdir}/%{name}.html
-#{_pkgdocdir}/%{name}.txt
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
+%exclude %{_pkgdocdir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Mar 25 2016 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.0.13-4
 - Force disable documentation generation
 
