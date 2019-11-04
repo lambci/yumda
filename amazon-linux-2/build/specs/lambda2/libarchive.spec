@@ -60,26 +60,19 @@ Patch27: libarchive-3.1.2-CVE-2019-1000020.patch
 Patch28: libarchive-3.3.2-CVE-2018-1000878.patch
 Patch29: libarchive-3.3.2-CVE-2018-1000877.patch
 
+Prefix: %{_prefix}
+
 %description
 Libarchive is a programming library that can create and read several different
 streaming archive formats, including most popular tar variants, several cpio
 formats, and both BSD and GNU ar variants. It can also write shar archives and
 read ISO9660 CDROM images and ZIP archives.
 
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
-
-
 %package -n     bsdtar
 Summary:        Manipulate tape archives
 Group:          Applications/File
 Requires:       %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description -n bsdtar
 The bsdtar package contains standalone bsdtar utility split off regular
@@ -90,6 +83,7 @@ libarchive packages.
 Summary:        Copy files to and from archives
 Group:          Applications/File
 Requires:       %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description -n bsdcpio
 The bsdcpio package contains standalone bsdcpio utility split off regular
@@ -151,80 +145,35 @@ make install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
-%check
-run_testsuite()
-{
-    LD_LIBRARY_PATH=`pwd`/.libs make check -j1
-    res=$?
-    echo $res
-    if [ $res -ne 0 ]; then
-        # error happened - try to extract in koji as much info as possible
-        cat test-suite.log
-        echo "========================="
-        err=`cat test-suite.log | grep "Details for failing tests" | cut -d: -f2`
-        for i in $err; do
-            find $i -printf "%p\n    ~> a: %a\n    ~> c: %c\n    ~> t: %t\n    ~> %s B\n"
-            echo "-------------------------"
-            cat $i/*.log
-        done
-        return 1
-    else
-        find -name '*_test.log' -exec cat {} +
-        return 0
-    fi
-}
-
-# On a ppc/ppc64 is some race condition causing 'make check' fail on ppc
-# when both 32 and 64 builds are done in parallel on the same machine in
-# koji.  Try to run once again if failed.
-%ifarch ppc
-run_testsuite || run_testsuite
-%else
-run_testsuite
-%endif
-
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING README NEWS
+%license COPYING
 %{_libdir}/libarchive.so.13*
-%{_mandir}/*/cpio.*
-%{_mandir}/*/mtree.*
-%{_mandir}/*/tar.*
-
-%files devel
-%defattr(-,root,root,-)
-%doc
-%{_includedir}/*.h
-%{_mandir}/*/archive*
-%{_mandir}/*/libarchive*
-%{_libdir}/libarchive.so
-%{_libdir}/pkgconfig/libarchive.pc
 
 %files -n bsdtar
 %defattr(-,root,root,-)
-%doc COPYING README NEWS
+%license COPYING
 %{_bindir}/bsdtar
-%{_mandir}/*/bsdtar*
 
 %files -n bsdcpio
 %defattr(-,root,root,-)
-%doc COPYING README NEWS
+%license COPYING
 %{_bindir}/bsdcpio
-%{_mandir}/*/bsdcpio*
+
+%exclude %{_includedir}
+%exclude %{_mandir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Apr 30 2019 Ondrej Dubaj <odubaj@redhat.com> - 3.1.2-12
 - fixed use after free in RAR decoder (#1700749)
 - fixed double free in RAR decoder (#1700748)
