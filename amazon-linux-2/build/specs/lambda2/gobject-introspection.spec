@@ -30,22 +30,13 @@ BuildRequires:  python-mako
 
 Requires:       glib2%{?_isa} >= %{glib2_version}
 
+Prefix: %{_prefix}
+
 %description
 GObject Introspection can scan C header and source files in order to
 generate introspection "typelib" files.  It also provides an API to examine
 typelib files, useful for creating language bindings among other
 things.
-
-%package devel
-Summary: Libraries and headers for gobject-introspection
-Requires: %{name}%{?_isa} = %{version}-%{release}
-# Not always, but whatever, it's a tiny dep to pull in
-Requires: libtool
-# For g-ir-doctool
-Requires: python-mako
-
-%description devel
-Libraries and headers for gobject-introspection
 
 %prep
 %autosetup -Sgit
@@ -62,10 +53,6 @@ make %{?_smp_mflags} V=1
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %license COPYING
 
@@ -73,22 +60,18 @@ find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
 %dir %{_libdir}/girepository-1.0
 %{_libdir}/girepository-1.0/*.typelib
 
-%files devel
-%{_libdir}/lib*.so
-%dir %{_libdir}/gobject-introspection
-%{_libdir}/gobject-introspection/*
-%{_libdir}/pkgconfig/*
-%{_includedir}/*
-%{_bindir}/g-ir-*
-%{_datadir}/gir-1.0
-%dir %{_datadir}/gobject-introspection-1.0
-%{_datadir}/gobject-introspection-1.0/*
-%{_datadir}/aclocal/introspection.m4
-%{_mandir}/man1/*.gz
-%dir %{_datadir}/gtk-doc/html/gi
-%{_datadir}/gtk-doc/html/gi/*
+%exclude %{_libdir}/lib*.so
+%exclude %{_libdir}/gobject-introspection
+%exclude %{_libdir}/pkgconfig
+%exclude %{_includedir}
+%exclude %{_bindir}/g-ir-*
+%exclude %{_mandir}
+%exclude %{_datadir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Sep 28 2016 Kalev Lember <klember@redhat.com> - 1.50.0-1
 - Update to 1.50.0
 - Resolves: #1386972
