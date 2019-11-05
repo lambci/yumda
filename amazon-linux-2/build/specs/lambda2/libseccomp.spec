@@ -14,31 +14,9 @@ URL: https://github.com/seccomp/libseccomp
 BuildRequires: valgrind
 %endif
 
+Prefix: %{_prefix}
+
 %description
-The libseccomp library provides an easy to use interface to the Linux Kernel's
-syscall filtering mechanism, seccomp.  The libseccomp API allows an application
-to specify which syscalls, and optionally which syscall arguments, the
-application is allowed to execute, all of which are enforced by the Linux
-Kernel.
-
-%package devel
-Summary: Development files used to build applications with libseccomp support
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release} pkgconfig
-
-%description devel
-The libseccomp library provides an easy to use interface to the Linux Kernel's
-syscall filtering mechanism, seccomp.  The libseccomp API allows an application
-to specify which syscalls, and optionally which syscall arguments, the
-application is allowed to execute, all of which are enforced by the Linux
-Kernel.
-
-%package static
-Summary: Enhanced seccomp static library
-Group: Development/Libraries
-Requires: %{name}-devel%{?_isa} = %{version}-%{release} pkgconfig
-
-%description static
 The libseccomp library provides an easy to use interface to the Linux Kernel's
 syscall filtering mechanism, seccomp.  The libseccomp API allows an application
 to specify which syscalls, and optionally which syscall arguments, the
@@ -60,34 +38,21 @@ mkdir -p "%{buildroot}/%{_mandir}"
 make V=1 DESTDIR="%{buildroot}" install
 rm -f "%{buildroot}/%{_libdir}/libseccomp.la"
 
-%check
-make V=1 check
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
-%doc CREDITS
-%doc README
-%doc CHANGELOG
-%doc SUBMITTING_PATCHES
 %{_libdir}/libseccomp.so.*
 
-%files devel
-%{_includedir}/seccomp.h
-%{_libdir}/libseccomp.so
-%{_libdir}/pkgconfig/libseccomp.pc
-%{_bindir}/scmp_sys_resolver
-%{_mandir}/man1/*
-%{_mandir}/man3/*
-
-%files static
-%{_libdir}/libseccomp.a
+%exclude %{_includedir}
+%exclude %{_libdir}/*.a
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_bindir}
+%exclude %{_mandir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Feb 22 2017 Paul Moore <pmoore@redhat.com> - 2.3.1-3
 - Added the ppc arch to the build
 
