@@ -40,6 +40,8 @@ BuildRequires: vala
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: glib-networking%{?_isa} >= %{glib2_version}
 
+Prefix: %{_prefix}
+
 %description
 Libsoup is an HTTP library implementation in C. It was originally part
 of a SOAP (Simple Object Access Protocol) implementation called Soup, but
@@ -50,14 +52,6 @@ applications. This enables GNOME applications to access HTTP servers
 on the network in a completely asynchronous fashion, very similar to
 the Gtk+ programming model (a synchronous operation mode is also
 supported for those who want it).
-
-%package devel
-Summary: Header files for the Soup library
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Libsoup is an HTTP library implementation in C. This package allows
-you to develop applications that use the libsoup library.
 
 %prep
 %setup -q
@@ -83,31 +77,22 @@ make %{?_smp_mflags}
 
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la
 
-%find_lang libsoup
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%files -f libsoup.lang
+%files
 %license COPYING
-%doc README NEWS AUTHORS
 %{_libdir}/lib*.so.*
 %{_libdir}/girepository-1.0/Soup*2.4.typelib
 
-%files devel
-%{_includedir}/%{name}-2.4
-%{_includedir}/%{name}-gnome-2.4
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
-%{_datadir}/gir-1.0/Soup*2.4.gir
-%{_datadir}/gtk-doc/html/%{name}-2.4
-%dir %{_datadir}/vala
-%dir %{_datadir}/vala/vapi
-%{_datadir}/vala/vapi/libsoup-2.4.deps
-%{_datadir}/vala/vapi/libsoup-2.4.vapi
+%exclude %{_localedir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
+%exclude /usr/share/vala
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Nov 15 2017 Milan Crha <mcrha@redhat.com> - 2.56.0-6
 - Fix for crash under soup_socket_new() (rh #1513355)
 

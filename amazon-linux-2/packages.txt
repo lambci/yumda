@@ -367,6 +367,7 @@ libsigc++20.x86_64           2.10.0-1.lambda2.0.2                        lambda2
 libsmartcols.x86_64          2.30.2-2.lambda2.0.4                        lambda2
 libsndfile.x86_64            1.0.25-10.lambda2.0.2                       lambda2
 libsndfile-utils.x86_64      1.0.25-10.lambda2.0.2                       lambda2
+libsoup.x86_64               2.56.0-6.lambda2                            lambda2
 libssh2.x86_64               1.4.3-12.lambda2.2.2                        lambda2
 libthai.x86_64               0.1.14-9.lambda2.0.2                        lambda2
 libtiff.x86_64               4.0.3-32.lambda2                            lambda2
