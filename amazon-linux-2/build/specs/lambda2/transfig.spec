@@ -16,6 +16,8 @@ BuildRequires:	libpng-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libXpm-devel
 
+Prefix: %{_prefix}
+
 %description
 The transfig utility creates a makefile which translates FIG (created
 by xfig) or PIC figures into a specified LaTeX graphics language (for
@@ -37,7 +39,6 @@ make %{?_smp_mflags}
 %make_install
 
 %files
-%doc transfig/doc/manual.pdf
 %{_bindir}/transfig
 %{_bindir}/fig2dev
 %{_bindir}/fig2ps2tex
@@ -45,9 +46,13 @@ make %{?_smp_mflags}
 %{_datadir}/fig2dev/bitmaps/*.bmp
 %{_datadir}/fig2dev/i18n/*.ps
 %{_datadir}/fig2dev/rgb.txt
-%{_mandir}/man1/*.1.gz
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Nov 21 2017 Hans de Goede <hdegoede@redhat.com> - 3.2.6a-1
 - New upstream release 3.2.6a
 - Add patch fixing CVE-2017-16899 (rhbz#1515695)

@@ -963,6 +963,7 @@ texlive-zapfchan.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
 texlive-zapfding.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
 theora-tools.x86_64          1:1.1.1-8.lambda2.0.2                       lambda2
 tokyocabinet.x86_64          1.4.48-3.lambda2.0.2                        lambda2
+transfig.x86_64              1:3.2.6a-1.lambda2.0.2                      lambda2
 trousers.x86_64              0.3.14-2.lambda2.0.2                        lambda2
 ttmkfdir.x86_64              3.0.9-42.lambda2.0.2                        lambda2
 turbojpeg.x86_64             1.2.90-5.lambda2.0.3                        lambda2
