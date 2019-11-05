@@ -1,9 +1,3 @@
-%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%endif
-%{!?python_version: %global python_version %(%{__python} -c "from distutils.sysconfig import get_python_version; print(get_python_version())")}
-
 Name: libtalloc
 Version: 2.1.13
 Release: 1%{?dist}
@@ -24,34 +18,10 @@ Provides: bundled(libreplace)
 
 # Patches
 
+Prefix: %{_prefix}
 
 %description
 A library that implements a hierarchical allocator with destructors.
-
-%package devel
-Group: Development/Libraries
-Summary: Developer tools for the Talloc library
-Requires: libtalloc = %{version}-%{release}
-
-%description devel
-Header files needed to develop programs that link against the Talloc library.
-
-%package -n pytalloc
-Group: Development/Libraries
-Summary: Developer tools for the Talloc library
-Requires: libtalloc = %{version}-%{release}
-
-%description -n pytalloc
-Pytalloc libraries for creating python bindings using talloc
-
-%package -n pytalloc-devel
-Group: Development/Libraries
-Summary: Developer tools for the Talloc library
-Requires: pytalloc = %{version}-%{release}
-
-%description -n pytalloc-devel
-Development libraries for pytalloc
-
 
 %prep
 %setup -q -n talloc-%{version}
@@ -64,7 +34,6 @@ Development libraries for pytalloc
            --disable-silent-rules
 
 make %{?_smp_mflags} V=1
-doxygen doxy.config
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -78,9 +47,6 @@ find $RPM_BUILD_ROOT -name "*.so*" -exec chmod -c +x {} \;
 rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.a
 rm -f $RPM_BUILD_ROOT/usr/share/swig/*/talloc.i
 
-# Install API docs
-cp -a doc/man/* $RPM_BUILD_ROOT/%{_mandir}
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -88,33 +54,17 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_libdir}/libtalloc.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/talloc.h
-%{_libdir}/libtalloc.so
-%{_libdir}/pkgconfig/talloc.pc
-%{_mandir}/man3/talloc*.3.gz
-%{_mandir}/man3/libtalloc*.3.gz
-
-%files -n pytalloc
-%defattr(-,root,root,-)
-%{_libdir}/libpytalloc-util.so.*
-%{python_sitearch}/talloc.so
-
-%files -n pytalloc-devel
-%defattr(-,root,root,-)
-%{_includedir}/pytalloc.h
-%{_libdir}/pkgconfig/pytalloc-util.pc
-%{_libdir}/libpytalloc-util.so
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post -n pytalloc -p /sbin/ldconfig
-%postun -n pytalloc -p /sbin/ldconfig
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
+%exclude %{_libdir}/libpytalloc-util.so.*
+%exclude %{_prefix}/lib64/python*
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Apr 10 2018 Jakub Hrozek <jhrozek@redhat.com> - 2.1.13-1
 - Rebase to libtalloc 2.1.13
 - Resolves: rhbz#1558492 - Rebase libtalloc to enable samba rebase
