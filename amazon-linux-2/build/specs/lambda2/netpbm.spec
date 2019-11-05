@@ -40,20 +40,6 @@ programs for handling various graphics file formats, including .pbm
 (portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
 .ppm (portable pixmaps) and others.
 
-%package devel
-Summary: Development tools for programs which will use the netpbm libraries
-Group: Development/Libraries
-Requires: netpbm = %{version}-%{release}
-
-%description devel
-The netpbm-devel package contains the header files and static libraries,
-etc., for developing programs which can handle the various graphics file
-formats supported by the netpbm libraries.
-
-Install netpbm-devel if you want to develop programs for handling the
-graphics file formats supported by the netpbm libraries.  You'll also need
-to have the netpbm package installed.
-
 %package progs
 Summary: Tools for manipulating graphics files in netpbm supported formats
 Group: Applications/Multimedia
@@ -69,18 +55,6 @@ scripts for converting from one graphics file format to another.
 
 If you need to use these conversion scripts, you should install
 netpbm-progs.  You'll also need to install the netpbm package.
-
-%package doc
-Summary: Documentation for tools manipulating graphics files in netpbm supported formats
-Group: Applications/Multimedia
-Requires: netpbm-progs = %{version}-%{release}
-
-%description doc
-The netpbm-doc package contains a documentation in HTML format for utilities
-present in netpbm-progs package.
-
-If you need to look into the HTML documentation, you should install
-netpbm-doc.  You'll also need to install the netpbm-progs package.
 
 %prep
 %setup -q
@@ -135,76 +109,37 @@ make \
 	LDFLAGS="-L$TOP/pbm -L$TOP/pgm -L$TOP/pnm -L$TOP/ppm" \
 	CFLAGS="$RPM_OPT_FLAGS -fPIC -flax-vector-conversions -fno-strict-aliasing" \
 	LADD="-lm" \
-	JPEGINC_DIR=%{_includedir} \
-	PNGINC_DIR=%{_includedir} \
-	TIFFINC_DIR=%{_includedir} \
-	JPEGLIB_DIR=%{_libdir} \
-	PNGLIB_DIR=%{_libdir} \
-	TIFFLIB_DIR=%{_libdir} \
 	LINUXSVGALIB="NONE" \
-	X11LIB=%{_libdir}/libX11.so \
 	XML2LIBS="NONE" \
 	JASPERLIB="" \
-	JASPERDEPLIBS="-ljasper" \
-	JASPERHDR_DIR="/usr/include/jasper"
-
-# prepare man files
-cd userguide
-# BZ 948531
-rm -f ppmtompeg*
-rm -f *.manual-pages
-rm -f *.manfix
-for i in *.html ; do
-  ../buildtools/makeman ${i}
-done
-for i in 1 3 5 ; do
-  mkdir -p man/man${i}
-  mv *.${i} man/man${i}
-done
-
+	JASPERDEPLIBS="-ljasper"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT
-make package pkgdir=$RPM_BUILD_ROOT/usr LINUXSVGALIB="NONE" XML2LIBS="NONE"
+make package pkgdir=$RPM_BUILD_ROOT%{_prefix} LINUXSVGALIB="NONE" XML2LIBS="NONE"
 
 # Ugly hack to have libs in correct dir on 64bit archs.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
-if [ "%{_libdir}" != "/usr/lib" ]; then
-  mv $RPM_BUILD_ROOT/usr/lib/lib* $RPM_BUILD_ROOT%{_libdir}
+if [ "%{_libdir}" != "%{_prefix}/lib" ]; then
+  mv $RPM_BUILD_ROOT%{_prefix}/lib/lib* $RPM_BUILD_ROOT%{_libdir}
 fi
 
 cp -af lib/libnetpbm.a $RPM_BUILD_ROOT%{_libdir}/libnetpbm.a
 cp -l $RPM_BUILD_ROOT%{_libdir}/libnetpbm.so.?? $RPM_BUILD_ROOT%{_libdir}/libnetpbm.so
 
-mkdir -p $RPM_BUILD_ROOT%{_datadir}
-mv userguide/man $RPM_BUILD_ROOT%{_mandir}
-
-# Get rid of the useless non-ascii character in pgmminkowski.1
-sed -i 's/\xa0//' $RPM_BUILD_ROOT%{_mandir}/man1/pgmminkowski.1
-
-# Don't ship man pages for non-existent binaries and bogus ones
-for i in hpcdtoppm \
-	 ppmsvgalib vidtoppm picttoppm \
-	 directory error extendedopacity \
-	 pam pbm pgm pnm ppm index libnetpbm_dir \
-	 liberror; do
-	rm -f $RPM_BUILD_ROOT%{_mandir}/man1/${i}.1
-done
-rm -f $RPM_BUILD_ROOT%{_mandir}/man5/extendedopacity.5
-
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/netpbm
-mv $RPM_BUILD_ROOT/usr/misc/*.map $RPM_BUILD_ROOT%{_datadir}/netpbm/
-mv $RPM_BUILD_ROOT/usr/misc/rgb.txt $RPM_BUILD_ROOT%{_datadir}/netpbm/
-rm -rf $RPM_BUILD_ROOT/usr/README
-rm -rf $RPM_BUILD_ROOT/usr/VERSION
-rm -rf $RPM_BUILD_ROOT/usr/link
-rm -rf $RPM_BUILD_ROOT/usr/misc
-rm -rf $RPM_BUILD_ROOT/usr/man
-rm -rf $RPM_BUILD_ROOT/usr/pkginfo
-rm -rf $RPM_BUILD_ROOT/usr/config_template
-rm -rf $RPM_BUILD_ROOT/usr/pkgconfig_template
+mv $RPM_BUILD_ROOT%{_prefix}/misc/*.map $RPM_BUILD_ROOT%{_datadir}/netpbm/
+mv $RPM_BUILD_ROOT%{_prefix}/misc/rgb.txt $RPM_BUILD_ROOT%{_datadir}/netpbm/
+rm -rf $RPM_BUILD_ROOT%{_prefix}/README
+rm -rf $RPM_BUILD_ROOT%{_prefix}/VERSION
+rm -rf $RPM_BUILD_ROOT%{_prefix}/link
+rm -rf $RPM_BUILD_ROOT%{_prefix}/misc
+rm -rf $RPM_BUILD_ROOT%{_prefix}/man
+rm -rf $RPM_BUILD_ROOT%{_prefix}/pkginfo
+rm -rf $RPM_BUILD_ROOT%{_prefix}/config_template
+rm -rf $RPM_BUILD_ROOT%{_prefix}/pkgconfig_template
 
 # Don't ship the static library
 rm -f $RPM_BUILD_ROOT/%{_libdir}/lib*.a
@@ -217,44 +152,28 @@ echo -e '#!/bin/sh\npamditherbw $@ | pamtopnm\n' > pgmtopbm
 chmod 0755 pgmtopbm
 popd
 
-%check
-pushd test
-export LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir}
-export PBM_TESTPREFIX=$RPM_BUILD_ROOT%{_bindir}
-./Execute-Tests && exit 0
-popd
+sed -i 's|#!/usr/bin/perl|#!%{_bindir}/perl|g' %{buildroot}%{_bindir}/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
-%doc doc/copyright_summary doc/COPYRIGHT.PATENT doc/GPL_LICENSE.txt doc/HISTORY README
+%license doc/copyright_summary doc/COPYRIGHT.PATENT doc/GPL_LICENSE.txt
 %{_libdir}/lib*.so.*
-
-%files devel
-%defattr(-,root,root)
-%dir %{_includedir}/netpbm
-%{_includedir}/netpbm/*.h
-%{_libdir}/lib*.so
-%{_mandir}/man3/*
 
 %files progs
 %defattr(-,root,root)
 %{_bindir}/*
-%{_mandir}/man1/*
-%{_mandir}/man5/*
 %{_datadir}/netpbm/
 
-%files doc
-%defattr(-,root,root)
-%doc userguide/*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jan 11 2018 Josef Ridky <jridky@redhat.com> - 10.79.00-7
 - Revert to version 10.79.00-4 due suggested changes didn't work
 
