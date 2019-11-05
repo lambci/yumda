@@ -1,16 +1,12 @@
 
 #0 to bootstrap libproxy circle dependencies - 1 normal case
-%if 1
-%global _with_webkitgtk3 1
-%global _with_gnome3 1
-%global _with_mozjs 1
-%global _with_gnome 1
-%if !0%{amzn}
-%global _with_kde 1
-%endif # !amzn
-%global _with_networkmanager 1
-%global _with_python 1
-%endif
+%global _with_webkitgtk3 0
+%global _with_gnome3 0
+%global _with_mozjs 0
+%global _with_gnome 0
+%global _with_kde 0
+%global _with_networkmanager 0
+%global _with_python 0
 
 %define _trivial .0
 %define _buildid .2
@@ -33,39 +29,7 @@ BuildRequires:  python-devel
 BuildRequires:  libmodman-devel >= 2.0.1
 BuildRequires:  cmake >= 2.6.0
 
-# gnome
-%{?_with_gnome:
-BuildRequires:  GConf2-devel
-BuildRequires:  libXmu-devel
-}
-# mozjs
-%{?_with_mozjs:BuildRequires: mozjs17-devel}
-# NetworkManager
-%{?_with_networkmanager:
-BuildRequires:  NetworkManager-devel
-BuildRequires:  dbus-devel
-}
-# webkit (gtk)
-%{?_with_webkit:BuildRequires:  WebKit-gtk-devel}
-# webkit (gtk3)
-%{?_with_webkitgtk3:BuildRequires:  webkitgtk3-devel}
-# kde
-%{?_with_kde:BuildRequires:  kdelibs-devel}
-
-#Obsoletes of disabled subpackages
-%{!?_with_mozjs:
-Provides: %{name}-mozjs = %{version}-%{release}
-Obsoletes: %{name}-mozjs < %{version}-%{release}
-}
-%{!?_with_webkit:
-Provides: %{name}-webkit = %{version}-%{release}
-Obsoletes: %{name}-webkit < %{version}-%{release}
-}
-%{!?_with_webkitgtk3:
-Provides: %{name}-webkitgtk3 = %{version}-%{release}
-Obsoletes: %{name}-webkitgtk3 < %{version}-%{release}
-}
-
+Prefix: %{_prefix}
 
 %description
 libproxy offers the following features:
@@ -83,97 +47,11 @@ libproxy offers the following features:
 Summary:        Binary to test %{name}
 Group:          Applications/System
 Requires:       %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description    bin
 The %{name}-bin package contains the proxy binary for %{name}
 
-%{?_with_python:
-%package        python
-Summary:        Binding for %{name} and python
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-BuildArch:      noarch
-
-%description    python
-The %{name}-python package contains the python binding for %{name}
-}
-
-%{?_with_gnome:
-%package        gnome
-Summary:        Plugin for %{name} and gnome
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    gnome
-The %{name}-gnome package contains the %{name} plugin for gnome.
-}
-
-%{?_with_kde:
-%package        kde
-Summary:        Plugin for %{name} and kde
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    kde
-The %{name}-kde package contains the %{name} plugin for kde.
-}
-
-%{?_with_mozjs:
-%package        mozjs
-Summary:        Plugin for %{name} and mozjs
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-Provides:       %{name}-pac = %{version}-%{release}
-
-%description    mozjs
-The %{name}-mozjs package contains the %{name} plugin for mozjs.
-}
-
-%{?_with_networkmanager:
-%package        networkmanager
-Summary:        Plugin for %{name} and networkmanager
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    networkmanager
-The %{name}-networkmanager package contains the %{name} plugin
-for networkmanager.
-}
-
-%{?_with_webkit:
-%package        webkit
-Summary:        Plugin for %{name} and webkit
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-Provides:       %{name}-pac = %{version}-%{release}
-
-%description    webkit
-The %{name}-webkit package contains the %{name} plugin for
-webkit.
-}
-
-%{?_with_webkitgtk3:
-%package        webkitgtk3
-Summary:        Plugin for %{name} and webkitgtk3
-Group:          System Environment/Libraries
-Requires:       %{name} = %{version}-%{release}
-Provides:       %{name}-pac = %{version}-%{release}
-
-%description    webkitgtk3
-The %{name}-webkit package contains the %{name} plugin for
-webkitgtk3.
-}
-
-
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-Requires:       pkgconfig
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 %prep
 %setup -q
@@ -186,9 +64,12 @@ developing applications that use %{name}.
 %{cmake} \
   -DMODULE_INSTALL_DIR=%{_libdir}/%{name}/%{version}/modules \
   -DWITH_PERL=OFF \
-  %{!?_with_gnome3:-DWITH_GNOME3=OFF}\
-  %{?_with_webkitgtk3:-DWITH_WEBKIT3=ON}\
-  %{?_with_mozjs:-DWITH_MOZJS=ON}\
+  -DWITH_GNOME=OFF \
+  -DWITH_GNOME3=OFF \
+  -DWITH_WEBKIT=OFF \
+  -DWITH_WEBKIT3=OFF \
+  -DWITH_MOZJS=OFF \
+  -DWITH_PYTHON=OFF \
    .
 make VERBOSE=1 %{?_smp_mflags}
 
@@ -199,19 +80,9 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 #In case all modules are disabled
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/%{name}/%{version}/modules
 
-%{?_with_test:
-%check
-make test
-}
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files 
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING README
+%license COPYING
 %{_libdir}/*.so.*
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/%{version}
@@ -221,62 +92,15 @@ make test
 %defattr(-,root,root,-)
 %{_bindir}/proxy
 
-%{?_with_python:
-%files python
-%defattr(-,root,root,-)
-%{python_sitelib}/*
-}
-
-%{?_with_gnome:
-%files gnome
-%defattr(-,root,root,-)
-%{!?_with_gnome3:
-%{_libdir}/%{name}/%{version}/modules/config_gnome.so
-%{_libexecdir}/pxgconf}
-%{?_with_gnome3:
-%{_libdir}/%{name}/%{version}/modules/config_gnome3.so
-%{_libexecdir}/pxgsettings}
-}
-
-%{?_with_kde:
-%files kde
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/%{version}/modules/config_kde4.so
-}
-
-%{?_with_mozjs:
-%files mozjs
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/%{version}/modules/pacrunner_mozjs.so
-}
-
-%{?_with_networkmanager:
-%files networkmanager
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/%{version}/modules/network_networkmanager.so
-}
-
-%{?_with_webkit:
-%files webkit
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/%{version}/modules/pacrunner_webkit.so
-}
-
-%{?_with_webkitgtk3:
-%files webkitgtk3
-%defattr(-,root,root,-)
-%{_libdir}/%{name}/%{version}/modules/pacrunner_webkit.so
-}
-
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/proxy.h
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/libproxy-1.0.pc
-%{_datadir}/cmake/Modules/Findlibproxy.cmake
-
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Jul 12 2016 Dan Winship <danw@redhat.com> - 0.4.11-10
 - Rebuild for mozjs soname bump (#1353447)
 

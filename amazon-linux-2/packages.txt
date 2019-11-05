@@ -359,6 +359,8 @@ libpcap.x86_64               14:1.5.3-11.lambda2                         lambda2
 libpciaccess.x86_64          0.14-1.lambda2                              lambda2
 libpeas.x86_64               1.20.0-1.lambda2.0.2                        lambda2
 libpng.x86_64                2:1.5.13-7.lambda2.0.2                      lambda2
+libproxy.x86_64              0.4.11-10.lambda2.0.3                       lambda2
+libproxy-bin.x86_64          0.4.11-10.lambda2.0.3                       lambda2
 libpsl.x86_64                0.7.0-1.lambda2                             lambda2
 libpwquality.x86_64          1.2.3-5.lambda2                             lambda2
 libquadmath.x86_64           7.3.1-6.lambda2.0.4                         lambda2
