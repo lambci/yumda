@@ -24,17 +24,11 @@ Conflicts: mutter < 3.19.3
 
 Requires: glib2 >= 2.31.0
 
+Prefix: %{_prefix}
+
 %description
 gsettings-desktop-schemas contains a collection of GSettings schemas for
 settings shared by various components of a desktop.
-
-%package        devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries
-and header files for developing applications that use %{name}.
 
 
 %prep
@@ -49,33 +43,24 @@ make %{?_smp_mflags}
 %install
 %make_install
 
-%find_lang %{name} --with-gnome
 
-%posttrans
-glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
-
-%postun
-if [ $1 -eq 0 ]; then
-  glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
-fi
-
-
-%files -f %{name}.lang
-%doc AUTHORS MAINTAINERS NEWS README
+%files
 %license COPYING
 %{_datadir}/glib-2.0/schemas/*
 %{_datadir}/GConf/gsettings/gsettings-desktop-schemas.convert
 %{_datadir}/GConf/gsettings/wm-schemas.convert
 %{_libdir}/girepository-1.0/GDesktopEnums-3.0.typelib
 
-%files devel
-%doc HACKING
-%{_includedir}/*
-%{_datadir}/pkgconfig/*
-%{_datadir}/gir-1.0/GDesktopEnums-3.0.gir
+%exclude %{_localedir}
+%exclude %{_includedir}
+%exclude %{_datadir}/pkgconfig
+%exclude %{_datadir}/gir-1.0
 
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Apr 17 2018 Carlos Garnacho <cgarnach@redhat.com> - 3.24.1-2
 - Add support for Wacom Pro Pen 3D styli
 Resolves: #1568715
