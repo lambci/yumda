@@ -43,38 +43,11 @@ BuildRequires:  automake
 BuildRequires:  autoconf
 BuildRequires:  libtool
 
+Prefix: %{_prefix}
+
 %description
 Simple DirectMedia Layer (SDL) is a cross-platform multimedia library designed
 to provide fast access to the graphics frame buffer and audio device.
-
-%package devel
-Summary:    Files needed to develop Simple DirectMedia Layer applications
-Group:      Development/Libraries
-Requires:   SDL%{?_isa} = %{version}-%{release}
-Requires:   alsa-lib-devel
-Requires:   mesa-libGL-devel
-Requires:   mesa-libGLU-devel
-Requires:   libX11-devel
-Requires:   libXext-devel
-Requires:   libXrandr-devel
-Requires:   libXrender-devel
-
-%description devel
-Simple DirectMedia Layer (SDL) is a cross-platform multimedia library designed
-to provide fast access to the graphics frame buffer and audio device. This
-package provides the libraries, include files, and other resources needed for
-developing SDL applications.
-
-%package static
-Summary:    Files needed to develop static Simple DirectMedia Layer applications
-Group:      Development/Libraries
-Requires:   SDL-devel%{?_isa} = %{version}-%{release}
-
-%description static
-Simple DirectMedia Layer (SDL) is a cross-platform multimedia library designed
-to provide fast access to the graphics frame buffer and audio device. This
-package provides the static libraries needed for developing static SDL
-applications.
 
 %prep
 %setup -q -b0
@@ -91,8 +64,6 @@ for F in CREDITS; do
 done
 # Compilation without ESD
 sed -i -e 's/.*AM_PATH_ESD.*//' configure.in
-# Update config.sub to support aarch64, bug #926510
-cp -p %{_datadir}/automake-*/config.{sub,guess} build-scripts
 
 %build
 aclocal
@@ -108,42 +79,32 @@ autoconf
     --enable-pulseaudio-shared \
     --enable-alsa \
     --disable-video-ps3 \
-    --disable-rpath
+    --disable-rpath \
+    --disable-static
 make %{?_smp_mflags}
 
 %install
 make install DESTDIR=%{buildroot}
 
-# Rename SDL_config.h to SDL_config-<arch>.h to avoid file conflicts on
-# multilib systems and install SDL_config.h wrapper
-mv %{buildroot}/%{_includedir}/SDL/SDL_config.h %{buildroot}/%{_includedir}/SDL/SDL_config-%{_arch}.h
-install -m644 %{SOURCE1} %{buildroot}/%{_includedir}/SDL/SDL_config.h
-
 # remove libtool .la file
 rm -f %{buildroot}%{_libdir}/*.la
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
-%doc BUGS COPYING CREDITS README-SDL.txt
+%license COPYING
 %{_libdir}/lib*.so.*
 
-%files devel
-%doc README docs.html docs/html docs/index.html TODO WhatsNew
-%{_bindir}/*-config
-%{_libdir}/lib*.so
-%{_libdir}/pkgconfig/sdl.pc
-%{_includedir}/SDL
-%{_datadir}/aclocal/*
-%{_mandir}/man1/*
-%{_mandir}/man3/SDL*.3*
-
-%files static
-%{_libdir}/lib*.a
+%exclude %{_bindir}/*-config
+%exclude %{_libdir}/*.a
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_mandir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Jul 29 2015 Petr Pisar <ppisar@redhat.com> - 1.2.15-14
 - Do not harness backing store by default. Export SDL_VIDEO_X11_BACKINGSTORE
   environment variable to enable it.
