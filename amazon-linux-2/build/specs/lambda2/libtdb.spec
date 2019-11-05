@@ -1,9 +1,3 @@
-%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%endif
-%{!?python_version: %global python_version %(%{__python} -c "from distutils.sysconfig import get_python_version; print(get_python_version())")}
-
 Name: libtdb
 Version: 1.3.15
 Release: 1%{?dist}
@@ -26,15 +20,6 @@ Provides: bundled(libreplace)
 %description
 A library that implements a trivial database.
 
-%package devel
-Group: Development/Libraries
-Summary: Header files need to link the Tdb library
-Requires: libtdb = %{version}-%{release}
-Requires: pkgconfig
-
-%description devel
-Header files needed to develop programs that link against the Tdb library.
-
 %package -n tdb-tools
 Group: Development/Libraries
 Summary: Developer tools for the Tdb library
@@ -42,14 +27,6 @@ Requires: libtdb = %{version}-%{release}
 
 %description -n tdb-tools
 Tools to manage Tdb files
-
-%package -n python-tdb
-Group: Development/Libraries
-Summary: Python bindings for the Tdb library
-Requires: libtdb = %{version}-%{release}
-
-%description -n python-tdb
-Python bindings for libtdb
 
 %prep
 %setup -q -n tdb-%{version}
@@ -83,38 +60,23 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_libdir}/libtdb.so.*
 
-%files devel
-%defattr(-,root,root)
-%doc docs/README
-%{_includedir}/tdb.h
-%{_libdir}/libtdb.so
-%{_libdir}/pkgconfig/tdb.pc
-
 %files -n tdb-tools
 %defattr(-,root,root,-)
 %{_bindir}/tdbbackup
 %{_bindir}/tdbdump
 %{_bindir}/tdbtool
 %{_bindir}/tdbrestore
-%{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
-%{_mandir}/man8/tdbtool.8*
-%{_mandir}/man8/tdbrestore.8*
 
-%files -n python-tdb
-%defattr(-,root,root,-)
-%{python_sitearch}/tdb.so
-%{python_sitearch}/_tdb_text.py*
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post -n python-tdb -p /sbin/ldconfig
-
-%postun -n python-tdb -p /sbin/ldconfig
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_prefix}/lib64/python*
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Oct 15 2017 Jakub Hrozek <jhrozek@redhat.com> - 1.3.15-1
 - Resolves: rhbz#1470049 - Rebase libtdb to enable samba rebase to
                            version 4.7.x
