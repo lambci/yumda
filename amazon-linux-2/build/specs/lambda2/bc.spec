@@ -11,10 +11,10 @@ Patch2: bc-1.06.95-memleak.patch
 Patch3: bc-1.06.95-matlib.patch
 Patch4: bc-1.06.95-sigintmasking.patch
 Patch5: bc-1.06.95-doc.patch
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: readline-devel, flex, bison, texinfo
+
+Prefix: %{_prefix}
 
 %description
 The bc package includes bc and dc. Bc is an arbitrary precision
@@ -34,38 +34,26 @@ if you would like to use its text mode calculator.
 %patch5 -p1 -b .doc
 
 %build
-%configure --with-readline
+%configure --without-readline
 make %{?_smp_mflags}
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 
-%post
-if [ -e %{_infodir}/bc.info.gz -a -e %{_infodir}/dc.info.gz ]; then
-  /sbin/install-info %{_infodir}/bc.info.gz %{_infodir}/dir \
-  --entry="* bc: (bc).                      The GNU calculator language." || :
-  /sbin/install-info %{_infodir}/dc.info.gz %{_infodir}/dir \
-  --entry="* dc: (dc).                      The GNU RPN calculator." || :
-fi
-
-%preun
-if [ $1 = 0 -a -e %{_infodir}/bc.info.gz -a -e %{_infodir}/dc.info.gz ]; then
-  /sbin/install-info --delete %{_infodir}/bc.info.gz %{_infodir}/dir \
-  --entry="* bc: (bc).                      The GNU calculator language." || :
-  /sbin/install-info --delete %{_infodir}/dc.info.gz %{_infodir}/dir \
-  --entry="* dc: (dc).                      The GNU RPN calculator." || :
-fi
-
 %files
 %defattr(-,root,root,-)
-%doc COPYING COPYING.LIB FAQ AUTHORS NEWS README Examples/
+%license COPYING COPYING.LIB
 %{_bindir}/dc
 %{_bindir}/bc
-%{_mandir}/*/*
-%{_infodir}/*
+
+%exclude %{_mandir}
+%exclude %{_infodir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.06.95-13
 - Mass rebuild 2014-01-24
 
