@@ -414,6 +414,8 @@ lm_sensors.x86_64            3.4.0-4.20160601gitf9185e5.lambda2.0.2      lambda2
 lm_sensors-libs.x86_64       3.4.0-4.20160601gitf9185e5.lambda2.0.2      lambda2
 lua.x86_64                   5.1.4-15.lambda2.0.2                        lambda2
 lz4.x86_64                   1.7.5-2.lambda2.0.1                         lambda2
+lzo.x86_64                   2.10-1.lambda2                              lambda2
+lzo-minilzo.x86_64           2.10-1.lambda2                              lambda2
 m4.x86_64                    1.4.16-10.lambda2.0.2                       lambda2
 mailcap.noarch               2.1.41-2.lambda2                            lambda2
 make.x86_64                  1:3.82-23.lambda2.0.2                       lambda2

@@ -2,17 +2,17 @@
 %define _buildid .1
 
 Name:           lzo
-Version:        2.06
-Release: 8%{?dist}.0.3
+Version:        2.10
+Release: 1%{?dist}
 Summary:        Data compression library with very fast (de)compression
 Group:          System Environment/Libraries
 License:        GPLv2+
 URL:            http://www.oberhumer.com/opensource/lzo/
 Source0:        http://www.oberhumer.com/opensource/lzo/download/%{name}-%{version}.tar.gz
-Patch0:         lzo-2.06-configure.patch
-Patch1:         lzo-2.06-CVE-2014-4607.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  zlib-devel
+
+Prefix: %{_prefix}
 
 %description
 LZO is a portable lossless data compression library written in ANSI C.
@@ -25,29 +25,15 @@ while still decompressing at this very high speed.
 %package minilzo
 Summary:        Mini version of lzo for apps which don't need the full version
 Group:          System Environment/Libraries
+Prefix: %{_prefix}
 
 %description minilzo
 A small (mini) version of lzo for embedding into applications which don't need
 full blown lzo compression support.
 
 
-%package devel
-Summary:        Development files for the lzo library
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-Requires:       %{name}-minilzo = %{version}-%{release}
-Requires:       zlib-devel
-
-%description devel
-LZO is a portable lossless data compression library written in ANSI C.
-It offers pretty fast compression and very fast decompression.
-This package contains development files needed for lzo.
-
-
 %prep
 %setup -q
-%patch0 -p1 -z .configure
-%patch1 -p1 -b .CVE-2014-4607
 # mark asm files as NOT needing execstack
 for i in asm/i386/src_gas/*.S; do
   echo '.section .note.GNU-stack,"",@progbits' >> $i
@@ -68,46 +54,34 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 install -m 755 libminilzo.so.0 $RPM_BUILD_ROOT%{_libdir}
 ln -s libminilzo.so.0 $RPM_BUILD_ROOT%{_libdir}/libminilzo.so
-install -p -m 644 minilzo/minilzo.h $RPM_BUILD_ROOT%{_includedir}/lzo
 
 #Remove doc
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/lzo
-
-%check
-make check test
 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%post minilzo -p /sbin/ldconfig
-
-%postun minilzo -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING THANKS NEWS
+%license COPYING
 %{_libdir}/liblzo2.so.*
 
 %files minilzo
 %defattr(-,root,root,-)
-%doc minilzo/README.LZO
+%license minilzo/README.LZO
 %{_libdir}/libminilzo.so.0
 
-%files devel
-%defattr(-,root,root,-)
-%doc doc/LZOAPI.TXT doc/LZO.FAQ doc/LZO.TXT
-%{_includedir}/lzo
-%{_libdir}/lib*lzo*.so
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org> - 2.10-1
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Jul  2 2014 Jaroslav Škarvada <jskarvad@redhat.com> - 2.06-8
 - Built with -fno-strict-aliasing (rpmdiff)
   Related: CVE-2014-4607
