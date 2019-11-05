@@ -35,19 +35,12 @@ BuildRequires: glib2-devel
 BuildRequires: xorg-x11-proto-devel libX11-devel
 BuildRequires: libxslt
 
+Prefix: %{_prefix}
+
 %description
 This package contains configuration data used by the X Keyboard Extension 
 (XKB), which allows selection of keyboard layouts when using a graphical 
 interface. 
-
-%package devel
-Summary: Development files for %{name}
-Group: User Interface/X
-Requires: %{name} = %{version}-%{release}
-Requires: pkgconfig
-
-%description devel
-%{name} development package
 
 %prep
 %setup -q -n %{name}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -87,7 +80,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
 # Remove unnecessary symlink
 rm -f $RPM_BUILD_ROOT%{_datadir}/X11/xkb/compiled
-%find_lang %{name} 
 
 # Create filelist
 {
@@ -98,19 +90,21 @@ rm -f $RPM_BUILD_ROOT%{_datadir}/X11/xkb/compiled
    popd
 }
 
-%files -f files.list -f %{name}.lang
+%files -f files.list
 %defattr(-,root,root,-)
-%doc AUTHORS README NEWS TODO COPYING docs/README.* docs/HOWTO.*
+%license COPYING
 %{_datadir}/X11/xkb/rules/xorg
 %{_datadir}/X11/xkb/rules/xorg.lst
 %{_datadir}/X11/xkb/rules/xorg.xml
-%{_mandir}/man7/xkeyboard-config.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_datadir}/pkgconfig/xkeyboard-config.pc
+%exclude %{_mandir}
+%exclude %{_localedir}
+%exclude %{_datadir}/pkgconfig
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Feb 08 2017 Peter Hutterer <peter.hutterer@redhat.com> 2.20-1
 - xkeyboard-config 2.20 (#1401753)
 
