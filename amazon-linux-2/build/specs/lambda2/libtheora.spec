@@ -15,6 +15,8 @@ BuildRequires:  doxygen
 BuildRequires:  tetex-latex transfig
 BuildRequires:  libtool
 
+Prefix: %{_prefix}
+
 %description
 Theora is Xiph.Org's first publicly released video codec, intended
 for use within the Ogg's project's Ogg multimedia streaming system.
@@ -22,33 +24,6 @@ Theora is derived directly from On2's VP3 codec; Currently the two are
 nearly identical, varying only in encapsulating decoder tables in the
 bitstream headers, but Theora will make use of this extra freedom
 in the future to improve over what is possible with VP3.
-
-
-%package devel
-Summary:        Development tools for Theora applications
-Group:          Development/Libraries
-Requires:       libogg-devel >= 2:1.1
-Requires:       %{name}%{?_isa} = %{epoch}:%{version}-%{release}
-# the new experimental decoder is now part of the regular libtheora
-# we do not obsolete theora-exp itself as that had a different soname and we
-# do not want to break deps, however we do now provide the same headers as
-# theora-exp-devel did.
-Obsoletes:      theora-exp-devel
-Provides:       theora-exp-devel
-
-%description devel
-The libtheora-devel package contains the header files needed to develop
-applications with libtheora.
-
-
-%package devel-docs
-Summary:        Documentation for developing Theora applications
-Group:          Development/Libraries
-BuildArch:      noarch
-
-%description devel-docs
-The libtheora-devel-docs package contains the documentation needed
-to develop applications with libtheora.
 
 
 %package -n theora-tools
@@ -75,7 +50,6 @@ sed -i 's/CFLAGS="$CFLAGS $cflags_save"/CFLAGS="$cflags_save"/g' configure
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make
-make -C doc/spec
 
 
 %install
@@ -91,28 +65,22 @@ install -m 755 examples/.libs/player_example $RPM_BUILD_ROOT/%{_bindir}/theora_p
 install -m 755 examples/.libs/png2theora $RPM_BUILD_ROOT/%{_bindir}/png2theora
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc README COPYING
+%license COPYING
 %{_libdir}/*.so.*
-
-%files devel
-%{_includedir}/theora
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/theora*.pc
-
-%files devel-docs
-%doc doc/libtheora/html doc/vp3-format.txt doc/spec/Theora.pdf
-%doc doc/color.html doc/draft-ietf-avt-rtp-theora-00.txt
 
 %files -n theora-tools
 %{_bindir}/*
 
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1:1.1.1-8
 - Mass rebuild 2014-01-24
 

@@ -373,6 +373,7 @@ libtalloc.x86_64             2.1.13-1.lambda2                            lambda2
 libtdb.x86_64                1.3.15-1.lambda2                            lambda2
 libtevent.x86_64             0.9.36-1.lambda2                            lambda2
 libthai.x86_64               0.1.14-9.lambda2.0.2                        lambda2
+libtheora.x86_64             1:1.1.1-8.lambda2.0.2                       lambda2
 libtiff.x86_64               4.0.3-32.lambda2                            lambda2
 libtiff-tools.x86_64         4.0.3-32.lambda2                            lambda2
 libtirpc.x86_64              0.2.4-0.10.lambda2.0.2                      lambda2
@@ -957,6 +958,7 @@ texlive-xtab.noarch          2:svn23347.2.3f-38.lambda2.0.4              lambda2
 texlive-xunicode.noarch      2:svn23897.0.981-38.lambda2.0.4             lambda2
 texlive-zapfchan.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
 texlive-zapfding.noarch      2:svn28614.0-38.lambda2.0.4                 lambda2
+theora-tools.x86_64          1:1.1.1-8.lambda2.0.2                       lambda2
 tokyocabinet.x86_64          1.4.48-3.lambda2.0.2                        lambda2
 trousers.x86_64              0.3.14-2.lambda2.0.2                        lambda2
 ttmkfdir.x86_64              3.0.9-42.lambda2.0.2                        lambda2
