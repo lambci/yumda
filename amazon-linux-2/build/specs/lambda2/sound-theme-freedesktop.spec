@@ -10,8 +10,8 @@ Url: http://www.freedesktop.org/wiki/Specifications/sound-theme-spec
 BuildArch: noarch
 BuildRequires: gettext
 BuildRequires: intltool >= 0.40
-Requires(post): /bin/touch
-Requires(postun): /bin/touch
+
+Prefix: %{_prefix}
 
 %description
 The default freedesktop.org sound theme following the XDG theming
@@ -26,20 +26,17 @@ specification.  (http://0pointer.de/public/sound-theme-spec.html).
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
 
-%post
-/bin/touch --no-create %{_datadir}/sounds/freedesktop %{_datadir}/sounds
-
-%postun
-/bin/touch --no-create %{_datadir}/sounds/freedesktop %{_datadir}/sounds
-
 %files
-%doc README
+%license README
 %dir %{_datadir}/sounds/freedesktop
 %dir %{_datadir}/sounds/freedesktop/stereo
 %{_datadir}/sounds/freedesktop/index.theme
 %{_datadir}/sounds/freedesktop/stereo/*.oga
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.8-3
 - Mass rebuild 2013-12-27
 
