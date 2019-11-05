@@ -14,6 +14,8 @@ BuildRequires:  m4
 BuildRequires:  perl
 BuildRequires:  perl(Getopt::Long)
 
+Prefix: %{_prefix}
+
 %description
 This library implements a full callback system for use in widget libraries,
 abstract interfaces, and general programming. Originally part of the Gtk--
@@ -25,24 +27,6 @@ ease of use unmatched by other C++ callback libraries.
 
 Package GTK-- (gtkmm), which is a C++ binding to the GTK+ library,
 starting with version 1.1.2, uses libsigc++20.
-
-
-%package devel
-Summary:        Development tools for the typesafe signal framework for C++
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-The %{name}-devel package contains the static libraries and header files
-needed for development with %{name}.
-
-
-%package        doc
-Summary:        Documentation for %{name}, includes full API docs
-BuildArch:      noarch
-Requires:       %{name} = %{version}-%{release}
-
-%description    doc
-This package contains the full API documentation for %{name}.
 
 
 %prep
@@ -59,30 +43,20 @@ make %{?_smp_mflags}
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %license COPYING
-%doc AUTHORS README NEWS
 %{_libdir}/*.so.*
 
-%files devel
-%{_includedir}/*
-%{_libdir}/sigc++-2.0/
-%{_libdir}/pkgconfig/*.pc
-%{_libdir}/*.so
-
-%files doc
-%doc %{_datadir}/doc/libsigc++-2.0/
-# according guidelines, we can co-own this, since devhelp is not required
-# for accessing documentation
-%doc %{_datadir}/devhelp/
-
+%exclude %{_includedir}/*
+%exclude %{_libdir}/sigc++-2.0
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/*.so
+%exclude %{_datadir}
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Sep 20 2016 Kalev Lember <klember@redhat.com> - 2.10.0-1
 - Update to 2.10.0
 - Resolves: #1425369
