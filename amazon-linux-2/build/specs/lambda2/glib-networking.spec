@@ -21,56 +21,46 @@ Requires:       ca-certificates
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas
 
+Prefix: %{_prefix}
+
 %description
 This package contains modules that extend the networking support in
 GIO. In particular, it contains libproxy- and GSettings-based
 GProxyResolver implementations and a gnutls-based GTlsConnection
 implementation.
 
-%package tests
-Summary: Tests for the glib-networking package
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description tests
-The glib-networking-tests package contains tests that can be used to verify
-the functionality of the installed glib-networking package.
-
 %prep
 %autosetup -p1
 
 %build
-%configure --disable-static --with-libproxy --enable-installed-tests
+%configure --disable-static --with-libproxy --disable-installed-tests
 
 make %{?_smp_mflags} V=1
 
 %install
 %make_install
 
+%if "%{_prefix}" != "/usr"
+  if [ -d $RPM_BUILD_ROOT/usr/lib64 ]; then mv $RPM_BUILD_ROOT/usr/lib64/* $RPM_BUILD_ROOT%{_libdir}/; fi
+  if [ -d $RPM_BUILD_ROOT/usr ]; then mv $RPM_BUILD_ROOT/usr/* $RPM_BUILD_ROOT%{_prefix}/; fi
+%endif
+
 rm -f $RPM_BUILD_ROOT%{_libdir}/gio/modules/*.la
 
-%find_lang %{name}
-
-%post
-gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
-
-%postun
-gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
-
-%files -f %{name}.lang
+%files
 %license COPYING
-%doc NEWS README
 %{_libdir}/gio/modules/libgiolibproxy.so
 %{_libdir}/gio/modules/libgiognomeproxy.so
 %{_libdir}/gio/modules/libgiognutls.so
 %{_libexecdir}/glib-pacrunner
-%{_datadir}/dbus-1/services/org.gtk.GLib.PACRunner.service
-%{_userunitdir}/glib-pacrunner.service
 
-%files tests
-%{_libexecdir}/installed-tests/glib-networking
-%{_datadir}/installed-tests
+%exclude %{_datadir}
+%exclude %{_libdir}/systemd
 
 %changelog
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Sep 19 2016 Kalev Lember <klember@redhat.com> - 2.50.0-1
 - Update to 2.50.0
 - Resolves: #1386876
