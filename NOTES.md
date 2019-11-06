@@ -149,7 +149,20 @@ done
 ```
 
 ## Comparing generated RPMs with originals
+
 ```
 diff <(rpm -qpl compat-gcc-48-4.8.5-16.amzn2.0.2.x86_64.rpm | sed 's|^/usr/|/opt/|' | sort) \
   <(rpm -qpl /tmp/fs/lambda2/RPMS/Packages/compat-gcc-48-4.8.5-16.lambda2.0.2.x86_64.rpm | sort)
+```
+
+## Which packages should be removed from the TODO lists
+
+```
+node -p "
+  names = fs.readFileSync('../packages.txt', 'utf8').trim().split('\n').slice(2)
+    .map(p => (p.match(/(^.+)(.x86_64|.noarch)/) || [])[1]).filter(Boolean);
+  fs.readFileSync('../todo.amzn2.txt', 'utf8').trim().split('\n')
+    .map(t => t.split('.amzn2')[0].split('-').slice(0, -2).join('-'))
+    .filter(t => names.some(name => t === name))
+"
 ```
