@@ -14,7 +14,7 @@
 %global selinuxmoduledir	%{selinuxmodulename}-selinux-%{selinuxmodulever}
 
 Name:           memcached
-Version:        1.5.16
+Version:        1.5.17
 Release:        1%{?dist}%{?_trivial}%{?_buildid}
 Epoch:          0
 Summary:        High Performance, Distributed Memory Object Cache
@@ -171,6 +171,12 @@ fi
 %license ../%{selinuxmoduledir}/COPYING
 
 %changelog
+* Tue Sep 24 2019 Tomas Korbar <tkorbar@redhat.com> - 1.5.17-1
+- update to 1.15.17 (CVE-2019-15026)
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 0:1.5.16-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Mon May 27 2019 Miroslav Lichvar <mlichvar@redhat.com> - 0:1.5.16-1
 - update to 1.5.16
 

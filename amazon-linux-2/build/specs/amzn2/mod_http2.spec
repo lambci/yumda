@@ -2,8 +2,8 @@
 %{!?_httpd_mmn: %global _httpd_mmn %(cat %{_includedir}/httpd/.mmn 2>/dev/null || echo 0-0)}
 
 Name:		mod_http2
-Version:	1.15.1
-Release:	1%{?dist}
+Version:	1.15.3
+Release:	2%{?dist}
 Summary:	module implementing HTTP/2 for Apache 2
 License:	ASL 2.0
 URL:		https://icing.github.io/mod_h2/
@@ -44,6 +44,15 @@ echo "LoadModule proxy_http2_module modules/mod_proxy_http2.so" > %{buildroot}%{
 %{_httpd_moddir}/mod_proxy_http2.so
 
 %changelog
+* Mon Aug 19 2019 Lubos Uhliarik <luhliari@redhat.com> - 1.15.3-2
+- Rebuilt with newer nghttp2
+
+* Thu Aug  8 2019 Joe Orton <jorton@redhat.com> - 1.15.3-1
+- update to 1.15.3
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.15.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Wed May 29 2019 Joe Orton <jorton@redhat.com> - 1.15.1-1
 - update to 1.15.1
 

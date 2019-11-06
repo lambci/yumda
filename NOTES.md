@@ -38,7 +38,10 @@ diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --arc
   <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
   grep '^<' | \
   grep -v git-2.17.2-2. | \
-  grep -v libvoikko-3.6-5.
+  grep -v libvoikko-3.6-5. | \
+  grep -v libidn2-2.2.0-1. | \
+  grep -v libmetalink-0.1.3-1. | \
+  grep -v lzo-2.06-8.
 ```
 
 ## Pulling down Amazon source RPMS
