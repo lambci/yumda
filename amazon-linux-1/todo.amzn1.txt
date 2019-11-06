@@ -1,5 +1,4 @@
 libgcc44-4.4.6-4.81.amzn1 1606
-libgcc72-7.2.1-2.59.amzn1 1605
 libgcc64-6.4.1-1.45.amzn1 1605
 libgcc48-4.8.5-28.142.amzn1 1605
 python26-2.6.9-2.89.amzn1 1463
@@ -52,7 +51,6 @@ python27-libs-2.7.16-1.129.amzn1 84
 mysql51-libs-5.1.73-8.72.amzn1 82
 perl-Digest-MD5-2.52-3.5.amzn1 81
 ruby23-2.3.8-1.20.amzn1 80
-libXpm-3.5.10-2.9.amzn1 80
 rubygems24-2.6.14.3-1.30.11.amzn1 78
 rubygems22-2.4.5.2-1.11.amzn1 78
 rubygems21-2.2.5-1.22.amzn1 78
@@ -78,7 +76,6 @@ tcl-8.5.7-6.9.amzn1 61
 rubygems18-1.8.25-9.12.amzn1 55
 perl-HTTP-Message-6.06-6.10.amzn1 54
 php54-5.4.45-1.75.amzn1 53
-git-2.14.5-1.60.amzn1 53
 php56-5.6.40-1.142.amzn1 52
 php55-5.5.38-2.119.amzn1 52
 php-5.3.29-1.8.amzn1 52
@@ -103,7 +100,6 @@ perl-Moose-2.1005-1.3.amzn1 46
 m17n-db-1.5.5-1.1.6.amzn1 46
 libedit-2.11-4.20080712cvs.1.6.amzn1 46
 texlive-latex-svn27907.0-38.24.amzn1 45
-libXrandr-1.4.1-2.1.8.amzn1 45
 collectd-5.8.0-2.19.amzn1 45
 logrotate-3.7.8-26.14.amzn1 44
 fftw-3.2.1-3.1.2.amzn1 44
@@ -132,26 +128,21 @@ texlive-hyphen-base-svn29197.0-38.24.amzn1 37
 python26-requests-1.2.3-5.10.amzn1 37
 perl-libs-5.16.3-294.43.amzn1 37
 perl-IO-Compress-2.061-2.12.amzn1 37
-openssh-clients-7.4p1-16.71.amzn1 37
 audit-libs-2.6.5-3.28.amzn1 37
 apr-util-1.5.4-6.18.amzn1 37
 perl-CGI-3.63-4.5.amzn1 35
-gd-2.0.35-11.10.amzn1 35
 python26-numpy-1.7.2-8.16.amzn1 34
 perl-DateTime-1.04-5.9.amzn1 34
 perl-Params-Validate-1.08-4.10.amzn1 33
 perl-List-MoreUtils-0.33-9.9.amzn1 33
 perl-HTML-Parser-3.71-4.7.amzn1 33
 perl-ExtUtils-MakeMaker-6.68-3.5.amzn1 33
-libogg-1.1.4-2.1.5.amzn1 33
-libidn-1.18-2.8.amzn1 33
 compat-boost-filesystem-1.41.0-11.10.amzn1 33
 python26-PyYAML-3.10-3.10.amzn1 32
 iproute-4.4.0-3.23.amzn1 32
 rubygems-2.0-0.3.amzn1 31
 perl-XML-Parser-2.41-10.9.amzn1 31
 openmpi-2.1.1-1.31.amzn1 31
-libevent-2.0.21-4.19.amzn1 31
 libXcursor-1.1.14-2.1.10.amzn1 31
 texlive-kpathsea-lib-2012-38.20130427_r30134.24.amzn1 30
 python26-dateutil-2.1-1.3.amzn1 30
@@ -170,7 +161,6 @@ policycoreutils-2.1.12-5.25.amzn1 26
 php56-process-5.6.40-1.142.amzn1 26
 php55-process-5.5.38-2.119.amzn1 26
 perl-UNIVERSAL-require-0.13-1.4.amzn1 26
-libvorbis-1.3.3-8.7.amzn1 26
 crontabs-1.10-33.9.amzn1 26
 compat-libffi5-3.0.5-3.2.3.amzn1 26
 compat-boost-thread-1.41.0-11.10.amzn1 26
@@ -222,8 +212,6 @@ net-tools-1.60-110.10.amzn1 20
 mod_wsgi-python26-3.2-6.11.amzn1 20
 mod24_wsgi-python26-3.5-1.25.amzn1 20
 libldb-1.3.4-1.amzn1 20
-libaio-0.3.109-12.8.amzn1 20
-gcc72-7.2.1-2.59.amzn1 20
 wget-1.18-5.30.amzn1 19
 udev-173-4.13.amzn1 19
 python26-pygments-1.4-4.12.amzn1 19
@@ -274,7 +262,6 @@ perl-Class-Accessor-0.31-6.1.6.amzn1 16
 log4j-1.2.16-6.4.9.amzn1 16
 libart_lgpl-2.3.20-5.1.7.amzn1 16
 gsl-1.13-4.3.amzn1 16
-gcc72-c++-7.2.1-2.59.amzn1 16
 gcc64-c++-6.4.1-1.45.amzn1 16
 gcc48-gfortran-4.8.5-28.142.amzn1 16
 freeglut-2.6.0-1.8.amzn1 16
@@ -294,8 +281,6 @@ perl-DBD-MySQL55-4.023-5.23.amzn1 15
 perl-Archive-Tar-1.92-3.6.amzn1 15
 numactl-2.0.7-8.11.amzn1 15
 net-snmp-5.5-54.1.20.amzn1 15
-mpfr-3.1.1-4.14.amzn1 15
-kernel-headers-4.14.146-93.123.amzn1 15
 gpm-libs-1.20.6-12.8.amzn1 15
 gcc64-gfortran-6.4.1-1.45.amzn1 15
 gcc44-gfortran-4.4.6-4.81.amzn1 15
@@ -323,7 +308,6 @@ mod_perl-2.0.7-7.28.amzn1 14
 mod24_perl-2.0.7-7.20.amzn1 14
 libusb1-1.0.9-0.6.rc1.6.amzn1 14
 libtidy-0.99.0-19.20070615.1.4.amzn1 14
-libmpc-1.0.1-3.3.amzn1 14
 libXv-1.0.9-2.1.8.amzn1 14
 db4-cxx-4.7.25-18.11.amzn1 14
 autoconf-2.69-11.9.amzn1 14
@@ -406,7 +390,6 @@ libsss_certmap-1.16.4-21.25.amzn1 11
 libmnl-1.0.3-4.2.amzn1 11
 libmemcached-1.0.16-5.8.amzn1 11
 libini_config-1.3.0-29.8.amzn1 11
-libXdmcp-1.1.1-3.8.amzn1 11
 finger-0.17-40.7.amzn1 11
 dmidecode-2.12-5.8.amzn1 11
 dbus-1.6.12-14.29.amzn1 11
@@ -545,7 +528,6 @@ mysql-config-5.5.62-1.23.amzn1 8
 lz4-r131-1.3.amzn1 8
 lvm2-2.02.166-1.31.amzn1 8
 libunwind-1.1-10.8.amzn1 8
-libtirpc-0.2.4-0.8.14.amzn1 8
 libsss_idmap-1.16.4-21.25.amzn1 8
 libsemanage-2.1.6-3.13.amzn1 8
 libnfnetlink-1.0.1-1.3.amzn1 8
@@ -712,7 +694,6 @@ boost-openmpi-1.53.2-14.23.amzn1 6
 boost-mpich-1.53.2-14.23.amzn1 6
 avahi-0.6.25-12.17.amzn1 6
 automake19-1.9.6-3.12.amzn1 6
-zip-3.0-1.10.amzn1 5
 xorg-x11-server-common-1.15.0-26.41.amzn1 5
 xorg-x11-server-Xorg-1.15.0-26.41.amzn1 5
 xkeyboard-config-2.6-6.6.amzn1 5
@@ -987,9 +968,7 @@ jbigkit-libs-2.0-11.4.amzn1 4
 jakarta-taglibs-standard-1.1.1-11.7.9.amzn1 4
 jakarta-commons-httpclient-3.1-15.8.amzn1 4
 gtest-1.6.0-1.1.amzn1 4
-groff-1.22.2-8.11.amzn1 4
 graphite2-1.3.10-1.7.amzn1 4
-glibc-headers-2.17-260.175.amzn1 4
 gettext-libs-0.18.1.1-9.1.11.amzn1 4
 ganglia-3.7.2-2.20.amzn1 4
 gamin-0.1.10-16.14.amzn1 4
@@ -1028,7 +1007,6 @@ apache-commons-daemon-1.0.7-1.6.amzn1 4
 amanda-2.6.1p2-8.13.amzn1 4
 ImageMagick-perl-6.7.8.9-15.21.amzn1 4
 ImageMagick-c++-6.7.8.9-15.21.amzn1 4
-GraphicsMagick-c++-1.3.32-1.16.amzn1 4
 389-ds-base-1.3.8.4-25.1.62.amzn1 4
 389-adminutil-1.1.21-1.1.amzn1 4
 zsh-5.0.2-33.18.amzn1 3
@@ -1291,7 +1269,6 @@ geronimo-specs-compat-1.0-3.5.M2.13.amzn1 3
 gcc48-gnat-4.8.5-28.142.amzn1 3
 ganglia-gmond-3.7.2-2.20.amzn1 3
 fontforge-20090622-3.1.7.amzn1 3
-fipscheck-1.3.1-3.13.amzn1 3
 epel-release-6-8.9.amzn1 3
 ed-1.1-3.3.8.amzn1 3
 ecryptfs-utils-82-6.14.amzn1 3
@@ -1696,7 +1673,6 @@ openscap-engine-sce-1.2.17-2.6.amzn1 2
 openais-1.1.1-7.7.amzn1 2
 oddjob-mkhomedir-0.31.5-4.17.amzn1 2
 oddjob-0.31.5-4.17.amzn1 2
-nscd-2.17-260.175.amzn1 2
 nilfs-utils-2.1.4-2.2.amzn1 2
 net-snmp-utils-5.5-54.1.20.amzn1 2
 mysql57-test-5.7.27-1.13.amzn1 2
@@ -1782,7 +1758,6 @@ gpm-1.20.6-12.8.amzn1 2
 glx-utils-8.3.0-6.1.amzn1 2
 ghostscript-fonts-5.50-23.2.7.amzn1 2
 gdisk-0.8.10-1.5.amzn1 2
-gcc72-gdb-plugin-7.2.1-2.59.amzn1 2
 gcc64-gdb-plugin-6.4.1-1.45.amzn1 2
 gcc44-gnat-4.4.6-4.81.amzn1 2
 gcc-gnat-4.8.5-1.22.amzn1 2
@@ -2130,7 +2105,6 @@ tex-preview-11.85-10.2.amzn1 1
 telnet-server-0.17-48.8.amzn1 1
 tdb-tools-1.3.15-1.11.amzn1 1
 tcpdump-4.0.0-3.20090921gitdf3cb4.2.10.amzn1 1
-tcp_wrappers-7.6-77.12.amzn1 1
 talk-server-0.17-36.5.amzn1 1
 systemtap-runtime-python2-3.2-2.35.amzn1 1
 systemtap-initscript-3.2-2.35.amzn1 1
@@ -2637,7 +2611,6 @@ openvpn-auth-ldap-2.0.3-6.2.amzn1 1
 openswan-2.6.37-3.17.amzn1 1
 openssl098e-0.9.8e-29.19.amzn1 1
 openssl-perl-1.0.2k-16.150.amzn1 1
-openssh-keycat-7.4p1-16.71.amzn1 1
 openscap-utils-1.2.17-2.6.amzn1 1
 openscap-containers-1.2.17-2.6.amzn1 1
 nuttcp-7.2.1-1.2.amzn1 1
@@ -2874,7 +2847,6 @@ cups-php-1.4.2-67.21.amzn1 1
 cups-lpd-1.4.2-67.21.amzn1 1
 cscope-15.6-6.5.amzn1 1
 cpuspeed-1.5-20.8.amzn1 1
-cpp72-7.2.1-2.59.amzn1 1
 cpp64-6.4.1-1.45.amzn1 1
 cpp44-4.4.6-4.81.amzn1 1
 conman-0.2.5-2.4.8.amzn1 1
@@ -3835,7 +3807,6 @@ pam_passwdqc-1.0.5-6.8.amzn1 0
 openswan-doc-2.6.37-3.17.amzn1 0
 openssl-static-1.0.2k-16.150.amzn1 0
 openssh-ldap-7.4p1-16.71.amzn1 0
-openssh-cavs-7.4p1-16.71.amzn1 0
 openscap-python-1.2.17-2.6.amzn1 0
 openldap-servers-sql-2.4.40-16.31.amzn1 0
 openjpeg-1.3-16.9.amzn1 0
@@ -4196,7 +4167,6 @@ gmp-static-6.0.0-11.16.amzn1 0
 glpk-utils-4.40-1.1.4.amzn1 0
 glpk-static-4.40-1.1.4.amzn1 0
 glpk-doc-4.40-1.1.4.amzn1 0
-glibc-utils-2.17-260.175.amzn1 0
 glibc-static-2.17-260.175.amzn1 0
 glib2-fam-2.36.3-5.21.amzn1 0
 glib2-doc-2.36.3-5.21.amzn1 0
@@ -4212,7 +4182,6 @@ geos-python27-3.4.2-1.4.amzn1 0
 geos-python26-3.4.2-1.4.amzn1 0
 gdb-gdbserver-7.6.1-64.33.amzn1 0
 gdb-doc-7.6.1-64.33.amzn1 0
-gd-progs-2.0.35-11.10.amzn1 0
 gcc44-objc++-4.4.6-4.81.amzn1 0
 freetype-demos-2.3.11-15.14.amzn1 0
 freetds-doc-0.91-2.3.amzn1 0
