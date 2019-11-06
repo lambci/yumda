@@ -13,10 +13,10 @@
 
 Summary: Apache HTTP Server
 Name: httpd
-Version: 2.4.39
+Version: 2.4.41
 Release: 1%{?dist}%{?_trivial}%{?_buildid}
 URL: https://httpd.apache.org/
-Source0: http://apache.claz.org/httpd/httpd-%{version}.tar.bz2
+Source0: https://www.apache.org/dist/httpd/httpd-%{version}.tar.bz2
 Source1: index.html
 Source2: httpd.logrotate
 Source4: httpd-ssl-pass-dialog
@@ -74,6 +74,7 @@ Patch35: httpd-2.4.37-sslciphdefault.patch
 # Bug fixes
 # https://bugzilla.redhat.com/show_bug.cgi?id=1397243
 Patch58: httpd-2.4.34-r1738878.patch
+
 # Security fixes
 
 License: ASL 2.0
@@ -541,8 +542,11 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf/{original,extra}
 %exclude %{contentdir}/build
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Oct 22 2019 Trinity Quirk <tquirk@amazon.com> - 2.4.41-1
+- Package updated to 2.4.41
 
 * Thu Apr 04 2019 Travis Davies <trdavies@amazon.com> - 2.4.39-1
 - Package updated to 2.4.39
