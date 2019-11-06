@@ -14,7 +14,7 @@
 %global selinuxmoduledir	%{selinuxmodulename}-selinux-%{selinuxmodulever}
 
 Name:           memcached
-Version:        1.5.16
+Version:        1.5.17
 Release:        1%{?dist}%{?_trivial}%{?_buildid}
 Epoch:          0
 Summary:        High Performance, Distributed Memory Object Cache
@@ -76,38 +76,26 @@ make install DESTDIR=%{buildroot} INSTALL="%{__install} -p"
 # remove memcached-debug
 rm -f %{buildroot}/%{_bindir}/memcached-debug
 
-# Perl script for monitoring memcached
-install -Dp -m0755 scripts/memcached-tool %{buildroot}%{_bindir}/memcached-tool
-
 # Default configs
 install -Dp -m0644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/sysconfig/%{name}
-
-# install SELinux policy module
-pushd ../%{selinuxmoduledir}
-install -d %{buildroot}%{_datadir}/selinux/packages
-install -d -p %{buildroot}%{_datadir}/selinux/devel/include/%{selinuxmoduletype}
-# Not installing memcached.if - interface file from selinux-policy-devel will be used
-# see. "Independant product policy" documentation for more details
-install -m 0644 %{selinuxmodulename}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages
-popd
 
 %files
 %license COPYING
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
-%{_bindir}/memcached-tool
 %{_bindir}/memcached
-
-%files selinux
-%license ../%{selinuxmoduledir}/COPYING
-%attr(0644,root,root) %{_datadir}/selinux/packages/%{selinuxmodulename}.pp.bz2
-%ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{selinuxmodulename}
 
 %exclude %{_includedir}
 %exclude %{_mandir}
 
 %changelog
-* Tue Jul 9 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Sep 24 2019 Tomas Korbar <tkorbar@redhat.com> - 1.5.17-1
+- update to 1.15.17 (CVE-2019-15026)
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 0:1.5.16-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Mon May 27 2019 Miroslav Lichvar <mlichvar@redhat.com> - 0:1.5.16-1
 - update to 1.5.16
