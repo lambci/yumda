@@ -1,6 +1,6 @@
 Name:		mod_http2
-Version:	1.15.1
-Release:	1%{?dist}
+Version:	1.15.3
+Release:	2%{?dist}
 Summary:	module implementing HTTP/2 for Apache 2
 License:	ASL 2.0
 URL:		https://icing.github.io/mod_h2/
@@ -46,8 +46,17 @@ rm -rf %{buildroot}$(apxs -q prefix)
 %{_httpd_moddir}/mod_proxy_http2.so
 
 %changelog
-* Wed Jun 5 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Aug 19 2019 Lubos Uhliarik <luhliari@redhat.com> - 1.15.3-2
+- Rebuilt with newer nghttp2
+
+* Thu Aug  8 2019 Joe Orton <jorton@redhat.com> - 1.15.3-1
+- update to 1.15.3
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.15.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Wed May 29 2019 Joe Orton <jorton@redhat.com> - 1.15.1-1
 - update to 1.15.1

@@ -446,7 +446,7 @@ mesa-libwayland-egl.x86_64   17.2.3-8.20171019.lambda2.0.4               lambda2
 mesa-libxatracker.x86_64     17.2.3-8.20171019.lambda2.0.4               lambda2
 mesa-vdpau-drivers.x86_64    17.2.3-8.20171019.lambda2.0.4               lambda2
 mesa-vulkan-drivers.x86_64   17.2.3-8.20171019.lambda2.0.4               lambda2
-mod_http2.x86_64             1.15.1-1.lambda2                            lambda2
+mod_http2.x86_64             1.15.3-2.lambda2                            lambda2
 mod_ldap.x86_64              2.4.41-1.lambda2.0.1                        lambda2
 mod_md.x86_64                2.4.41-1.lambda2.0.1                        lambda2
 mod_proxy_html.x86_64        1:2.4.41-1.lambda2.0.1                      lambda2
