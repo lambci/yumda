@@ -67,6 +67,12 @@ bzip2-libs.x86_64            1.0.6-13.lambda2.0.2                        lambda2
 c-ares.x86_64                1.10.0-3.lambda2.0.2                        lambda2
 cairo.x86_64                 1.14.8-2.lambda2.0.2                        lambda2
 cairo-tools.x86_64           1.14.8-2.lambda2.0.2                        lambda2
+compat-gcc-48.x86_64         4.8.5-16.lambda2.0.2                        lambda2
+compat-gcc-48-c++.x86_64     4.8.5-16.lambda2.0.2                        lambda2
+compat-gcc-48-gfortran.x86_64
+                             4.8.5-16.lambda2.0.2                        lambda2
+compat-gcc-48-libgfortran.x86_64
+                             4.8.5-16.lambda2.0.2                        lambda2
 compat-libmpc.x86_64         1.0.1-3.lambda2.0.2                         lambda2
 cpio.x86_64                  2.11-27.lambda2                             lambda2
 cpp.x86_64                   7.3.1-6.lambda2.0.4                         lambda2
