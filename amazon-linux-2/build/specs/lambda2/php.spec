@@ -78,7 +78,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.9
+%global upver        7.3.11
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -138,6 +138,8 @@ Patch100: php-upstream.patch
 # Factory is droped from system tzdata
 Patch300: php-5.6.3-datetests.patch
 
+# AMZN-specific patches
+Patch1000: 0001-Add-gcc-global-register-for-aarch64.patch
 
 BuildRequires: bzip2-devel, curl-devel >= 7.9
 BuildRequires: httpd-devel >= 2.0.46-1, pam-devel
@@ -786,6 +788,8 @@ low-level PHP extension for the libsodium cryptographic library.
 # Fixes for tests
 %patch300 -p1 -b .datetests
 
+# AMZN-specific patches
+%patch1000 -p1 -b .aarch64
 
 # Prevent %%doc confusion over LICENSE files
 cp Zend/LICENSE Zend/ZEND_LICENSE
@@ -1556,8 +1560,15 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Sun Sep 29 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Oct 30 2019 Trinity Quirk <tquirk@amazon.com> - 7.3.11-1
+- Package updated to 7.3.11
+
+* Thu Oct 17 2019 Trinity Quirk <tquirk@amazon.com> - 7.3.10-1
+- Package updated to 7.3.10
+- Add performance patch for AARCH64
 
 * Mon Sep 23 2019 Trinity Quirk <tquirk@amazon.com> - 7.3.9-1
 - Package updated to 7.3.9
