@@ -147,3 +147,9 @@ for pkg in $(repoquery -a --archlist=x86_64,noarch --nvr); do
   echo $pkg $(repoquery -q --whatrequires --archlist=x86_64,noarch --nvr $pkg | awk -F- '{for (i=1; i<NF-1; i++) printf("%s-",$i); printf("\n")}' | sort | uniq | wc -l)
 done
 ```
+
+## Comparing generated RPMs with originals
+```
+diff <(rpm -qpl compat-gcc-48-4.8.5-16.amzn2.0.2.x86_64.rpm | sed 's|^/usr/|/opt/|' | sort) \
+  <(rpm -qpl /tmp/fs/lambda2/RPMS/Packages/compat-gcc-48-4.8.5-16.lambda2.0.2.x86_64.rpm | sort)
+```

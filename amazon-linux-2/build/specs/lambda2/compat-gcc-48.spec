@@ -1,206 +1,67 @@
 %define _trivial .0
 %define _buildid .1
-# amazon linux merge strategy: from:centos/c7
-
-#package c++ BEGIN of Amazon Linux AMI Settings
 
 %global gccv 48
-
-# for the alternatives setup
-%if 0%{?gccv:1}
-%global gcc_prio 482
-%endif
-
-%global libstdcplusplus_ver 6.0.19
-%global libquadmath_ver 0.0.0
-%global libitm_ver 1.0.0
-%global libgo_ver 0.0.0
-
-# triggers and obsoletes for these old versions to ensure upgradeability
-%global hard_obsolete_ver 4.6.2-2
-
-# define for obsoleting the old gcc builds
-#global obsolete_gcc 1
-
-# END OF Amazon Linux AMI Settings
-
-%global DATE 20150702
-%global SVNREV 225304
 %global gcc_version 4.8.5
-
-# Note, gcc_release must be integer, if you want to add suffixes to
-# %{release}, append them after %{gcc_release} on Release: line.
 %global gcc_release 16
-%global _unpackaged_files_terminate_build 0
-%global _performance_build 1
 
-%global build_fortran 1
-
-%global build_cloog 1
-%global attr_ifunc 1
-
-%global _skip_check 1
-
-Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Name: compat-gcc-48
 Version: %{gcc_version}
 Release: %{gcc_release}%{?dist}.0.2
-%if 0%{?gccv:1}
-Provides: gcc = %{version}-%{release}
-%{?obsolete_gcc:Obsoletes: gcc < %{version}-%{release}}
-%endif
-# libgcc, libgfortran, libmudflap, libgomp, libstdc++ and crtstuff have
-# GCC Runtime Exception.
-License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
+Summary: Various compilers (C, C++, Objective-C, Java, ...)
 Group: Development/Languages
-# The source for this package was pulled from upstream's vcs.  Use the
-# following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_8-branch@%{SVNREV} gcc-%{version}-%{DATE}
-# tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{DATE}.tar.bz2
-Source0: gcc-%{version}-%{DATE}.tar.bz2
-%global isl_version 0.11.1
-Source1: ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-%{isl_version}.tar.bz2
-%global cloog_version 0.18.0
-Source2: ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-%{cloog_version}.tar.gz
-%global fastjar_ver 0.97
-Source4: http://download.savannah.nongnu.org/releases/fastjar/fastjar-%{fastjar_ver}.tar.gz
+License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
 URL: http://gcc.gnu.org
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-# Need binutils with -pie support >= 2.14.90.0.4-4
-# Need binutils which can omit dot symbols and overlap .opd on ppc64 >= 2.15.91.0.2-4
-# Need binutils which handle -msecure-plt on ppc >= 2.16.91.0.2-2
-# Need binutils which support .weakref >= 2.16.91.0.3-1
-# Need binutils which support --hash-style=gnu >= 2.17.50.0.2-7
-# Need binutils which support mffgpr and mftgpr >= 2.17.50.0.2-8
-# Need binutils which support --build-id >= 2.17.50.0.17-3
-# Need binutils which support %gnu_unique_object >= 2.19.51.0.14
-# Need binutils which support .cfi_sections >= 2.19.51.0.14-33
-# Need binutils which support --no-add-needed >= 2.20.51.0.2-12
-# Need binutils >= 2.23.51.0.1 for better GOLD support
-BuildRequires: binutils >= 2.20.51.0.2-12
-# While gcc doesn't include statically linked binaries, during testing
-# -static is used several times.
-BuildRequires: glibc-static
-BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, sharutils
-BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
-BuildRequires: systemtap-sdt-devel >= 1.3
-BuildRequires: automake >= 1.11
-# For VTA guality testing
-BuildRequires: gdb
-# Make sure pthread.h doesn't contain __thread tokens
-# Make sure glibc supports stack protector
-# Make sure glibc supports DT_GNU_HASH
-BuildRequires: glibc-devel >= 2.4.90-13
-BuildRequires: elfutils-devel >= 0.147
-BuildRequires: elfutils-libelf-devel >= 0.147
-# these are required to make this compiler functional
+
+# Sources were downloaded using:
+# yumdownloader compat-gcc-48.x86_64 compat-gcc-48-c++.x86_64 compat-gcc-48-gfortran.x86_64 compat-gcc-48-libgfortran.x86_64
+# And then queried using:
+# rpm -qp --qf 'Name: %{name}\n[Requires: %{requires}\n][Conflicts: %{conflicts}\n][Obsoletes: %{obsoletes}\n][Provides: %{provides}\n]' *.rpm | uniq
+Source0: %{name}-%{version}-%{gcc_release}.amzn2.0.2.x86_64.rpm
+Source1: %{name}-c++-%{version}-%{gcc_release}.amzn2.0.2.x86_64.rpm
+Source2: %{name}-gfortran-%{version}-%{gcc_release}.amzn2.0.2.x86_64.rpm
+Source3: %{name}-libgfortran-%{version}-%{gcc_release}.amzn2.0.2.x86_64.rpm
+
+BuildRequires: rpm
+BuildRequires: cpio
+
 Requires: cpp >= %{version}-%{release}
 Requires: libgcc >= %{version}-%{release}
-# Need .eh_frame ld optimizations
-# Need proper visibility support
-# Need -pie support
-# Need --as-needed/--no-as-needed support
-# On ppc64, need omit dot symbols support and --non-overlapping-opd
-# Need binutils that owns /usr/bin/c++filt
-# Need binutils that support .weakref
-# Need binutils that supports --hash-style=gnu
-# Need binutils that support mffgpr/mftgpr
-# Need binutils that support --build-id
-# Need binutils that support %gnu_unique_object
-# Need binutils that support .cfi_sections
-# Need binutils that support --no-add-needed
-# Need binutils with complete GOLD support
 Requires: binutils >= 2.20.51.0.2-12
-# Make sure gdb will understand DW_FORM_strp
-Conflicts: gdb < 5.1-2
 Requires: glibc-devel%{?_isa} >= 2.2.90-12
 Requires: libgomp%{?_isa} >= %{version}-%{release}
 
+Conflicts: gdb < 5.1-2
+
 Obsoletes: gcc-gnat < %{version}-%{release}
 Obsoletes: libgnat < %{version}-%{release}
-AutoReq: true
+
 Provides: bundled(libiberty)
-
-Patch0: gcc48-hack.patch
-Patch1: gcc48-java-nomulti.patch
-Patch2: gcc48-ppc32-retaddr.patch
-Patch3: gcc48-rh330771.patch
-Patch4: gcc48-i386-libgomp.patch
-Patch5: gcc48-sparc-config-detection.patch
-Patch6: gcc48-libgomp-omp_h-multilib.patch
-Patch7: gcc48-libtool-no-rpath.patch
-Patch8: gcc48-cloog-dl.patch
-Patch9: gcc48-cloog-dl2.patch
-Patch10: gcc48-pr38757.patch
-Patch11: gcc48-libstdc++-docs.patch
-Patch12: gcc48-no-add-needed.patch
-Patch13: gcc48-pr56564.patch
-Patch14: gcc48-color-auto.patch
-Patch15: gcc48-pr28865.patch
-Patch16: gcc48-libgo-p224.patch
-Patch17: gcc48-pr60010.patch
-Patch18: gcc48-aarch64-ada.patch
-Patch19: gcc48-aarch64-async-unw-tables.patch
-Patch20: gcc48-aarch64-unwind-opt.patch
-Patch21: gcc48-rh1243366.patch
-Patch22: gcc48-rh1180633.patch
-Patch23: gcc48-rh1278872.patch
-Patch24: gcc48-pr67281.patch
-Patch25: gcc48-pr68680.patch
-Patch26: gcc48-rh1312436.patch
-Patch27: gcc48-pr53477.patch
-Patch28: gcc48-rh1296211.patch
-Patch29: gcc48-rh1304449.patch
-Patch30: gcc48-s390-z13.patch
-Patch31: gcc48-rh1312850.patch
-Patch32: gcc48-pr65142.patch
-Patch33: gcc48-pr52714.patch
-Patch34: gcc48-rh1344807.patch
-Patch35: gcc48-libgomp-20160715.patch
-Patch36: gcc48-pr63293.patch
-
-Patch1000: fastjar-0.97-segfault.patch
-Patch1001: fastjar-0.97-len1.patch
-Patch1002: fastjar-0.97-filename0.patch
-Patch1003: fastjar-CVE-2010-0831.patch
-Patch1004: fastjar-man.patch
-Patch1005: fastjar-0.97-aarch64-config.patch
-Patch1006: fastjar-0.97-ppc64le-config.patch
-
-Patch1100: isl-%{isl_version}-aarch64-config.patch
-Patch1101: isl-%{isl_version}-ppc64le-config.patch
-
-Patch1200: cloog-%{cloog_version}-ppc64le-config.patch
-
-#Amazon patches:
-Patch10001: 0001-Build-with-cxx11.patch
-Patch10002: use-ucontextt-instead-of-structucontext.patch
-Patch10003: asan-fix-missing-include-signalh.patch
-Patch10004: tsan-fix-structresstate.patch
+Provides: gcc = %{version}-%{release}
 
 %global _gnu %{nil}
 %global gcc_target_platform %{_target_platform}
 
 # Main package now inclues static libraries for which we used to have
 # versioned subpackages
-Obsoletes: libatomic%{?gccv}-static
-Provides: libatomic%{?gccv}-static = %{version}-%{release}
-Obsoletes: libitm%{?gccv}-static
-Provides: libitm%{?gccv}-static = %{version}-%{release}
-Obsoletes: libitm%{?gccv}-devel
-Provides: libitm%{?gccv}-devel = %{version}-%{release}
-Obsoletes: libmudflap%{?gccv}-devel
-Provides: libmudflap%{?gccv}-devel = %{version}-%{release}
-Obsoletes: libmudflap%{?gccv}-static
-Provides: libmudflap%{?gccv}-static = %{version}-%{release}
-Obsoletes: libquadmath%{?gccv}-devel
-Provides: libquadmath%{?gccv}-devel = %{version}-%{release}
-Obsoletes: libquadmath%{?gccv}-static
-Provides: libquadmath%{?gccv}-static = %{version}-%{release}
-Obsoletes: libasan%{?gccv}-static
-Provides: libasan%{?gccv}-static = %{version}-%{release}
-Obsoletes: libtsan%{?gccv}-static
-Provides: libtsan%{?gccv}-static = %{version}-%{release}
+Obsoletes: libatomic%{gccv}-static
+Provides: libatomic%{gccv}-static = %{version}-%{release}
+Obsoletes: libitm%{gccv}-static
+Provides: libitm%{gccv}-static = %{version}-%{release}
+Obsoletes: libitm%{gccv}-devel
+Provides: libitm%{gccv}-devel = %{version}-%{release}
+Obsoletes: libmudflap%{gccv}-devel
+Provides: libmudflap%{gccv}-devel = %{version}-%{release}
+Obsoletes: libmudflap%{gccv}-static
+Provides: libmudflap%{gccv}-static = %{version}-%{release}
+Obsoletes: libquadmath%{gccv}-devel
+Provides: libquadmath%{gccv}-devel = %{version}-%{release}
+Obsoletes: libquadmath%{gccv}-static
+Provides: libquadmath%{gccv}-static = %{version}-%{release}
+Obsoletes: libasan%{gccv}-static
+Provides: libasan%{gccv}-static = %{version}-%{release}
+Obsoletes: libtsan%{gccv}-static
+Provides: libtsan%{gccv}-static = %{version}-%{release}
 
 %description
 The gcc package contains the GNU Compiler Collection version 4.8.
@@ -211,7 +72,6 @@ Summary: C++ support for GCC
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
 Requires: libstdc++ >= %{version}-%{release}, libstdc++ < 7.4.0
-Autoreq: true
 
 %description c++
 This package adds C++ support to the GNU Compiler Collection.
@@ -222,10 +82,6 @@ including templates and exception handling.
 Summary: Fortran support
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
-# rely on automatic rpm dependencies
-#Requires: libgfortran >= %{version}-%{release}
-BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
-Autoreq: true
 
 %description gfortran
 The gcc-gfortran package provides support for compiling Fortran
@@ -234,528 +90,40 @@ programs with the GNU Compiler Collection.
 %package libgfortran
 Summary: Fortran runtime
 Group: System Environment/Libraries
-Autoreq: true
 Requires: libquadmath >= %{version}-%{release}, libquadmath < 7.4
 
 %description libgfortran
 This package contains Fortran shared library which is needed to run
 Fortran dynamically linked programs.
 
-%prep
-%setup -q -n gcc-%{version}-%{DATE} -a 1 -a 2
-%patch0 -p0 -b .hack~
-%patch1 -p0 -b .java-nomulti~
-%patch2 -p0 -b .ppc32-retaddr~
-%patch3 -p0 -b .rh330771~
-%patch4 -p0 -b .i386-libgomp~
-%patch5 -p0 -b .sparc-config-detection~
-%patch6 -p0 -b .libgomp-omp_h-multilib~
-%patch7 -p0 -b .libtool-no-rpath~
-%if %{build_cloog}
-%patch8 -p0 -b .cloog-dl~
-%patch9 -p0 -b .cloog-dl2~
-%endif
-%patch10 -p0 -b .pr38757~
-%patch12 -p0 -b .no-add-needed~
-%patch13 -p0 -b .pr56564~
-%if 0%{?fedora} >= 20 || 0%{?rhel} >= 7 || 0%{?amzn}
-%patch14 -p0 -b .color-auto~
-%endif
-%patch15 -p0 -b .pr28865~
-%patch16 -p0 -b .libgo-p224~
-rm -f libgo/go/crypto/elliptic/p224{,_test}.go
-%patch17 -p0 -b .pr60010~
-%patch19 -p0 -b .aarch64-async-unw-tables~
-%patch20 -p0 -b .aarch64-unwind-opt~
-%patch21 -p0 -b .rh1243366~
-%patch22 -p0 -b .rh1180633~
-%patch23 -p0 -b .rh1278872~
-%patch24 -p0 -b .pr67281~
-%patch25 -p0 -b .pr68680~
-%patch26 -p0 -b .rh1312436~
-%patch27 -p0 -b .pr53477~
-touch -r %{PATCH27} libstdc++-v3/python/libstdcxx/v6/printers.py
-%patch28 -p0 -b .rh1296211~
-%patch29 -p0 -b .rh1304449~
-%patch30 -p0 -b .s390-z13~
-%patch31 -p0 -b .rh1312850~
-%patch32 -p0 -b .pr65142~
-%patch33 -p0 -b .pr52714~
-%patch34 -p0 -b .rh1344807~
-%patch35 -p0 -b .libgomp-20160715~
-%patch36 -p0 -b .pr63293~
-
-%if 0%{?_enable_debug_packages}
-cat > split-debuginfo.sh <<\EOF
-#!/bin/sh
-BUILDDIR="%{_builddir}/gcc-%{version}-%{DATE}"
-if [ -f "${BUILDDIR}"/debugfiles.list \
-     -a -f "${BUILDDIR}"/debuglinks.list ]; then
-  > "${BUILDDIR}"/debugsources-base.list
-  > "${BUILDDIR}"/debugfiles-base.list
-  cd "${RPM_BUILD_ROOT}"
-  for f in `find usr/lib/debug -name \*.debug \
-	    | egrep 'lib[0-9]*/lib(gcc|gomp|stdc|quadmath|itm)'`; do
-    echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-    if [ -f "$f" -a ! -L "$f" ]; then
-      cp -a "$f" "${BUILDDIR}"/test.debug
-      /usr/lib/rpm/debugedit -b "${RPM_BUILD_DIR}" -d /usr/src/debug \
-			     -l "${BUILDDIR}"/debugsources-base.list \
-			     "${BUILDDIR}"/test.debug
-      rm -f "${BUILDDIR}"/test.debug
-    fi
-  done
-  for f in `find usr/lib/debug/.build-id -type l`; do
-    ls -l "$f" | egrep -q -- '->.*lib[0-9]*/lib(gcc|gomp|stdc|quadmath|itm)' \
-      && echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-  done
-  grep -v -f "${BUILDDIR}"/debugfiles-base.list \
-    "${BUILDDIR}"/debugfiles.list > "${BUILDDIR}"/debugfiles.list.new
-  mv -f "${BUILDDIR}"/debugfiles.list.new "${BUILDDIR}"/debugfiles.list
-  for f in `LC_ALL=C sort -z -u "${BUILDDIR}"/debugsources-base.list \
-	    | grep -E -v -z '(<internal>|<built-in>)$' \
-	    | xargs --no-run-if-empty -n 1 -0 echo \
-	    | sed 's,^,usr/src/debug/,'`; do
-    if [ -f "$f" ]; then
-      echo "/$f" >> "${BUILDDIR}"/debugfiles-base.list
-      echo "%%exclude /$f" >> "${BUILDDIR}"/debugfiles.list
-    fi
-  done
-  mv -f "${BUILDDIR}"/debugfiles-base.list{,.old}
-  echo "%%dir /usr/lib/debug" > "${BUILDDIR}"/debugfiles-base.list
-  awk 'BEGIN{FS="/"}(NF>4&&$NF){d="%%dir /"$2"/"$3"/"$4;for(i=5;i<NF;i++){d=d"/"$i;if(!v[d]){v[d]=1;print d}}}' \
-    "${BUILDDIR}"/debugfiles-base.list.old >> "${BUILDDIR}"/debugfiles-base.list
-  cat "${BUILDDIR}"/debugfiles-base.list.old >> "${BUILDDIR}"/debugfiles-base.list
-  rm -f "${BUILDDIR}"/debugfiles-base.list.old
-fi
-EOF
-chmod 755 split-debuginfo.sh
-%endif
-
-# This testcase doesn't compile.
-rm libjava/testsuite/libjava.lang/PR35020*
-
-tar xzf %{SOURCE4}
-
-%patch1000 -p0 -b .fastjar-0.97-segfault~
-%patch1001 -p0 -b .fastjar-0.97-len1~
-%patch1002 -p0 -b .fastjar-0.97-filename0~
-%patch1003 -p0 -b .fastjar-CVE-2010-0831~
-%patch1004 -p0 -b .fastjar-man~
-%patch1005 -p0 -b .fastjar-0.97-aarch64-config~
-%patch1006 -p0 -b .fastjar-0.97-ppc64le-config~
-
-%patch1100 -p0 -b .isl-aarch64-config~
-%patch1101 -p0 -b .isl-ppc64le-config~
-
-%patch1200 -p0 -b .cloog-ppc64le-config~
-
-%patch10001 -p1
-%patch10002 -p1
-%patch10003 -p1
-%patch10004 -p1
-
-sed -i -e 's/4\.8\.5/4.8.5/' gcc/BASE-VER
-echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
-
-%if 0%{?fedora} >= 16 || 0%{?rhel} >= 7 || 0%{?amzn}
-# Default to -gdwarf-4 -fno-debug-types-section rather than -gdwarf-2
-sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(4)/' gcc/common.opt
-sed -i '/flag_debug_types_section/s/Init(1)/Init(0)/' gcc/common.opt
-sed -i '/dwarf_record_gcc_switches/s/Init(0)/Init(1)/' gcc/common.opt
-sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\14./' gcc/doc/invoke.texi
-%else
-# Default to -gdwarf-3 rather than -gdwarf-2
-sed -i '/UInteger Var(dwarf_version)/s/Init(2)/Init(3)/' gcc/common.opt
-sed -i 's/\(may be either 2, 3 or 4; the default version is \)2\./\13./' gcc/doc/invoke.texi
-sed -i 's/#define[[:blank:]]*EMIT_ENTRY_VALUE[[:blank:]].*$/#define EMIT_ENTRY_VALUE 0/' gcc/{var-tracking,dwarf2out}.c
-sed -i 's/#define[[:blank:]]*EMIT_TYPED_DWARF_STACK[[:blank:]].*$/#define EMIT_TYPED_DWARF_STACK 0/' gcc/dwarf2out.c
-sed -i 's/#define[[:blank:]]*EMIT_DEBUG_MACRO[[:blank:]].*$/#define EMIT_DEBUG_MACRO 0/' gcc/dwarf2out.c
-%endif
-
-cp -a libstdc++-v3/config/cpu/i{4,3}86/atomicity.h
-
-# Hack to avoid building multilib libjava
-perl -pi -e 's/^all: all-redirect/ifeq (\$(MULTISUBDIR),)\nall: all-redirect\nelse\nall:\n\techo Multilib libjava build disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^install: install-redirect/ifeq (\$(MULTISUBDIR),)\ninstall: install-redirect\nelse\ninstall:\n\techo Multilib libjava install disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^check: check-redirect/ifeq (\$(MULTISUBDIR),)\ncheck: check-redirect\nelse\ncheck:\n\techo Multilib libjava check disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^all: all-recursive/ifeq (\$(MULTISUBDIR),)\nall: all-recursive\nelse\nall:\n\techo Multilib libjava build disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^install: install-recursive/ifeq (\$(MULTISUBDIR),)\ninstall: install-recursive\nelse\ninstall:\n\techo Multilib libjava install disabled\nendif/' libjava/Makefile.in
-perl -pi -e 's/^check: check-recursive/ifeq (\$(MULTISUBDIR),)\ncheck: check-recursive\nelse\ncheck:\n\techo Multilib libjava check disabled\nendif/' libjava/Makefile.in
-
-./contrib/gcc_update --touch
-
-LC_ALL=C sed -i -e 's/\xa0/ /' gcc/doc/options.texi
-
-# This test causes fork failures, because it spawns way too many threads
-rm -f gcc/testsuite/go.test/test/chan/goroutines.go
-
-%build
-
-# Undo the broken autoconf change in recent Fedora versions
-export CONFIG_SITE=NONE
-
-rm -fr obj-%{gcc_target_platform}
-mkdir obj-%{gcc_target_platform}
-cd obj-%{gcc_target_platform}
-
-%if %{build_cloog}
-mkdir isl-build isl-install
-ISL_FLAG_PIC=-fpic
-cd isl-build
-../../isl-%{isl_version}/configure --disable-shared \
-  CC=/usr/bin/gcc CXX=/usr/bin/g++ \
-  CFLAGS="${CFLAGS:-%optflags} $ISL_FLAG_PIC -std=gnu99" --prefix=`cd ..; pwd`/isl-install
-make %{?_smp_mflags}
-make install
-cd ..
-
-mkdir cloog-build cloog-install
-cd cloog-build
-cat >> ../../cloog-%{cloog_version}/source/isl/constraints.c << \EOF
-#include <isl/flow.h>
-static void __attribute__((used)) *s1 = (void *) isl_union_map_compute_flow;
-static void __attribute__((used)) *s2 = (void *) isl_map_dump;
-EOF
-sed -i 's|libcloog|libgcc48privatecloog|g' \
-  ../../cloog-%{cloog_version}/{,test/}Makefile.{am,in}
-isl_prefix=`cd ../isl-install; pwd` \
-../../cloog-%{cloog_version}/configure --with-isl=system \
-  --with-isl-prefix=`cd ../isl-install; pwd` \
-  CC=/usr/bin/gcc CXX=/usr/bin/g++ \
-  CFLAGS="${CFLAGS:-%optflags}" CXXFLAGS="${CXXFLAGS:-%optflags}" \
-   --prefix=`cd ..; pwd`/cloog-install
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-make %{?_smp_mflags}
-make %{?_smp_mflags} install
-cd ../cloog-install/lib
-rm libgcc48privatecloog-isl.so{,.4}
-mv libgcc48privatecloog-isl.so.4.0.0 libcloog-isl.so.4
-ln -sf libcloog-isl.so.4 libcloog-isl.so
-ln -sf libcloog-isl.so.4 libcloog.so
-cd ../..
-%endif
-
-CC=gcc
-OPT_FLAGS=`echo %{optflags}|sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g'`
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-m64//g;s/-m32//g;s/-m31//g'`
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g'`
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -pipe / /g'`
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/ -std=[a-z0-9]* / -std=gnu99 /g'`
-%ifarch %{ix86}
-OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-march=i.86//g'`
-%endif
-OPT_FLAGS=`echo "$OPT_FLAGS" | sed -e 's/[[:blank:]]\+/ /g'`
-case "$OPT_FLAGS" in
-  *-fasynchronous-unwind-tables*)
-    sed -i -e 's/-fno-exceptions /-fno-exceptions -fno-asynchronous-unwind-tables/' \
-      ../gcc/Makefile.in
-    ;;
-esac
-enablelgo=
-enablelada=
-enablefortran=
-enablejava=
-enableobjc=
-%if %{build_fortran}
-enablefortran=,fortran
-%endif
-CC="$CC" CFLAGS="$OPT_FLAGS" \
-	CXXFLAGS="`echo " $OPT_FLAGS " | sed 's/ -Wall / /g;s/ -fexceptions / /g' \
-		  | sed 's/ -Werror=format-security / -Wformat -Werror=format-security /'`" \
-	XCFLAGS="$OPT_FLAGS" TCFLAGS="$OPT_FLAGS" GCJFLAGS="$OPT_FLAGS" \
-	../configure --prefix=%{_prefix} \
-	--with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap \
-	--enable-shared --enable-threads=posix --enable-checking=release \
-	--with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions \
-	--enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu \
-	--enable-languages=c,c++${enableobjc}${enablejava}${enablefortran}${enablelada}${enablelgo},lto \
-	--enable-plugin --enable-initfini-array \
-  --disable-multilib \
-	--disable-libgcj \
-%if %{build_cloog}
-	--with-isl=`pwd`/isl-install --with-cloog=`pwd`/cloog-install \
-%else
-	--without-isl --without-cloog \
-%endif
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 || 0%{?amzn}
-%if %{attr_ifunc}
-	--enable-gnu-indirect-function \
-%endif
-%endif
-	--with-tune=generic \
-%if 0%{?rhel} >= 7 || 0%{?amzn}
-%ifarch %{ix86}
-	--with-arch=x86-64 \
-%endif
-	--with-arch_32=x86-64 \
-%else
-%ifarch %{ix86}
-	--with-arch=i686 \
-%endif
-	--with-arch_32=i686 \
-%endif
-	--build=%{gcc_target_platform}
-
-GCJFLAGS="$OPT_FLAGS" make %{?_smp_mflags} BOOT_CFLAGS="$OPT_FLAGS" profiledbootstrap
-
-%if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.4 gcc/
-%endif
-
 %install
-rm -fr %{buildroot}
 
-cd obj-%{gcc_target_platform}
+pushd %{buildroot}
+rpm2cpio %{SOURCE0} | cpio -idm
+rpm2cpio %{SOURCE1} | cpio -idm
+rpm2cpio %{SOURCE2} | cpio -idm
+rpm2cpio %{SOURCE3} | cpio -idm
+popd
 
-TARGET_PLATFORM=%{gcc_target_platform}
+mv %{buildroot}/usr %{buildroot}%{_prefix}
 
-# There are some MP bugs in libstdc++ Makefiles
-make -C %{gcc_target_platform}/libstdc++-v3
-
-make prefix=%{buildroot}%{_prefix} install
-
+mkdir -p %{buildroot}%{_libdir}
 mv %{buildroot}%{_prefix}/lib64/* %{buildroot}%{_libdir}/
+rm -rf %{buildroot}%{_prefix}/lib64
 
-FULLPATH=%{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-FULLEPATH=%{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
+mv %{buildroot}%{_docdir}/%{name}-%{version}/COPYING* ./
 
-%if %{build_cloog}
-cp -a cloog-install/lib/libcloog-isl.so.4 $FULLPATH/
-%endif
-
-# xxx: these are now handled by the alternatives setup
-# fix some things
-#ln -sf gcc %{buildroot}%{_prefix}/bin/cc
-#rm -f %{buildroot}%{_prefix}/lib/cpp
-#ln -sf ../bin/cpp %{buildroot}/%{_prefix}/lib/cpp
-#ln -sf gfortran %{buildroot}%{_prefix}/bin/f95
-
-cxxconfig="`find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h`"
-for i in `find %{gcc_target_platform}/[36]*/libstdc++-v3/include -name c++config.h 2>/dev/null`; do
-  if ! diff -up $cxxconfig $i; then
-    cat > %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/bits/c++config.h <<EOF
-#ifndef _CPP_CPPCONFIG_WRAPPER
-#define _CPP_CPPCONFIG_WRAPPER 1
-#include <bits/wordsize.h>
-#if __WORDSIZE == 32
-`cat $(find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h)`
-#else
-`cat $(find %{gcc_target_platform}/64/libstdc++-v3/include -name c++config.h)`
-#endif
-#endif
-EOF
-    break
-  fi
-done
-
-for f in `find %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/ -name c++config.h`; do
-  for i in 1 2 4 8; do
-    sed -i -e 's/#define _GLIBCXX_ATOMIC_BUILTINS_'$i' 1/#ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_'$i'\
-&\
-#endif/' $f
-  done
-done
-
-# Nuke bits/*.h.gch dirs
-# 1) there is no bits/*.h header installed, so when gch file can't be
-#    used, compilation fails
-# 2) sometimes it is hard to match the exact options used for building
-#    libstdc++-v3 or they aren't desirable
-# 3) there are multilib issues, conflicts etc. with this
-# 4) it is huge
-# People can always precompile on their own whatever they want, but
-# shipping this for everybody is unnecessary.
-rm -rf %{buildroot}%{_prefix}/include/c++/%{gcc_version}/%{gcc_target_platform}/bits/*.h.gch
-
-if [ -n "$FULLLPATH" ]; then
-  mkdir -p $FULLLPATH
-else
-  FULLLPATH=$FULLPATH
-fi
-
-find %{buildroot} -name \*.la | xargs rm -f
-
-%if %{build_fortran}
-mv %{buildroot}%{_prefix}/%{_lib}/libgfortran.spec $FULLPATH/
-%endif
-
-mkdir -p %{buildroot}/%{_lib}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgcc_s.so.1 %{buildroot}/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
-chmod 755 %{buildroot}/%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1
-ln -sf libgcc_s-%{gcc_version}-%{DATE}.so.1 %{buildroot}/%{_lib}/libgcc_s.so.1
-ln -sf /%{_lib}/libgcc_s-%{gcc_version}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
-
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.spec $FULLPATH/
-
-mkdir -p %{buildroot}%{_prefix}/libexec/getconf
-if gcc/xgcc -B gcc/ -E -dD -xc /dev/null | grep __LONG_MAX__.*2147483647; then
-  ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_prefix}/libexec/getconf/default
-else
-  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
-fi
-
-mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++*gdb.py* \
-      %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/
-pushd ../libstdc++-v3/python
-for i in `find . -name \*.py`; do
-  touch -r $i %{buildroot}%{_prefix}/share/gcc-%{gcc_version}/python/$i
-done
-touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}/libstdc++*gdb.py
-popd
-
-pushd $FULLPATH
-if [ "%{_lib}" = "lib" ]; then
-%if %{build_fortran}
-ln -sf ../../../libgfortran.so.3.* libgfortran.so
-%endif
-ln -sf ../../../libgomp.so.1.* libgomp.so
-ln -sf ../../../libmudflap.so.0.* libmudflap.so
-ln -sf ../../../libmudflapth.so.0.* libmudflapth.so
-else
-ln -sf ../../../../%{_lib}/libstdc++.so.6.*[0-9] libstdc++.so
-%if %{build_fortran}
-ln -sf ../../../../%{_lib}/libgfortran.so.3.* libgfortran.so
-%endif
-ln -sf ../../../../%{_lib}/libgomp.so.1.* libgomp.so
-ln -sf ../../../../%{_lib}/libmudflap.so.0.* libmudflap.so
-ln -sf ../../../../%{_lib}/libmudflapth.so.0.* libmudflapth.so
-fi
-mv -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.*a $FULLLPATH/
-mv -f %{buildroot}%{_prefix}/%{_lib}/libsupc++.*a $FULLLPATH/
-%if %{build_fortran}
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgfortran.*a $FULLLPATH/
-%endif
-mv -f %{buildroot}%{_prefix}/%{_lib}/libgomp.*a .
-mv -f %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.*a $FULLLPATH/
-
-## Strip debug info from Fortran/ObjC/Java static libraries
-#strip -g `find . \( -name libgfortran.a -o -name libobjc.a -o -name libgomp.a \
-#		    -o -name libmudflap.a -o -name libmudflapth.a \
-#		    -o -name libgcc.a -o -name libgcov.a -o -name libquadmath.a \
-#		    -o -name libitm.a -o -name libgo.a -o -name libcaf\*.a \
-#		    -o -name libatomic.a -o -name libasan.a -o -name libtsan.a \) \
-#		 -a -type f`
-popd
-
-%if %{build_fortran}
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgfortran.so.3.*
-%endif
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1.*
-chmod 755 %{buildroot}%{_prefix}/%{_lib}/libmudflap{,th}.so.0.*
-
-mv $FULLPATH/include-fixed/syslimits.h $FULLPATH/include/syslimits.h
-mv $FULLPATH/include-fixed/limits.h $FULLPATH/include/limits.h
-for h in `find $FULLPATH/include -name \*.h`; do
-  if grep -q 'It has been auto-edited by fixincludes from' $h; then
-    rh=`grep -A2 'It has been auto-edited by fixincludes from' $h | tail -1 | sed 's|^.*"\(.*\)".*$|\1|'`
-    diff -up $rh $h || :
-    rm -f $h
-  fi
-done
-
-cat > %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c89 <<"EOF"
-#!/bin/sh
-fl="-std=c89"
-for opt; do
-  case "$opt" in
-    -ansi|-std=c89|-std=iso9899:1990) fl="";;
-    -std=*) echo "`basename $0` called with non ANSI/ISO C option $opt" >&2
-	    exit 1;;
-  esac
-done
-exec %{name} $fl ${1+"$@"}
-EOF
-cat > %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c99 <<"EOF"
-#!/bin/sh
-fl="-std=c99"
-for opt; do
-  case "$opt" in
-    -std=c99|-std=iso9899:1999) fl="";;
-    -std=*) echo "`basename $0` called with non ISO C99 option $opt" >&2
-	    exit 1;;
-  esac
-done
-exec %{name} $fl ${1+"$@"}
-EOF
-chmod 755 %{buildroot}%{_prefix}/bin/%{?gccv:%{name}-}c?9
-
-cd ..
-
-%if 0%{?gccv:1}
-# rename binaries in user directories to avoid conflicts
-for i in $(ls %{buildroot}%{_prefix}/bin/{*gcc,*++,gcov,cpp,*gccgo,*gfortran} 2>/dev/null) ; do
-  mv -f $i ${i}%{gccv}
-done
-%if !0%{?amzn} >= 2
-for i in $(ls %{buildroot}%{_prefix}/bin/*gcc-{ar,nm,ranlib} 2>/dev/null) ; do
-  mv -f $i ${i/gcc-/gcc%{gccv}-}
-done
-%endif
-%endif # gccv binary rename
-
-# Remove binaries we will not be including, so that they don't end up in
-# gcc-debuginfo
-rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a}
-rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
-rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
-#rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gfortran || :
-#rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gccgo || :
-rm -rf $FULLPATH/install-tools $FULLEPATH/install-tools
-rm -rf $FULLPATH/include-fixed $FULLPATH/include/ssp
-rm -f $FULLEPATH/gnat*
-%if 0%{?gccv:1}
-rm -f %{buildroot}%{_prefix}/%{_lib}/libstdc++.so{,.?}
-rm %{buildroot}/%{_lib}/libgcc_s.so.1 #%{buildroot}/%{_prefix}/%{_lib}/libgcc_s*
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcj || :
-#check-me
-#rm -f %{buildroot}%{_prefix}/bin/gappletviewer || :
-#rm -f %{buildroot}%{_prefix}/bin/{gcj,jcf-dump}
-#rm -f %{buildroot}%{_infodir}/gcj*
-#rm -f %{buildroot}%{_mandir}/man1/{gcj,jcf-dump,jv-convert,rebuild-gcj-db,aot-compile,gc-analyze,gij,grmic}*
-#rm -f $FULLEPATH/{jc1,jvgenmain}
-# the file from the %{_lib} was installed, get rid of the other copy
-rm -f %{buildroot}%{_prefix}/lib*/{libgomp,libgfortran,libitm}.spec
-# for now we don't expose the .so libs to the general public for these internal shared libs
-rm -f %{buildroot}%{_prefix}/%{_lib}/lib{gcc_s,gomp,mudflap,mudflapth,objc,quadmath,stdc++,go,gfortran,itm}.so
-%endif #?gccv
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-ar || :
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-nm || :
-rm -f %{buildroot}%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}-ranlib || :
-
-## not shipping ffi.... we have a separate libffi package for this
-rm -f $FULLPATH/include/ffi*
-
-# Help plugins find out nvra.
-echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
-
-# Remove binaries we will not be including, so that they don't end up in
-# gcc-debuginfo
-#rm -f %{buildroot}%{_prefix}/%{_lib}/{libffi*,libiberty.a}
-#rm -f $FULLEPATH/install-tools/{mkheaders,fixincl}
-#rm -f %{buildroot}%{_prefix}/lib/{32,64}/libiberty.a
-#rm -f %{buildroot}%{_prefix}/%{_lib}/libssp*
-rm -f %{buildroot}%{_prefix}/bin/cpp%{?gccv}
-rm -f %{buildroot}%{_prefix}/man1/cpp%{?gccv}.1*
-rm -f %{buildroot}%{_prefix}/%{_lib}/libgomp.so.1*
-rm -f %{buildroot}%{_prefix}/%{_lib}/libmudflap.so.0*
-rm -f %{buildroot}%{_prefix}/%{_lib}/libmudflapth.so.0*
-rm -rf %{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
-rm -rf %{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
-
-%clean
-rm -rf %{buildroot}
+grep -lr /usr/libexec/gcc %{buildroot} | xargs sed -i 's|/usr/libexec/gcc|%{_prefix}/libexec/gcc|g'
+grep -lr /usr/lib/gcc %{buildroot} | xargs sed -i 's|/usr/lib/gcc|%{_prefix}/lib/gcc|g'
 
 %files
 %defattr(-,root,root,-)
-%{_prefix}/bin/%{?gccv:%{name}-}c89
-%{_prefix}/bin/%{?gccv:%{name}-}c99
-%{_prefix}/bin/gcc%{?gccv}
-%{_prefix}/bin/gcov%{?gccv}
-
-%{_prefix}/bin/%{_target_platform}-gcc%{?gccv}
+%license COPYING*
+%{_prefix}/bin/%{name}-c89
+%{_prefix}/bin/%{name}-c99
+%{_prefix}/bin/gcc%{gccv}
+%{_prefix}/bin/gcov%{gccv}
+%{_prefix}/bin/%{_target_platform}-gcc%{gccv}
 %{_prefix}/bin/%{_target_platform}-gcc-%{gcc_version}
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
@@ -831,35 +199,25 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.spec
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgomp.so
-%if %{build_cloog}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcloog-isl.so.*
-%endif
 %dir %{_prefix}/libexec/getconf
 %{_prefix}/libexec/getconf/default
-%license gcc/COPYING* COPYING.RUNTIME
-
-# MERGE static/devel libs which we no longer package separately
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/mf-runtime.h
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflap.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libmudflapth.a
-%if ! 0%{?gccv:1}
-%{_libdir}/libmud*.so
-%endif
 
 %files c++
 %defattr(-,root,root,-)
-%{_prefix}/bin/%{gcc_target_platform}-*++%{?gccv}
-%{_prefix}/bin/g++%{?gccv}
-%{_prefix}/bin/c++%{?gccv}
-
+%{_prefix}/bin/%{gcc_target_platform}-*++%{gccv}
+%{_prefix}/bin/g++%{gccv}
+%{_prefix}/bin/c++%{gccv}
 %dir %{_prefix}/include/c++
 %dir %{_prefix}/include/c++/%{version}
 %{_prefix}/include/c++/%{version}/[^gjos]*
 %{_prefix}/include/c++/%{version}/os*
 %{_prefix}/include/c++/%{version}/s[^u]*
-
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -871,11 +229,10 @@ rm -rf %{buildroot}
 %{_prefix}/include/c++/%{gcc_version}/os*
 %{_prefix}/include/c++/%{gcc_version}/s[^u]*
 
-%if %{build_fortran}
 %files gfortran
 %defattr(-,root,root,-)
-%{_prefix}/bin/gfortran%{?gccv}
-%{_prefix}/bin/%{_target_platform}-gfortran%{?gccv}
+%{_prefix}/bin/gfortran%{gccv}
+%{_prefix}/bin/%{_target_platform}-gfortran%{gccv}
 %dir %{_prefix}/lib/gcc
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}
 %dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
@@ -892,43 +249,15 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortranbegin.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libcaf_single.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.so
-
-%if ! 0%{?gccv:1}
-%files -n libgfortran-static
-%defattr(-,root,root,-)
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%endif
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libgfortran.a
 
 %files libgfortran
 %defattr(-,root,root,-)
 %{_prefix}/%{_lib}/libgfortran.so.3*
-%endif # build_fortran
 
 %exclude %{_mandir}
 %exclude %{_infodir}
-%exclude %{_localedir}
-
-%exclude /lib/libgcc_s-4.8.5-20150702.so.1
-%exclude %{_bindir}/gcc-ar
-%exclude %{_bindir}/gcc-nm
-%exclude %{_bindir}/gcc-ranlib
-%exclude %{_bindir}/%{gcc_target_platform}-gcc-ar
-%exclude %{_bindir}/%{gcc_target_platform}-gcc-nm
-%exclude %{_bindir}/%{gcc_target_platform}-gcc-ranlib
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/quadmath.h
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/include/quadmath_weak.h
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libstdc++.a
-%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/libsupc++.a
-%exclude %{_libdir}/libasan*
-%exclude %{_libdir}/libatomic*
-%exclude %{_libdir}/libitm*
-%exclude %{_libdir}/libquadmath*
-%exclude %{_libdir}/libstdc++.so.6.0.19
-%exclude %{_libdir}/libtsan*
-%exclude %{_datadir}
+%exclude %{_docdir}
 
 %changelog
 * Sun Nov 3 2019 Michael Hart <michael@lambci.org>
