@@ -597,7 +597,7 @@ popd
 %exclude %{_mandir}
 
 %changelog
-* Sun Nov 1 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
 
 * Tue Oct 22 2019 Chuanhao Jin <haroldji@amazon.com>
