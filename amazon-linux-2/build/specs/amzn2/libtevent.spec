@@ -1,5 +1,5 @@
 Name: libtevent
-Version: 0.9.36
+Version: 0.9.37
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The tevent library
@@ -117,6 +117,9 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
+* Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.9.37-1
+- Resolves: #1658748 - Rebase libtevent to version 0.9.37 for Samba
+
 * Tue Apr 10 2018 Jakub Hrozek <jhrozek@redhat.com> - 0.9.36
 - Resolves: #1558494 - Rebase tevent to the latest available upstream release
 
