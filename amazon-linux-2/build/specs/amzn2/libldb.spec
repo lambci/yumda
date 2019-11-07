@@ -3,12 +3,12 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
-%define talloc_version 2.1.2
-%define tdb_version 1.3.5
-%define tevent_version 0.9.24
+%define talloc_version 2.1.14
+%define tdb_version 1.3.16
+%define tevent_version 0.9.37
 
 Name: libldb
-Version: 1.3.4
+Version: 1.4.2
 Release: 1%{?dist}
 Group: Development/Libraries
 Summary: A schema-less, ldap like, API and database
@@ -94,6 +94,7 @@ Development files for the Python bindings for the LDB library
            --bundled-libraries=cmocka \
            --builtin-libraries=replace \
            --with-modulesdir=%{_libdir}/ldb/modules \
+           --without-ldb-lmdb \
            --with-privatelibdir=%{_libdir}/ldb
 
 # Don't build with multiple processors
@@ -129,6 +130,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %dir %{_libdir}/ldb
 %{_libdir}/libldb.so.*
+%{_libdir}/ldb/libldb-key-value.so
 %dir %{_libdir}/ldb/modules
 %dir %{_libdir}/ldb/modules/ldb
 %{_libdir}/ldb/modules/ldb/*.so
@@ -179,6 +181,9 @@ rm -rf %{buildroot}
 %postun -n pyldb -p /sbin/ldconfig
 
 %changelog
+* Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.4.2-1
+- Resolves: rhbz#1658758 - Rebase libldb to version 1.4.2 for Samba
+
 * Wed Jun 27 2018 Jakub Hrozek <jhrozek@redhat.com> - 1.3.4-1
 - Resolves: rhbz#1558497 - Rebase libldb to enable samba rebase
 

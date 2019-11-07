@@ -1,9 +1,9 @@
-%define talloc_version 2.1.2
-%define tdb_version 1.3.5
-%define tevent_version 0.9.24
+%define talloc_version 2.1.14
+%define tdb_version 1.3.16
+%define tevent_version 0.9.37
 
 Name: libldb
-Version: 1.3.4
+Version: 1.4.2
 Release: 1%{?dist}
 Group: Development/Libraries
 Summary: A schema-less, ldap like, API and database
@@ -63,6 +63,7 @@ Tools to manage LDB files
            --bundled-libraries=cmocka \
            --builtin-libraries=replace \
            --with-modulesdir=%{_libdir}/ldb/modules \
+           --without-ldb-lmdb \
            --with-privatelibdir=%{_libdir}/ldb
 
 # Don't build with multiple processors
@@ -86,6 +87,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %dir %{_libdir}/ldb
 %{_libdir}/libldb.so.*
+%{_libdir}/ldb/libldb-key-value.so
 %dir %{_libdir}/ldb/modules
 %dir %{_libdir}/ldb/modules/ldb
 %{_libdir}/ldb/modules/ldb/*.so
@@ -110,6 +112,9 @@ rm -rf %{buildroot}
 %changelog
 * Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.4.2-1
+- Resolves: rhbz#1658758 - Rebase libldb to version 1.4.2 for Samba
 
 * Wed Jun 27 2018 Jakub Hrozek <jhrozek@redhat.com> - 1.3.4-1
 - Resolves: rhbz#1558497 - Rebase libldb to enable samba rebase
