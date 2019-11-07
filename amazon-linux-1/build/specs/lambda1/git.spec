@@ -1,12 +1,9 @@
 %global gitcoredir          %{_libexecdir}/git-core
 
-# Settings for EL <= 7
-%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?amzn}
 %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
-%endif
 
 Name:           git
-Version:        2.23.0
+Version:        2.24.0
 Release: 1%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
@@ -26,15 +23,16 @@ Source1:        https://mirrors.edge.kernel.org/pub/software/scm/git/%{?rcrev:te
 # https://git.kernel.org/cgit/git/git.git/blob/?h=junio-gpg-pub&id=7214aea37915ee2c4f6369eb9dea520aec7d855b
 Source9:        gpgkey-junio.asc
 
-# BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-BuildRequires:  emacs
 BuildRequires:  expat-devel
-BuildRequires:  gettext
+BuildRequires:  findutils
+BuildRequires:  gawk
+BuildRequires:  gcc
 BuildRequires:  gnupg2
 BuildRequires:  libcurl-devel
-BuildRequires:  pcre-devel
+BuildRequires:  make
 BuildRequires:  openssl-devel
+BuildRequires:  pcre2-devel
+BuildRequires:  sed
 BuildRequires:  zlib-devel >= 1.2
 
 Requires:       openssh-clients
@@ -70,8 +68,9 @@ rm -rf "$tar" "$gpghome" # Cleanup tar files and tmp gpg home dir
 
 %setup -q
 
-# Remove git-archimport from command list
+# Remove some commands from command list
 sed -i '/^git-archimport/d' command-list.txt
+sed -i '/^git-cvsserver/d' command-list.txt
 
 # Use these same options for every invocation of 'make'.
 # Otherwise it will rebuild in %%install due to flags changes.
@@ -80,6 +79,9 @@ V = 1
 CFLAGS = %{optflags}
 LDFLAGS = %{__global_ldflags}
 prefix = %{_prefix}
+
+USE_LIBPCRE = 1
+GNU_ROFF = 1
 
 NO_GETTEXT = 1
 NO_PERL = 1
@@ -95,13 +97,6 @@ EOF
 
 %install
 %make_install
-
-# quiet some rpmlint complaints
-chmod -R g-w %{buildroot}
-chmod a-x %{buildroot}%{gitcoredir}/git-mergetool--lib
-# These files probably are not needed
-find . -regex '.*/\.\(git\(attributes\|ignore\)\|perlcriticrc\)' -delete
-find contrib -type f -print0 | xargs -r0 chmod -x
 
 %files
 %license COPYING
@@ -119,7 +114,7 @@ find contrib -type f -print0 | xargs -r0 chmod -x
 %exclude %{_bindir}/git-cvsserver
 
 %changelog
-* Tue Oct 29 2019 Michael Hart <michael@lambci.org> - 2.23.0-1
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org> - 2.24.0-1
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
 
 * Mon Dec 17 2018 Trinity Quirk <tquirk@amazon.com>

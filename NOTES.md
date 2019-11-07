@@ -25,11 +25,11 @@ gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
 Amazon Linux 1:
 
 ```console
-diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
+diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | \
+  grep -v -e git-2.14 -e libwebp-0.4.3-3.el6 | \
+  sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda1/SRPMS/Packages | sort) | \
-  grep '^<' | \
-  grep -v git-2.14.5-1.60. | \
-  grep -v libwebp-0.4.3-3.
+  grep '^<'
 ```
 
 Amazon Linux 2:
