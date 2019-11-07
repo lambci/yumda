@@ -25,16 +25,17 @@ gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
 Amazon Linux 1:
 
 ```console
-diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64 | sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
+diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda1/SRPMS/Packages | sort) | \
   grep '^<' | \
-  grep -v git-2.14.5-1.60.
+  grep -v git-2.14.5-1.60. | \
+  grep -v libwebp-0.4.3-3.
 ```
 
 Amazon Linux 2:
 
 ```console
-diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64 | sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
+diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
   grep '^<' | \
   grep -v git-2.17.2-2. | \
@@ -53,38 +54,24 @@ rpm -ivh *.src.rpm
 
 Be aware that clashing deps (eg, `python` and `python3`) can't be unpacked together
 
-## Running diffs on downloaded specs
-
-```console
-ls -1 ~/rpmbuild/SPECS
-
-export CURSPEC=ruby.spec # etc...
-
-diff -u /tmp/fs/specs/amzn2/$CURSPEC ~/rpmbuild/SPECS/$CURSPEC
-
-# If needing to copy spec over:
-cp ~/rpmbuild/SPECS/$CURSPEC /tmp/fs/specs/amzn2/
-cp ~/rpmbuild/SPECS/$CURSPEC /tmp/fs/specs/lambda2/
-```
-
-## Adding new specs
-
-```console
-cp ~/rpmbuild/SPECS/$CURSPEC /tmp/fs/specs/lambda2/
-
-# Edit as necessary
-```
-
 ## Building specs
 
+Amazon Linux 1:
+
 ```console
-sudo yum-builddep -y /tmp/fs/specs/lambda2/$CURSPEC
+export CURSPEC=openssh.spec && \
+  rm -rf ~/rpmbuild/{S,}RPMS && \
+  sudo yum-builddep -y /tmp/fs/specs/lambda1/$CURSPEC && \
+  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda1/$CURSPEC
+```
 
-rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda2/$CURSPEC
+Amazon Linux 2:
 
-# If successful...
-cp ~/rpmbuild/SPECS/$CURSPEC /tmp/fs/specs/amzn2/
-rm ~/rpmbuild/SPECS/$CURSPEC
+```console
+export CURSPEC=openssh.spec && \
+  rm -rf ~/rpmbuild/{S,}RPMS && \
+  sudo yum-builddep -y /tmp/fs/specs/lambda2/$CURSPEC && \
+  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda2/$CURSPEC
 ```
 
 ## To bulk sign RPMs

@@ -1,4 +1,4 @@
-%define _buildid .71
+%define _buildid .73
 
 # Do we want SELinux & Audit
 %if 0%{?!noselinux:1}
@@ -19,7 +19,7 @@
 
 # Do not forget to bump pam_ssh_agent_auth release if you rewind the main package release to 1
 %define openssh_ver 7.4p1
-%define openssh_rel 16
+%define openssh_rel 21
 %define pam_ssh_agent_ver 0.10.3
 %define pam_ssh_agent_rel 2
 
@@ -205,10 +205,17 @@ Patch958: openssh-7.4p1-winscp-compat.patch
 Patch959: openssh-7.4p1-authorized_keys_command.patch
 # Fix for CVE-2017-15906 (#1517226)
 Patch960: openssh-7.5p1-sftp-empty-files.patch
+# Fix for CVE-2018-15473 (#1619079)
+Patch961: openssh-7.4p1-CVE-2018-15473.patch
+# invalidate supplemental group cache used by temporarily_use_uid() (#1619079)
+Patch962: openssh-7.4p1-uidswap.patch
 
 # Amazon changes to default config
 Patch10000: openssh-7.4p1-amzn-config.patch
-Patch10001: AMZN-0001-CVE-2018-15473-delay-bailout-for-invalid-user.patch
+Patch10001: CVE-2018-20685.patch
+Patch10002: CVE-2019-6109a.patch
+Patch10003: CVE-2019-6109b.patch
+Patch10004: CVE-2019-6111.patch
 
 License: BSD
 Group: Applications/Internet
@@ -404,6 +411,8 @@ popd
 %patch958 -p1 -b .winscp
 %patch959 -p1 -b .large-command
 %patch960 -p1 -b .sftp-empty
+%patch961 -p1 -b .CVE-2018-15473
+%patch962 -p1 -b .uidswap
 
 %patch200 -p1 -b .audit
 %patch202 -p1 -b .audit-race
@@ -413,6 +422,9 @@ popd
 
 %patch10000 -p1 -b .amzn-config
 %patch10001 -p1
+%patch10002 -p1
+%patch10003 -p1
+%patch10004 -p1
 
 %if ! %{ldap}
 echo 'int main(void) {}' > ldap-helper.c
@@ -585,8 +597,31 @@ popd
 %exclude %{_mandir}
 
 %changelog
-* Tue Oct 29 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 1 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Tue Oct 22 2019 Chuanhao Jin <haroldji@amazon.com>
+- Fix CVE-2018-20685 CVE-2019-6109 CVE-2019-6111
+
+* Wed Aug 21 2019 kaos-source-imports <nobody@amazon.com>
+- import source package EL7/openssh-7.4p1-21.el7
+
+* Tue Jun 25 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-21 + 0.10.3-2
+- Avoid double comma in the default cipher list in FIPS mode (#1722446)
+
+* Tue May 21 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-20 + 0.10.3-2
+- Revert the updating of cached passwd structure (#1712053)
+
+* Mon Mar 04 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-19 + 0.10.3-2
+- Update cached passwd structure after PAM authentication (#1674541)
+
+* Wed Feb 13 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-18 + 0.10.3-2
+- invalidate supplemental group cache used by temporarily_use_uid()
+  when the target uid differs (#1583735)
+
+* Mon Jan 14 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-17 + 0.10.3-2
+- Fix for CVE-2018-15473 (#1619079)
+- Enable GCM mode for AES ciphers in FIPS mode (#1600869)
 
 * Tue Sep 4 2018 Blaise Koch <blaikoch@amazon.com>
 - Add AMZN-0001-CVE-2018-15473-delay-bailout-for-invalid-user.patch
