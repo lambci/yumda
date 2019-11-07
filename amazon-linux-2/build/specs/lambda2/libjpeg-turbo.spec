@@ -4,7 +4,7 @@
 
 Name:		libjpeg-turbo
 Version:	1.2.90
-Release:	5%{?dist}%{?_trivial}%{?_buildid}
+Release:	6%{?dist}%{?_trivial}%{?_buildid}
 Summary:	A MMX/SSE2 accelerated library for manipulating JPEG image files
 
 Group:		System Environment/Libraries
@@ -29,8 +29,11 @@ Provides:	libjpeg%{_isa} = 6b-47%{?dist}
 Patch0:		libjpeg-turbo12-noinst.patch
 Patch1:		libjpeg-turbo12-CVE-2013-6630.patch
 Patch2:		libjpeg-turbo12-CVE-2013-6629.patch
-# Patches added by Amazon
-Patch1001:  Check-image-size-when-reading-targa-file.patch
+Patch3:		libjpeg-turbo12-pkgconfig.patch
+Patch4:		libjpeg-turbo12-CVE-2018-11212.patch
+Patch5:		libjpeg-turbo12-CVE-2016-3616_CVE-2018-11213_CVE-2018-11214.patch
+Patch6:		libjpeg-turbo12-CVE-2018-11813.patch
+Patch7:		libjpeg-turbo12-CVE-2018-14498.patch
 
 Prefix: %{_prefix}
 
@@ -67,7 +70,11 @@ The turbojpeg package contains the TurboJPEG shared library.
 %patch0 -p1 -b .noinst
 %patch1 -p1 -b .CVE-2013-6630
 %patch2 -p1 -b .CVE-2013-6629
-%patch1001 -p1 -b .check-image
+%patch3 -p1 -b .pkgconfig
+%patch4 -p1 -b .CVE-2018-11212
+%patch5 -p1 -b .CVE-2016-3616_CVE-2018-11213_CVE-2018-11214
+%patch6 -p1 -b .CVE-2018-11813
+%patch7 -p1 -b .CVE-2018-14498
 
 %build
 autoreconf -fiv
@@ -100,17 +107,30 @@ chmod -x README-turbo.txt
 
 %exclude %{_includedir}
 %exclude %{_mandir}
-%exclude %{_infodir}
 %exclude %{_libdir}/*.la
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Oct 17 2019 Emmanuel Lepage <emmlep@amazon.com> - 1.2.90-6.amzn2.0.3
+- Remove a duplicated patch.
 
 * Fri Apr 19 2019 Jeremiah Mahler <jmmahler@amazon.com> - 1.2.90-5.amzn2.0.3
 - Fix CVE-2018-11212
+* Wed Mar 20 2019 Nikola Forró <nforro@redhat.com> - 1.2.90-8
+- Fix CVE-2018-14498 (#1687475)
+
+* Thu Dec 06 2018 Nikola Forró <nforro@redhat.com> - 1.2.90-7
+- Fix CVE-2018-11212 (#1586062)
+- Fix CVE-2016-3616 (#1318509), CVE-2018-11213 (#1589091)
+  and CVE-2018-11214 (#1589110)
+- Fix CVE-2018-11813 (#1591203)
+
+* Thu May 24 2018 Nikola Forró <nforro@redhat.com> - 1.2.90-6
+- Add pkgconfig scripts (#1581687)
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.2.90-5
 - Mass rebuild 2014-01-24

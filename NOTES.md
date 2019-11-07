@@ -35,14 +35,11 @@ diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --arc
 Amazon Linux 2:
 
 ```console
-diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
+diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | \
+  grep -v -e git-2.17 -e libvoikko-3.6 -e libvoikko-3.6 -e lzo-2.06 -e libidn2-2.2.0-1.el7 -e libmetalink-0.1.3-1.el7 | \
+  sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
-  grep '^<' | \
-  grep -v git-2.17.2-2. | \
-  grep -v libvoikko-3.6-5. | \
-  grep -v libidn2-2.2.0-1. | \
-  grep -v libmetalink-0.1.3-1. | \
-  grep -v lzo-2.06-8.
+  grep '^<'
 ```
 
 ## Pulling down Amazon source RPMS
