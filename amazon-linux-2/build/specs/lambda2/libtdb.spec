@@ -1,5 +1,5 @@
 Name: libtdb
-Version: 1.3.15
+Version: 1.3.16
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The tdb library
@@ -76,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Jan 15 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.3.16-1
+- Resolves: rhbz#1658745 - Rebase libtdb to version 1.3.16 for Samba
 
 * Sun Oct 15 2017 Jakub Hrozek <jhrozek@redhat.com> - 1.3.15-1
 - Resolves: rhbz#1470049 - Rebase libtdb to enable samba rebase to
