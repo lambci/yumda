@@ -1,7 +1,8 @@
-%global nspr_version 4.19.0
+%global nspr_version 4.21.0
 %global nss_name nss
-%global nss_util_version 3.36.0
-%global nss_util_build -1
+%global nss_util_version 3.44.0
+%global nss_util_build -3
+%global nss_softokn_version 3.44.0
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global prelink_conf_dir %{_sysconfdir}/prelink.conf.d/
@@ -9,8 +10,13 @@
 %global dracut_modules_dir %{dracutlibdir}/modules.d/05nss-softokn/
 %global dracut_conf_dir %{dracutlibdir}/dracut.conf.d
 
-%define _trivial .0
-%define _buildid .1
+# The upstream omits the trailing ".0", while we need it for
+# consistency with the pkg-config version:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1578106
+%{lua:
+rpm.define(string.format("nss_softokn_archive_version %s",
+           string.gsub(rpm.expand("%nss_softokn_version"), "(.*)%.0$", "%1")))
+}
 
 # Produce .chk files for the final stripped binaries
 #
@@ -20,7 +26,7 @@
 # whereas we previously signed with DSA and SHA1. We must Keep this line
 # until all mock platforms have been updated.
 # After %%{__os_install_post} we would add
-#export LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir}
+#export LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%%{_libdir}
 %define __spec_install_post \
     %{?__debug_package:%{__debug_install_post}} \
     %{__arch_install_post} \
@@ -33,8 +39,8 @@
 
 Summary:          Network Security Services Softoken Module
 Name:             nss-softokn
-Version:          3.36.0
-Release:          5%{?dist}%{?_trivial}%{?_buildid}
+Version:          %{nss_softokn_version}
+Release: 5%{?dist}.0.2
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -51,7 +57,7 @@ BuildRequires:    gawk
 BuildRequires:    psmisc
 BuildRequires:    perl
 
-Source0:          %{name}-%{version}.tar.gz
+Source0:          %{name}-%{nss_softokn_archive_version}.tar.gz
 # The nss-softokn tar ball is a subset of nss-{version}.tar.gz.
 # We use the nss-split-softokn.sh script to keep only what we need
 # via via nss-split-softokn.sh ${version}
@@ -68,6 +74,7 @@ Source3:          nss-softokn-config.in
 Source4:	  nss-softokn-prelink.conf
 Source5:	  nss-softokn-dracut-module-setup.sh
 Source6:	  nss-softokn-dracut.conf
+Source7:	  nss-softokn-cavs-1.0.tar.gz
 
 # Select the tests to run based on the type of build
 # This patch uses the gcc-iquote dir option documented at
@@ -87,18 +94,21 @@ Patch97:	   nss-softokn-3.16-add_encrypt_derive.patch
 
 Patch102:          nss-softokn-tls-abi-fix.patch
 
-# Not upstreamed: https://bugzilla.redhat.com/show_bug.cgi?id=1548394
-Patch103:	   nss-softokn-add-kas-tests.patch
-
 # To revert the upstream change in the default behavior in:
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1382736
-Patch104:	   nss-softokn-fs-probe.patch
+Patch104:         nss-softokn-fs-probe.patch
 
 # Not upstreamed: https://bugzilla.redhat.com/show_bug.cgi?id=1555108
-Patch105:	   nss-softokn-aes-zeroize.patch
+# included in nss-softkn-fips-update
+#Patch105:	   nss-softokn-aes-zeroize.patch
 
-#AMZN2 patches
-Patch1000:         nss-softokn-fips-updated-tests.patch
+# Upstream patch didn't make 3.44
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1546229
+Patch200:	   nss-softokn-ike-patch.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1546477
+Patch201:	   nss-softokn-fips-update.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1473806
+Patch202:	   nss-softokn-fix-public-key-from-priv.patch
 
 Prefix: %{_prefix}
 
@@ -125,22 +135,21 @@ library.
 
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{nss_softokn_archive_version} -a 7
 
 # activate if needed when doing a major update with new apis
-#%patch10 -p0 -b .iquote
+%patch10 -p0 -b .iquote
 
 pushd nss
 %patch97 -p1 -b .add_encrypt_derive
-%patch103 -p1 -b .add-kas-tests
-%patch104 -p1 -R -b .fs-probe
-%patch105 -p1 -b .aes-zeroize
+%patch104 -p1 -b .fs-probe
+#%patch105 -p1 -b .aes-zeroize
+%patch200 -p1 -b .ike-mech
+%patch201 -p1 -b .fips-update
 popd
+%patch202 -p1 -b .pub-priv-mech
 
 %patch102 -p1 -b .tls-abi-fix
-
-# amzn2 patches
-%patch1000 -p1 -b .fips-updated-tests.patch
 
 %build
 
@@ -311,11 +320,33 @@ done
 %exclude %{dracut_conf_dir}
 
 %changelog
-* Tue Jul 9 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
-* Tue Jun 04 2019 Balbir Singh <sblbir@amzn.com> - 3.36.0-5.amzn2.0.1
-- Implement FIPS test changes as recommended by new NIST requirements
+* Wed Jun 5 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-5
+- Add pub from priv mechanism
+
+* Fri May 24 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-4
+- Add ike mechanisms
+- FIPS update
+
+* Fri May 24 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-3
+- Remove stray "exit" in %%prep
+
+* Thu May 16 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-2
+- Fix nss-softokn-fs-probe.patch to detect threshold correctly
+
+* Wed May 15 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-1
+- Rebase to NSS 3.44
+
+* Thu Apr 25 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-5
+- Restore nss-softokn-fs-probe.patch
+
+* Wed Mar 27 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-4
+- Enable iquote.patch
+
+* Wed Mar 27 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-2
+- Rebuild
 
 * Mon Mar 19 2018 Daiki Ueno <dueno@redhat.com> - 3.36.0-5
 - Use correct tarball of NSS 3.36.0 release
