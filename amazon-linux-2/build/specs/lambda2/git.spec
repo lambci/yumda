@@ -90,6 +90,9 @@ CFLAGS = %{optflags}
 LDFLAGS = %{__global_ldflags}
 prefix = %{_prefix}
 
+USE_LIBPCRE = 1
+GNU_ROFF = 1
+
 NO_GETTEXT = 1
 NO_PERL = 1
 NO_TCLTK = 1
