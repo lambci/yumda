@@ -1,5 +1,5 @@
 Name: libtalloc
-Version: 2.1.13
+Version: 2.1.14
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The talloc library
@@ -64,6 +64,10 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Jan 15 2019 Jakub Hrozek <jhrozek@redhat.com> - 2.1.14-1
+- Rebase to libtalloc 2.1.14
+- Resolves: rhbz#1658747 - Rebase libtalloc to version 2.1.14 for Samba
 
 * Tue Apr 10 2018 Jakub Hrozek <jhrozek@redhat.com> - 2.1.13-1
 - Rebase to libtalloc 2.1.13

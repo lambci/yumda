@@ -385,7 +385,7 @@ libsndfile.x86_64            1.0.25-10.lambda2.0.2                       lambda2
 libsndfile-utils.x86_64      1.0.25-10.lambda2.0.2                       lambda2
 libsoup.x86_64               2.56.0-6.lambda2                            lambda2
 libssh2.x86_64               1.4.3-12.lambda2.2.2                        lambda2
-libtalloc.x86_64             2.1.13-1.lambda2                            lambda2
+libtalloc.x86_64             2.1.14-1.lambda2                            lambda2
 libtdb.x86_64                1.3.15-1.lambda2                            lambda2
 libtevent.x86_64             0.9.36-1.lambda2                            lambda2
 libthai.x86_64               0.1.14-9.lambda2.0.2                        lambda2
