@@ -1,7 +1,7 @@
 Summary: Lightweight library to easily extract data from zip files
 Name: zziplib
 Version: 0.13.62
-Release: 9%{?dist}
+Release: 11%{?dist}
 License: LGPLv2+ or MPLv1.1
 Group: Applications/Archiving
 URL: http://zziplib.sourceforge.net/
@@ -10,6 +10,12 @@ Patch0: zziplib-0.13.59-multilib.patch
 Patch1: 0001-fix-CVE-2018-7725.patch
 Patch2: 0001-fix-CVE-2018-7726.patch
 Patch3: 0001-fix-CVE-2018-7727.patch
+
+Patch4: CVE-2018-16548.part1.patch
+Patch5: CVE-2018-16548.part2.patch
+Patch6: CVE-2018-16548.part3.patch
+
+Patch7: CVE-2018-6541.patch
 
 BuildRequires: perl
 BuildRequires: python
@@ -51,6 +57,12 @@ This packages contains all the utilities that come with the zziplib library.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+
+%patch7 -p1
 # Save the common patched _config.h file to overwrite the generated one
 cp -a zzip/_config.h _config.h
 
@@ -83,8 +95,20 @@ make install DESTDIR=%{buildroot}
 %exclude %{_datadir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Feb 28 2019 Jakub Martisko <jamartis@redhat.com> - 0.13.62-11
+- Fix CVE-2018-6541
+- Part of the original patch has already been applied in the past (CVE-2018-7726),
+  so the bug should not be reproducible in a way described in the github 
+  issue, even without this commit. Applying the rest of the original patch anyway.
+- https://github.com/gdraheim/zziplib/issues/16
+- Related: CVE-2018-6541
+
+* Thu Feb 28 2019 Jakub Martisko <jamartis@redhat.com> - 0.13.62-10
+- Fix CVE-2018-16548
+- Resolves: CVE-2018-16548
 
 * Wed Jun 20 2018 Jakub Martisko <jamartis@redhat.com> - 0.13.62-9
 - Fix covscan warning

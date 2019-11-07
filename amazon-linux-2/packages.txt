@@ -1040,5 +1040,5 @@ xz-compat-libs.x86_64        5.2.2-1.lambda2.0.2                         lambda2
 xz-libs.x86_64               5.2.2-1.lambda2.0.2                         lambda2
 xz-lzma-compat.x86_64        5.2.2-1.lambda2.0.2                         lambda2
 zip.x86_64                   3.0-11.lambda2.0.2                          lambda2
-zziplib.x86_64               0.13.62-9.lambda2                           lambda2
-zziplib-utils.x86_64         0.13.62-9.lambda2                           lambda2
+zziplib.x86_64               0.13.62-11.lambda2                          lambda2
+zziplib-utils.x86_64         0.13.62-11.lambda2                          lambda2
