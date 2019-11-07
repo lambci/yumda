@@ -462,11 +462,11 @@ netpbm-progs.x86_64          10.79.00-7.lambda2                          lambda2
 nettle.x86_64                2.7.1-8.lambda2.0.2                         lambda2
 nghttp2.x86_64               1.39.2-1.lambda2                            lambda2
 nscd.x86_64                  2.26-32.lambda2.0.2                         lambda2
-nss.x86_64                   3.36.0-7.lambda2                            lambda2
+nss.x86_64                   3.44.0-4.lambda2.0.2                        lambda2
 nss-pem.x86_64               1.0.3-5.lambda2                             lambda2
 nss-softokn.x86_64           3.44.0-5.lambda2.0.2                        lambda2
-nss-sysinit.x86_64           3.36.0-7.lambda2                            lambda2
-nss-tools.x86_64             3.36.0-7.lambda2                            lambda2
+nss-sysinit.x86_64           3.44.0-4.lambda2.0.2                        lambda2
+nss-tools.x86_64             3.44.0-4.lambda2.0.2                        lambda2
 nss_db.x86_64                2.26-32.lambda2.0.2                         lambda2
 nss_hesiod.x86_64            2.26-32.lambda2.0.2                         lambda2
 nss_nis.x86_64               2.26-32.lambda2.0.2                         lambda2

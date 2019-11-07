@@ -1,16 +1,28 @@
-%global nspr_version 4.19.0
-%global nss_util_version 3.36.0
-%global nss_util_build -1
+%global nspr_version 4.21.0
+%global nss_util_version 3.44.0
+%global nss_util_build -3
 # adjust to the version that gets submitted for FIPS validation
-%global nss_softokn_fips_version 3.36.0
-%global nss_softokn_version 3.36.0
+%global nss_softokn_fips_version 3.44.0
+%global nss_softokn_version 3.44.0
 # Attention: Separate softokn versions for build and runtime.
 %global runtime_required_softokn_build_version -1
 # Building NSS doesn't require the same version of softokn built for runtime.
 %global build_required_softokn_build_version -1
+%global nss_version 3.44.0
 
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
-%global allTools "certutil cmsutil crlutil derdump modutil pk12util pp signtool signver ssltap vfychain vfyserv"
+%global allTools "certutil cmsutil crlutil derdump modutil nss-policy-check pk12util pp signtool signver ssltap vfychain vfyserv"
+
+# The timestamp of our downstream manual pages, e.g., nss-config.1
+%global manual_date "Nov 13 2013"
+
+# The upstream omits the trailing ".0", while we need it for
+# consistency with the pkg-config version:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1578106
+%{lua:
+rpm.define(string.format("nss_archive_version %s",
+           string.gsub(rpm.expand("%nss_version"), "(.*)%.0$", "%1")))
+}
 
 # solution taken from icedtea-web.spec
 %define multilib_arches ppc64 s390x sparc64 x86_64
@@ -24,10 +36,12 @@
 # To "disable", add "#" to start of line, AND a space after "%".
 #% define nss_ckbi_suffix .with.ckbi.1.93
 
+%bcond_without tests
+
 Summary:          Network Security Services
 Name:             nss
-Version:          3.36.0
-Release:          7%{?dist}
+Version:          %{nss_version}
+Release: 4%{?dist}.0.2
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -63,7 +77,7 @@ Requires:         nss-pem%{?_isa}
 %define full_nss_version %{version}
 %endif
 
-Source0:          %{name}-%{full_nss_version}.tar.gz
+Source0:          %{name}-%{nss_archive_version}.tar.gz
 Source1:          nss.pc.in
 Source2:          nss-config.in
 Source3:          blank-cert8.db
@@ -108,7 +122,6 @@ Patch49:          nss-skip-bltest-and-fipstest.patch
 Patch50:          iquote.patch
 Patch52:          Bug-1001841-disable-sslv2-libssl.patch
 Patch53:          Bug-1001841-disable-sslv2-tests.patch
-Patch55:          enable-fips-when-system-is-in-fips-mode.patch
 # rhbz: https://bugzilla.redhat.com/show_bug.cgi?id=1026677
 Patch56:          p-ignore-setpolicy.patch
 # Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=943144
@@ -118,27 +131,42 @@ Patch108: nss-sni-c-v-fix.patch
 Patch123: nss-skip-util-gtest.patch
 Patch126: nss-reorder-cipher-suites.patch
 Patch127: nss-disable-cipher-suites.patch
-Patch128: nss-enable-cipher-suites.patch
 Patch130: nss-reorder-cipher-suites-gtests.patch
-Patch131: nss-disable-tls13-gtests.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1279520
-Patch135: nss-check-policy-file.patch
 # To revert the change in:
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1377940
 Patch136: nss-sql-default.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1278071
-Patch137: nss-pkcs12-iterations-limit.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1447628
-Patch138: nss-devslot-reinsert.patch
 # Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1453408
 Patch139: nss-modutil-skip-changepw-fips.patch
 # Work around for yum
 # https://bugzilla.redhat.com/show_bug.cgi?id=1469526
 Patch141: nss-sysinit-getenv.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1483128
-Patch142: nss-ssl2-server-random.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1444960
-Patch143: nss-tests-ssl-normal-normal.patch
+# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1542207
+Patch147: nss-dsa-policy.patch
+# To revert the change in:
+# https://bugzilla.mozilla.org/show_bug.cgi?id=818686
+Patch148: nss-sysinit-userdb.patch
+# Disable nss-sysinit test which is sorely to test the above change
+Patch149: nss-skip-sysinit-gtests.patch
+# Enable SSLv2 compatible ClientHello, disabled in the change:
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1483128
+Patch150: nss-ssl2-compatible-client-hello.patch
+# TLS 1.3 currently doesn't work under FIPS mode:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1710372
+Patch151: nss-skip-tls13-fips-tests.sh
+# For backward compatibility: make -V "ssl3:" continue working, while
+# the minimum version is clamped to tls1.0
+Patch152: nss-version-range-set.patch
+# TLS 1.3 currently doesn't work under FIPS mode:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1710372
+Patch153: nss-fips-disable-tls13.patch
+# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1552208
+Patch154: nss-disable-pkcs1-sigalgs-tls13.patch
+# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1553443
+Patch155: nss-post-handshake-auth-with-tickets.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1473806
+Patch156: nss-fix-public-key-from-priv.patch
+Patch157: nss-add-ipsec-usage-to-manpage.patch
+
 
 %description
 Network Security Services (NSS) is a set of libraries designed to
@@ -208,7 +236,7 @@ low level services.
 
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{nss_archive_version}
 %{__cp} %{SOURCE10} -f ./nss/tests/libpkix/certs
 %{__cp} %{SOURCE17} -f ./nss/tests/libpkix/certs
 %{__cp} %{SOURCE18} -f ./nss/tests/libpkix/certs
@@ -216,7 +244,6 @@ low level services.
 %{__cp} %{SOURCE30} -f ./nss/tests/libpkix/certs
 %{__cp} %{SOURCE31} -f ./nss/tests/libpkix/certs
 %{__cp} %{SOURCE33} -f ./nss/tests/tools
-%setup -q -T -D -n %{name}-%{version}
 
 %patch2 -p0 -b .relro
 %patch3 -p0 -b .transitional
@@ -228,7 +255,6 @@ low level services.
 pushd nss
 %patch52 -p1 -b .disableSSL2libssl
 %patch53 -p1 -b .disableSSL2tests
-%patch55 -p1 -b .852023_enable_fips_when_in_fips_mode
 %patch56 -p1 -b .1026677_ignore_set_policy
 %patch62 -p1 -b .fix_deadlock
 %patch100 -p0 -b .1171318
@@ -238,18 +264,22 @@ pushd nss
 %patch123 -p1 -b .skip-util-gtests
 %patch126 -p1 -b .reorder-cipher-suites
 %patch127 -p1 -b .disable-cipher-suites
-%patch128 -p1 -b .enable-cipher-suites
 %patch130 -p1 -b .reorder-cipher-suites-gtests
-%patch131 -p1 -b .disable-tls13-gtests
-%patch135 -p1 -b .check_policy_file
 %patch136 -p1 -R -b .sql-default
-%patch137 -p1 -b .pkcs12-iterations-limit
-%patch138 -p1 -b .devslot-reinsert
 %patch139 -p1 -b .modutil-skip-changepw-fips
+%patch148 -R -p1 -b .sysinit-userdb
 %patch141 -p1 -b .sysinit-getenv
-%patch142 -p1 -b .ssl2-server-random
-%patch143 -p1 -b .tests-ssl-normal-normal
+%patch147 -p1 -b .dsa-policy
+%patch149 -p1 -b .skip-sysinit-gtests
+%patch150 -p1 -b .ssl2hello
+%patch151 -p1 -b .skip-tls13-fips-mode
+%patch152 -p1 -b .version-range-set
+%patch153 -p1 -b .fips-disable-tls13
+%patch154 -p1 -b .disable-pkcs1-sigalgs-tls13
+%patch155 -p1 -b .post-handshake-auth-with-tickets
 popd
+%patch156 -p1 -b .pub-priv-mechs
+%patch157 -p1 -b .ipsec-usage
 
 #########################################################
 # Higher-level libraries and test tools need access to
@@ -353,8 +383,6 @@ export IN_TREE_FREEBL_HEADERS_FIRST=1
 ##### phase 2: build the rest of nss
 export NSS_BLTEST_NOT_AVAILABLE=1
 
-export NSS_DISABLE_TLS_1_3=1
-
 export NSS_FORCE_FIPS=1
 
 %{__make} -C ./nss/coreconf
@@ -376,8 +404,12 @@ export POLICY_PATH="/etc/pki/nss-legacy"
 unset NSS_BLTEST_NOT_AVAILABLE
 
 # build the man pages clean
-pushd ./nss
-%{__make} clean_docs build_docs
+pushd ./nss/doc
+rm -rf ./nroff
+%{__make} clean
+echo -n %{manual_date} > date.xml
+echo -n %{version} > version.xml
+%{__make}
 popd
 
 # and copy them to the dist directory for %%install to find them
@@ -423,7 +455,7 @@ chmod 755 ./dist/pkgconfig/setup-nsssysinit.sh
 
 %{__cp} ./nss/lib/ckfw/nssck.api ./dist/private/nss/
 
-date +"%e %B %Y" | tr -d '\n' > date.xml
+echo -n %{manual_date} > date.xml
 echo -n %{version} > version.xml
 
 # configuration files and setup script
@@ -444,6 +476,7 @@ done
  
 
 %check
+%if %{with tests}
 if [ ${DISABLETEST:-0} -eq 1 ]; then
   echo "testing disabled"
   exit 0
@@ -468,14 +501,19 @@ export USE_64
 
 export NSS_BLTEST_NOT_AVAILABLE=1
 
-export NSS_DISABLE_TLS_1_3=1
-
 export NSS_FORCE_FIPS=1
 
 # needed for the fips mangling test
 export SOFTOKEN_LIB_DIR=%{_libdir}
 
 # End -- copied from the build section
+
+export GTESTS="certhigh_gtest certdb_gtest der_gtest pk11_gtest softoken_gtest smime_gtest"
+export GTESTFILTER='-TlsConnectTest.DisallowSSLv3HelloWithTLSv13Enabled'
+
+# This is necessary because the test suite tests algorithms that are
+# disabled by the system policy.
+export NSS_IGNORE_SYSTEM_POLICY=1
 
 # enable the following line to force a test failure
 # find ./nss -name \*.chk | xargs rm -f
@@ -543,7 +581,7 @@ popd
 # GREP_EXIT_STATUS > 1 would indicate an error in grep such as failure to find the log file.
 killall $RANDSERV || :
 
-TEST_FAILURES=$(grep -c FAILED ./tests_results/security/localhost.1/output.log) || GREP_EXIT_STATUS=$?
+TEST_FAILURES=$(grep -c -- '- FAILED$' ./tests_results/security/localhost.1/output.log) || GREP_EXIT_STATUS=$?
 if [ ${GREP_EXIT_STATUS:-0} -eq 1 ]; then
   echo "okay: test suite detected no failures"
 else
@@ -570,6 +608,7 @@ else
 %endif
 fi
 echo "test suite completed"
+%endif
 
 %install
 
@@ -614,13 +653,13 @@ do
 done
 
 # Copy the binaries we want
-for file in certutil cmsutil crlutil modutil pk12util signtool signver ssltap
+for file in certutil cmsutil crlutil modutil nss-policy-check pk12util signver ssltap
 do
   %{__install} -p -m 755 dist/*.OBJ/bin/$file $RPM_BUILD_ROOT/%{_bindir}
 done
 
 # Copy the binaries we ship as unsupported
-for file in atob btoa derdump listsuites ocspclnt pp selfserv strsclnt symkeyutil tstclnt vfyserv vfychain
+for file in atob btoa derdump listsuites ocspclnt pp selfserv signtool strsclnt symkeyutil tstclnt vfyserv vfychain
 do
   %{__install} -p -m 755 dist/*.OBJ/bin/$file $RPM_BUILD_ROOT/%{unsupported_tools_directory}
 done
@@ -742,8 +781,8 @@ fi
 %{_bindir}/cmsutil
 %{_bindir}/crlutil
 %{_bindir}/modutil
+%{_bindir}/nss-policy-check
 %{_bindir}/pk12util
-%{_bindir}/signtool
 %{_bindir}/signver
 %{_bindir}/ssltap
 %{unsupported_tools_directory}/atob
@@ -753,6 +792,7 @@ fi
 %{unsupported_tools_directory}/ocspclnt
 %{unsupported_tools_directory}/pp
 %{unsupported_tools_directory}/selfserv
+%{unsupported_tools_directory}/signtool
 %{unsupported_tools_directory}/strsclnt
 %{unsupported_tools_directory}/symkeyutil
 %{unsupported_tools_directory}/tstclnt
@@ -764,12 +804,13 @@ fi
 %attr(0644,root,root) %doc /usr/share/man/man1/cmsutil.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/crlutil.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/modutil.1.gz
+%attr(0644,root,root) %doc /usr/share/man/man1/nss-policy-check.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/pk12util.1.gz
-%attr(0644,root,root) %doc /usr/share/man/man1/signtool.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/signver.1.gz
 # unsupported tools
 %attr(0644,root,root) %doc /usr/share/man/man1/derdump.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/pp.1.gz
+%attr(0644,root,root) %doc /usr/share/man/man1/signtool.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/ssltap.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/vfychain.1.gz
 %attr(0644,root,root) %doc /usr/share/man/man1/vfyserv.1.gz
@@ -849,6 +890,66 @@ fi
 
 
 %changelog
+* Wed Jun 5 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-4
+- Fix certutil man page
+- Fix extracting a public key from a private key for dh, ec, and dsa
+
+* Thu May 30 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-3
+- Disable TLS 1.3 under FIPS mode
+- Disable RSASSA-PKCS1-v1_5 in TLS 1.3
+- Fix post-handshake auth transcript calculation if
+  SSL_ENABLE_SESSION_TICKETS is set
+
+* Thu May 16 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-2
+- Skip sysinit gtests properly
+- Fix shell syntax error in tests/ssl/ssl.sh
+- Regenerate manual pages
+
+* Wed May 15 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-1
+- Rebase to NSS 3.44
+- Restore fix-min-library-version-in-SSLVersionRange.patch to keep
+  SSL3 supported in the code level while it is disabled by policy
+- Skip TLS 1.3 tests under FIPS mode
+
+* Fri May 10 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-9
+- Ignore system policy when running %%check
+
+* Fri May  3 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-8
+- Fix policy string
+
+* Fri Apr 26 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-7
+- Don't override date in man-pages
+- Revert the change to use XDG basedirs (mozilla#818686)
+- Enable SSL2 compatible ClientHello by default
+- Disable SSL3 and RC4 by default
+
+* Mon Apr  8 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-6
+- Make "-V ssl3:" option work with tools
+
+* Fri Apr  5 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-5
+- Fix regression in MD5 disablement
+
+* Mon Apr 1 2019 Bob Relyea <rrelyea@redhat.com> - 3.43.0-4
+- add certutil documentation
+
+* Thu Mar 28 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-3
+- Restore complete removal of SSLv2
+- Disable SSLv3
+- Move signtool to unsupported directory
+
+* Mon Mar 25 2019 Bob Relyea <rrelyea@redhat.com> - 3.43.0-2
+- Expand IPSEC usage to include ssl and email certs. Remove special
+  processing of the usage based on the critical flag
+
+* Thu Mar 21 2019 Daiki Ueno <dueno@redhat.com> - 3.43.0-1
+- Rebase to NSS 3.43
+
+* Mon Feb 25 2019 Bob Relyea <rrelyea@redhat.com> - 3.36.0-8.1
+- move key on unwrap failure and retry.
+
+* Mon Nov 12 2018 Bob Relyea <rrelyea@redhat.com> - 3.36.0-8
+- Update the cert verify code to allow a new ipsec usage and follow RFC 4945
+
 * Wed Aug 29 2018 Daiki Ueno <dueno@redhat.com> - 3.36.0-7
 - Backport upstream fix for CVE-2018-12384
 - Remove nss-lockcert-api-change.patch, which turned out to be a
