@@ -1,7 +1,7 @@
 Summary: A utility for unpacking zip files
 Name: unzip
 Version: 6.0
-Release: 19%{?dist}
+Release: 20%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://downloads.sourceforge.net/infozip/unzip60.tar.gz
@@ -40,6 +40,8 @@ Patch17: unzip-6.0-symlink.patch
 #Patch15: unzip-6.0-symlink.patch
 #Patch16: unzip-6.0-format-secure.patch
 #Patch17: unzip-6.0-alt-iconv-utf8-print.patch
+
+Patch24: unzip-6.0-cve-2018-18384.patch
 
 
 URL: http://www.info-zip.org/UnZip.html
@@ -82,6 +84,7 @@ a zip archive.
 %endif
 
 
+%patch24 -p1 -b .cve-2018-18384
 
 %build
 make -f unix/Makefile CF_NOOPT="-I. -DUNIX $RPM_OPT_FLAGS -DNOMEMCPY -DNO_LCHMOD" LFLAGS2="%{?__global_ldflags}" generic_gcc %{?_smp_mflags}
@@ -97,6 +100,10 @@ make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} MANDIR=$RPM_BUILD_ROOT/%{
 %{_mandir}/*/*
 
 %changelog
+* Mon Feb 25 2019 Jakub Martisko <jamartis@redhat.com> - 6.0-20
+- Fix CVE-2018-18384
+  Resolves: CVE-2018-18384
+
 * Tue Jan 09 2018 Jakub Martisko <jamartis@redhat.com> - 6.0-19
 - rename patch unzip-6.0-nostrip.patch to unzip-6.0-configure.patch
 - make linking flags configurable from the specc file
