@@ -1,15 +1,17 @@
 Summary: A general purpose sound file conversion tool
 Name: sox
 Version: 14.4.1
-Release: 6%{?dist}.0.1
+Release: 7%{?dist}
 License: GPLv2+ and LGPLv2+ and MIT
 Group: Applications/Multimedia
 #Modified source tarball with libgsm license, without unlicensed liblpc10
-#Source: http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
+#Source: http://downloads.sourceforge.net/%%{name}/%%{name}-%%{version}.tar.gz
 Source: %{name}/%{name}-%{version}.modified.tar.gz
 URL: http://sox.sourceforge.net/
 Patch0: sox-mcompand_clipping.patch
 Patch1: sox-14.4.1-lpc10.patch
+# Backport https://sourceforge.net/p/sox/code/ci/09d7388c8ad5701ed9c59d1d600ff6154b066397/
+Patch2: sox-14.4.1-CVE-2017-18189.patch
 BuildRequires: libvorbis-devel
 BuildRequires: alsa-lib-devel, libtool-ltdl-devel, libsamplerate-devel
 BuildRequires: gsm-devel, wavpack-devel, ladspa-devel, libpng-devel
@@ -28,6 +30,7 @@ sound manipulation functions, including sound effects.
 %setup -q
 %patch0 -p1 -b .clip
 %patch1 -p1 -b .lpc
+%patch2 -p1 -b .CVE-2017-18189
 #regenerate scripts from older autoconf to support aarch64
 autoreconf -vfi
 
@@ -69,8 +72,13 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Sun Mar 24 2019 Jiri Kucera <jkucera@redhat.com> - 14.4.1-7
+- Fix CVE-2017-18189
+  Upstream patch: https://sourceforge.net/p/sox/code/ci/09d7388c8ad5701ed9c59d1d600ff6154b066397/
+  Resolves: #1553590
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 14.4.1-6
 - Mass rebuild 2014-01-24

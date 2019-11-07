@@ -651,7 +651,7 @@ rubygems.noarch              3.0.3-122.lambda2.0.1                       lambda2
 shared-mime-info.x86_64      1.8-4.lambda2                               lambda2
 sound-theme-freedesktop.noarch
                              0.8-3.lambda2                               lambda2
-sox.x86_64                   14.4.1-6.lambda2.0.1                        lambda2
+sox.x86_64                   14.4.1-7.lambda2                            lambda2
 sqlite.x86_64                3.7.17-8.lambda2.0.2                        lambda2
 sqlite-libs.x86_64           3.7.17-8.lambda2.0.2                        lambda2
 stix-fonts.noarch            1.1.0-5.lambda2                             lambda2
