@@ -1,7 +1,7 @@
 Summary: A complete ODBC driver manager for Linux
 Name: unixODBC
 Version: 2.3.1
-Release: 11%{?dist}.0.1
+Release: 14%{?dist}
 Group: System Environment/Libraries
 URL: http://www.unixODBC.org/
 # Programs are GPL, libraries are LGPL, except News Server library is GPL.
@@ -24,6 +24,8 @@ Patch6: export-symbols.patch
 Patch8: so-version-bump.patch
 Patch9: keep-typedefs.patch
 Patch10: coverity-fixes.patch
+Patch11: insecure-buffer-copy.patch
+Patch12: fixed-buffer-overflow.patch
 
 Conflicts: iodbc
 
@@ -44,6 +46,8 @@ a MySQL database, and/or the postgresql-odbc package for PostgreSQL.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
 
 chmod 0644 Drivers/MiniSQL/*.c
 chmod 0644 Drivers/nn/*.c
@@ -153,8 +157,19 @@ done
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Apr 16 2019 <odubaj@redhat.com> - 2.3.1-14
+- fixed insecure buffer copy (#1571530)
+- fixed possible buffer overflow (#1571528)
+
+* Fri Nov 04 2016 Pavel Raiskup <praiskup@redhat.com> - 2.3.1-13
+- revert: ltdl bundling
+
+* Wed Oct 19 2016 Tomas Repik <trepik@redhat.com> - 2.3.1-12
+- fix the libtool-ltdl compatibility
+  Resolves: rhbz#1267438
 
 * Wed Jul 15 2015 Jan Stanek <jstanek@redhat.com> - 2.3.1-11
 - Turn on versioning of cursor library.
