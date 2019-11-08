@@ -556,7 +556,6 @@ popd
 %attr(0755,root,root) %{_bindir}/ssh
 %attr(0644,root,root) %{_libdir}/fipscheck/ssh.hmac
 %attr(0755,root,root) %{_bindir}/scp
-%attr(0644,root,root) %{_mandir}/man1/scp.1*
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/ssh/ssh_config
 %attr(0755,root,root) %{_bindir}/slogin
 %attr(0511,root,nobody) %{_bindir}/ssh-agent
