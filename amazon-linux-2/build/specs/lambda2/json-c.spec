@@ -19,42 +19,18 @@ Patch500: json-c-fallthrough.diff
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: libtool
 
+Prefix: %{_prefix}
+
 %description
 JSON-C implements a reference counting object model that allows you to easily
 construct JSON objects in C, output them as JSON formatted strings and parse
 JSON formatted strings back into the C representation of JSON objects.
-
-%package devel
-Summary:	Development headers and library for json-c
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-Requires:	pkgconfig
-
-%description devel
-This package contains the development headers and library for json-c.
-
-
-%package doc
-Summary:	Reference manual for json-c
-Group:		Documentation
-%if 0%{?fedora} > 10 || 0%{?rhel}>5
-BuildArch:	noarch
-%endif
-
-%description doc
-This package contains the reference manual for json-c.
 
 %prep
 %setup -q -n json-c-json-c-%{version}-%{reldate}
 
 %patch0 -p1 -b .cve20136371
 %patch500 -p1 -b .fallthrough
-
-for doc in ChangeLog; do
- iconv -f iso-8859-1 -t utf8 $doc > $doc.new &&
- touch -r $doc $doc.new &&
- mv $doc.new $doc
-done
 
 # regenerate auto stuff to avoid rpath issue
 autoreconf -fi
@@ -76,48 +52,26 @@ make install DESTDIR=%{buildroot}
 # Get rid of la files
 rm -rf %{buildroot}%{_libdir}/*.la
 
-# yum cannot replace a dir by a link
-# so switch the dir names
-rm %{buildroot}%{_includedir}/json
-mv %{buildroot}%{_includedir}/json-c \
-   %{buildroot}%{_includedir}/json
-ln -s json \
-   %{buildroot}%{_includedir}/json-c
-
-
-%check
-make check
-
 
 %clean
 rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING NEWS README README.html
+%license COPYING
 %{_libdir}/libjson.so.*
 %{_libdir}/libjson-c.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/json
-%{_includedir}/json-c
-%{_libdir}/libjson.so
-%{_libdir}/libjson-c.so
-%{_libdir}/pkgconfig/json.pc
-%{_libdir}/pkgconfig/json-c.pc
-
-%files doc
-%defattr(-,root,root,-)
-%doc doc/html/*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Sat Nov 16 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Apr  9 2014 Remi Collet <remi@fedoraproject.org> - 0.11-4
 - fix has collision CVE-2013-6371
 - fix buffer overflow CVE-2013-6370
