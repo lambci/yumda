@@ -14,8 +14,6 @@ RUN yum-config-manager --enable epel
 RUN ln -s /usr/lib64 /opt/lib && \
   for dir in bin include; do ln -s /usr/$dir /opt/$dir; done
 
-COPY ./rpmmacros /home/mockbuild/.rpmmacros
-
 WORKDIR /tmp
 
 COPY ./*.patch ./
@@ -23,3 +21,4 @@ RUN for file in *.patch; do patch -d/ -p0 < $file; done && rm *.patch
 
 USER mockbuild
 
+COPY ./rpmmacros /home/mockbuild/.rpmmacros

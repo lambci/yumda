@@ -15,8 +15,6 @@ RUN amazon-linux-extras enable epel php7.3 redis4.0 memcached1.5 ruby2.6 httpd_m
 RUN ln -s /usr/lib64 /opt/lib && \
   for dir in bin include; do ln -s /usr/$dir /opt/$dir; done
 
-COPY ./rpmmacros /home/mockbuild/.rpmmacros
-
 WORKDIR /tmp
 
 COPY ./*.patch ./
@@ -24,3 +22,4 @@ RUN for file in *.patch; do patch -d/ -p0 < $file; done && rm *.patch
 
 USER mockbuild
 
+COPY ./rpmmacros /home/mockbuild/.rpmmacros
