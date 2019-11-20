@@ -1,8 +1,8 @@
 Summary: Timezone data
 Name: tzdata
-Version: 2019b
-%define tzdata_version 2019b
-%define tzcode_version 2019b
+Version: 2019c
+%define tzdata_version 2019c
+%define tzcode_version 2019c
 Release: 1%{?dist}
 License: Public Domain
 Group: System Environment/Base
@@ -148,6 +148,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/javazi-1.8
 
 %changelog
+* Wed Sep 11 2019 Patsy Griffin <patsy@redhat.com> - 2019c-1
+- Rebase to tzdata-2019c
+  - Fiji will observe DST from 2019-11-10 to 2020-01-12.
+  - Norfolk Island will begin observing Australian-style DST on 2019-10-06.
+
 * Mon Jul 01 2019 Patsy Griffin <patsy@redhat.com> - 2019b-1
 - Rebase to tzdata-2019b
   - Brazil will no longer observe DST going forward.

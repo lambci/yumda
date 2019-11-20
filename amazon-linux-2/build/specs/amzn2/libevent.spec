@@ -1,6 +1,8 @@
+%global _trivial .0
+%global _buildid .3
 Name:           libevent
 Version:        2.0.21
-Release: 4%{?dist}.0.2
+Release:        4%{?dist}%{?_trivial}%{?_buildid}
 Summary:        Abstract asynchronous event notification library
 
 Group:          System Environment/Libraries
@@ -9,10 +11,15 @@ URL:            http://sourceforge.net/projects/levent/
 Source0:        http://downloads.sourceforge.net/levent/%{name}-%{version}-stable.tar.gz
 
 BuildRequires: doxygen openssl-devel
+BuildRequires: autoconf
 
 Patch00: libevent-2.0.10-stable-configure.patch
 # Disable network tests
 Patch01: libevent-nonettests.patch
+
+
+# Amazon patches
+Patch10001: CVE-2014-6272.patch
 
 %description
 The libevent API provides a mechanism to execute a callback function
@@ -49,8 +56,10 @@ need to install %{name}-doc.
 # 477685 -  libevent-devel multilib conflict
 %patch00 -p1
 %patch01 -p1 -b .nonettests
+%patch10001 -p1
 
 %build
+autoconf
 %configure \
     --disable-dependency-tracking --disable-static
 make %{?_smp_mflags} all
@@ -114,6 +123,9 @@ make check
 %{_docdir}/%{name}-devel-%{version}/sample/*
 
 %changelog
+* Wed Nov 5 2019 Frederick Lefebvre <fredlef@amazon.com> - 2.0.21-4.amzn2.0.3
+- CVE-2014-6272, CVE-2015-6525
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.0.21-4
 - Mass rebuild 2014-01-24
 

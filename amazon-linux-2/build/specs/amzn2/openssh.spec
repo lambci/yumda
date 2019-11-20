@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .6
+%define _buildid .1
 
 # Do we want SELinux & Audit
 %if 0%{?!noselinux:1}
@@ -67,7 +67,7 @@
 
 # Do not forget to bump pam_ssh_agent_auth release if you rewind the main package release to 1
 %define openssh_ver 7.4p1
-%define openssh_rel 16
+%define openssh_rel 21
 %define pam_ssh_agent_ver 0.10.3
 %define pam_ssh_agent_rel 2
 
@@ -253,10 +253,12 @@ Patch958: openssh-7.4p1-winscp-compat.patch
 Patch959: openssh-7.4p1-authorized_keys_command.patch
 # Fix for CVE-2017-15906 (#1517226)
 Patch960: openssh-7.5p1-sftp-empty-files.patch
+# Fix for CVE-2018-15473 (#1619079)
+Patch961: openssh-7.4p1-CVE-2018-15473.patch
+# invalidate supplemental group cache used by temporarily_use_uid() (#1619079)
+Patch962: openssh-7.4p1-uidswap.patch
 
 ## AMZN2 Patches
-# Fix for CVE-2018-15473
-Patch5000: AMZN2-0001-CVE-2018-15473-delay-bailout-for-invalid-user.patch  
 Patch5001: CVE-2018-20685.patch
 Patch5002: CVE-2019-6109a.patch
 Patch5003: CVE-2019-6109b.patch
@@ -458,7 +460,7 @@ popd
 %patch606 -p1 -b .ipv6man
 %patch607 -p1 -b .sigpipe
 %patch609 -p1 -b .x11
-# 
+#
 # drop? %patch701 -p1 -b .exit-deadlock
 %patch702 -p1 -b .progress
 %patch703 -p1 -b .grab-info
@@ -472,10 +474,10 @@ popd
 %patch712 -p1 -b .evp-ctr
 %patch713 -p1 -b .ctr-cavs
 %patch714 -p1 -b .kdf-cavs
-# 
+#
 %patch800 -p1 -b .gsskex
 %patch801 -p1 -b .force_krb
-# 
+#
 %patch900 -p1 -b .canohost
 %patch901 -p1 -b .kuserok
 %patch902 -p1 -b .ccache_name
@@ -515,6 +517,8 @@ popd
 %patch958 -p1 -b .winscp
 %patch959 -p1 -b .large-command
 %patch960 -p1 -b .sftp-empty
+%patch961 -p1 -b .CVE-2018-15473
+%patch962 -p1 -b .uidswap
 
 %patch200 -p1 -b .audit
 %patch202 -p1 -b .audit-race
@@ -522,7 +526,6 @@ popd
 
 %patch100 -p1 -b .coverity
 
-%patch5000 -p1
 %patch5001 -p1
 %patch5002 -p1
 %patch5003 -p1
@@ -847,8 +850,25 @@ getent passwd sshd >/dev/null || \
 %endif
 
 %changelog
-* Mon May 20 2019 Frederick Lefebvre <fredlef@amzn.com> - 7.4p1-16.amzn2.0.6 
+* Tue Jun 25 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-21 + 0.10.3-2
+- Avoid double comma in the default cipher list in FIPS mode (#1722446)
+
+* Tue May 21 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-20 + 0.10.3-2
+- Revert the updating of cached passwd structure (#1712053)
+
+* Mon May 20 2019 Frederick Lefebvre <fredlef@amzn.com> - 7.4p1-16.amzn2.0.6
 - Address CVE-2018-20685, CVE-2019-6109 and CVE-2019-6111
+
+* Mon Mar 04 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-19 + 0.10.3-2
+- Update cached passwd structure after PAM authentication (#1674541)
+
+* Wed Feb 13 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-18 + 0.10.3-2
+- invalidate supplemental group cache used by temporarily_use_uid()
+  when the target uid differs (#1583735)
+
+* Mon Jan 14 2019 Jakub Jelen <jjelen@redhat.com> - 7.4p1-17 + 0.10.3-2
+- Fix for CVE-2018-15473 (#1619079)
+- Enable GCM mode for AES ciphers in FIPS mode (#1600869)
 
 * Fri Nov 24 2017 Jakub Jelen <jjelen@redhat.com> - 7.4p1-16 + 0.10.3-2
 - Fix for CVE-2017-15906 (#1517226)
@@ -1294,7 +1314,7 @@ getent passwd sshd >/dev/null || \
 - compile ssh-askpass with corect CFLAGS
 
 * Mon Aug  8 2011 Jan F. Chadima <jchadima@redhat.com> - 5.8p2-18 + 0.9.2-31
-- improve selinux's change context log 
+- improve selinux's change context log
 
 * Mon Aug  8 2011 Jan F. Chadima <jchadima@redhat.com> - 5.8p2-17 + 0.9.2-31
 - repair broken man pages
@@ -1384,7 +1404,7 @@ getent passwd sshd >/dev/null || \
 - improve periodical reseeding of random generator
 
 * Thu Mar 17 2011 Jan F. Chadima <jchadima@redhat.com> - 5.8p1-18 + 0.9.2-30
-- add periodical reseeding of random generator 
+- add periodical reseeding of random generator
 - change selinux contex for internal sftp in do_usercontext
 - exit(0) after sigterm
 
@@ -1854,7 +1874,7 @@ getent passwd sshd >/dev/null || \
 * Tue Jan 16 2007 Tomas Mraz <tmraz@redhat.com> - 4.5p1-2
 - support mls on labeled networks (#220487)
 - support mls level selection on unlabeled networks
-- allow / in usernames in scp (only beginning /, ./, and ../ is special) 
+- allow / in usernames in scp (only beginning /, ./, and ../ is special)
 
 * Thu Dec 21 2006 Tomas Mraz <tmraz@redhat.com> - 4.5p1-1
 - update to 4.5p1 (#212606)
@@ -1942,7 +1962,7 @@ getent passwd sshd >/dev/null || \
 * Tue Nov 22 2005 Tomas Mraz <tmraz@redhat.com> - 4.2p1-9
 - drop x11-ssh-askpass from the package
 - drop old build_6x ifs from spec file
-- improve gnome-ssh-askpass so it doesn't reveal number of passphrase 
+- improve gnome-ssh-askpass so it doesn't reveal number of passphrase
   characters to person looking at the display
 - less hackish fix for the __USE_GNU problem
 
@@ -2028,7 +2048,7 @@ getent passwd sshd >/dev/null || \
 - add spaces to messages in initscript (#138508)
 
 * Tue Feb  8 2005 Tomas Mraz <tmraz@redhat.com> 3.9p1-10
-- enable trusted forwarding by default if X11 forwarding is 
+- enable trusted forwarding by default if X11 forwarding is
   required by user (#137685 and duplicates)
 - disable protocol 1 support by default in sshd server config (#88329)
 - keep the gnome-askpass dialog above others (#69131)
@@ -2085,7 +2105,7 @@ getent passwd sshd >/dev/null || \
 - rebuilt
 
 * Wed Jun 9 2004 Daniel Walsh <dwalsh@redhat.com> 3.8.1p1-2
-- Remove use of pam_selinux and patch selinux in directly.  
+- Remove use of pam_selinux and patch selinux in directly.
 
 * Mon Jun  7 2004 Nalin Dahyabhai <nalin@redhat.com> 3.8.1p1-1
 - request gssapi-with-mic by default but not delegation (flag day for anyone
@@ -2108,7 +2128,7 @@ getent passwd sshd >/dev/null || \
 - Built RHLE3 U2 update package.
 
 * Wed Mar 3 2004 Daniel Walsh <dwalsh@redhat.com> 3.6.1p2-33
-- Close file descriptors on exec 
+- Close file descriptors on exec
 
 * Mon Mar  1 2004 Thomas Woerner <twoerner@redhat.com> 3.6.1p2-32
 - fixed pie build
@@ -2307,7 +2327,7 @@ getent passwd sshd >/dev/null || \
 - pull patch from CVS to avoid printing error messages when some of the
   default keys aren't available when running ssh-add
 - refresh to current revisions of Simon's patches
- 
+
 * Thu Mar 21 2002 Nalin Dahyabhai <nalin@redhat.com> 3.1p1-2gss
 - reintroduce Simon's gssapi patches
 - add buildprereq for autoconf253, which is needed to regenerate configure
@@ -2453,7 +2473,7 @@ getent passwd sshd >/dev/null || \
 
 * Sun Apr  8 2001 Preston Brown <pbrown@redhat.com>
 - remove explicit openssl requirement, fixes builddistro issue
-- make initscript stop() function wait until sshd really dead to avoid 
+- make initscript stop() function wait until sshd really dead to avoid
   races in condrestart
 
 * Mon Apr  2 2001 Nalin Dahyabhai <nalin@redhat.com>

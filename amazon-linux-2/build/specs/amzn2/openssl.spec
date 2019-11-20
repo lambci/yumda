@@ -20,12 +20,12 @@
 
 %global _performance_build 1
 
-%define _trivial .1
+%define _trivial .0
 %define _buildid .1
 Summary: Utilities from the general purpose cryptography library with TLS implementation
 Name: openssl
 Version: 1.0.2k
-Release: 16%{?dist}%{?_trivial}%{?_buildid}
+Release: 19%{?dist}%{?_trivial}%{?_buildid}
 Epoch: 1
 # We have to remove certain patented algorithms from the openssl source
 # tarball with the hobble-openssl script which is included below.
@@ -107,12 +107,14 @@ Patch103: openssl-1.0.2k-cve-2018-0737.patch
 Patch104: openssl-1.0.2k-cve-2018-0739.patch
 Patch105: openssl-1.0.2k-cve-2018-0495.patch
 Patch107: openssl-1.0.2k-cve-2018-5407.patch
+Patch108: openssl-1.0.2k-cve-2018-0734.patch
+Patch109: openssl-1.0.2k-cve-2019-1559.patch
+Patch110: openssl-1.0.2k-fix-one-and-done.patch
+Patch111: openssl-1.0.2k-fix-9-lives.patch
 
 # Amazon patches
 Patch10001: openssl-1.0.2g-disable-sslv2v3.patch
-Patch10002: openssl-1.0.2k-CVE-2018-0734.patch
 Patch10003: openssl-1.0.2k-fips-update.patch
-Patch10004: openssl-1.0.2k-CVE-2019-1559.patch
 License: OpenSSL
 Group: System Environment/Libraries
 URL: http://www.openssl.org/
@@ -249,11 +251,13 @@ cp %{SOURCE12} %{SOURCE13} crypto/ec/
 %patch104 -p1 -b .asn1-recursive
 %patch105 -p1 -b .rohnp-fix
 %patch107 -p1 -b .ecc-ladder
+%patch108 -p1 -b .dsa-signing
+%patch109 -p1 -b .padding-oracle
+%patch110 -p1 -b .one-and-done
+%patch111 -p1 -b .9-lives
 
 %patch10001 -p1 -b .ssl2ssl3
-%patch10002 -p1 -b .CVE-2018-0734
 %patch10003 -p1 -b .fips-update
-%patch10004 -p1 -b .cve-2019-1559
 
 sed -i 's/SHLIB_VERSION_NUMBER "1.0.0"/SHLIB_VERSION_NUMBER "%{version}"/' crypto/opensslv.h
 
@@ -553,18 +557,22 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/fipscanister.*
 %postun libs -p /sbin/ldconfig
 
 %changelog
-* Wed Apr  3 2019 Heath Petty <hpetty@amazon.com 1.0.2k-16.amzn2.1.1
-- fix CVE-2019-1559 
+* Tue Apr  9 2019 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-19
+- close the RSA decryption 9 lives of Bleichenbacher cat
+  timing side channel (#1649568)
+
+* Fri Apr  5 2019 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-18
+- fix CVE-2018-0734 - DSA signature local timing side channel
+- fix CVE-2019-1559 - 0-byte record padding oracle
+- close the RSA decryption One & done EM side channel (#1619558)
 
 * Thu Feb 7 2019 Balbir Singh <sblbir@amzn.com> 1.0.2k-16.amzn2.0.3
 - use a FIPS approved algorithm for fips_check_rsa - patch 10003
 
-* Wed Feb  6 2019 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-16.1
+* Wed Feb  6 2019 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-17
 - use SHA-256 in FIPS RSA pairwise key check
-- fix CVE-2018-5407 - EC signature local timing side-channel key extraction
-
-* Fri Jan 18 2019 Travis Davies <trdavies@amazon.com> 1.0.2k-16.amzn2.0.2
-- fix CVE-2018-0734 openssl timing side-channel attack - patch 10002 
+- fix CVE-2018-5407 (and CVE-2018-0735) - EC signature local
+  timing side-channel key extraction
 
 * Tue Aug 14 2018 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-16
 - fix CVE-2018-0495 - ROHNP - Key Extraction Side Channel on DSA, ECDSA
