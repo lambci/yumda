@@ -38,7 +38,7 @@ avahi-gobject.x86_64         0.6.31-19.lambda2                           lambda2
 avahi-libs.x86_64            0.6.31-19.lambda2                           lambda2
 avahi-tools.x86_64           0.6.31-19.lambda2                           lambda2
 bc.x86_64                    1.06.95-13.lambda2.0.2                      lambda2
-binutils.x86_64              2.29.1-27.lambda2.0.2                       lambda2
+binutils.x86_64              2.29.1-29.lambda2                           lambda2
 boost.x86_64                 1.53.0-27.lambda2.0.3                       lambda2
 boost-atomic.x86_64          1.53.0-27.lambda2.0.3                       lambda2
 boost-chrono.x86_64          1.53.0-27.lambda2.0.3                       lambda2

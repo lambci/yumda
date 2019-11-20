@@ -1,5 +1,3 @@
-%define _trivial .0
-%define _buildid .2
 # Binutils SPEC file.  Can be invoked with the following parameters:
 
 # --define "binutils_target arm-linux-gnu" to create arm-linux-gnu-binutils.
@@ -64,7 +62,7 @@
 Summary: A GNU collection of binary utilities
 Name: %{?cross}binutils%{?_with_debug:-debug}
 Version: 2.29.1
-Release: 27%{?dist}%{?_trivial}%{?_buildid}
+Release: 29%{?dist}
 License: GPLv3+
 Group: Development/Tools
 URL: https://sourceware.org/binutils
@@ -235,11 +233,11 @@ Patch28: binutils-CVE-2018-7208.patch
 
 # Purpose:  Fix a seg-fault induced when parsing corrupt ELF format files.
 # Lifetime: Fixed in 2.31.
-Patch29: binutils-CVE-2018-7643.patch
-
-# Purpose:  Fix a seg-fault induced when parsing corrupt ELF format files.
-# Lifetime: Fixed in 2.31.
 Patch30: binutils-CVE-2018-6323.patch
+
+Patch10001: binutils-CVE-2018-1000876.patch
+# CVE-2018-12641, CVE-2018-12697
+Patch10002: binutils-libiberty-demangler.patch
 
 #----------------------------------------------------------------------------
 
@@ -363,8 +361,9 @@ converting addresses to file and line).
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
-%patch29 -p1
 %patch30 -p1
+%patch10001 -p1
+%patch10002 -p1
 
 # We cannot run autotools as there is an exact requirement of autoconf-2.59.
 
@@ -684,9 +683,17 @@ rm -rf %{buildroot}%{_prefix}/%{binutils_target}
 
 #----------------------------------------------------------------------------
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 17 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
+* Wed Nov  6 2019 Frederick Lefebvre <fredlef@amzn.com> 2.29.1-29
+- libiberty: Prevent stack Exhaustion in the demangling functions
+- CVE-2018-12641, CVE-2018-12697
+- Remove duplicate patch for CVE-2018-7643
+
+* Tue Nov  5 2019 Frederick Lefebvre <fredlef@amzn.com> 2.29.1-28
+- CVE-2018-1000876 - PR23994, libbfd integer overflow
+ 
 * Thu Mar 26 2019 Frederick Lefebvre <fredlef@amzn.com> 2.29.1-27.amzn2.0.2
 - Have readelf return an exit failure status on error
 
