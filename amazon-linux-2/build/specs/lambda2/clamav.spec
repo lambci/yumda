@@ -20,9 +20,6 @@
 %global updateuser  clamupdate
 %global homedir     %{_localstatedir}/lib/clamav
 %global freshclamlog    %{_localstatedir}/log/freshclam.log
-%global milteruser  clamilt
-%global milterlog   %{_localstatedir}/log/clamav-milter.log
-%global milterstatedir  %_rundir/clamav-milter
 %global pkgdatadir  %_datadir/%name
 %global scanuser    clamscan
 %global scanstatedir    %_rundir/clamd.scan
@@ -105,8 +102,6 @@ BuildRequires: nc
 %{?systemd_requires}
 BuildRequires: systemd-devel
 %endif
-#for milter
-BuildRequires:  sendmail-devel
 
 Requires:   clamav-lib = %version-%release
 Requires:   data(clamav)
@@ -182,35 +177,6 @@ do not want to download a >120MB sized rpm-package with outdated virus
 definitions.
 
 
-%package milter
-Summary:    Milter module for the Clam Antivirus scanner
-# clamav-milter could work without clamd and without sendmail
-#Requires: clamd = %%{version}-%%{release}
-#Requires: /usr/sbin/sendmail
-Requires:   clamav-filesystem = %version-%release
-# Remove me after EOL of RHEL6
-
-%if %{with sysv}
-Requires:       %_initrddir
-Provides:   clamav-milter-sysvinit = %version-%release
-%endif
-Obsoletes:  clamav-milter-sysvinit < %version-%release
-# Remove me after EOL of RHEL6
-%if %{with upstart}
-Requires:   /etc/init
-Provides:  clamav-milter-upstart = %version-%release
-%endif
-Obsoletes:  clamav-milter-upstart < %version-%release
-
-%if %{with systemd}
-Provides: clamav-milter-systemd = %{version}-%{release}
-%endif
-Obsoletes: clamav-milter-systemd < %{version}-%{release}
-Prefix: %{_prefix}
-
-%description milter
-This package contains files which are needed to run the clamav-milter.
-
 ## ------------------------------------------------------------
 
 %prep
@@ -221,8 +187,6 @@ This package contains files which are needed to run the clamav-milter.
 %patch24 -p1 -b .private
 %patch27 -p1 -b .umask
 %patch30 -p1
-
-install -p -m0644 %SOURCE300 clamav-milter/
 
 mkdir -p libclamunrar{,_iface}
 %{!?with_unrar:touch libclamunrar/{Makefile.in,all,install}}
@@ -255,7 +219,7 @@ export have_cv_ipv6=yes
 rm -rf libltdl autom4te.cache Makefile.in
 autoreconf -i
 %configure \
-    --enable-milter \
+    --disable-milter \
     --disable-clamav \
     --disable-static \
     --disable-zlib-vcheck \
@@ -307,7 +271,6 @@ install -d -m 0755 \
     $RPM_BUILD_ROOT%_tmpfilesdir \
     $RPM_BUILD_ROOT%_rundir \
     $RPM_BUILD_ROOT%{_localstatedir}/log \
-    $RPM_BUILD_ROOT%milterstatedir \
     $RPM_BUILD_ROOT%pkgdatadir/template \
     $RPM_BUILD_ROOT%_initrddir \
     $RPM_BUILD_ROOT%homedir \
@@ -382,30 +345,6 @@ EOF
 
 touch $RPM_BUILD_ROOT%scanstatedir/clamd.{sock,pid}
 
-
-### The milter stuff
-sed -r \
-    -e 's!^#?(User).*!\1 %milteruser!g' \
-    -e 's!^#?(AllowSupplementaryGroups|LogSyslog) .*!\1 yes!g' \
-    -e 's! /tmp/clamav-milter.socket! %milterstatedir/clamav-milter.socket!g' \
-    -e 's! /var/run/clamav-milter.pid! %milterstatedir/clamav-milter.pid!g' \
-    -e 's! /var/run/clamd/clamd.socket! %scanstatedir/clamd.sock!g' \
-    -e 's! /tmp/clamav-milter.log! %milterlog!g' \
-    etc/clamav-milter.conf.sample > $RPM_BUILD_ROOT%_sysconfdir/mail/clamav-milter.conf
-
-install -D -p -m 0644 %SOURCE310 $RPM_BUILD_ROOT%_sysconfdir/init/clamav-milter.conf
-%if %{with sysv}
-install -D -p -m 0755 %SOURCE320 $RPM_BUILD_ROOT%_initrddir/clamav-milter
-%endif
-install -D -p -m 0644 %SOURCE330 $RPM_BUILD_ROOT%_unitdir/clamav-milter.service
-
-cat << EOF > $RPM_BUILD_ROOT%_tmpfilesdir/clamav-milter.conf
-d %milterstatedir 0710 %milteruser %milteruser
-EOF
-
-rm -f $RPM_BUILD_ROOT%_sysconfdir/clamav-milter.conf.sample
-touch $RPM_BUILD_ROOT{%milterstatedir/clamav-milter.{socket,pid},%milterlog}
-
 %{!?with_upstart:  rm -rf $RPM_BUILD_ROOT%_sysconfdir/init}
 %{!?with_systemd:  rm -rf $RPM_BUILD_ROOT%_unitdir}
 %{!?with_sysv:     rm -f  $RPM_BUILD_ROOT%_initrddir/*}
@@ -467,34 +406,6 @@ ln -s %pkgdatadir/clamd-wrapper     $RPM_BUILD_ROOT%_initrddir/clamd-wrapper
 %ghost %attr(0664,root,%updateuser) %verify(not size md5 mtime) %freshclamlog
 %ghost %attr(0664,%updateuser,%updateuser) %homedir/*.cld
 %ghost %attr(0664,%updateuser,%updateuser) %homedir/mirrors.dat
-
-
-## -----------------------
-
-%files milter
-%license clamav-milter/README.fedora
-%_sbindir/*milter*
-%dir %_sysconfdir/mail
-%config(noreplace) %_sysconfdir/mail/clamav-milter.conf
-%ghost %attr(0620,root,%milteruser) %verify(not size md5 mtime) %milterlog
-%ghost %milterstatedir/clamav-milter.socket
-
-%if %{with tmpfiles}
-  %_tmpfilesdir/clamav-milter.conf
-  %ghost %dir %attr(0710,%milteruser,%milteruser) %milterstatedir
-%else
-  %dir %attr(0710,%milteruser,%milteruser) %milterstatedir
-%endif
-%if %{with sysv}
-  %config %_initrddir/clamav-milter
-  %ghost %milterstatedir/clamav-milter.pid
-%endif
-%if %{with upstart}
-  %config(noreplace) %_sysconfdir/init/clamav-milter*
-%endif
-%if %{with systemd}
-  %_unitdir/clamav-milter.service
-%endif
 
 %exclude %{_mandir}
 %exclude %{_includedir}
