@@ -59,14 +59,14 @@ Amazon Linux 1:
 
 ```console
 export CURSPEC=openssh.spec && \
-  git diff origin/master -- specs/amzn2/$CURSPEC | patch specs/lambda2/$CURSPEC
+  git diff origin/master -- specs/amzn1/$CURSPEC | patch specs/lambda1/$CURSPEC
 ```
 
 Amazon Linux 2:
 
 ```console
 export CURSPEC=openssh.spec && \
-  git diff origin/master -- specs/amzn1/$CURSPEC | patch specs/lambda1/$CURSPEC
+  git diff origin/master -- specs/amzn2/$CURSPEC | patch specs/lambda2/$CURSPEC
 ```
 
 ## Building specs
@@ -170,8 +170,7 @@ node -p "
     .map(p => (p.match(/(^.+)(.x86_64|.noarch)/) || [])[1]).filter(Boolean));
   fs.readFileSync('../todo.amzn1.txt', 'utf8').trim().split('\n')
     .map(t => t.split('.amzn1')[0].split('-').slice(0, -2).join('-'))
-    .filter(t => names.has(t))
-"
+    .filter(t => names.has(t))"
 ```
 
 Amazon Linux 2:
@@ -182,6 +181,5 @@ node -p "
     .map(p => (p.match(/(^.+)(.x86_64|.noarch)/) || [])[1]).filter(Boolean));
   fs.readFileSync('../todo.amzn2.txt', 'utf8').trim().split('\n')
     .map(t => t.split('.amzn2')[0].split('-').slice(0, -2).join('-'))
-    .filter(t => names.has(t))
-"
+    .filter(t => names.has(t))"
 ```

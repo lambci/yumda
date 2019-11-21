@@ -76,7 +76,6 @@ perl-XML-Parser-2.41-10.amzn2.0.2 32
 numpy-1.7.1-13.amzn2 32
 numactl-libs-2.0.9-7.amzn2 32
 libcanberra-gtk3-0.30-5.amzn2.0.2 32
-json-c-0.11-4.amzn2.0.3 32
 webkitgtk4-2.14.7-3.amzn2.0.1 31
 perl-DateTime-1.04-6.amzn2.1.0 31
 perl-CGI-3.63-4.amzn2 31
@@ -451,14 +450,10 @@ perl-Template-Toolkit-2.24-5.amzn2.0.2 9
 perl-Module-Runtime-0.013-4.amzn2 9
 perl-Module-Build-0.40.05-2.amzn2 9
 perl-HTTP-Cookies-6.01-5.amzn2 9
-perl-Filter-1.49-3.amzn2.0.2 9
-perl-ExtUtils-Install-1.58-294.amzn2 9
 perl-Exception-Class-1.37-3.amzn2 9
 perl-DateTime-TimeZone-1.70-1.amzn2 9
 perl-DB_File-1.830-6.amzn2.0.2 9
-perl-Compress-Raw-Zlib-2.061-4.amzn2.0.2 9
 papi-5.2.0-25.amzn2 9
-openldap-servers-2.4.44-15.amzn2 9
 nmap-ncat-6.40-13.amzn2 9
 net-snmp-utils-5.7.2-43.amzn2 9
 maven-settings-2.2.1-47.amzn2 9
@@ -2253,7 +2248,6 @@ ksh-20120801-247.amzn2.0.2 2
 keyutils-libs-devel-1.5.8-3.amzn2.0.2 2
 jzlib-1.1.1-6.amzn2 2
 jtidy-1.0-0.16.20100930svn1125.amzn2 2
-json-c-devel-0.11-4.amzn2.0.3 2
 jose-10-1.amzn2 2
 joda-time-2.2-3.tzdata2013c.amzn2 2
 jetty-websocket-server-9.0.3-8.amzn2 2
@@ -5660,7 +5654,6 @@ jsr-305-javadoc-0-0.18.20090319svn.amzn2 0
 jsoup-javadoc-1.6.1-10.amzn2 0
 jsoncpp-doc-1.7.2-3.amzn2.0.2 0
 json-glib-tests-1.2.6-1.amzn2.0.2 0
-json-c-doc-0.11-4.amzn2.0.3 0
 jsch-javadoc-0.1.50-5.amzn2 0
 jsch-demo-0.1.50-5.amzn2 0
 js-devel-1.8.5-20.amzn2 0

@@ -536,7 +536,6 @@ gettext-0.18.1.1-9.1.11.amzn1 8
 createrepo-0.10-1.11.amzn1 8
 compat-boost-signals-1.41.0-11.10.amzn1 8
 compat-boost-iostreams-1.41.0-11.10.amzn1 8
-clamav-update-0.101.2-1.38.amzn1 8
 boost-system-1.53.2-14.23.amzn1 8
 batik-1.7-10.9.amzn1 8
 aws-apitools-common-1.1.0-1.9.amzn1 8
@@ -597,7 +596,6 @@ gc-7.1-12.6.amzn1 7
 ethtool-3.15-2.27.amzn1 7
 docbook-dtds-1.0-51.8.amzn1 7
 compat-boost-serialization-1.41.0-11.10.amzn1 7
-clamav-lib-0.101.2-1.38.amzn1 7
 bind-libs-9.8.2-0.68.rc1.60.amzn1 7
 bc-1.06.95-1.10.amzn1 7
 apache-tomcat-apis-0.1-1.6.amzn1 7
@@ -687,7 +685,6 @@ device-mapper-event-libs-1.02.135-1.31.amzn1 6
 device-mapper-1.02.135-1.31.amzn1 6
 dejavu-fonts-common-2.33-6.6.amzn1 6
 compat-mpich-1.2.1-2.3.12.amzn1 6
-clamav-data-0.101.2-1.38.amzn1 6
 boost141-openmpi-1.41.0-15.17.amzn1 6
 boost141-mpich2-1.41.0-15.17.amzn1 6
 boost-openmpi-1.53.2-14.23.amzn1 6
@@ -806,7 +803,6 @@ corosynclib-1.4.1-17.6.amzn1 5
 cluster-glue-libs-1.0.6-9.13.amzn1 5
 clang6.0-libs-6.0.1-8.2.amzn1 5
 clang-3.6.2-1.12.amzn1 5
-clamav-filesystem-0.101.2-1.38.amzn1 5
 clamav-data-empty-0.99.4-1.30.amzn1 5
 boost-chrono-1.53.2-14.23.amzn1 5
 bcel-5.2-7.2.9.amzn1 5
@@ -2874,7 +2870,6 @@ cluster-glue-1.0.6-9.13.amzn1 1
 cloud-init-0.7.6-2.17.amzn1 1
 cloud-disk-utils-0.27-1.5.amzn1 1
 clamav-server-sysvinit-0.99.4-1.30.amzn1 1
-clamav-0.101.2-1.38.amzn1 1
 cjkuni-uming-fonts-0.2.20080216.1-36.2.amzn1 1
 cjkuni-ukai-fonts-0.2.20080216.1-36.2.amzn1 1
 chrony-3.2-1.26.amzn1 1
@@ -4292,7 +4287,6 @@ classpathx-mail-javadoc-1.1.2-9.4.8.amzn1 0
 classpathx-jaf-javadoc-1.0-15.4.7.amzn1 0
 clang6.0-analyzer-6.0.1-8.2.amzn1 0
 clang-analyzer-3.6.2-1.12.amzn1 0
-clamav-db-0.101.2-1.38.amzn1 0
 cjkuni-fonts-ghostscript-0.2.20080216.1-36.2.amzn1 0
 chrpath-0.13-7.6.amzn1 0
 check-static-0.9.8-1.1.6.amzn1 0
