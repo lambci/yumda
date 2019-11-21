@@ -1,8 +1,8 @@
 Summary: Timezone data
 Name: tzdata
-Version: 2019b
-%define tzdata_version 2019b
-%define tzcode_version 2019b
+Version: 2019c
+%define tzdata_version 2019c
+%define tzcode_version 2019c
 Release: 1%{?dist}
 License: Public Domain
 Group: System Environment/Base
@@ -138,8 +138,13 @@ install -p -m 644 tzdb.dat $RPM_BUILD_ROOT%{_datadir}/javazi-1.8/
 %{_datadir}/javazi-1.8
 
 %changelog
-* Sun Jul 07 2019 Michael Hart <michael@lambci.org>
+* Sun Nov 17 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Sep 11 2019 Patsy Griffin <patsy@redhat.com> - 2019c-1
+- Rebase to tzdata-2019c
+  - Fiji will observe DST from 2019-11-10 to 2020-01-12.
+  - Norfolk Island will begin observing Australian-style DST on 2019-10-06.
 
 * Mon Jul 01 2019 Patsy Griffin <patsy@redhat.com> - 2019b-1
 - Rebase to tzdata-2019b
