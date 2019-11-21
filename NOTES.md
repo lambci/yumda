@@ -36,7 +36,7 @@ Amazon Linux 2:
 
 ```console
 diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | \
-  grep -v -e git-2.17 -e libvoikko-3.6 -e libvoikko-3.6 -e lzo-2.06 -e libidn2-2.2.0-1.el7 -e libmetalink-0.1.3-1.el7 | \
+  grep -v -e git-2.17 -e libvoikko-3.6 -e lzo-2.06 -e libidn2-2.2.0-1.el7 -e libmetalink-0.1.3-1.el7 | \
   sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
   <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
   grep '^<'
@@ -50,6 +50,24 @@ rpm -ivh *.src.rpm
 ```
 
 Be aware that clashing deps (eg, `python` and `python3`) can't be unpacked together
+
+## Patching lambda specs from amzn diffs
+
+From outside docker, assuming amzn updates have been committed
+
+Amazon Linux 1:
+
+```console
+export CURSPEC=openssh.spec && \
+  git diff origin/master -- specs/amzn2/$CURSPEC | patch specs/lambda2/$CURSPEC
+```
+
+Amazon Linux 2:
+
+```console
+export CURSPEC=openssh.spec && \
+  git diff origin/master -- specs/amzn1/$CURSPEC | patch specs/lambda1/$CURSPEC
+```
 
 ## Building specs
 
