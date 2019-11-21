@@ -24,30 +24,12 @@ Patch3:		json-c-0.11-cve.patch
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:	libtool autoconf
 
+Prefix: %{_prefix}
+
 %description
 JSON-C implements a reference counting object model that allows you to easily
 construct JSON objects in C, output them as JSON formatted strings and parse
 JSON formatted strings back into the C representation of JSON objects.
-
-%package devel
-Summary:	Development headers and library for json-c
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-Requires:	pkgconfig
-
-%description devel
-This package contains the development headers and library for json-c.
-
-
-%package doc
-Summary:	Reference manual for json-c
-Group:		Documentation
-%if 0%{?fedora} > 10 || 0%{?rhel}>5 || 0%{?amzn}
-BuildArch:	noarch
-%endif
-
-%description doc
-This package contains the reference manual for json-c.
 
 %prep
 %setup -q -n json-c-json-c-%{version}-%{reldate}
@@ -59,13 +41,6 @@ This package contains the reference manual for json-c.
 
 # regenerate auto stuff to avoid rpath issue and cve stuff
 autoreconf -fi
-
-for doc in ChangeLog; do
- iconv -f iso-8859-1 -t utf8 $doc > $doc.new &&
- touch -r $doc $doc.new &&
- mv $doc.new $doc
-done
-
 
 %build
 %configure --enable-shared --disable-static --disable-rpath --enable-rdrand
@@ -79,48 +54,23 @@ make install DESTDIR=%{buildroot}
 # Get rid of la files
 rm -rf %{buildroot}%{_libdir}/*.la
 
-# yum cannot replace a dir by a link
-# so switch the dir names
-rm %{buildroot}%{_includedir}/json
-mv %{buildroot}%{_includedir}/json-c \
-   %{buildroot}%{_includedir}/json
-ln -s json \
-   %{buildroot}%{_includedir}/json-c
-
-%check
-make check
-
 %clean
 rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING README README.html
+%license COPYING
 %{_libdir}/libjson.so.*
 %{_libdir}/libjson-c.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}/json
-%{_includedir}/json-c
-%{_libdir}/libjson.so
-%{_libdir}/libjson-c.so
-%{_libdir}/pkgconfig/json.pc
-%{_libdir}/pkgconfig/json-c.pc
-
-%files doc
-%defattr(-,root,root,-)
-%doc doc/html/*
-
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
-* Wed Sep 17 2014 Tom Kirchner <tjk@amazon.com>
-- import source package F20/json-c-0.11-6.fc20
+* Sun Nov 17 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
 
 * Wed Apr 09 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 0.11-7
 - Address CVE-2013-6371 and CVE-2013-6370 (BZ #1085676 and #1085677).
