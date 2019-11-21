@@ -331,7 +331,7 @@ libdrm.x86_64                2.4.83-2.lambda2.0.2                        lambda2
 libedit.x86_64               3.0-12.20121213cvs.lambda2.0.2              lambda2
 libepoxy.x86_64              1.3.1-2.lambda2                             lambda2
 libev.x86_64                 4.24-4.lambda2.0.2                          lambda2
-libevent.x86_64              2.0.21-4.lambda2.0.2                        lambda2
+libevent.x86_64              2.0.21-4.lambda2.0.3                        lambda2
 libexif.x86_64               0.6.21-6.lambda2.0.2                        lambda2
 libfdisk.x86_64              2.30.2-2.lambda2.0.4                        lambda2
 libfontenc.x86_64            1.1.3-3.lambda2.0.2                         lambda2
