@@ -1,7 +1,7 @@
 # yumda – yum for Lambda
 
-A collection of binary packages that have been recompiled for an AWS Lambda
-environment, with a
+A [Linux distro](https://en.wikipedia.org/wiki/Linux_distribution) of software packages that have
+been recompiled for an AWS Lambda environment, with a
 [yum](https://access.redhat.com/sites/default/files/attachments/rh_yum_cheatsheet_1214_jcs_print-1.pdf)
 configuration to install them (requires [Docker](https://docs.docker.com/install/)).
 
