@@ -24,11 +24,9 @@ Usage:
 docker run lambci/yumda:<version> yum <yum-args>
 ```
 
-For the `nodejs10.x` runtime use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
+For newer Amazon Linux 2 Lambda runtimes (`nodejs10.x`, `nodejs12.x`, `python3.8`, `java11`) use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
 
-The `nodejs10.x` runtime uses Amazon Linux 2 – so it requires different yum packages than the older runtimes.
-
-Eg, to see what [packages are available for nodejs10.x](https://github.com/lambci/yumda/blob/master/amazon-linux-2/packages.txt):
+Eg, to see what [packages are available for Amazon Linux 2 runtimes](https://github.com/lambci/yumda/blob/master/amazon-linux-2/packages.txt):
 
 ```console
 $ docker run --rm lambci/yumda:2 yum list available
@@ -77,7 +75,7 @@ $ aws lambda publish-layer-version --layer-name gs-layer --zip-file fileb://gs-l
 
 Let's say you want to create a Lambda function that needs to clone a git repository and then manipulate an image using [GraphicsMagick](http://www.graphicsmagick.org/). For fun, we'll also convert it to ASCII art and log it.
 
-The example we'll walk through below uses `nodejs10.x` runtime (and hence `lambci/yumda:2`). The code for this example lives in the [examples/nodejs10.x](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory, but we'll walk through the steps of creating it from scratch. For the other runtimes, see [examples/python3.7](https://github.com/lambci/yumda/tree/master/examples/python3.7) and just replace any usage below of `lambci/yumda:2` with `lambci/yumda:1`.
+The example we'll walk through below uses `nodejs10.x` runtime (and hence `lambci/yumda:2`). The code for this example lives in the [examples/nodejs10.x](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory, but we'll walk through the steps of creating it from scratch. For older runtimes, see [examples/python3.7](https://github.com/lambci/yumda/tree/master/examples/python3.7) and just replace any usage below of `lambci/yumda:2` with `lambci/yumda:1`.
 
 Start off by creating a new SAM app:
 
