@@ -625,8 +625,8 @@ python.x86_64                2.7.16-4.lambda2                            lambda2
 python-libs.x86_64           2.7.16-4.lambda2                            lambda2
 python2-pip.noarch           9.0.3-1.lambda2.0.1                         lambda2
 python2-setuptools.noarch    38.4.0-3.lambda2.0.6                        lambda2
-python3.x86_64               3.7.4-1.lambda2.0.2                         lambda2
-python3-libs.x86_64          3.7.4-1.lambda2.0.2                         lambda2
+python3.x86_64               3.7.4-1.lambda2.0.3                         lambda2
+python3-libs.x86_64          3.7.4-1.lambda2.0.3                         lambda2
 python3-pip.noarch           9.0.3-1.lambda2.0.1                         lambda2
 python3-setuptools.noarch    38.4.0-3.lambda2.0.6                        lambda2
 readline.x86_64              6.2-10.lambda2.0.2                          lambda2
