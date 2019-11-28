@@ -621,8 +621,8 @@ pth.x86_64                   2.0.7-23.lambda2.0.2                        lambda2
 pulseaudio-libs.x86_64       10.0-3.lambda2.0.2                          lambda2
 pulseaudio-libs-glib2.x86_64 10.0-3.lambda2.0.2                          lambda2
 pulseaudio-utils.x86_64      10.0-3.lambda2.0.2                          lambda2
-python.x86_64                2.7.16-3.lambda2.0.1                        lambda2
-python-libs.x86_64           2.7.16-3.lambda2.0.1                        lambda2
+python.x86_64                2.7.16-4.lambda2                            lambda2
+python-libs.x86_64           2.7.16-4.lambda2                            lambda2
 python2-pip.noarch           9.0.3-1.lambda2.0.1                         lambda2
 python2-setuptools.noarch    38.4.0-3.lambda2.0.6                        lambda2
 python3.x86_64               3.7.4-1.lambda2.0.2                         lambda2

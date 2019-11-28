@@ -1,8 +1,3 @@
-#amazonlinux merge strategy: never
-%define _trivial .0
-%define _buildid .1
-
-
 # ======================================================
 # Conditionals and other variables controlling the build
 # ======================================================
@@ -94,7 +89,7 @@ Summary: An interpreted, interactive, object-oriented programming language
 Name: %{python}
 # Remember to also rebase python-docs when changing this:
 Version: 2.7.16
-Release: 3%{?dist}%{?_trivial}%{?_buildid}
+Release: 4%{?dist}
 License: Python
 Group: Development/Languages
 Requires: %{python}-libs%{?_isa} = %{version}-%{release}
@@ -781,6 +776,7 @@ Patch5000: 05000-autotool-intermediates.patch
 Patch9000: 0001-bpo-30458-Disallow-control-chars-in-http-URLs-GH-127.patch
 Patch9001: 0001-bpo-36216-Add-check-for-characters-in-netloc-that-no.patch
 Patch9002: Fix-CVE-2019-10160.patch
+Patch9003: 9003-bpo-34155-Dont-parse-domains-containing-at-GH-13079.patch
 
 %description
 Python is an interpreted, interactive, object-oriented programming
@@ -954,6 +950,7 @@ find -name "*~" |xargs rm -f
 %patch9000 -p1
 %patch9001 -p1
 %patch9002 -p1
+%patch9003 -p1
 
 # ======================================================
 # Configuring and building the code:
@@ -1458,8 +1455,11 @@ cp %{SOURCE9} %{buildroot}%{_tmpfilesdir}/python.conf
 # ======================================================
 
 %changelog
-* Sun Sep 29 2019 Michael Hart <michael@lambci.org>
+* Thu Nov 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Nov 07 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.7.16-4
+- Fix CVE-2019-16056
 
 * Wed Sep 11 2019 Jeremiah Mahler <jmmahler@amazon.com> - 2.7.16-3.amzn2.0.1
 - Fix CVE-2019-9948
