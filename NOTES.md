@@ -136,13 +136,15 @@ aws s3 sync --delete ~/github/yumda/amazon-linux-2/build/lambda2 s3://rpm.lambci
 Amazon Linux 1:
 
 ```console
-docker run --rm lambci/yumda:1 bash -c "yum list available | tail -n +3 | grep -o -E '^\S+' | xargs yum install"
+docker run --rm lambci/yumda:1 bash -c \
+  "yum list available | tail -n +3 | grep -o -E '^\S+' | xargs yum install"
 ```
 
 Amazon Linux 2:
 
 ```console
-docker run --rm lambci/yumda:2 bash -c "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install"
+docker run --rm lambci/yumda:2 bash -c \
+  "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install"
 ```
 
 ## Generating todo.txt

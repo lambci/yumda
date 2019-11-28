@@ -633,8 +633,8 @@ readline.x86_64              6.2-10.lambda2.0.2                          lambda2
 recode.x86_64                3.6-38.lambda2.0.1                          lambda2
 redis.x86_64                 4.0.10-2.lambda2.0.2                        lambda2
 redis-trib.noarch            4.0.10-2.lambda2.0.2                        lambda2
-rpm.x86_64                   4.11.3-25.lambda2.0.3                       lambda2
-rpm-libs.x86_64              4.11.3-25.lambda2.0.3                       lambda2
+rpm.x86_64                   4.11.3-40.lambda2.0.3                       lambda2
+rpm-libs.x86_64              4.11.3-40.lambda2.0.3                       lambda2
 ruby.x86_64                  2.6.3-122.lambda2.0.1                       lambda2
 ruby-libs.x86_64             2.6.3-122.lambda2.0.1                       lambda2
 rubygem-bigdecimal.x86_64    1.4.1-122.lambda2.0.1                       lambda2
