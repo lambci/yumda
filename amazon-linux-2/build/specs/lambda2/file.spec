@@ -1,3 +1,6 @@
+%define _trivial .0
+%define _buildid .1
+
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 %global __libtoolize :
@@ -5,7 +8,7 @@
 Summary: A utility for determining file types
 Name: file
 Version: 5.11
-Release: 33%{?dist}.0.2
+Release: 35%{?dist}%{?_trivial}%{?_buildid}
 License: BSD
 Group: Applications/File
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
@@ -65,6 +68,15 @@ Patch58: file-5.11-pascal.patch
 
 # fix #1246385 - 'file --version' now exits successfully
 Patch59: file-5.11-version.patch
+
+# fix #1488898 - bump the strength of gzip
+Patch60: file-5.11-gzip-strength.patch
+
+# fix #1562135 - do not classify groovy script as python code
+Patch61: file-5.11-python-comment.patch
+
+# patches added by Amazon
+Patch1001: file-5.11-java-jar-zip.patch
 
 URL: http://www.darwinsys.com/file/
 Requires: file-libs = %{version}-%{release}
@@ -145,6 +157,9 @@ Libraries for applications using libmagic.
 %patch57 -p1
 %patch58 -p1
 %patch59 -p1
+%patch60 -p1
+%patch61 -p1
+%patch1001 -p1
 
 # Patches can generate *.orig files, which can't stay in the magic dir,
 # otherwise there will be problems when compiling magic file!
@@ -202,8 +217,11 @@ ln -s ../magic ${RPM_BUILD_ROOT}%{_datadir}/file/magic
 %exclude %{_mandir}
 
 %changelog
-* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+* Thu Nov 28 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Nov 12 2019 Jeremiah Mahler <jmmahler@amazon.com> 5.11-35.amzn2.0.1
+- backport fix so .jar is not detected as .zip
 
 * Mon Jun 27 2016 Kamil Dudka <kdudka@redhat.com> 5.11-33
 - fix #1246385 - 'file --version' now exits successfully
