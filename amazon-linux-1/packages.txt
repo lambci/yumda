@@ -18,9 +18,9 @@ gd.x86_64                            2.0.35-11.10.lambda1                lambda1
 gd-progs.x86_64                      2.0.35-11.10.lambda1                lambda1
 ghostscript.x86_64                   8.70-24.26.lambda1                  lambda1
 git.x86_64                           2.24.0-1.lambda1                    lambda1
-glibc-devel.x86_64                   2.17-260.175.lambda1                lambda1
-glibc-headers.x86_64                 2.17-260.175.lambda1                lambda1
-glibc-utils.x86_64                   2.17-260.175.lambda1                lambda1
+glibc-devel.x86_64                   2.17-292.178.lambda1                lambda1
+glibc-headers.x86_64                 2.17-292.178.lambda1                lambda1
+glibc-utils.x86_64                   2.17-292.178.lambda1                lambda1
 groff.x86_64                         1.22.2-8.11.lambda1                 lambda1
 jp2a.x86_64                          1.0.7-1.lambda1                     lambda1
 json-c.x86_64                        0.11-6.8.lambda1                    lambda1
@@ -41,7 +41,7 @@ libwebp.x86_64                       0.3.0-3.5.lambda1                   lambda1
 libwebp-tools.x86_64                 0.3.0-3.5.lambda1                   lambda1
 libyaml.x86_64                       0.1.6-6.7.lambda1                   lambda1
 mpfr.x86_64                          3.1.1-4.14.lambda1                  lambda1
-nscd.x86_64                          2.17-260.175.lambda1                lambda1
+nscd.x86_64                          2.17-292.178.lambda1                lambda1
 openssh.x86_64                       7.4p1-21.73.lambda1                 lambda1
 openssh-cavs.x86_64                  7.4p1-21.73.lambda1                 lambda1
 openssh-clients.x86_64               7.4p1-21.73.lambda1                 lambda1
