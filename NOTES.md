@@ -58,15 +58,15 @@ From outside docker, assuming amzn updates have been committed
 Amazon Linux 1:
 
 ```console
-export CURSPEC=openssh.spec && \
-  git diff origin/master -- specs/amzn1/$CURSPEC | patch specs/lambda1/$CURSPEC
+export CURSPEC=openssh && \
+  git diff origin/master -- specs/amzn1/${CURSPEC}.spec | patch specs/lambda1/${CURSPEC}.spec
 ```
 
 Amazon Linux 2:
 
 ```console
-export CURSPEC=openssh.spec && \
-  git diff origin/master -- specs/amzn2/$CURSPEC | patch specs/lambda2/$CURSPEC
+export CURSPEC=openssh && \
+  git diff origin/master -- specs/amzn2/${CURSPEC}.spec | patch specs/lambda2/${CURSPEC}.spec
 ```
 
 ## Building specs
@@ -74,19 +74,19 @@ export CURSPEC=openssh.spec && \
 Amazon Linux 1:
 
 ```console
-export CURSPEC=openssh.spec && \
+export CURSPEC=openssh && \
   rm -rf ~/rpmbuild/{S,}RPMS && \
-  sudo yum-builddep -y /tmp/fs/specs/lambda1/$CURSPEC && \
-  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda1/$CURSPEC
+  sudo yum-builddep -y /tmp/fs/specs/lambda1/${CURSPEC}.spec && \
+  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda1/${CURSPEC}.spec
 ```
 
 Amazon Linux 2:
 
 ```console
-export CURSPEC=openssh.spec && \
+export CURSPEC=openssh && \
   rm -rf ~/rpmbuild/{S,}RPMS && \
-  sudo yum-builddep -y /tmp/fs/specs/lambda2/$CURSPEC && \
-  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda2/$CURSPEC
+  sudo yum-builddep -y /tmp/fs/specs/lambda2/${CURSPEC}.spec && \
+  rpmbuild -ba --nocheck --sign /tmp/fs/specs/lambda2/${CURSPEC}.spec
 ```
 
 ## To bulk sign RPMs
