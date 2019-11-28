@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .3
 # build against xz?
 %bcond_without xz
 # just for giggles, option to build with internal Berkeley DB
@@ -8,6 +8,11 @@
 %bcond_with check
 # disable plugins initially
 %bcond_without plugins
+%if 0%{?amzn}
+%bcond_with audit
+%else
+%bcond_without audit
+%endif
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
@@ -23,7 +28,7 @@
 Summary: The RPM package management system
 Name: rpm
 Version: %{rpmver}
-Release: %{?snapver:0.%{snapver}.}25%{?dist}.0.3
+Release: %{?snapver:0.%{snapver}.}40%{?dist}%{_trivial}%{_buildid}
 Group: System Environment/Base
 Url: http://www.rpm.org/
 Source0: http://rpm.org/releases/rpm-4.11.x/%{name}-%{srcver}.tar.bz2
@@ -84,6 +89,21 @@ Patch179: rpm-4.11.x-sources-to-lua-variables.patch
 Patch180: rpm-4.11.x-Fix-Python-hdr-refcount.patch
 Patch181: rpm-4.11.x-perl.req-skip-my-var-block.patch
 Patch182: rpm-4.11.x-verify-data-range.patch
+Patch183: rpm-4.13.x-writable-tmp-dir.patch
+Patch184: rpm-4.13.x-increase_header_size.patch
+Patch185: rpm-4.13.x-Make-the-stftime-buffer-big-enuff.patch
+Patch186: rpm-4.11.x-skipattr.patch
+Patch187: rpm-4.13.x-Implement-noconfig-query.patch
+Patch188: rpm-4.11.x-weakdep-tags.patch
+Patch189: rpm-4.12.x-rpmSign-return-value-correction.patch
+Patch190: rpm-4.13.x-fix_find_debuginfo_opts_g.patch
+Patch191: rpm-4.13.x-enable_noghost_option.patch
+Patch192: rpm-4.11.x-provide-audit-events.patch
+Patch193: rpm-4.11.x-setcaps.patch
+Patch194: rpm-4.11.x-disk-space-calculation.patch
+Patch195: rpm-4.11.x-remove-perl-provides-from-requires.patch
+Patch196: rpm-4.13.x-bad-owner-group.patch
+Patch197: rpm-4.11.x-perl.req-6.patch
 
 # Filter soname dependencies by name
 Patch200: rpm-4.11.x-filter-soname-deps.patch
@@ -110,6 +130,7 @@ Patch312: rpm-4.11.x-man-systemd-inhibit.patch
 Patch313: rpm-4.11.x-quiet-signing.patch
 Patch314: rpm-4.11.x-export-verifysigs-to-python.patch
 
+
 # Temporary Patch to provide support for updates
 Patch400: rpm-4.10.90-rpmlib-filesystem-check.patch
 # Disable plugins
@@ -117,7 +138,25 @@ Patch401: rpm-4.11.3-disable-collection-plugins.patch
 # Remove EVR check
 Patch402: rpm-4.11.3-EVR-validity-check.patch
 
+# Backport of RPMCALLBACK_ELEM_PROGRESS
+# https://bugzilla.redhat.com/show_bug.cgi?id=1466649
+Patch501: rpm-4.11.x-elem-progress.patch
+# Make header to be available for RPMCALLBACK_ELEM_PROGRESS
+Patch502: rpm-4.13.x-RPMCALLBACK_ELEM_PROGRESS-available-header.patch
+# Backport of reinstall functionality from 4.12
+# https://bugzilla.redhat.com/show_bug.cgi?id=1466650
+Patch503: rpm-4.11.x-reinstall.patch
+Patch504: rpm-4.11.x-add-g-libs.patch
+
+# Fix brp-python-bytecompile script to work with Python 3 packages
+# https://bugzilla.redhat.com/show_bug.cgi?id=1691402
+# Fixed upstream:
+# https://github.com/rpm-software-management/rpm/commit/a8e51b3bb05c6acb1d9b2e3d34f859ddda1677be
+Patch505: rpm-4.11.3-brp-python-bytecompile-Fix-when-default-python-is-no.patch
+
+# Amazon patches
 Patch1000: rpm-4.11.1-hostnamemacro.patch
+Patch1001: rpm-4.14.0-add-nocap-option.patch
 
 # Partially GPL/LGPL dual-licensed and some bits with BSD
 # SourceLicense: (GPLv2+ and LGPLv2+ with exceptions) and BSD 
@@ -157,7 +196,6 @@ BuildRequires: libselinux-devel
 BuildRequires: libsemanage-devel
 BuildRequires: ncurses-devel
 BuildRequires: bzip2-devel >= 0.9.0c-2
-BuildRequires: python-devel >= 2.6
 BuildRequires: lua-devel >= 5.1
 BuildRequires: libcap-devel
 BuildRequires: libacl-devel
@@ -167,6 +205,9 @@ BuildRequires: xz-devel >= 4.999.8
 %if %{with plugins}
 # Required for systemd-inhibit plugin
 BuildRequires: dbus-devel
+%endif
+%if %{with audit}
+BuildRequires: audit-libs-devel
 %endif
 
 # Only required by sepdebugcrcfix patch
@@ -254,17 +295,36 @@ Requires: rpm-build-libs%{_isa} = %{version}-%{release}
 %description sign
 This package contains support for digitally signing RPM packages.
 
-%package python
-Summary: Python bindings for apps which will manipulate RPM packages
-Group: Development/Libraries
-Requires: rpm = %{version}-%{release}
+%package -n python2-%{name}
+Summary: Python 2 bindings for apps which will manipulate RPM packages
+BuildRequires: python2-devel
+%{?python_provide:%python_provide python2-%{name}}
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Provides: %{name}-python = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
+Requires: %{name} = %{version}-%{release}
 
-%description python
-The rpm-python package contains a module that permits applications
+%description -n python2-%{name}
+The python2-rpm package contains a module that permits applications
 written in the Python programming language to use the interface
 supplied by RPM Package Manager libraries.
 
-This package should be installed if you want to develop Python
+This package should be installed if you want to develop Python 2
+programs that will manipulate RPM packages and databases.
+
+%package -n python3-%{name}
+Summary: Python 3 bindings for apps which will manipulate RPM packages
+BuildRequires: python3-devel
+%{?python_provide:%python_provide python3-%{name}}
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+Provides: %{name}-python3 = %{version}-%{release}
+
+%description -n python3-%{name}
+The python3-rpm package contains a module that permits applications
+written in the Python programming language to use the interface
+supplied by RPM Package Manager libraries.
+
+This package should be installed if you want to develop Python 3
 programs that will manipulate RPM packages and databases.
 
 %package apidocs
@@ -339,6 +399,23 @@ Requires: rpm-libs%{_isa} = %{version}-%{release}
 %patch180 -p1 -b .hdrrefcnt
 %patch181 -p1 -b .perlblock
 %patch182 -p1 -b .verifysignature
+%patch183 -p1 -b .writable_tmp
+%patch184 -p1 -b .hdr_size
+%patch185 -p1 -b .strtime
+%patch186 -p1 -b .skipattr
+%patch187 -p1 -b .noconfig-cli
+%patch188 -p1 -b .weakdep-tags
+%patch189 -p1 -b .rpmsign-error
+%patch190 -p1 -b .find_debuginfo_opts
+%patch191 -p1 -b .noghost
+%if %{with audit}
+%patch192 -p1 -b .audit-events
+%endif
+%patch193 -p1 -b .setcaps
+%patch194 -p1 -b .diskspace
+%patch195 -p1 -b .perl.req5
+%patch196 -p1 -b .badowner
+%patch197 -p1 -b .perl.req6
 
 %patch200 -p1 -b .filter-soname-deps
 %patch201 -p1 -b .dont-filter-ld64
@@ -367,7 +444,14 @@ Requires: rpm-libs%{_isa} = %{version}-%{release}
 %patch6 -p1 -b .armhfp-logic
 %endif
 
+%patch501 -p1 -b .elem-progress
+%patch502 -p1 -b .elem-progress-header
+%patch503 -p1 -b .reinstall
+%patch504 -p1 -b .g-libs
+%patch505 -p1 -b .brp-python-bytecompile
+
 %patch1000 -p1 -b .hostnamemacro
+%patch1001 -p1
 
 %if %{with int_bdb}
 ln -s db-%{bdbver} db
@@ -403,10 +487,20 @@ export CPPFLAGS CFLAGS LDFLAGS
 
 make %{?_smp_mflags}
 
+pushd python
+%{__python2} setup.py build
+%{__python3} setup.py build
+popd
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
 make DESTDIR="$RPM_BUILD_ROOT" install
+
+pushd python
+%{__python2} setup.py install --skip-build --root $RPM_BUILD_ROOT
+%{__python3} setup.py install --skip-build --root $RPM_BUILD_ROOT
+popd
 
 # remove all plugins except systemd_inhibit
 rm -f ${RPM_BUILD_ROOT}%{_libdir}/rpm-plugins/{exec.so,sepolicy.so}
@@ -577,9 +671,15 @@ exit 0
 %{_bindir}/rpmsign
 %{_mandir}/man8/rpmsign.8*
 
-%files python
+%files -n python2-%{name}
 %defattr(-,root,root)
-%{python_sitearch}/rpm
+%{python2_sitearch}/%{name}/
+%{python2_sitearch}/%{name}_python-%{version}*.egg-info
+
+%files -n python3-%{name}
+%defattr(-,root,root)
+%{python3_sitearch}/%{name}/
+%{python3_sitearch}/%{name}_python-%{version}*.egg-info
 
 %files devel
 %defattr(-,root,root)
@@ -599,6 +699,71 @@ exit 0
 %doc COPYING doc/librpm/html/*
 
 %changelog
+* Sun Nov 10 2019 Frederick Lefebvre <fredlef@amazon.com> - 4.11.3-40.amzn2.0.3
+- Rename python2 subpackage from rpm-python to python2-rpm
+- Add python3 bindings in python3-rpm subpackage
+
+* Fri Nov 08 2019 Frederick Lefebvre <fredlef@amazon.com> - 4.11.3-40.amzn2.0.2
+- Add --nocaps install option
+
+* Sun May 26 2019 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-40
+- Remove only special perl dependencies provided in the same file (#1570181)
+
+* Thu Mar 21 2019 Tomas Orsava <torsava@redhat.com> - 4.11.3-39
+- Fix brp-python-bytecompile script to work with Python 3 packages (#1691402)
+
+* Thu Mar 21 2019 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-38
+- Add flag to use strip -g instead of full strip on DSOs (#1663264)
+
+* Wed Mar 20 2019 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-37
+- Use user and group of the rpmbuild process or root for sources (#1572772)
+
+* Thu Feb 28 2019 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-36
+- Add popt-based options --setcaps and --restore (#1550745)
+- Improve hardlink handling in disk space calculation (#1491786)
+- Remove perl dependencies that are provided in the same file (#1570181)
+
+* Tue Jun 19 2018 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-35
+- Correct "root_dir" output in audit event (#1555326)
+
+* Fri May 25 2018 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-34
+- Adjust --noghost documentation (#1395818)
+%if %{with audit}
+- Provide audit events on update verification (#1555326)
+%endif
+
+* Thu May 10 2018 Pavlina Moravcova Varekova <pmoravco@redhat.com> - 4.11.3-33
+- Repair of --noghost option implementation (#1395818)
+- Backport fix rpmSign() return value in case of failure (#1419590)
+- Backport passing _find_debuginfo_opts -g to eu-strip for executables
+  (#1540653)
+
+* Mon Nov 13 2017 Panu Matilainen <pmatilai@redhat.com> - 4.11.3-32
+- Backport weak dependency tag definitions (#1508538)
+
+* Mon Oct 30 2017 Panu Matilainen <pmatilai@redhat.com> - 4.11.3-31
+- Backport missing infra for --noconfig option (#1406611)
+- As a side-effect, this also makes --noghost work as intended
+
+* Fri Oct 13 2017 Florian Festi <ffesti@redhat.com> - 4.11.3-30
+- Respin to fix changelog
+
+* Fri Oct 13 2017 Florian Festi <ffesti@redhat.com> - 4.11.3-29
+- Fix coverity warnings in patch for #1441098
+
+* Mon Oct 09 2017 Florian Festi <ffesti@redhat.com> - 4.11.3-28
+- Make sure files in /usr/src/debug are not world writable (RHBZ #1441098)
+- Increase maximal header size (RHBZ #1434656)
+- Increase buffer to be able to render Korean dates (RHBZ #1425231)
+- Add --noconfig option (RHBZ #1406611)
+
+* Wed Aug 23 2017 Igor Gnatenko <ignatenko@redhat.com> - 4.11.3-27
+- Make header available from RPMCALLBACK_ELEM_PROGRESS (RHBZ #1466649)
+
+* Wed Aug 02 2017 Igor Gnatenko <ignatenko@redhat.com> - 4.11.3-26
+- Backport RPMCALLBACK_ELEM_PROGRESS (RHBZ #1466649)
+- Backport reinstall feature (RHBZ #1466650)
+
 * Fri Mar 17 2017 Panu Matilainen <pmatilai@redhat.com> - 4.11.3-25
 - Really fix #1371487
 
