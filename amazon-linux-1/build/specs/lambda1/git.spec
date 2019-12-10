@@ -3,7 +3,7 @@
 %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
 
 Name:           git
-Version:        2.24.0
+Version:        2.24.1
 Release: 1%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
