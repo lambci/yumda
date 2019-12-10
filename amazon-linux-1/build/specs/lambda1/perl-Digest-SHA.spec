@@ -40,6 +40,8 @@ Requires:       perl(Digest::base)
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 Digest::SHA is a complete implementation of the NIST Secure Hash Standard. It
 gives Perl programmers a convenient way to calculate SHA-1, SHA-224, SHA-256,
@@ -53,7 +55,10 @@ chmod -x examples/*
 perl -MExtUtils::MakeMaker -e 'ExtUtils::MM_Unix->fixin(q{examples/dups})'
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
+%{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -62,18 +67,18 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -type f -name '*.bs' -size 0 -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes examples README
+%license README
 %{_bindir}/*
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/Digest*
-%{_mandir}/man1/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Tue Dec 10 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Wed May 7 2014 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL7/perl-Digest-SHA-5.85-3.el7
 

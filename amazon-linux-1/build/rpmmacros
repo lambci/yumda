@@ -51,6 +51,13 @@
     %{_rpmconfigdir}/brp-strip-comment-note %{__strip} %{__objdump} \
 %{nil}
 
+%perl_sitelib %{_prefix}/local/share/perl5
+%perl_sitearch %{_prefix}/local/lib/perl5
+%perl_vendorlib %{_datadir}/perl5/vendor_perl
+%perl_vendorarch %{_libdir}/perl5/vendor_perl
+%perl_privlib %{_datadir}/perl5
+%perl_archlib %{_libdir}/perl5
+
 %__python %{__python3}
 
 %python2_version 2.7
