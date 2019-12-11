@@ -70,6 +70,11 @@ ln -s libgsm.so.%{soname} $RPM_BUILD_ROOT%{_libdir}/libgsm.so.1
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib*.a
 
+pushd $RPM_BUILD_ROOT%{_bindir}
+ln -sf toast tcat
+ln -sf toast untoast
+popd
+
 %files
 %defattr(-,root,root,-)
 %license COPYRIGHT
