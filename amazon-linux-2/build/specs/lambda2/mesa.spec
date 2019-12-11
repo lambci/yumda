@@ -426,6 +426,31 @@ if [ -f $RPM_BUILD_ROOT/usr/share/glvnd/egl_vendor.d/50_mesa.json ]; then
 fi
 %endif
 
+pushd $RPM_BUILD_ROOT%{_libdir}/dri
+%ifarch %{ix86} x86_64
+ln -sf i965_dri.so i915_dri.so
+%endif
+ln -sf virtio_gpu_dri.so nouveau_dri.so
+ln -sf virtio_gpu_dri.so swrast_dri.so
+%if 0%{?with_llvm}
+ln -sf virtio_gpu_dri.so kms_swrast_dri.so
+ln -sf virtio_gpu_dri.so r300_dri.so
+ln -sf virtio_gpu_dri.so r600_dri.so
+%if 0%{?with_radeonsi}
+ln -sf virtio_gpu_dri.so radeonsi_dri.so
+%endif
+%endif
+%if 0%{?with_vmware}
+ln -sf virtio_gpu_dri.so vmwgfx_dri.so
+%endif
+popd
+
+pushd $RPM_BUILD_ROOT%{_libdir}/vdpau
+%if 0%{?with_llvm}
+ln -sf libvdpau_nouveau.so.1.0.0 libvdpau_r600.so.1.0.0
+ln -sf libvdpau_nouveau.so.1.0.0 libvdpau_radeonsi.so.1.0.0
+%endif
+popd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
