@@ -752,17 +752,7 @@ rm %{build_archlib}/.packlist
 # Do not distribute File::Spec::VMS as it works on VMS only (bug #973713)
 # We cannot remove it in %%prep because dist/Cwd/t/Spec.t test needs it.
 rm %{build_archlib}/File/Spec/VMS.pm
-rm $RPM_BUILD_ROOT%{_mandir}/man3/File::Spec::VMS.3*
-
-# Fix some manpages to be UTF-8
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1/
-pushd $RPM_BUILD_ROOT%{_mandir}/man1/
-  for i in perl588delta.1 perldelta.1 ; do
-    iconv -f MS-ANSI -t UTF-8 $i --output new-$i
-    rm $i
-    mv new-$i $i
-  done
-popd
+rm -f $RPM_BUILD_ROOT%{_prefix}/man/man3/File::Spec::VMS.3*
 
 # for now, remove Bzip2:
 # Why? Now is missing Bzip2 files and provides
@@ -803,6 +793,12 @@ sed \
   %{SOURCE4} \
   > %{buildroot}%{tapsetdir}/%{libperl_stp}
 
+pushd %{buildroot}%{_bindir}
+ln -sf perl perl%{perl_version}
+ln -sf pstruct c2ph
+ln -sf psed s2p
+popd
+rm %{buildroot}%{_bindir}/{perlbug,perlthanks}
 
 %files
 %license Copying
@@ -1315,7 +1311,7 @@ sed \
 %{archlib}/Time/Seconds.pm
 %{archlib}/auto/Time/Piece/
 
-%exclude %{_mandir}
+%exclude %{_prefix}/man
 %exclude %{privlib}/CPAN/Meta/
 %exclude %{privlib}/CPAN/Meta.pm
 %exclude %{perl5_testdir}
