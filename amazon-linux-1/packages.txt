@@ -49,6 +49,7 @@ openssh-keycat.x86_64                7.4p1-21.73.lambda1                 lambda1
 openssh-server.x86_64                7.4p1-21.73.lambda1                 lambda1
 pcre2.x86_64                         10.21-22.lambda1                    lambda1
 pcre2-tools.x86_64                   10.21-22.lambda1                    lambda1
+perl-Digest.noarch                   1.17-245.5.lambda1                  lambda1
 perl-Digest-SHA.x86_64               1:5.85-3.5.lambda1                  lambda1
 tcp_wrappers.x86_64                  7.6-77.12.lambda1                   lambda1
 tcp_wrappers-libs.x86_64             7.6-77.12.lambda1                   lambda1

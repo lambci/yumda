@@ -19,6 +19,8 @@ BuildRequires:  perl(Test::More) >= 0.47
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:       perl(MIME::Base64)
 
+Prefix: %{_prefix}
+
 %description
 The Digest:: modules calculate digests, also called "fingerprints" or
 "hashes", of some data, called a message. The digest is (usually)
@@ -31,7 +33,10 @@ bytes or bits.
 chmod -x digest-bench
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+%{__perl} Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -40,15 +45,16 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes digest-bench README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Tue Dec 10 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
 * Wed May 7 2014 Cristian Gafton <gafton@amazon.com>
 - import source package RHEL7/perl-Digest-1.17-245.el7
 
