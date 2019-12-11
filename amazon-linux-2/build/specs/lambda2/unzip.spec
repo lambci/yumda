@@ -95,6 +95,10 @@ make -f unix/Makefile CF_NOOPT="-I. -DUNIX $RPM_OPT_FLAGS -DNOMEMCPY -DNO_LCHMOD
 rm -rf $RPM_BUILD_ROOT
 make -f unix/Makefile prefix=$RPM_BUILD_ROOT%{_prefix} MANDIR=$RPM_BUILD_ROOT/%{_mandir}/man1 INSTALL="cp -p" install
 
+pushd %{buildroot}%{_bindir}
+ln -sf unzip zipinfo
+popd
+
 %files
 %defattr(-,root,root)
 %license LICENSE
