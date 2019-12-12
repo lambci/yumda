@@ -9,7 +9,7 @@
 %global source_name texlive-%{source_date}-source
 
 %{!?_texdir: %global _texdir %{_datadir}/%{name}}
-%{!?_texmf_var: %global _texmf_var %{_var}/lib/texmf}
+%{!?_texmf_var: %global _texmf_var %{_sharedstatedir}/texmf}
 
 # don't figure any perl requires
 %global __perl_requires %{nil}
@@ -24579,7 +24579,7 @@ cat << EOF > %{buildroot}%{_sysconfdir}/rpm/macros.texlive
 # macros to keep trees in texlive consistent
 %_texmf_main     %{_prefix}/share/texlive/texmf
 %_texmf_vendor   %{_prefix}/share/texlive/texmf
-%_texmf_var      %{_var}/lib/texmf
+%_texmf_var      %{_sharedstatedir}/texmf
 %_texmf_conf     %{_prefix}/share/texlive/texmf-config
 EOF
 
