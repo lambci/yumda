@@ -1257,6 +1257,22 @@ done
 
 sed -i 's|/usr/bin/perl|%{_bindir}/perl|' %{buildroot}%{_bindir}/mtrace
 
+pushd $RPM_BUILD_ROOT%{_libdir}
+ln -sf /usr/lib64/libBrokenLocale.so.1 libBrokenLocale.so
+ln -sf /usr/lib64/libanl.so.1 libanl.so
+ln -sf /usr/lib64/libcidn.so.1 libcidn.so
+ln -sf /usr/lib64/libdl.so.2 libdl.so
+ln -sf /usr/lib64/libmvec.so.1 libmvec.so
+ln -sf /usr/lib64/libnsl.so.1 libnsl.so
+ln -sf /usr/lib64/libnss_compat.so.2 libnss_compat.so
+ln -sf /usr/lib64/libnss_dns.so.2 libnss_dns.so
+ln -sf /usr/lib64/libnss_files.so.2 libnss_files.so
+ln -sf /usr/lib64/libresolv.so.2 libresolv.so
+ln -sf /usr/lib64/librt.so.1 librt.so
+ln -sf /usr/lib64/libthread_db.so.1 libthread_db.so
+ln -sf /usr/lib64/libutil.so.1 libutil.so
+popd
+
 %pre headers
 # this used to be a link and it is causing nightmares now
 if [ -L %{_prefix}/include/scsi ] ; then
