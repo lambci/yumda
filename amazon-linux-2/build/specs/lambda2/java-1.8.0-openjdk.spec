@@ -750,9 +750,7 @@ pushd %{buildoutputdir ""}/images/%{jdkimage}
   rm -f $RPM_BUILD_ROOT%{_jvmdir}/%{jredir ""}/lib/security/cacerts
   # Install cacerts symlink needed by some apps which hardcode the path
   pushd $RPM_BUILD_ROOT%{_jvmdir}/%{jredir ""}/lib/security
-    RELATIVE=$(%{abs2rel} %{_sysconfdir}/pki/java \
-      %{_jvmdir}/%{jredir ""}/lib/security)
-    ln -sf $RELATIVE/cacerts .
+    ln -sf /etc/pki/java/cacerts .
   popd
 
   # Install extension symlinks.
