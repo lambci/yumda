@@ -898,6 +898,11 @@ ln -s %{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/system-python
 # See https://bugzilla.redhat.com/show_bug.cgi?id=1111275
 mv %{buildroot}%{_bindir}/2to3-%{pybasever} %{buildroot}%{_bindir}/2to3
 
+pushd %{buildroot}%{_bindir}
+ln -sf python3.7 python3.7m
+popd
+find %{buildroot} -name '*.pyo' -delete
+
 
 %files
 %license LICENSE
