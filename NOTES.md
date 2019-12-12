@@ -147,6 +147,16 @@ docker run --rm lambci/yumda:2 bash -c \
   "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install"
 ```
 
+Checking for hardlinks:
+```console
+find /lambda/opt -type f -links +1 -printf '%i %n %p\n'
+```
+
+Checking for broken symlinks:
+```console
+find /lambda/opt -xtype l
+```
+
 ## Generating todo.txt
 
 ```

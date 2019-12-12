@@ -482,7 +482,7 @@ fi
 	--libexecdir=%{_libexecdir}/openssh \
 	--datadir=%{_datadir}/openssh \
 	--with-tcp-wrappers \
-	--with-privsep-path=%{_var}/empty/sshd \
+	--with-privsep-path=%{_localstatedir}/empty/sshd \
 	--enable-vendor-patchlevel="RHEL7-%{openssh_ver}-%{openssh_rel}" \
 	--disable-strip \
 	--without-zlib-version-check \
@@ -522,7 +522,7 @@ make
 %install
 mkdir -p -m755 $RPM_BUILD_ROOT%{_sysconfdir}/ssh
 mkdir -p -m755 $RPM_BUILD_ROOT%{_libexecdir}/openssh
-mkdir -p -m755 $RPM_BUILD_ROOT%{_var}/empty/sshd
+mkdir -p -m755 $RPM_BUILD_ROOT%{_localstatedir}/empty/sshd
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/ssh/ldap.conf
 
@@ -567,7 +567,7 @@ popd
 
 %files server
 %defattr(-,root,root)
-%dir %attr(0711,root,root) %{_var}/empty/sshd
+%dir %attr(0711,root,root) %{_localstatedir}/empty/sshd
 %attr(0755,root,root) %{_sbindir}/sshd
 %attr(0755,root,root) %{_sbindir}/sshd-keygen
 %attr(0644,root,root) %{_libdir}/fipscheck/sshd.hmac
