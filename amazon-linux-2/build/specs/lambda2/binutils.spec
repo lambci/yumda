@@ -306,6 +306,11 @@ Conflicts: gcc-c++ < 4.0.0
 %{!?ld_bfd_priority: %global ld_bfd_priority    50}
 %{!?ld_gold_priority:%global ld_gold_priority   30}
 
+%if "%{build_gold}" == "both"
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
+%endif
+
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
 %ifnarch %{arm}
@@ -633,6 +638,38 @@ rm -rf %{buildroot}%{_libdir}/libiberty.a
 rm -f %{buildroot}%{_infodir}/dir
 rm -rf %{buildroot}%{_prefix}/%{binutils_target}
 
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+
+#----------------------------------------------------------------------------
+
+%post
+%if "%{build_gold}" == "both"
+%__rm -f %{_bindir}/%{?cross}ld
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
+  %{_bindir}/%{?cross}ld.bfd %{ld_bfd_priority}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
+  %{_bindir}/%{?cross}ld.gold %{ld_gold_priority}
+%if ! 0%{?amzn}
+if [ $1 = 0 ]; then
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto %{?cross}ld
+fi
+%endif # amzn
+%endif # both ld.gold and ld.bfd
+
+exit 0
+
+#----------------------------------------------------------------------------
+
+%preun
+%if "%{build_gold}" == "both"
+if [ $1 = 0 ]; then
+  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.bfd
+  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.gold
+fi
+%endif # both ld.gold and ld.bfd
+
+exit 0
+
 #----------------------------------------------------------------------------
 
 %files
@@ -678,6 +715,8 @@ rm -rf %{buildroot}%{_prefix}/%{binutils_target}
 %endif # with docs
 
 %endif # isnative
+
+%dir %{_sysconfdir}/alternatives
 
 %exclude %{_datadir}/locale
 
