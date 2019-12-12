@@ -1265,6 +1265,8 @@ sed -i "s|^#\!.\?/usr/bin.*$|#\! %{__python}|" \
 mkdir %{buildroot}%{_tmpfilesdir}
 cp %{SOURCE9} %{buildroot}%{_tmpfilesdir}/python.conf
 
+find %{buildroot} -name '*.pyo' -delete
+
 
 %files
 %defattr(-, root, root, -)
