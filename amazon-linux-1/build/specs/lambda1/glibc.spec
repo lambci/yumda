@@ -3080,6 +3080,27 @@ touch $RPM_BUILD_ROOT%{_localstatedir}/run/nscd/{socket,nscd.pid}
 
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/ldconfig
 
+pushd $RPM_BUILD_ROOT%{_libdir}
+ln -sf /lib64/libBrokenLocale.so.1 libBrokenLocale.so
+ln -sf /lib64/libanl.so.1 libanl.so
+ln -sf /lib64/libcidn.so.1 libcidn.so
+ln -sf /lib64/libcrypt.so.1 libcrypt.so
+ln -sf /lib64/libdl.so.2 libdl.so
+ln -sf /lib64/libm.so.6 libm.so
+ln -sf /lib64/libnsl.so.1 libnsl.so
+ln -sf /lib64/libnss_compat.so.2 libnss_compat.so
+ln -sf /lib64/libnss_db.so.2 libnss_db.so
+ln -sf /lib64/libnss_dns.so.2 libnss_dns.so
+ln -sf /lib64/libnss_files.so.2 libnss_files.so
+ln -sf /lib64/libnss_hesiod.so.2 libnss_hesiod.so
+ln -sf /lib64/libnss_nis.so.2 libnss_nis.so
+ln -sf /lib64/libnss_nisplus.so.2 libnss_nisplus.so
+ln -sf /lib64/libresolv.so.2 libresolv.so
+ln -sf /lib64/librt.so.1 librt.so
+ln -sf /lib64/libthread_db.so.1 libthread_db.so
+ln -sf /lib64/libutil.so.1 libutil.so
+popd
+
 %clean
 rm -rf "$RPM_BUILD_ROOT"
 rm -f *.filelist*
