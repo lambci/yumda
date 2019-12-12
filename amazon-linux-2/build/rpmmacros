@@ -50,8 +50,6 @@
   /usr/lib/rpm/redhat/brp-strip-shared %{__strip} \
   /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
   /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
-  %{?py_auto_byte_compile:%{?__brp_python_bytecompile}} \
-  /usr/lib/rpm/redhat/brp-python-hardlink \
   %{!?__jar_repack:/usr/lib/rpm/redhat/brp-java-repack-jars} \
 %{nil}
 
