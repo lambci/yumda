@@ -50,6 +50,8 @@ Requires:         nss-util >= %{nss_util_version}%{nss_util_build}
 # TODO: revert to same version as nss once we are done with the merge
 Requires:         nss-softokn%{_isa} >= %{nss_softokn_version}%{runtime_required_softokn_build_version}
 # Requires:         nss-system-init
+Requires(post):   /usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    nspr-devel >= %{nspr_version}
 # TODO: revert to same version as nss once we are done with the merge
@@ -499,6 +501,8 @@ ln -r -s -f $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bi
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sysconfdir}/pki/nss-legacy
 %{__install} -p -m 644 %{SOURCE32} $RPM_BUILD_ROOT%{_sysconfdir}/pki/nss-legacy/nss-rhel7.config
 
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/alternatives
+
 %post
 # If we upgrade, and the shared filename is a regular file, then we must
 # remove it, before we can install the alternatives symbolic link.
@@ -506,6 +510,25 @@ if [ $1 -gt 1 ] ; then
   # when upgrading or downgrading
   if ! test -L %{_libdir}/libnssckbi.so; then
     rm -f %{_libdir}/libnssckbi.so
+  fi
+fi
+# Install the symbolic link
+# FYI: Certain other packages use alternatives --set to enforce that the first
+# installed package is preferred. We don't do that. Highest priority wins.
+/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --install %{_libdir}/libnssckbi.so \
+  %{alt_ckbi} %{_libdir}/nss/libnssckbi.so 10
+/sbin/ldconfig
+
+%postun
+if [ $1 -eq 0 ] ; then
+  # package removal
+  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
+else
+  # upgrade or downgrade
+  # If the new installed package uses a regular file (not a symblic link),
+  # then cleanup the alternatives link.
+  if ! test -L %{_libdir}/libnssckbi.so; then
+    /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
   fi
 fi
 
@@ -525,6 +548,7 @@ fi
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/pkcs11.txt
 %dir %{_sysconfdir}/pki/nss-legacy
 %config(noreplace) %{_sysconfdir}/pki/nss-legacy/nss-rhel7.config
+%dir %{_sysconfdir}/alternatives
 
 %files sysinit
 %defattr(-,root,root)
