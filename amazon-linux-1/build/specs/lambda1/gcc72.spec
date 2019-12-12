@@ -201,6 +201,11 @@ Requires: libgomp%{?_isa} >= %{version}
 AutoReq: true
 Provides: bundled(libiberty)
 
+%if 0%{?gccv:1}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
+%endif
+
 Provides: gcc(major) = %{gcc_major}
 
 Patch0: gcc7-hack.patch
@@ -288,6 +293,8 @@ Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-c++ = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-c++ < %{version}-%{release}}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 %endif
 Obsoletes: libstdc++%{?gccv}-devel
 Obsoletes: libstdc++%{?gccv}-static
@@ -372,6 +379,8 @@ Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-gfortran = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-gfortran < %{version}-%{release}}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 %else
 Obsoletes: gcc44-gfortran
 Obsoletes: gcc48-gfortran
@@ -505,6 +514,8 @@ Autoreq: true
 %if 0%{?gccv:1}
 Provides: cpp = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: cpp < %{version}-%{release}}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 %endif
 
 Prefix: %{_prefix}
@@ -542,6 +553,8 @@ Provides: gcc-gnat = %{version}-%{release}
 %{?obsolete_gcc:Obsoletes: gcc-gnat < %{version}-%{release}}
 %{?obsolete_gcc:Obsoletes: libgnat-devel < %{version}-%{release}}
 %{?obsolete_gcc:Obsoletes: libgnat-static < %{version}-%{release}}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 %endif
 Obsoletes: libgnat%{?gccv}-devel
 Provides: libgnat%{?gccv}-devel = %{version}-%{release}
@@ -587,6 +600,8 @@ Group: Development/Languages
 Autoreq: true
 %if 0%{?gccv:1}
 Provides: gcc-go = %{version}-%{release}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 %endif
 Requires: gcc%{?gccv}%{?_isa} >= %{version}
 Requires: libgo%{?gccv}-devel%{?_isa} >= %{version}
@@ -870,8 +885,8 @@ ln -sf gcc%{?gccv} %{buildroot}%{_bindir}/gnatgcc
 %if %{build_go}
 mv %{buildroot}%{_bindir}/go{,.gcc}
 mv %{buildroot}%{_bindir}/gofmt{,.gcc}
-ln -sf /etc/alternatives/go %{buildroot}%{_bindir}/go
-ln -sf /etc/alternatives/gofmt %{buildroot}%{_bindir}/gofmt
+ln -sf %{_sysconfdir}/alternatives/go %{buildroot}%{_bindir}/go
+ln -sf %{_sysconfdir}/alternatives/gofmt %{buildroot}%{_bindir}/gofmt
 %endif
 
 cxxconfig="`find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h`"
@@ -937,10 +952,7 @@ mv %{buildroot}%{_libdir}/libcilkrts.spec $FULLPATH/
 mv %{buildroot}%{_libdir}/libmpx.spec $FULLPATH/
 %endif
 
-mv -f %{buildroot}%{_libdir}/libgcc_s.so.1 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-chmod 755 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-ln -sf libgcc_s-%{gcc_major}-%{DATE}.so.1 %{buildroot}%{_libdir}/libgcc_s.so.1
-ln -sf %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
+ln -sf /lib64/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
 
 %if %{build_libgomp}
 mv -f %{buildroot}%{_libdir}/libgomp.spec $FULLPATH/
@@ -956,7 +968,11 @@ mkdir -p %{buildroot}%{_libexecdir}/getconf
 if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep '__LONG_MAX__.*\(2147483647\|0x7fffffff\($\|[LU]\)\)'; then
   ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_libexecdir}/getconf/default
 else
-  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  if [ -f %{_libexecdir}/getconf/POSIX_V6_LP64_OFF64 ]; then
+    ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  else
+    ln -sf /usr/libexec/getconf/POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  fi
 fi
 
 mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}
@@ -985,7 +1001,7 @@ pushd $FULLPATH
 %if %{build_objc}
 ln -sf ../../../libobjc.so.4 libobjc.so
 %endif
-ln -sf ../../../libstdc++.so.6.*[0-9] libstdc++.so
+ln -sf /usr/lib64/libstdc++.so.%{libstdcplusplus_ver} libstdc++.so
 %if %{build_fortran}
 ln -sf ../../../libgfortran.so.4.* libgfortran.so
 %endif
@@ -1222,8 +1238,155 @@ rm -f %{buildroot}%{_mandir}/man3/ffi*
 # Help plugins find out nvra.
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
+%if 0%{?gccv:1}
+pushd %{buildroot}%{_bindir}
+ln -sf gcc%{gccv} %{gcc_target_platform}-gcc%{gccv}
+ln -sf gcc%{gccv} %{gcc_target_platform}-gcc-%{gcc_major}
+ln -sf c++%{gccv} g++%{gccv}
+ln -sf c++%{gccv} %{gcc_target_platform}-c++%{gccv}
+ln -sf c++%{gccv} %{gcc_target_platform}-g++%{gccv}
+popd
+%endif #?gccv
+
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+
 %clean
 rm -rf %{buildroot}
+
+%post
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gcc gcc %{_bindir}/gcc%{gccv} %{gcc_prio} \
+    --slave %{_bindir}/cc cc %{_bindir}/gcc%{gccv} \
+    --slave %{_bindir}/c89 c89 %{_bindir}/gcc%{gccv}-c89 \
+    --slave %{_bindir}/c99 c99 %{_bindir}/gcc%{gccv}-c99 \
+    --slave %{_bindir}/gcov gcov %{_bindir}/gcov%{gccv} \
+    --slave %{_bindir}/gcov-tool gcov-tool %{_bindir}/gcov%{gccv}-tool \
+    --slave %{_bindir}/gcov-dump gcov-dump %{_bindir}/gcov%{gccv}-dump \
+%endif
+
+%preun
+if [ $1 = 0 ]; then
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gcc %{_bindir}/gcc%{gccv}
+%endif
+fi
+
+%posttrans
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gcc
+%endif
+exit 0
+
+%post -n cpp%{?gccv}
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/cpp cpp %{_bindir}/cpp%{gccv} %{gcc_prio} \
+    --slave /lib/cpp libcpp %{_bindir}/cpp%{gccv}
+%endif
+
+%preun -n cpp%{?gccv}
+if [ $1 = 0 ] ; then
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove cpp %{_bindir}/cpp%{gccv}
+%endif
+fi
+
+%posttrans -n cpp%{?gccv}
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto cpp
+%endif
+exit 0
+
+%post c++
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/g++ g++ %{_bindir}/g++%{gccv} %{gcc_prio} \
+    --slave %{_bindir}/c++ c++ %{_bindir}/g++%{gccv} \
+    --slave %{_libdir}/libstdc++.so libstdc++.so %{_libdir}/libstdc++.so.%{libstdcplusplus_ver}
+%endif
+exit 0
+
+%preun c++
+%if 0%{?gccv:1}
+if [ $1 = 0 ] ; then
+    /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove g++ %{_bindir}/g++%{gccv}
+fi
+%endif
+exit 0
+
+%posttrans c++
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto g++
+%endif
+exit 0
+
+%post gfortran
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gfortran gfortran %{_bindir}/gfortran%{gccv} %{gcc_prio} \
+    --slave %{_bindir}/f95 f95 %{_bindir}/gfortran%{gccv}
+%endif
+
+%preun gfortran
+if [ $1 = 0 ] ; then
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gfortran %{_bindir}/gfortran%{gccv}
+%endif
+fi
+
+%posttrans gfortran
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gfortran
+%endif
+exit 0
+
+%post gnat
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gnat gnat %{_bindir}/gnat%{gccv} %{gcc_prio} \
+    --slave %{_bindir}/gnatbind gnatbind %{_bindir}/gnatbind%{gccv} \
+    --slave %{_bindir}/gnatchop gnatchop %{_bindir}/gnatchop%{gccv} \
+    --slave %{_bindir}/gnatclean gnatclean %{_bindir}/gnatclean%{gccv} \
+    --slave %{_bindir}/gnatfind gnatfind %{_bindir}/gnatfind%{gccv} \
+    --slave %{_bindir}/gnatgcc gnatgcc %{_bindir}/gnatgcc%{gccv} \
+    --slave %{_bindir}/gnatkr gnatkr %{_bindir}/gnatkr%{gccv} \
+    --slave %{_bindir}/gnatlink gnatlink %{_bindir}/gnatlink%{gccv} \
+    --slave %{_bindir}/gnatls gnatls %{_bindir}/gnatls%{gccv} \
+    --slave %{_bindir}/gnatmake gnatmake %{_bindir}/gnatmake%{gccv} \
+    --slave %{_bindir}/gnatname gnatname %{_bindir}/gnatname%{gccv} \
+    --slave %{_bindir}/gnatprep gnatprep %{_bindir}/gnatprep%{gccv} \
+    --slave %{_bindir}/gnatxref gnatxref %{_bindir}/gnatxref%{gccv}
+%endif
+
+%preun gnat
+if [ $1 = 0 ] ; then
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gnat %{_bindir}/gnat%{gccv}
+%endif
+fi
+
+%posttrans gnat
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gnat
+%endif
+exit 0
+
+%post go
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gccgo gccgo %{_bindir}/gccgo%{gccv} %{gcc_prio} \
+    --slave %{_mandir}/man1/gccgo.1.gz gccgo.1 %{_mandir}/man1/gccgo%{gccv}.1.gz \
+    --slave %{_prefix}/bin/go go %{_prefix}/bin/go.gcc%{gccv} \
+    --slave %{_prefix}/bin/gofmt gofmt %{_prefix}/bin/gofmt.gcc%{gccv}
+%endif
+
+%preun go
+if [ $1 = 0 ] ; then
+%if 0%{?gccv:1}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gccgo %{_bindir}/gccgo%{gccv}
+%endif
+fi
+
+%if 0%{?gccv:1}
+%posttrans go
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gccgo
+exit 0
+%endif
 
 %files
 %license gcc/COPYING* COPYING.RUNTIME
@@ -1430,6 +1593,7 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpx.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libmpxwrappers.a
 %endif
+%dir %{_sysconfdir}/alternatives
 
 %files -n cpp%{?gccv}
 %defattr(-,root,root,-)
@@ -1438,8 +1602,7 @@ rm -rf %{buildroot}
 %dir %{_libexecdir}/gcc/%{gcc_target_platform}
 %dir %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}
 %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/cc1
-%endif
-%license gcc/COPYING* COPYING.RUNTIME
+%dir %{_sysconfdir}/alternatives
 
 %files c++
 %defattr(-,root,root,-)
@@ -1461,6 +1624,7 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libsupc++.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libstdc++fs.a
+%dir %{_sysconfdir}/alternatives
 
 %if %{build_objc}
 %files objc
@@ -1515,6 +1679,7 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libcaf_single.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgfortran.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgfortran.a
+%dir %{_sysconfdir}/alternatives
 
 %files -n libgfortran
 %defattr(-,root,root,-)
@@ -1545,6 +1710,7 @@ rm -rf %{buildroot}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}
 %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_major}/gnat1
+%dir %{_sysconfdir}/alternatives
 
 %files -n libgnat%{?gccv}
 %defattr(-,root,root,-)
@@ -1618,6 +1784,7 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgolibbegin.a
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgo.so
 %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_major}/libgo.a
+%dir %{_sysconfdir}/alternatives
 
 %files -n libgo
 %{_prefix}/%{_lib}/libgo.so.11*
@@ -1650,10 +1817,9 @@ rm -rf %{buildroot}
 %exclude %{_libdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/include
 %exclude %{_libdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/gtype.state
 %exclude %{_libexecdir}/gcc/%{gcc_target_platform}/%{gcc_major}/plugin/gengtype
-%exclude %{_libdir}/libstdc++.so.6.*
 %exclude %{_datadir}/gdb/auto-load/%{_libdir}/libstdc*gdb.py*
 %exclude %{_prefix}/share/gcc-%{gcc_major}/python/libstdcxx
-%exclude %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
+%exclude %{_libdir}/libstdc++.so.6.*
 %exclude %{_libdir}/libgcc_s.so.1
 
 %changelog
