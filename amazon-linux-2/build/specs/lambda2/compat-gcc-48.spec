@@ -593,7 +593,11 @@ mkdir -p %{buildroot}%{_prefix}/libexec/getconf
 if gcc/xgcc -B gcc/ -E -dD -xc /dev/null | grep __LONG_MAX__.*2147483647; then
   ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_prefix}/libexec/getconf/default
 else
-  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_prefix}/libexec/getconf/default
+  if [ -f %{_libexecdir}/getconf/POSIX_V6_LP64_OFF64 ]; then
+    ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  else
+    ln -sf /usr/libexec/getconf/POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  fi
 fi
 
 mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_prefix}/%{_lib}
@@ -744,6 +748,15 @@ rm -f %{buildroot}%{_prefix}/%{_lib}/libmudflap.so.0*
 rm -f %{buildroot}%{_prefix}/%{_lib}/libmudflapth.so.0*
 rm -rf %{buildroot}%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 rm -rf %{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+
+pushd %{buildroot}%{_prefix}/bin
+ln -sf gcc%{?gccv} %{_target_platform}-gcc%{?gccv}
+ln -sf gcc%{?gccv} %{_target_platform}-gcc-%{gcc_version}
+ln -sf c++%{?gccv} g++%{?gccv}
+ln -sf c++%{?gccv} %{_target_platform}-c++%{?gccv}
+ln -sf c++%{?gccv} %{_target_platform}-g++%{?gccv}
+ln -sf gfortran%{?gccv} %{_target_platform}-gfortran%{?gccv}
+popd
 
 %clean
 rm -rf %{buildroot}
