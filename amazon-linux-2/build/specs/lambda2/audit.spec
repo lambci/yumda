@@ -81,8 +81,8 @@ mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/audispd/plugins.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/audit/rules.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/audit
-mkdir -p --mode=0700 $RPM_BUILD_ROOT/%{_var}/log/audit
-mkdir -p $RPM_BUILD_ROOT/%{_var}/spool/audit
+mkdir -p --mode=0700 $RPM_BUILD_ROOT/%{_localstatedir}/log/audit
+mkdir -p $RPM_BUILD_ROOT/%{_localstatedir}/spool/audit
 make DESTDIR=$RPM_BUILD_ROOT install
 
 # On platforms with 32 & 64 bit libs, we need to coordinate the timestamp
@@ -111,7 +111,7 @@ touch -r ./audit.spec $RPM_BUILD_ROOT%{_sysconfdir}/libaudit.conf
 %attr(755,root,root) %{_bindir}/auvirt
 %attr(750,root,root) %{_sysconfdir}/sysconfig/auditd
 %attr(750,root,root) %{_sysconfdir}/rc.d/init.d/auditd
-%attr(-,root,-) %dir %{_var}/log/audit
+%attr(-,root,-) %dir %{_localstatedir}/log/audit
 %attr(750,root,root) %dir %{_sysconfdir}/audit
 %attr(750,root,root) %dir %{_sysconfdir}/audit/rules.d
 %attr(750,root,root) %dir %{_sysconfdir}/audisp
@@ -132,7 +132,7 @@ touch -r ./audit.spec $RPM_BUILD_ROOT%{_sysconfdir}/libaudit.conf
 %config(noreplace) %attr(640,root,root) %{_sysconfdir}/audisp/audisp-remote.conf
 %config(noreplace) %attr(640,root,root) %{_sysconfdir}/audisp/plugins.d/au-remote.conf
 %attr(750,root,root) %{_sbindir}/audisp-remote
-%attr(700,root,root) %dir %{_var}/spool/audit
+%attr(700,root,root) %dir %{_localstatedir}/spool/audit
 
 %exclude %{_includedir}
 %exclude %{_mandir}
