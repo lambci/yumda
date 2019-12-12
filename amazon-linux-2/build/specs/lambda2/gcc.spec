@@ -66,7 +66,6 @@ BuildRequires: zlib-devel, gettext, dejagnu, bison, flex, sharutils
 BuildRequires: texinfo, texinfo-tex, /usr/bin/pod2man
 BuildRequires: systemtap-sdt-devel >= 1.3
 BuildRequires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
-BuildRequires: python-devel
 BuildRequires: automake >= 1.11
 # Needed for dwarf4 support, otherwise the debuginfo packages are useless
 BuildRequires: rpm-build >= 4.8.0-32
@@ -432,6 +431,8 @@ Summary: Go support
 Group: Development/Languages
 Requires: gcc >= %{version}
 Requires: libgo >= %{version}
+Requires(post): /usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 Autoreq: true
 Obsoletes: libgo-devel < %{version}-%{release}
 Provides: libgo-devel = %{version}-%{release}
@@ -641,8 +642,8 @@ mkdir -p %{buildroot}%{_fmoddir}
 %if %{build_go}
 mv %{buildroot}%{_bindir}/go{,.gcc}
 mv %{buildroot}%{_bindir}/gofmt{,.gcc}
-ln -sf /etc/alternatives/go %{buildroot}%{_bindir}/go
-ln -sf /etc/alternatives/gofmt %{buildroot}%{_bindir}/gofmt
+ln -sf %{_sysconfdir}/alternatives/go %{buildroot}%{_bindir}/go
+ln -sf %{_sysconfdir}/alternatives/gofmt %{buildroot}%{_bindir}/gofmt
 %endif
 
 cxxconfig="`find %{gcc_target_platform}/libstdc++-v3/include -name c++config.h`"
@@ -708,10 +709,7 @@ mv %{buildroot}%{_libdir}/libcilkrts.spec $FULLPATH/
 mv %{buildroot}%{_libdir}/libmpx.spec $FULLPATH/
 %endif
 
-mv -f %{buildroot}%{_libdir}/libgcc_s.so.1 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-chmod 755 %{buildroot}%{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
-ln -sf libgcc_s-%{gcc_major}-%{DATE}.so.1 %{buildroot}%{_libdir}/libgcc_s.so.1
-ln -sf %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
+ln -sf /usr/lib64/libgcc_s-%{gcc_major}-%{DATE}.so.1 $FULLPATH/libgcc_s.so
 
 mv -f %{buildroot}%{_libdir}/libgomp.spec $FULLPATH/
 
@@ -725,24 +723,12 @@ mkdir -p %{buildroot}%{_libexecdir}/getconf
 if gcc/xgcc -B gcc/ -E -P -dD -xc /dev/null | grep '__LONG_MAX__.*\(2147483647\|0x7fffffff\($\|[LU]\)\)'; then
   ln -sf POSIX_V6_ILP32_OFF32 %{buildroot}%{_libexecdir}/getconf/default
 else
-  ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  if [ -f %{_libexecdir}/getconf/POSIX_V6_LP64_OFF64 ]; then
+    ln -sf POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  else
+    ln -sf /usr/libexec/getconf/POSIX_V6_LP64_OFF64 %{buildroot}%{_libexecdir}/getconf/default
+  fi
 fi
-
-mkdir -p %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}
-mv -f %{buildroot}%{_libdir}/libstdc++*gdb.py* \
-      %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/
-pushd ../libstdc++-v3/python
-for i in `find . -name \*.py`; do
-  touch -r $i %{buildroot}%{_prefix}/share/gcc-%{gcc_major}/python/$i
-done
-touch -r hook.in %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/libstdc++*gdb.py
-popd
-for f in `find %{buildroot}%{_prefix}/share/gcc-%{gcc_major}/python/ \
-	       %{buildroot}%{_datadir}/gdb/auto-load/%{_libdir}/ -name \*.py`; do
-  r=${f/$RPM_BUILD_ROOT/}
-  %{__python} -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
-  %{__python} -O -c 'import py_compile; py_compile.compile("'$f'", dfile="'$r'")'
-done
 
 rm -f $FULLEPATH/libgccjit.so
 cp -a objlibgccjit/gcc/libgccjit.so* %{buildroot}%{_libdir}/
@@ -752,7 +738,7 @@ pushd $FULLPATH
 %if %{build_objc}
 ln -sf ../../../libobjc.so.4 libobjc.so
 %endif # build_objc
-ln -sf ../../../libstdc++.so.6.*[0-9] libstdc++.so
+ln -sf /usr/lib64/libstdc++.so.6.0.24 libstdc++.so
 %if %{build_fortran}
 ln -sf ../../../libgfortran.so.4.* libgfortran.so
 %endif # build_fortran
@@ -923,6 +909,32 @@ cd ..
 
 # Help plugins find out nvra.
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
+
+pushd %{buildroot}%{_prefix}/bin
+ln -sf gcc %{gcc_target_platform}-gcc
+ln -sf gcc %{gcc_target_platform}-gcc-%{gcc_major}
+ln -sf gcc-ar %{gcc_target_platform}-gcc-ar
+ln -sf gcc-nm %{gcc_target_platform}-gcc-nm
+ln -sf gcc-ranlib %{gcc_target_platform}-gcc-ranlib
+ln -sf c++ g++
+ln -sf c++ %{gcc_target_platform}-c++
+ln -sf c++ %{gcc_target_platform}-g++
+ln -sf gfortran %{gcc_target_platform}-gfortran
+popd
+
+ln -sf /usr/lib64/libstdc++.so.6.0.24 %{buildroot}%{_libdir}/libstdc++.so
+
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+
+%post go
+/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --install \
+  %{_prefix}/bin/go go %{_prefix}/bin/go.gcc 92 \
+  --slave %{_prefix}/bin/gofmt gofmt %{_prefix}/bin/gofmt.gcc
+
+%preun go
+if [ $1 = 0 ]; then
+  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove go %{_prefix}/bin/go.gcc
+fi
 
 %files
 %license gcc/COPYING* COPYING.RUNTIME
@@ -1293,6 +1305,7 @@ echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 # devel files
 %{_libdir}/go/%{gcc_major}/%{gcc_target_platform}
 %{_libdir}/libgo.so
+%dir %{_sysconfdir}/alternatives
 
 %files -n libgo
 %{_libdir}/libgo.so.11*
@@ -1312,11 +1325,8 @@ echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
 %exclude %{_libdir}/libstdc++.so.6.*
 %exclude %{_libdir}/libstdc++.so.6
-%exclude %{_datadir}/gdb/auto-load/%{_libdir}/libstdc*gdb.py*
-%exclude %{_datadir}/gdb/auto-load/%{_libdir}/__pycache__
 %exclude %{_prefix}/share/gcc-%{gcc_major}/python/libstdcxx
 
-%exclude %{_libdir}/libgcc_s-%{gcc_major}-%{DATE}.so.1
 %exclude %{_libdir}/libgcc_s.so.1
 
 %exclude %{_mandir}
