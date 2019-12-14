@@ -81,7 +81,6 @@ make DESTDIR="${RPM_BUILD_ROOT}" install
 %defattr(-,root,root,-)
 %attr(755,root,root) %{python_sitearch}/_capng.so
 %{python_sitearch}/capng.py*
-%{python_sitearch}/__pycache__/*
 
 %files utils
 %defattr(-,root,root,-)
