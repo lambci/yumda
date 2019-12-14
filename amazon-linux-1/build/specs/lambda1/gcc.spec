@@ -1,9 +1,5 @@
 %define _buildid .22
 
-# Meta package that steers the user preferences towards a particular version of the compiler
-%bcond_with objc
-%bcond_with gccgo
-
 %global gcc_name 48
 %global gcc_version 4.8.5
 
@@ -13,27 +9,22 @@ Version: %{gcc_version}
 Release: 1%{?_buildid}%{?dist}
 
 Requires: gcc%{gcc_name} >= %{gcc_version}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 
-# obsolete once shipped but no longer provided compiler metapackages
-%if %{without objc}
 Obsoletes: gcc-objc = 4.6.2
 Obsoletes: gcc-objc = 4.6.3
 Obsoletes: gcc-objc++ = 4.6.2
 Obsoletes: gcc-objc++ = 4.6.3
 Obsoletes: libobjc = 4.6.2
 Obsoletes: libobjc = 4.6.3
-%endif
 
-%if %{without gccgo}
 Obsoletes: gcc-go = 4.6.2
 Obsoletes: gcc-go = 4.6.3
 Obsoletes: libgo-devel = 4.6.2
 Obsoletes: libgo-devel = 4.6.3
 Obsoletes: libgo-static = 4.6.2
 Obsoletes: libgo-static = 4.6.3
-%endif
 
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group: Development/Languages
@@ -43,6 +34,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 # libtool has hardcoded gcc versioned paths in its binaries
 Conflicts: libtool < 2.2.10-%{gcc_version}
+
+Prefix: %{_prefix}
 
 %description
 The gcc package contains the GNU Compiler Collection.
@@ -58,6 +51,7 @@ Requires(post): %{_sbindir}/alternatives
 Requires(preun): %{_sbindir}/alternatives
 # libtool has hardcoded gcc versioned paths in its binaries
 Conflicts: libtool < 2.2.10-%{gcc_version}
+Prefix: %{_prefix}
 %description c++
 This package adds C++ support to the GNU Compiler Collection.
 It includes support for most of the current C++ specification,
@@ -70,6 +64,7 @@ Requires: libstdc++%{gcc_name}-devel >= %{gcc_version}
 Requires: libstdc++%{gcc_name} >= %{gcc_version}
 Requires(post): %{_sbindir}/alternatives
 Requires(preun): %{_sbindir}/alternatives
+Prefix: %{_prefix}
 %description -n libstdc++-devel
 This is the GNU implementation of the standard C++ libraries.  This
 package includes the header files and libraries needed for C++
@@ -80,44 +75,16 @@ Summary: Static libraries for the GNU standard C++ library
 Group: Development/Libraries
 Requires: libstdc++-devel = %{version}-%{release}
 Requires: libstdc++%{gcc_name}-static >= %{gcc_version}
+Prefix: %{_prefix}
 %description -n libstdc++-static
 Static libraries for the GNU standard C++ library. 
-
-%if %{with objc}
-%package objc
-Summary: Objective-C support for GCC
-Group: Development/Languages
-Requires: gcc = %{version}-%{release}
-Requires: libobjc = %{version}-%{release}
-Requires: gcc%{gcc_name}-objc >= %{gcc_version}
-%description objc
-gcc-objc provides Objective-C support for the GCC.
-Mainly used on systems running NeXTSTEP, Objective-C is an
-object-oriented derivative of the C language.
-
-%package objc++
-Summary: Objective-C++ support for GCC
-Group: Development/Languages
-Requires: gcc-c++ = %{version}-%{release}
-Requires: gcc-objc = %{version}-%{release}
-Requires: gcc%{gcc_name}-objc++ >= %{gcc_version}
-%description objc++
-gcc-objc++ package provides Objective-C++ support for the GCC.
-
-%package -n libobjc
-Summary: Objective-C runtime
-Group: System Environment/Libraries
-Requires: libobjc%{gcc_name} >= %{gcc_version}
-%description -n libobjc
-This package contains Objective-C shared library which is needed to run
-Objective-C dynamically linked programs.
-%endif #objc
 
 %package gfortran
 Summary: Fortran support
 Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: gcc%{gcc_name}-gfortran >= %{gcc_version}
+Prefix: %{_prefix}
 %description gfortran
 The gcc-gfortran package provides support for compiling Fortran
 programs with the GNU Compiler Collection.
@@ -126,6 +93,7 @@ programs with the GNU Compiler Collection.
 Summary: The C Preprocessor
 Group: Development/Languages
 Requires: cpp%{gcc_name} >= %{gcc_version}
+Prefix: %{_prefix}
 %description -n cpp
 Cpp is the GNU C-Compatible Compiler Preprocessor.
 Cpp is a macro processor which is used automatically by the C compiler to
@@ -155,6 +123,7 @@ Requires(post): %{_sbindir}/alternatives
 Requires(preun): %{_sbindir}/alternatives
 Obsoletes: libgnat-devel
 Obsoletes: libgnat-static
+Prefix: %{_prefix}
 %description gnat
 GNAT is a GNU Ada 95 front-end to GCC. This package includes development tools,
 the documents and Ada 95 compiler.
@@ -163,23 +132,10 @@ the documents and Ada 95 compiler.
 Summary: GNU Ada 95 runtime shared libraries
 Group: System Environment/Libraries
 Requires: libgnat%{gcc_name} >= %{gcc_version}
+Prefix: %{_prefix}
 %description -n libgnat
 GNAT is a GNU Ada 95 front-end to GCC. This package includes shared libraries,
 which are required to run programs compiled with the GNAT.
-
-%if %{with gccgo}
-%package go
-Summary: Go support
-Group: Development/Languages
-Requires: gcc%{gcc_name} >= %{gcc_version}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
-Obsoletes: libgo-devel
-Obsoletes: libgo-static
-%description go
-The gcc-go package provides support for compiling Go programs
-with the GNU Compiler Collection.
-%endif # gccgo
 
 %prep
 exit 0
@@ -203,17 +159,6 @@ rm -rf %{buildroot}
 %files c++
 %defattr(-,root,root,-)
 
-%if %{with objc}
-%files objc
-%defattr(-,root,root,-)
-
-%files objc++
-%defattr(-,root,root,-)
-
-%files -n libobjc
-%defattr(-,root,root,-)
-%endif # objc
-
 %files gfortran
 %defattr(-,root,root,-)
 
@@ -223,12 +168,10 @@ rm -rf %{buildroot}
 %files -n libgnat
 %defattr(-,root,root,-)
 
-%if %{with gccgo}
-%files go
-%defattr(-,root,root,-)
-%endif #gccgo
-
 %changelog
+* Sat Dec 14 2019 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Sep 4 2017 Cristian Gafton <gafton@amazon.com>
 - sync changes with subpackage updates for main compiler packages
 
