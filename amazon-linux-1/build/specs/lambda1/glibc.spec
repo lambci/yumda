@@ -3099,6 +3099,8 @@ ln -sf /lib64/libresolv.so.2 libresolv.so
 ln -sf /lib64/librt.so.1 librt.so
 ln -sf /lib64/libthread_db.so.1 libthread_db.so
 ln -sf /lib64/libutil.so.1 libutil.so
+sed -i 's_%{_libdir}/libpthread.so.0_/lib64/libpthread.so.0_' libpthread.so
+sed -i 's_%{_libdir}/libc.so.6_/lib64/libc.so.6_; s_%{_libdir}/ld-linux-x86-64.so.2_/lib64/ld-linux-x86-64.so.2_' libc.so
 popd
 
 %clean

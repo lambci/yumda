@@ -1271,6 +1271,9 @@ ln -sf /usr/lib64/libresolv.so.2 libresolv.so
 ln -sf /usr/lib64/librt.so.1 librt.so
 ln -sf /usr/lib64/libthread_db.so.1 libthread_db.so
 ln -sf /usr/lib64/libutil.so.1 libutil.so
+sed -i 's_%{_libdir}/libpthread.so.0_/usr/lib64/libpthread.so.0_' libpthread.so
+sed -i 's_%{_libdir}/libc.so.6_/usr/lib64/libc.so.6_; s_/opt/lib/ld-linux-x86-64.so.2_/usr/lib64/ld-linux-x86-64.so.2_' libc.so
+sed -i 's_%{_libdir}/libm.so.6_/usr/lib64/libm.so.6_; s_/opt/lib/libmvec.so.1_/usr/lib64/libmvec.so.1_' libm.so
 popd
 
 %pre headers
