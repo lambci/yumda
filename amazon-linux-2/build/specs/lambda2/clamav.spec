@@ -27,7 +27,7 @@
 
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
-Version:    0.101.4
+Version:    0.101.5
 Release:    1%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
@@ -53,11 +53,9 @@ Source7:    clamd.SERVICE.init
 #http://database.clamav.net/main.cvd
 Source10:   main-58.cvd
 #http://database.clamav.net/daily.cvd
-Source11:   daily-25550.cvd
+Source11:   daily-25642.cvd
 #http://database.clamav.net/bytecode.cvd
-Source12:   bytecode-330.cvd
-#for devel
-Source100:  clamd-gen
+Source12:   bytecode-331.cvd
 #for update
 Source200:  freshclam-sleep
 Source201:  freshclam.sysconfig
@@ -299,7 +297,6 @@ install -D -m 0644 -p etc/clamd.conf.sample _doc_server/clamd.conf
 %if %{with sysv}
 install -m 0644 -p %SOURCE520       $RPM_BUILD_ROOT%pkgdatadir/
 %endif
-install -m 0755 -p %SOURCE100       $RPM_BUILD_ROOT%pkgdatadir/
 cp -pa _doc_server/*            $RPM_BUILD_ROOT%pkgdatadir/template
 
 %if %{with sysv}
@@ -337,7 +334,6 @@ sed -e 's!<SERVICE>!scan!g;' $RPM_BUILD_ROOT%pkgdatadir/template/clamd.init \
 %endif
 
 install -D -p -m 0644 %SOURCE410 $RPM_BUILD_ROOT%_sysconfdir/init/clamd.scan.conf
-install -D -p -m 0644 %SOURCE430 $RPM_BUILD_ROOT%_unitdir/clamd@scan.service
 
 cat << EOF > $RPM_BUILD_ROOT%_tmpfilesdir/clamd.scan.conf
 d %scanstatedir 0710 %scanuser virusgroup
@@ -411,7 +407,6 @@ ln -s %pkgdatadir/clamd-wrapper     $RPM_BUILD_ROOT%_initrddir/clamd-wrapper
 %exclude %{_includedir}
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
-%exclude %{pkgdatadir}/clamd-gen
 %exclude %{pkgdatadir}/template
 %exclude %{_bindir}/clamav-config
 %exclude %{_sbindir}/clamd
@@ -420,8 +415,18 @@ ln -s %pkgdatadir/clamd-wrapper     $RPM_BUILD_ROOT%_initrddir/clamd-wrapper
 
 
 %changelog
-* Sat Nov 16 2019 Michael Hart <michael@lambci.org>
+* Mon Dec 16 2019 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Sat Nov 23 2019 Orion Poplawski <orion@nwra.com> - 0.101.5-1
+- Update to 0.101.5 (CVE-2019-15961) (bz#1775550)
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-3
+- Drop clamd@scan.service file (bz#1725810)
+- Change /var/run to /run
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-2
+- Add TimeoutStartSec=420 to clamd@.service to match upstream (bz#1764835)
 
 * Thu Aug 22 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-1
 - Update to 0.101.4

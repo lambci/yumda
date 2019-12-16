@@ -53,7 +53,7 @@
 
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
-Version:    0.101.4
+Version:    0.101.5
 Release:    1%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
@@ -79,11 +79,9 @@ Source7:    clamd.SERVICE.init
 #http://database.clamav.net/main.cvd
 Source10:   main-58.cvd
 #http://database.clamav.net/daily.cvd
-Source11:   daily-25550.cvd
+Source11:   daily-25642.cvd
 #http://database.clamav.net/bytecode.cvd
-Source12:   bytecode-330.cvd
-#for devel
-Source100:  clamd-gen
+Source12:   bytecode-331.cvd
 #for update
 Source200:  freshclam-sleep
 Source201:  freshclam.sysconfig
@@ -326,8 +324,8 @@ mkdir -p libclamunrar{,_iface}
 
 sed -ri \
     -e 's!^#?(LogFile ).*!#\1/var/log/clamd.<SERVICE>!g' \
-    -e 's!^#?(LocalSocket ).*!#\1/var/run/clamd.<SERVICE>/clamd.sock!g' \
-    -e 's!^(#?PidFile ).*!\1/var/run/clamd.<SERVICE>/clamd.pid!g' \
+    -e 's!^#?(LocalSocket ).*!#\1%{_rundir}/clamd.<SERVICE>/clamd.sock!g' \
+    -e 's!^(#?PidFile ).*!\1%{_rundir}/clamd.<SERVICE>/clamd.pid!g' \
     -e 's!^#?(User ).*!\1<USER>!g' \
     -e 's!^#?(AllowSupplementaryGroups|LogSyslog).*!\1 yes!g' \
     -e 's! /usr/local/share/clamav,! %homedir,!g' \
@@ -433,7 +431,6 @@ install -D -m 0644 -p etc/clamd.conf.sample _doc_server/clamd.conf
 %if %{with sysv}
 install -m 0644 -p %SOURCE520       $RPM_BUILD_ROOT%pkgdatadir/
 %endif
-install -m 0755 -p %SOURCE100       $RPM_BUILD_ROOT%pkgdatadir/
 cp -pa _doc_server/*            $RPM_BUILD_ROOT%pkgdatadir/template
 
 %if %{with sysv}
@@ -471,7 +468,6 @@ sed -e 's!<SERVICE>!scan!g;' $RPM_BUILD_ROOT%pkgdatadir/template/clamd.init \
 %endif
 
 install -D -p -m 0644 %SOURCE410 $RPM_BUILD_ROOT%_sysconfdir/init/clamd.scan.conf
-install -D -p -m 0644 %SOURCE430 $RPM_BUILD_ROOT%_unitdir/clamd@scan.service
 
 cat << EOF > $RPM_BUILD_ROOT%_tmpfilesdir/clamd.scan.conf
 d %scanstatedir 0710 %scanuser virusgroup
@@ -553,8 +549,10 @@ exit 0
 /usr/bin/killall -u %scanuser clamd 2>/dev/null || :
 %endif
 %if %{with systemd}
-%systemd_post clamd@.service
-%systemd_post clamd@scan.service
+# Point to the new service unit
+[ -L /etc/systemd/system/multi-user.target.wants/clamd@scan.service ] &&
+    ln -sf /usr/lib/systemd/system/clamd@.service /etc/systemd/system/multi-user.target.wants/clamd@scan.service || :
+%systemd_post clamd@\*.service
 %{?with_tmpfiles:/bin/systemd-tmpfiles --create %_tmpfilesdir/clamd.scan.conf || :}
 %endif
 
@@ -567,8 +565,7 @@ test "$1" != 0 || /sbin/chkconfig --del clamd.scan
 test "$1" != "0" || /sbin/initctl -q stop clamd.scan || :
 %endif
 %if %{with systemd}
-%systemd_preun clamd@.service
-%systemd_preun clamd@scan.service
+%systemd_preun clamd@\*.service
 %endif
 
 %postun -n clamd
@@ -576,8 +573,7 @@ test "$1" != "0" || /sbin/initctl -q stop clamd.scan || :
 test "$1"  = 0 || %_initrddir/clamd.scan condrestart >/dev/null || :
 %endif
 %if %{with systemd}
-%systemd_postun_with_restart clamd@.service
-%systemd_postun_with_restart clamd@scan.service
+%systemd_postun_with_restart clamd@\*.service
 %endif
 
 
@@ -670,7 +666,6 @@ test "$1"  = 0 || %_initrddir/clamav-milter condrestart >/dev/null || :
 %_includedir/*
 %_libdir/*.so
 %pkgdatadir/template
-%pkgdatadir/clamd-gen
 %_libdir/pkgconfig/*
 %_bindir/clamav-config
 
@@ -735,9 +730,6 @@ test "$1"  = 0 || %_initrddir/clamav-milter condrestart >/dev/null || :
 %if %{with upstart}
   %config(noreplace) %_sysconfdir/init/clamd.scan*
 %endif
-%if %{with systemd}
-  %_unitdir/clamd@scan.service
-%endif
 
 ## -----------------------
 
@@ -769,6 +761,16 @@ test "$1"  = 0 || %_initrddir/clamav-milter condrestart >/dev/null || :
 
 
 %changelog
+* Sat Nov 23 2019 Orion Poplawski <orion@nwra.com> - 0.101.5-1
+- Update to 0.101.5 (CVE-2019-15961) (bz#1775550)
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-3
+- Drop clamd@scan.service file (bz#1725810)
+- Change /var/run to /run
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-2
+- Add TimeoutStartSec=420 to clamd@.service to match upstream (bz#1764835)
+
 * Thu Aug 22 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-1
 - Update to 0.101.4
 
