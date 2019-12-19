@@ -21,7 +21,6 @@ gcc48.x86_64                          4.8.5-28.142.lambda1               lambda1
 gcc48-c++.x86_64                      4.8.5-28.142.lambda1               lambda1
 gcc48-gfortran.x86_64                 4.8.5-28.142.lambda1               lambda1
 gcc48-gnat.x86_64                     4.8.5-28.142.lambda1               lambda1
-gcc48-plugin-devel.x86_64             4.8.5-28.142.lambda1               lambda1
 gcc72.x86_64                          7.2.1-2.59.lambda1                 lambda1
 gcc72-c++.x86_64                      7.2.1-2.59.lambda1                 lambda1
 gcc72-gdb-plugin.x86_64               7.2.1-2.59.lambda1                 lambda1

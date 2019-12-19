@@ -576,19 +576,6 @@ Prefix: %{_prefix}
 GNAT is a GNU Ada 95 front-end to GCC. This package includes shared libraries,
 which are required to run programs compiled with the GNAT.
 
-%package plugin-devel
-Summary: Support for compiling GCC plugins
-Group: Development/Languages
-Requires: gcc%{?gccv} = %{version}-%{release}
-Requires: gmp-devel >= 4.1.2-8, mpfr-devel >= 2.2.1, libmpc-devel >= 0.8.1
-
-Prefix: %{_prefix}
-
-%description plugin-devel
-This package contains header files and other support files
-for compiling GCC plugins.  The GCC plugin ABI is currently
-not stable, so plugins must be rebuilt any time GCC is updated.
-
 %prep
 %setup -q -n gcc-%{version}-%{DATE} -a 1 -a 2
 %patch0 -p0 -b .hack~
@@ -1554,20 +1541,11 @@ exit 0
 %{_prefix}/%{_lib}/libtsan.so.0*
 %endif
 
-%files plugin-devel
-%defattr(-,root,root,-)
-%dir %{_prefix}/lib/gcc
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}
-%dir %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}
-%{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
-%dir %{_prefix}/libexec/gcc
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
-%dir %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}
-%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
-
 %exclude %{_mandir}
 %exclude %{_infodir}
 %exclude %{_datadir}/locale
+%exclude %{_prefix}/lib/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
+%exclude %{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/plugin
 
 %changelog
 * Sat Dec 14 2019 Michael Hart <michael@lambci.org>
