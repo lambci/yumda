@@ -95,6 +95,23 @@ export CURSPEC=openssh && \
 rpm --addsign ~/rpmbuild/{SRPMS,RPMS/*}/*.rpm
 ```
 
+## Manually installing RPMs
+
+Downloading:
+```console
+yumdownloader --destdir /tmp/fs java-1.8.0-openjdk-devel
+```
+
+Installing:
+```console
+yum localinstall -y /app/java-1.8.0-openjdk-devel-*.rpm
+```
+
+Installing with a different prefix:
+```console
+rpm -ivh --root=/lambda --prefix=/tmp /app/java-1.8.0-openjdk-devel-*.rpm
+```
+
 ## Copying over RPMs and updating yum repo
 
 Amazon Linux 1:
@@ -119,7 +136,7 @@ Amazon Linux 1:
 
 ```console
 aws s3 sync --delete ~/github/yumda/amazon-linux-1/build/lambda1 s3://rpm.lambci.org/lambda1 && \
-  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda1/RPMS/repodata/*" && \
+  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda1/RPMS/*" && \
   docker run --rm lambci/yumda:1 yum list available > ../packages.txt
 ```
 
@@ -127,7 +144,7 @@ Amazon Linux 2:
 
 ```console
 aws s3 sync --delete ~/github/yumda/amazon-linux-2/build/lambda2 s3://rpm.lambci.org/lambda2 && \
-  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda2/RPMS/repodata/*" && \
+  aws cloudfront create-invalidation --distribution-id EJS6WO6246GX7 --paths "/lambda2/RPMS/*" && \
   docker run --rm lambci/yumda:2 yum list available > ../packages.txt
 ```
 
@@ -136,25 +153,32 @@ aws s3 sync --delete ~/github/yumda/amazon-linux-2/build/lambda2 s3://rpm.lambci
 Amazon Linux 1:
 
 ```console
-docker run --rm lambci/yumda:1 bash -c \
-  "yum list available | tail -n +3 | grep -o -E '^\S+' | xargs yum install"
+docker run --rm lambci/yumda:1 bash -c "
+  yum list available | tail -n +3 | grep -o -E '^\S+' | xargs yum install
+"
 ```
 
 Amazon Linux 2:
 
 ```console
-docker run --rm lambci/yumda:2 bash -c \
-  "yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install"
+docker run --rm lambci/yumda:2 bash -c "
+  yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v libcrypt-nss | xargs yum install
+"
 ```
 
 Checking for hardlinks from lambci/yumda:
 ```console
-find /lambda/opt -type f -links +1 -printf '%i %n %p\n'
+chroot /lambda find /opt -type f -links +1 -printf '%i %n %p\n'
 ```
 
 Checking for broken symlinks from lambci/yumda:
 ```console
-find /lambda/opt -xtype l
+chroot /lambda find /opt -xtype l -printf '%p -> %l\n' | grep -v -e '-> /usr'
+```
+
+Checking for absolute symlinks from lambci/yumda:
+```console
+chroot /lambda find /opt -type l -lname '/*' -printf '%p -> %l\n' | grep -v -e '-> /usr' -e '-> /lib64'
 ```
 
 ## Generating todo.txt
