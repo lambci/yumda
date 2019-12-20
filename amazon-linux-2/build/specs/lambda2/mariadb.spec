@@ -376,14 +376,15 @@ rm -f ${RPM_BUILD_ROOT}%{_datadir}/mysql/solaris/postinstall-solaris
 sed -i '1 s|^#!/usr/bin/perl|#!%{_bindir}/perl|' %{buildroot}%{_bindir}/*
 
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/alternatives
+mkdir -p ${RPM_BUILD_ROOT}%{_sharedstatedir}/alternatives
 
 %post server
-/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/mysqlbug \
+/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/mysqlbug \
 	mysqlbug %{_libdir}/mysql/mysqlbug %{__isa_bits}
 
 %postun server
 if [ $1 -eq 0 ] ; then
-	/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove mysqlbug %{_libdir}/mysql/mysqlbug
+	/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove mysqlbug %{_libdir}/mysql/mysqlbug
 fi
 
 
@@ -498,6 +499,7 @@ fi
 %attr(0640,mysql,mysql) %config(noreplace) %verify(not md5 size mtime) %{_localstatedir}/log/mariadb/mariadb.log
 %config(noreplace) %{_sysconfdir}/logrotate.d/mariadb
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 
 %files embedded
 %license COPYING README.mysql-license storage/innobase/COPYING.Percona storage/innobase/COPYING.Google
