@@ -9,8 +9,6 @@ Version: %{gcc_version}
 Release: 1%{?_buildid}%{?dist}
 
 Requires: gcc%{gcc_name} >= %{gcc_version}
-Requires(post): /usr/sbin/alternatives
-Requires(preun): /usr/sbin/alternatives
 
 Obsoletes: gcc-objc = 4.6.2
 Obsoletes: gcc-objc = 4.6.3
@@ -47,8 +45,6 @@ Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libstdc++%{gcc_name} >= %{gcc_version}
 Requires: gcc%{gcc_name}-c++ >= %{gcc_version}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 # libtool has hardcoded gcc versioned paths in its binaries
 Conflicts: libtool < 2.2.10-%{gcc_version}
 Prefix: %{_prefix}
@@ -62,8 +58,6 @@ Summary: Header files and libraries for C++ development
 Group: Development/Libraries
 Requires: libstdc++%{gcc_name}-devel >= %{gcc_version}
 Requires: libstdc++%{gcc_name} >= %{gcc_version}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 Prefix: %{_prefix}
 %description -n libstdc++-devel
 This is the GNU implementation of the standard C++ libraries.  This
@@ -119,8 +113,6 @@ Group: Development/Languages
 Requires: gcc = %{version}-%{release}
 Requires: libgnat = %{version}-%{release}
 Requires: gcc%{gcc_name}-gnat >= %{gcc_version}
-Requires(post): %{_sbindir}/alternatives
-Requires(preun): %{_sbindir}/alternatives
 Obsoletes: libgnat-devel
 Obsoletes: libgnat-static
 Prefix: %{_prefix}

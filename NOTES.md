@@ -168,7 +168,7 @@ docker run --rm lambci/yumda:2 bash -c "
 
 Checking for hardlinks from lambci/yumda:
 ```console
-chroot /lambda find /opt -type f -links +1 -printf '%i %n %p\n'
+chroot /lambda find /opt -type f -links +1 -printf '%i %n %p\n' | sort -n
 ```
 
 Checking for broken symlinks from lambci/yumda:
