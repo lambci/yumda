@@ -639,19 +639,20 @@ rm -f %{buildroot}%{_infodir}/dir
 rm -rf %{buildroot}%{_prefix}/%{binutils_target}
 
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+mkdir -p %{buildroot}%{_sharedstatedir}/alternatives
 
 #----------------------------------------------------------------------------
 
 %post
 %if "%{build_gold}" == "both"
 %__rm -f %{_bindir}/%{?cross}ld
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
   %{_bindir}/%{?cross}ld.bfd %{ld_bfd_priority}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/%{?cross}ld %{?cross}ld \
   %{_bindir}/%{?cross}ld.gold %{ld_gold_priority}
 %if ! 0%{?amzn}
 if [ $1 = 0 ]; then
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto %{?cross}ld
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto %{?cross}ld
 fi
 %endif # amzn
 %endif # both ld.gold and ld.bfd
@@ -663,8 +664,8 @@ exit 0
 %preun
 %if "%{build_gold}" == "both"
 if [ $1 = 0 ]; then
-  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.bfd
-  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.gold
+  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.bfd
+  /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove %{?cross}ld %{_bindir}/%{?cross}ld.gold
 fi
 %endif # both ld.gold and ld.bfd
 
@@ -717,6 +718,7 @@ exit 0
 %endif # isnative
 
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 
 %exclude %{_datadir}/locale
 
