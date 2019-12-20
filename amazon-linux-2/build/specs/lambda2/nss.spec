@@ -64,6 +64,7 @@ BuildRequires:    pkgconfig
 BuildRequires:    gawk
 BuildRequires:    psmisc
 BuildRequires:    perl
+BuildRequires:    xmlto
 
 # nss-pem used to be bundled with the nss package on Fedora -- make sure that
 # programs relying on that continue to work until they are fixed to require
@@ -502,6 +503,7 @@ ln -r -s -f $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bi
 %{__install} -p -m 644 %{SOURCE32} $RPM_BUILD_ROOT%{_sysconfdir}/pki/nss-legacy/nss-rhel7.config
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/alternatives
+mkdir -p $RPM_BUILD_ROOT%{_sharedstatedir}/alternatives
 
 %post
 # If we upgrade, and the shared filename is a regular file, then we must
@@ -515,20 +517,20 @@ fi
 # Install the symbolic link
 # FYI: Certain other packages use alternatives --set to enforce that the first
 # installed package is preferred. We don't do that. Highest priority wins.
-/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --install %{_libdir}/libnssckbi.so \
+/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_libdir}/libnssckbi.so \
   %{alt_ckbi} %{_libdir}/nss/libnssckbi.so 10
 /sbin/ldconfig
 
 %postun
 if [ $1 -eq 0 ] ; then
   # package removal
-  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
+  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
 else
   # upgrade or downgrade
   # If the new installed package uses a regular file (not a symblic link),
   # then cleanup the alternatives link.
   if ! test -L %{_libdir}/libnssckbi.so; then
-    /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
+    /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove %{alt_ckbi} %{_libdir}/nss/libnssckbi.so
   fi
 fi
 
@@ -549,6 +551,7 @@ fi
 %dir %{_sysconfdir}/pki/nss-legacy
 %config(noreplace) %{_sysconfdir}/pki/nss-legacy/nss-rhel7.config
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 
 %files sysinit
 %defattr(-,root,root)
