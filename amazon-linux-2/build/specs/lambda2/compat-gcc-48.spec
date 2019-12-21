@@ -752,9 +752,9 @@ rm -rf %{buildroot}%{_prefix}/libexec/gcc/%{gcc_target_platform}/%{gcc_version}/
 pushd %{buildroot}%{_prefix}/bin
 ln -sf gcc%{?gccv} %{_target_platform}-gcc%{?gccv}
 ln -sf gcc%{?gccv} %{_target_platform}-gcc-%{gcc_version}
-ln -sf c++%{?gccv} g++%{?gccv}
-ln -sf c++%{?gccv} %{_target_platform}-c++%{?gccv}
-ln -sf c++%{?gccv} %{_target_platform}-g++%{?gccv}
+ln -sf g++%{?gccv} c++%{?gccv}
+ln -sf g++%{?gccv} %{_target_platform}-c++%{?gccv}
+ln -sf g++%{?gccv} %{_target_platform}-g++%{?gccv}
 ln -sf gfortran%{?gccv} %{_target_platform}-gfortran%{?gccv}
 popd
 

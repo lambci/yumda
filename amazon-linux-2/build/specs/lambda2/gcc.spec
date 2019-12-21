@@ -618,6 +618,11 @@ rm Makefile.orig
 cd ..
 
 %install
+rm -rf %{buildroot}
+
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+mkdir -p %{buildroot}%{_sharedstatedir}/alternatives
+
 cd obj-%{gcc_target_platform}
 
 TARGET_PLATFORM=%{gcc_target_platform}
@@ -916,24 +921,22 @@ ln -sf gcc %{gcc_target_platform}-gcc-%{gcc_major}
 ln -sf gcc-ar %{gcc_target_platform}-gcc-ar
 ln -sf gcc-nm %{gcc_target_platform}-gcc-nm
 ln -sf gcc-ranlib %{gcc_target_platform}-gcc-ranlib
-ln -sf c++ g++
-ln -sf c++ %{gcc_target_platform}-c++
-ln -sf c++ %{gcc_target_platform}-g++
+ln -sf g++ c++
+ln -sf g++ %{gcc_target_platform}-c++
+ln -sf g++ %{gcc_target_platform}-g++
 ln -sf gfortran %{gcc_target_platform}-gfortran
 popd
 
 ln -sf /usr/lib64/libstdc++.so.6.0.24 %{buildroot}%{_libdir}/libstdc++.so
 
-mkdir -p %{buildroot}%{_sysconfdir}/alternatives
-
 %post go
-/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --install \
+/usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install \
   %{_prefix}/bin/go go %{_prefix}/bin/go.gcc 92 \
   --slave %{_prefix}/bin/gofmt gofmt %{_prefix}/bin/gofmt.gcc
 
 %preun go
 if [ $1 = 0 ]; then
-  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --remove go %{_prefix}/bin/go.gcc
+  /usr/sbin/update-alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove go %{_prefix}/bin/go.gcc
 fi
 
 %files
@@ -1306,6 +1309,7 @@ fi
 %{_libdir}/go/%{gcc_major}/%{gcc_target_platform}
 %{_libdir}/libgo.so
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 
 %files -n libgo
 %{_libdir}/libgo.so.11*

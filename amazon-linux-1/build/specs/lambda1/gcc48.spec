@@ -828,6 +828,9 @@ cp -a cloog-install/lib/libcloog-isl.so.4 gcc/
 %install
 rm -fr %{buildroot}
 
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+mkdir -p %{buildroot}%{_sharedstatedir}/alternatives
+
 cd obj-%{gcc_target_platform}
 
 TARGET_PLATFORM=%{gcc_target_platform}
@@ -1118,14 +1121,21 @@ rm -f $FULLPATH/include/ffi*
 # Help plugins find out nvra.
 echo gcc-%{version}-%{release}.%{_arch} > $FULLPATH/rpmver
 
-mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+pushd %{buildroot}%{_prefix}/bin
+ln -sf gcc%{?gccv} %{_target_platform}-gcc%{?gccv}
+ln -sf gcc%{?gccv} %{_target_platform}-gcc-%{gcc_version}
+ln -sf g++%{?gccv} c++%{?gccv}
+ln -sf g++%{?gccv} %{_target_platform}-c++%{?gccv}
+ln -sf g++%{?gccv} %{_target_platform}-g++%{?gccv}
+ln -sf gfortran%{?gccv} %{_target_platform}-gfortran%{?gccv}
+popd
 
 %clean
 rm -rf %{buildroot}
 
 %post
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gcc gcc %{_bindir}/gcc%{gccv} %{gcc_prio} \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/gcc gcc %{_bindir}/gcc%{gccv} %{gcc_prio} \
     --slave %{_bindir}/cc cc %{_bindir}/gcc%{gccv} \
     --slave %{_bindir}/c89 c89 %{_bindir}/gcc%{gccv}-c89 \
     --slave %{_bindir}/c99 c99 %{_bindir}/gcc%{gccv}-c99 \
@@ -1135,38 +1145,38 @@ rm -rf %{buildroot}
 %preun
 if [ $1 = 0 ]; then
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gcc %{_bindir}/gcc%{gccv}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove gcc %{_bindir}/gcc%{gccv}
 %endif
 fi
 
 %posttrans
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gcc
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto gcc
 %endif
 exit 0
 
 %post -n cpp%{?gccv}
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/cpp cpp %{_bindir}/cpp%{gccv} %{gcc_prio} \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/cpp cpp %{_bindir}/cpp%{gccv} %{gcc_prio} \
     --slave /lib/cpp libcpp %{_bindir}/cpp%{gccv}
 %endif
 
 %preun -n cpp%{?gccv}
 if [ $1 = 0 ] ; then
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove cpp %{_bindir}/cpp%{gccv}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove cpp %{_bindir}/cpp%{gccv}
 %endif
 fi
 
 %posttrans -n cpp%{?gccv}
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto cpp
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto cpp
 %endif
 exit 0
 
 %post c++
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/g++ g++ %{_bindir}/g++%{gccv} %{gcc_prio} \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/g++ g++ %{_bindir}/g++%{gccv} %{gcc_prio} \
     --slave %{_bindir}/c++ c++ %{_bindir}/g++%{gccv} \
     --slave %{_libdir}/libstdc++.so libstdc++.so %{_libdir}/libstdc++.so.%{libstdcplusplus_ver}
 %endif
@@ -1175,39 +1185,39 @@ exit 0
 %preun c++
 %if 0%{?gccv:1}
 if [ $1 = 0 ] ; then
-    /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove g++ %{_bindir}/g++%{gccv}
+    /usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove g++ %{_bindir}/g++%{gccv}
 fi
 %endif
 exit 0
 
 %posttrans c++
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto g++
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto g++
 %endif
 exit 0
 
 %post gfortran
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gfortran gfortran %{_bindir}/gfortran%{gccv} %{gcc_prio} \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/gfortran gfortran %{_bindir}/gfortran%{gccv} %{gcc_prio} \
     --slave %{_bindir}/f95 f95 %{_bindir}/gfortran%{gccv}
 %endif
 
 %preun gfortran
 if [ $1 = 0 ] ; then
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gfortran %{_bindir}/gfortran%{gccv}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove gfortran %{_bindir}/gfortran%{gccv}
 %endif
 fi
 
 %posttrans gfortran
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gfortran
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto gfortran
 %endif
 exit 0
 
 %post gnat
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --install %{_bindir}/gnat gnat %{_bindir}/gnat%{gccv} %{gcc_prio} \
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --install %{_bindir}/gnat gnat %{_bindir}/gnat%{gccv} %{gcc_prio} \
     --slave %{_bindir}/gnatbind gnatbind %{_bindir}/gnatbind%{gccv} \
     --slave %{_bindir}/gnatchop gnatchop %{_bindir}/gnatchop%{gccv} \
     --slave %{_bindir}/gnatclean gnatclean %{_bindir}/gnatclean%{gccv} \
@@ -1225,19 +1235,20 @@ exit 0
 %preun gnat
 if [ $1 = 0 ] ; then
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --remove gnat %{_bindir}/gnat%{gccv}
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --remove gnat %{_bindir}/gnat%{gccv}
 %endif
 fi
 
 %posttrans gnat
 %if 0%{?gccv:1}
-/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --auto gnat
+/usr/sbin/alternatives --altdir %{_sysconfdir}/alternatives --admindir %{_sharedstatedir}/alternatives --auto gnat
 %endif
 exit 0
 
 %files
 %defattr(-,root,root,-)
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 %{_prefix}/bin/%{?gccv:%{name}-}c89
 %{_prefix}/bin/%{?gccv:%{name}-}c99
 %{_prefix}/bin/gcc%{?gccv}
