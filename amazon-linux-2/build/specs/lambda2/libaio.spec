@@ -47,6 +47,10 @@ cd ..
 make destdir=$RPM_BUILD_ROOT prefix=%{_prefix} libdir=%{_libdir} usrlibdir=%{_libdir} \
 	includedir=%{_includedir} install
 
+pushd $RPM_BUILD_ROOT%{_libdir}
+  ln -sf libaio.so.1.0.1 libaio.so.1
+popd
+
 %files
 %defattr(-,root,root)
 %license COPYING

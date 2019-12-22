@@ -726,10 +726,6 @@ export JAVA_HOME=$(pwd)/%{buildoutputdir ""}/images/%{jdkimage}
 # Install nss.cfg right away as we will be using the JRE above
 install -m 644 nss.cfg $JAVA_HOME/jre/lib/security/
 
-# Use system-wide tzdata
-rm $JAVA_HOME/jre/lib/tzdb.dat
-ln -s %{_datadir}/javazi-1.8/tzdb.dat $JAVA_HOME/jre/lib/tzdb.dat
-
 %install
 STRIP_KEEP_SYMTAB=libjvm*
 
@@ -788,6 +784,12 @@ pushd %{buildoutputdir ""}/images/%{jdkimage}
   pushd $RPM_BUILD_ROOT%{_jvmjardir}
     ln -sf %{sdkdir ""} %{jrelnk ""}
   popd
+popd
+
+# Use system-wide tzdata
+pushd $RPM_BUILD_ROOT%{_jvmdir}/%{jredir ""}/lib
+  RELATIVE=$(%{abs2rel} %{_datadir}/javazi-1.8 %{_jvmdir}/%{jredir ""}/lib)
+  ln -sf $RELATIVE/tzdb.dat tzdb.dat
 popd
 
 

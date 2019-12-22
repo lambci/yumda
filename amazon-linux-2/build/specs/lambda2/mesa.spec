@@ -397,7 +397,9 @@ rm -f %{buildroot}%{_libdir}/libGLES*
 
 # glvnd needs a default provider for indirect rendering where it cannot
 # determine the vendor
-ln -s %{_libdir}/libGLX_mesa.so.0 %{buildroot}%{_libdir}/libGLX_indirect.so.0
+pushd %{buildroot}%{_libdir}
+  ln -sf libGLX_mesa.so.0 libGLX_indirect.so.0
+popd
 
 
 

@@ -384,6 +384,11 @@ done
 # avoid dragging in tonne of perl libs for an unused script
 chmod 0644 $RPM_BUILD_ROOT%{rpmhome}/perldeps.pl
 
+pushd $RPM_BUILD_ROOT%{_bindir}
+  ln -sf rpm rpmquery
+  ln -sf rpm rpmverify
+popd
+
 %files
 %defattr(-,root,root,-)
 %license COPYING
