@@ -138,6 +138,7 @@ Group:   Development/Tools
 
 BuildRequires: rpm
 BuildRequires: cpio
+BuildRequires: javapackages-tools
 
 Requires:         %{name}%{?_isa} >= %{epoch}:%{javaver}
 Requires(post):   /usr/sbin/alternatives
@@ -179,7 +180,7 @@ mkdir -p %{buildroot}%{_jvmdir}/%{jredir}
 
 # Install extension symlinks.
 pushd $RPM_BUILD_ROOT%{jvmjardir}
-  RELATIVE=$(%{abs2rel} %{_jvmdir}/%{jredir} %{jvmjardir})
+  RELATIVE=$(%{abs2rel} %{_jvmdir}/%{jredir}/lib %{jvmjardir})
   ln -sf $RELATIVE/jsse.jar jsse-%{version}.jar
   ln -sf $RELATIVE/jce.jar jce-%{version}.jar
   ln -sf $RELATIVE/rt.jar jndi-%{version}.jar
