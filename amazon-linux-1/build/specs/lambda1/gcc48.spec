@@ -1387,6 +1387,7 @@ exit 0
 %files -n cpp%{?gccv}
 %defattr(-,root,root,-)
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 %{_prefix}/bin/cpp%{?gccv}
 %dir %{_prefix}/libexec/gcc
 %dir %{_prefix}/libexec/gcc/%{gcc_target_platform}
@@ -1404,6 +1405,7 @@ exit 0
 %files c++
 %defattr(-,root,root,-)
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 %{_prefix}/bin/%{gcc_target_platform}-*++%{?gccv}
 %{_prefix}/bin/g++%{?gccv}
 %{_prefix}/bin/c++%{?gccv}
@@ -1441,6 +1443,7 @@ exit 0
 %files gfortran
 %defattr(-,root,root,-)
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 %{_prefix}/bin/gfortran%{?gccv}
 %{_prefix}/bin/%{_target_platform}-gfortran%{?gccv}
 %dir %{_prefix}/lib/gcc
@@ -1478,6 +1481,7 @@ exit 0
 %files gnat
 %defattr(-,root,root,-)
 %dir %{_sysconfdir}/alternatives
+%dir %{_sharedstatedir}/alternatives
 %{_prefix}/bin/gnat%{?gccv}
 %{_prefix}/bin/gnatfind%{?gccv}
 %{_prefix}/bin/gnatname%{?gccv}
