@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .2
 
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
@@ -77,6 +77,7 @@ Patch61: file-5.11-python-comment.patch
 
 # patches added by Amazon
 Patch1001: file-5.11-java-jar-zip.patch
+Patch1002: CVE-2019-18218.patch
 
 URL: http://www.darwinsys.com/file/
 Requires: file-libs = %{version}-%{release}
@@ -186,6 +187,7 @@ file(1) command.
 %patch60 -p1
 %patch61 -p1
 %patch1001 -p1
+%patch1002 -p1
 
 # Patches can generate *.orig files, which can't stay in the magic dir,
 # otherwise there will be problems when compiling magic file!
@@ -265,6 +267,9 @@ cd python
 %endif
 
 %changelog
+* Tue Nov 19 2019 Trinity Quirk <tquirk@amazon.com> 5.11-35.amzn2.0.2
+- fix CVE-2019-18218
+
 * Tue Nov 12 2019 Jeremiah Mahler <jmmahler@amazon.com> 5.11-35.amzn2.0.1
 - backport fix so .jar is not detected as .zip
 

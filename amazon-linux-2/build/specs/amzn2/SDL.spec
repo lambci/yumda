@@ -1,6 +1,6 @@
 Name:       SDL
 Version:    1.2.15
-Release: 14%{?dist}.0.2
+Release:    15%{?dist}
 Summary:    A cross-platform multimedia library
 Group:      System Environment/Libraries
 URL:        http://www.libsdl.org/
@@ -25,6 +25,8 @@ Patch4:     SDL-1.2.15-add_sdl_config_man.patch
 # Do not use backing store by default, sdl2383, rh1073057, rh1245417
 # rejected by upstream
 Patch5:     SDL-1.2.15-no-default-backing-store.patch
+# upstream bug #4538, in upstream after 1.2.15
+Patch6:    SDL-1.2.15-CVE-2019-13616-validate_image_size_when_loading_BMP_files.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  audiofile-devel
@@ -84,6 +86,8 @@ applications.
 %patch3 -p1 -b .XData32
 %patch4 -p1 -b .sdl_config_man
 %patch5 -p1 -b .backing_store
+%patch6 -p1 -b .0006
+
 for F in CREDITS; do 
     iconv -f iso8859-1 -t utf-8 < "$F" > "${F}.utf"
     touch --reference "$F" "${F}.utf"
@@ -144,6 +148,10 @@ rm -f %{buildroot}%{_libdir}/*.la
 %{_libdir}/lib*.a
 
 %changelog
+* Wed Nov 27 2019 Tomas Pelka <tpelka@redhat.com> - 1.2.15-15
+- Fix CVE-2019-13616 (a heap buffer over-read in BlitNtoN) (bug #1747237)
+- Resolves: rhbz#1756276
+
 * Wed Jul 29 2015 Petr Pisar <ppisar@redhat.com> - 1.2.15-14
 - Do not harness backing store by default. Export SDL_VIDEO_X11_BACKINGSTORE
   environment variable to enable it.
