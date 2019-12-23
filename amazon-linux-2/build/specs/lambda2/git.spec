@@ -85,7 +85,6 @@ rm -rf "$tar" "$gpghome" # Cleanup tar files and tmp gpg home dir
 # Use these same options for every invocation of 'make'.
 # Otherwise it will rebuild in %%install due to flags changes.
 cat << \EOF > config.mak
-V = 1
 CFLAGS = %{optflags}
 LDFLAGS = %{__global_ldflags}
 prefix = %{_prefix}
@@ -102,6 +101,9 @@ INSTALL_SYMLINKS = 1
 EOF
 
 %build
+# Improve build reproducibility
+export TZ=UTC
+export SOURCE_DATE_EPOCH=$(date -r version +%%s 2>/dev/null)
 %make_build
 
 %install
