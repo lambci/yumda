@@ -5,7 +5,7 @@ GraphicsMagick-c++.x86_64    1.3.32-1.lambda2                            lambda2
 ImageMagick.x86_64           6.7.8.9-15.lambda2.0.2                      lambda2
 OpenEXR.x86_64               1.7.1-7.lambda2.0.2                         lambda2
 OpenEXR-libs.x86_64          1.7.1-7.lambda2.0.2                         lambda2
-SDL.x86_64                   1.2.15-14.lambda2.0.2                       lambda2
+SDL.x86_64                   1.2.15-15.lambda2                           lambda2
 alsa-lib.x86_64              1.1.4.1-2.lambda2                           lambda2
 apr.x86_64                   1.6.3-5.lambda2.0.2                         lambda2
 apr-util.x86_64              1.6.1-5.lambda2.0.2                         lambda2
