@@ -223,3 +223,29 @@ node -p "
     .map(t => t.split('.amzn2')[0].split('-').slice(0, -2).join('-'))
     .filter(t => names.has(t))"
 ```
+
+## Querying metadata on existing RPM file
+
+rpm -qp --qf "\
+[Name: %{NAME}\n]\
+[Version: %{VERSION}\n]\
+[Release: %{RELEASE}\n]\
+[Epoch: %{EPOCH}\n]\
+[Summary: %{SUMMARY}\n]\
+[Group: %{GROUP}\n]\
+[License: %{LICENSE}\n]\
+[Url: %{URL}\n]\
+[Conflicts: %{CONFLICTS}\n]\
+[Obsoletes: %{OBSOLETES}\n]\
+[Provides: %{PROVIDES}\n]\
+[Recommends: %{RECOMMENDS}\n]\
+[Requires: %{REQUIRES}\n]\
+[description: %{DESCRIPTION}\n]\
+[prein: %{PREIN}\n]\
+[preun: %{PREUN}\n]\
+[pretrans: %{PRETRANS}\n]\
+[postin: %{POSTIN}\n]\
+[postun: %{POSTUN}\n]\
+[posttrans: %{POSTTRANS}\n]\
+" \
+*.rpm

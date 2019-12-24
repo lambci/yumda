@@ -1011,6 +1011,7 @@ vulkan.x86_64                1.0.61.1-2.lambda2                          lambda2
 vulkan-filesystem.noarch     1.0.61.1-2.lambda2                          lambda2
 wavpack.x86_64               4.60.1-9.lambda2.0.1                        lambda2
 which.x86_64                 2.20-7.lambda2.0.2                          lambda2
+wkhtmltox.x86_64             1:0.12.5-1.lambda2                          lambda2
 xkeyboard-config.noarch      2.20-1.lambda2                              lambda2
 xorg-x11-font-utils.x86_64   1:7.5-20.lambda2.0.2                        lambda2
 xorg-x11-fonts-100dpi.noarch 7.5-9.lambda2                               lambda2
