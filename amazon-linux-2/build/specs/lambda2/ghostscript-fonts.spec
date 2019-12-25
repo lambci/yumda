@@ -20,11 +20,12 @@ Source2: SIL-Open-Font-License.txt
 # ./generate-tarball.sh 5.50
 Source3: generate-tarball.sh
 Requires: fontconfig
+Requires(post): xorg-x11-font-utils
 Requires(post): fontconfig
-Requires(postun): fontconfig
 BuildArchitectures: noarch
 
 %define fontdir %{_datadir}/fonts/default/ghostscript
+%define catalogue %{_sysconfdir}/X11/fontpath.d
 
 Prefix: %{_prefix}
 
@@ -43,25 +44,33 @@ find fonts -type f | xargs grep -lw Hershey | xargs rm -f
 %build
 
 %install
+rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{fontdir}
 cp -p fonts/* $RPM_BUILD_ROOT%{fontdir}
 
+# Touch ghosted files
+touch $RPM_BUILD_ROOT%{fontdir}/fonts.{dir,scale}
+
+# Install catalogue symlink
+mkdir -p $RPM_BUILD_ROOT%{catalogue}
+ln -sf %{fontdir} $RPM_BUILD_ROOT%{catalogue}/default-ghostscript
+
 %post
 {
-   fc-cache %{fontdir}
-} &> /dev/null || :
-
-%postun
-{
-   if [ "$1" = "0" ]; then
-      fc-cache %{fontdir}
-   fi
+  export PATH=%{_bindir}:$PATH
+  export LD_LIBRARY_PATH=%{_libdir}:$LD_LIBRARY_PATH
+  mkfontscale %{fontdir}
+  mkfontdir %{fontdir}
+  fc-cache %{fontdir}
 } &> /dev/null || :
 
 %files
 %defattr(-,root,root,-)
 %license Kevin_Hartig-Font_License.txt SIL-Open-Font-License.txt
 %{_datadir}/fonts/default/
+%{catalogue}/default-ghostscript
+%ghost %verify(not md5 size mtime) %{fontdir}/fonts.dir
+%ghost %verify(not md5 size mtime) %{fontdir}/fonts.scale
 
 %changelog
 * Wed May 15 2019 Michael Hart <michael@lambci.org>

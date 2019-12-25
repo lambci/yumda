@@ -1,5 +1,6 @@
 %define filippov_version 1.0.7pre44
 %define fontdir %{_datadir}/fonts/default/Type1
+%define catalogue %{_sysconfdir}/X11/fontpath.d
 
 Summary: Free versions of the 35 standard PostScript fonts.
 Name: urw-fonts
@@ -14,7 +15,7 @@ Group: User Interface/X
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 Requires(post): fontconfig
-Requires(postun): fontconfig
+Requires(post): xorg-x11-font-utils
 
 Prefix: %{_prefix}
 
@@ -29,23 +30,25 @@ PostScript fonts.
 %setup -q -c
 
 %install
+rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{fontdir}
 install -m 0644 *.afm *.pfb $RPM_BUILD_ROOT%{fontdir}/
 
 # Touch ghosted files
-touch $RPM_BUILD_ROOT%{fontdir}/fonts.cache-1
+touch $RPM_BUILD_ROOT%{fontdir}/{fonts.{dir,scale,cache-1},encodings.dir}
+
+# Install catalogue symlink
+mkdir -p $RPM_BUILD_ROOT%{catalogue}
+ln -sf %{fontdir} $RPM_BUILD_ROOT%{catalogue}/fonts-default
 
 %post
 {
-   umask 133
-   fc-cache %{_datadir}/fonts
-} &> /dev/null || :
-
-%postun
-{
-   if [ "$1" = "0" ]; then
-      fc-cache %{_datadir}/fonts
-   fi
+  export PATH=%{_bindir}:$PATH
+  export LD_LIBRARY_PATH=%{_libdir}:$LD_LIBRARY_PATH
+  umask 133
+  mkfontscale %{fontdir} || :
+  mkfontdir %{fontdir} || :
+  fc-cache %{_datadir}/fonts
 } &> /dev/null || :
 
 %files
@@ -53,7 +56,11 @@ touch $RPM_BUILD_ROOT%{fontdir}/fonts.cache-1
 %license COPYING
 %dir %{_datadir}/fonts/default
 %dir %{fontdir}
+%{catalogue}/fonts-default
+%ghost %verify(not md5 size mtime) %{fontdir}/fonts.dir
+%ghost %verify(not md5 size mtime) %{fontdir}/fonts.scale
 %ghost %verify(not md5 size mtime) %{fontdir}/fonts.cache-1
+%ghost %verify(not md5 size mtime) %{fontdir}/encodings.dir
 %{fontdir}/*.afm
 %{fontdir}/*.pfb
 
