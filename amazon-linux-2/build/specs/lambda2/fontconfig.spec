@@ -62,7 +62,11 @@ cp %{SOURCE2} doc/
 # We don't want to rebuild the docs, but we want to install the included ones.
 export HASDOCBOOK=no
 
-%configure	--with-add-fonts=%{_prefix}/local/share/fonts --disable-static --disable-docs
+%configure \
+  --with-default-fonts=%{_datadir}/fonts \
+  --with-add-fonts=%{_prefix}/local/share/fonts \
+  --disable-static \
+  --disable-docs
 
 make %{?_smp_mflags} V=1
 
