@@ -89,7 +89,7 @@ Summary: An interpreted, interactive, object-oriented programming language
 Name: %{python}
 # Remember to also rebase python-docs when changing this:
 Version: 2.7.16
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: Python
 Group: Development/Languages
 Requires: %{python}-libs%{?_isa} = %{version}-%{release}
@@ -1457,8 +1457,11 @@ find %{buildroot} -name '*.pyo' -delete
 # ======================================================
 
 %changelog
-* Thu Nov 28 2019 Michael Hart <michael@lambci.org>
+* Fri Jan 10 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Dec 09 2019 Jason Green <jasg@amazon.com> - 2.7.16-5
+- Exclude 2to3
 
 * Thu Nov 07 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.7.16-4
 - Fix CVE-2019-16056
