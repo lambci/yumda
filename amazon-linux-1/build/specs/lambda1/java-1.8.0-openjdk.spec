@@ -1,4 +1,9 @@
-%define _buildid .47
+%define _buildid .48
+
+# The -g flag says to use strip -g instead of full strip on DSOs or EXEs.
+# This fixes detailed NMT and other tools which need minimal debug info.
+# See: https://bugzilla.redhat.com/show_bug.cgi?id=1520879
+%global _find_debuginfo_opts -g
 
 # Fix for https://bugzilla.redhat.com/show_bug.cgi?id=1111349.
 # See also https://bugzilla.redhat.com/show_bug.cgi?id=1590796
@@ -26,18 +31,20 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u222-b10
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u232-b09
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
 %global revision        %{shenandoah_revision}
 
+# e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
+%global version_tag     %(VERSION=%{revision}; echo ${VERSION%%-shenandoah-merge*})
 # eg # jdk8u60-b27 -> jdk8u60 or # aarch64-jdk8u60-b27 -> aarch64-jdk8u60  (dont forget spec escape % by %%)
-%global whole_update    %(VERSION=%{revision}; echo ${VERSION%%-*})
+%global whole_update    %(VERSION=%{version_tag}; echo ${VERSION%%-*})
 # eg  jdk8u60 -> 60 or aarch64-jdk8u60 -> 60
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
-%global buildver        %(VERSION=%{revision}; echo ${VERSION##*-})
+%global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
 %global rpmrelease      0
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
 # Release will be (where N is usually a number starting at 1):
@@ -320,8 +327,38 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 %exclude %{_jvmdir}/%{sdkdir}/tapset
 
 %changelog
-* Wed Dec 18 2019 Michael Hart <michael@lambci.org>
+* Fri Jan 10 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Thu Oct 17 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7
+
+* Fri Oct 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-0
+- Update to aarch64-shenandoah-jdk8u232-b09.
+- Switch to GA mode for final release.
+- Remove PR1834/RH1022017 which is now handled by JDK-8228825 upstream.
+- Resolves: rhbz#1753423
+
+* Tue Oct 01 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b08-0.0.ea
+- Update to aarch64-shenandoah-jdk8u232-b08.
+- Resolves: rhbz#1753423
+
+* Tue Sep 17 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b05-shenandoah-merge-2019-09-09.
+- Update version logic to handle -shenandoah* tag suffix.
+- Resolves: rhbz#1753423
+
+* Thu Sep 05 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.0.ea
+- Update to aarch64-shenandoah-jdk8u232-b05.
+- Drop upstreamed patch JDK-8141570/PR3548.
+- Adjust context of JDK-8143245/PR3548 to apply against upstream JDK-8141570.
+- Resolves: rhbz#1753423
+
+* Wed Sep 4 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.222.b10-1.el7_7
+
+* Wed Aug 21 2019 kaos-source-imports <nobody@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.222.b03-1.el7
 
 * Wed Aug 21 2019 Paul Ezvan <paulezva@amazon.com>
 - Revert priority to 1800 to keep java-1.7.0-openjdk the default.
@@ -332,97 +369,118 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 * Tue Jul 30 2019 Chuanhao jin <haroldji@amazon.com>
 - Fix spec file build and install error after merge
 
-* Thu Jul 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b10-0
+* Fri Jul 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u232-b01.
+- Switch to EA mode.
+- Drop JDK-8210761/RH1632174 as now upstream.
+- Resolves: rhbz#1753423
+
+* Thu Jul 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b10-1
 - Update to aarch64-shenandoah-jdk8u222-b10.
-- Resolves: rhbz#1724452
-
-* Tue Jul 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-0
-- Update to aarch64-shenandoah-jdk8u222-b09.
-- Switch to GA mode for final release.
-- Resolves: rhbz#1724452
-
-* Tue Jul 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b08-0.0.ea
-- Update to aarch64-shenandoah-jdk8u222-b08.
-- Adjust PR3083/RH134640 to apply after JDK-8182999
 - Resolves: rhbz#1724452
 
 * Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6
 
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b07-0.0.ea
-- Update to aarch64-shenandoah-jdk8u222-b07 and Shenandoah merge 2019-06-13.
+* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
+- Use normal_suffix for Javadoc zip filename to copy, as there is is no debug version.
 - Resolves: rhbz#1724452
 
 * Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-2.el7_6
 
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b06-0.0.ea
-- Update to aarch64-shenandoah-jdk8u222-b06.
-- Resolves: rhbz#1724452
-
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b05-0.0.ea
-- Update to aarch64-shenandoah-jdk8u222-b05.
-- Resolves: rhbz#1724452
-
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b04-0.1.ea
-- Update to aarch64-shenandoah-jdk8u222-b04.
-- Drop remaining JDK-8210425/RH1632174 patch now AArch64 part is upstream.
-- Resolves: rhbz#1724452
-
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b03-0.1.ea
-- Use normal_suffix for Javadoc zip filename to copy, as there is is no debug version.
-- Resolves: rhbz#1724452
+* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
 - Provide Javadoc debug subpackages for now, but populate them from the normal build.
+- Resolves: rhbz#1724452
 
-* Mon Jul 08 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.222.b03-0.1.ea
+* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-1
+- Update to aarch64-shenandoah-jdk8u222-b09.
+- Switch to GA mode for final release.
+- Resolves: rhbz#1724452
+
+* Tue Jul 02 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b08-0.1.ea
+- Update to aarch64-shenandoah-jdk8u222-b08.
+- Adjust PR3083/RH134640 to apply after JDK-8182999
+- Resolves: rhbz#1724452
+
+* Tue Jul 02 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.222.b07-0.3.ea
+- Include 'ea' designator in Release when appropriate.
+- Resolves: rhbz#1724452
+
+* Wed Jun 26 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.222.b07-2
 - Don't produce javadoc/javadoc-zip sub packages for the debug variant build.
 - Don't perform a bootcycle build for the debug variant build.
 - Resolves: rhbz#1724452
 
-* Tue Jul 02 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.222.b03-0.0.ea
-- Include 'ea' designator in Release when appropriate.
+* Tue Jun 25 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b07-1
+- Update to aarch64-shenandoah-jdk8u222-b07 and Shenandoah merge 2019-06-13.
 - Resolves: rhbz#1724452
 
-* Wed May 22 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b03-0
-- Update to aarch64-shenandoah-jdk8u222-b03.
+* Fri Jun 14 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b06-1
+- Update to aarch64-shenandoah-jdk8u222-b06.
+- Resolves: rhbz#1724452
+
+* Thu Jun 06 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b05-1
+- Update to aarch64-shenandoah-jdk8u222-b05.
+- Resolves: rhbz#1724452
+
+* Sat May 25 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b04-1
+- Update to aarch64-shenandoah-jdk8u222-b04.
+- Drop remaining JDK-8210425/RH1632174 patch now AArch64 part is upstream.
+- Resolves: rhbz#1705328
+
+* Wed May 22 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b03-1
 - Handle milestone as variables so we can alter it easily and set the docs zip filename appropriately.
+- Drop unused use_shenandoah_hotspot variable.
+- Resolves: rhbz#1705328
+- Update to aarch64-shenandoah-jdk8u222-b03.
+- Set milestone to "ea" as this is not the final release.
 - Drop 8210425 patches applied upstream. Still need to add AArch64 version in aarch64/shenandoah-jdk8u.
 - Re-generate JDK-8141570 & JDK-8143245 patches due to 8210425 zeroshark.make changes.
-- Drop unused use_shenandoah_hotspot variable.
-- Resolves: rhbz#1724452
 
-* Mon May 13 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b02-0
+* Mon May 13 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b02-1
 - Update to aarch64-shenandoah-jdk8u222-b02.
 - Drop 8064786/PR3599 & 8210416/RH1632174 as applied upstream (8064786 silently in 8176100).
-- Resolves: rhbz#1724452
+- Resolves: rhbz#1705328
 
-* Thu May 02 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b01-0
+* Thu May 02 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b01-1
 - Update to aarch64-shenandoah-jdk8u222-b01.
 - Refactor PR2888 after inclusion of 8129988 upstream. Now includes PR3575.
 - Drop 8171000, 8197546 & PR3634 as applied upstream.
 - Adjust 8214206 fix for S390 as BinaryMagnitudeSeq moved to shenandoahNumberSeq.cpp
-- Resolves: rhbz#1724452
+- Resolves: rhbz#1705328
 
-* Thu Apr 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b04-0
+* Thu Apr 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b04-1
 - Update to aarch64-shenandoah-jdk8u212-b04.
 - Resolves: rhbz#1693468
 
-* Thu Apr 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b03-0
+* Thu Apr 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b03-1
 - Update to aarch64-shenandoah-jdk8u212-b03.
 - Resolves: rhbz#1693468
 
-* Tue Apr 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b02-0
+* Wed Apr 10 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b02-2
+- Rebase tarball so the AArch64 fix is included upstream
+- Resolves: rhbz#1693468
+
+* Wed Apr 10 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b02-1
+- Add missing part of JDK-8213419 for AArch64 removing duplicate uabs definitions
+- Yet another cast to resolve s390 ambiguity in call to log2_intptr
+- Resolves: rhbz#1693468
+- Another cast to resolve s390 ambiguity in call to log2_intptr
+
+* Tue Apr 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.212.b02-1
+- Add cast to resolve s390 ambiguity in call to log2_intptr
+- Resolves: rhbz#1693468
 - Update to aarch64-shenandoah-jdk8u212-b02.
 - Remove patches included upstream
   - JDK-8197429/PR3546/RH153662{2,3}
   - JDK-8184309/PR3596
   - JDK-8210647/RH1632174
+  - JDK-8029661/PR3642/RH1477159
 - Re-generate patches
   - JDK-8203030
-- Add casts to resolve s390 ambiguity in calls to log2_intptr
-- Resolves: rhbz#1693468
 
-* Sun Apr 07 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.202.b08-0
+* Sun Apr 07 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.202.b08-1
 - Update to aarch64-shenandoah-jdk8u202-b08.
 - Remove patches included upstream
   - JDK-8211387/PR3559
@@ -438,18 +496,30 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
   - JDK-8210647/RH1632174
 - Resolves: rhbz#1693468
 
-* Thu Apr 04 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b13-0
+* Thu Apr 04 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b13-1
 - Update to aarch64-shenandoah-jdk8u201-b13.
 - Drop JDK-8160748 & JDK-8189170 AArch64 patches now applied upstream.
 - Resolves: rhbz#1693468
 
-* Tue Apr 02 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.201.b09-3
+* Tue Apr 02 2019 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.201.b09-5
 - Update patch for RH1566890.
   - Renamed rh1566890_speculative_store_bypass_so_added_more_per_task_speculation_control_CVE_2018_3639 to
     rh1566890-CVE_2018_3639-speculative_store_bypass.patch
   - Added dependent patch,
     rh1566890-CVE_2018_3639-speculative_store_bypass_toggle.patch
 - Resolves: rhbz#1693468
+
+* Sat Mar 30 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b09-4
+- Drop NSS runtime dependencies and patches to link against it.
+- Resolves: rhbz#1656676
+
+* Fri Mar 29 2019 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b09-3
+- Sync SystemTap & desktop files with upstream IcedTea release using new script
+- Resolves: rhbz#1434241
+
+* Fri Mar 29 2019 Jiri Vanek jvanek@redhat.com - 1:1.8.0.201.b09-3
+- Change handling of SystemTap tarball, removing Java version
+- Resolves: rhbz#1434241
 
 * Tue Mar 5 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-0.el7_6
@@ -458,11 +528,11 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 - Replaced pcsc-lite-devel (which is in optional channel) with pcsc-lite-libs.
 - added rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch to make jdk work with pcsc
 
-* Wed Jan 16 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b09-0
+* Wed Jan 16 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.201.b09-1
 - Update to aarch64-shenandoah-jdk8u201-b09.
 - Resolves: rhbz#1661577
 
-* Wed Jan 16 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.192.b12-0
+* Wed Jan 16 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.192.b12-1
 - Add port of 8189170 to AArch64 which is missing from upstream 8u version.
 - Resolves: rhbz#1661577
 - Add 8160748 for AArch64 which is missing from upstream 8u version.
@@ -497,59 +567,75 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
   - RH1566890/CVE-2018-3639 (due to JDK-8189170)
   - RH1649664 (due to JDK-8196516)
 
-* Mon Jan 14 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b14-1
+* Mon Jan 14 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b14-2
 - Add 8131048 & 8164920 (PR3574/RH1498936) to provide a CRC32 intrinsic for PPC64.
-- Resolves: rhbz#1661577
+- Resolves: rhbz#1498936
 
-* Thu Jan 10 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b14-0
+* Thu Jan 10 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b14-1
 - Update to aarch64-shenandoah-jdk8u191-b14.
 - Adjust JDK-8073139/PR1758/RH1191652 to apply following 8155627 backport.
 - Resolves: rhbz#1661577
 
-* Wed Jan 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-0
+* Wed Jan 09 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-1
 - Update to aarch64-shenandoah-jdk8u191-b13.
 - Update tarball generation script in preparation for PR3667/RH1656676 SunEC changes.
 - Use remove-intree-libraries.sh to remove the remaining SunEC code for now.
 - Resolves: rhbz#1661577
 
-* Wed Dec 19 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-0
+* Wed Dec 19 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b12-15
 - Fix jdk8073139-pr1758-rh1191652-ppc64_le_says_its_arch_is_ppc64_not_ppc64le_jdk.patch paths to pass git apply
 - Resolves: rhbz#1633817
+
+* Tue Dec 04 2018 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.191.b12-14
+- Added %%global _find_debuginfo_opts -g
+- Resolves: rhbz#1656996
 
 * Tue Nov 27 2018 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6
 - import source package EL7/java-1.8.0-openjdk-1.8.0.181-7.b13.el7
 
-* Tue Nov 13 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-0
+* Thu Nov 22 2018 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b12-13
+- Add backport of JDK-8029661 which adds TLSv1.2 support to the PKCS11 provider.
+- Resolves: rhbz#1477159
+
+* Tue Nov 20 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b12-12
 - Revise Shenandoah PR3634 patch following upstream discussion.
 - Resolves: rhbz#1633817
 
-* Wed Nov 07 2018 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.191.b13-0
-- Headful Requires of cups, replaced by Requires of cups-libs in headless
+* Tue Nov 20 2018 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.191.b12-11
+- Renamed all patches to new convention
+-   bug1-bug2-..-bugN-XY-lowercase_comment_suffix_or_jdkpart.patch
 - Resolves: rhbz#1633817
 
-* Wed Nov 07 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-0
+* Wed Nov 07 2018 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.191.b12-10
+- Headful Requires of cups, replaced by Requires of cups-libs in headless
+- Resolves: rhbz#1598152
+
+* Wed Nov 07 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b12-9
 - Note why PR1834/RH1022017 is not suitable to go upstream in its current form.
 - Resolves: rhbz#1633817
 
-* Mon Nov 05 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b13-0
+* Tue Nov 06 2018 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.191.b12-9
 - Document patch sections.
 - Resolves: rhbz#1633817
 - Fix patch organisation in the spec file:
-   * Move ECC patches back to upstreamable section
-   * Move system cacerts patches to upstreamable section
-   * Merge "Local fixes" and "RPM fixes" which amount to the same thing
-   * Move system libpng & lcms patches back to 8u upstreamable section
-   * Make it clearer that "Non-OpenJDK fixes" is currently empty
+-   * Move ECC patches back to upstreamable section
+-   * Move system cacerts patches to upstreamable section
+-   * Merge "Local fixes" and "RPM fixes" which amount to the same thing
+-   * Move system libpng & lcms patches back to 8u upstreamable section
+-   * Make it clearer that "Non-OpenJDK fixes" is currently empty
+- Bump release so y-stream is higher than z-stream.
 
 * Mon Oct 29 2018 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.191.b12-8
 - added Patch583 jdk8172850-rh1640127-01-register_allocator_crash.patch
 - added Patch584 jdk8209639-rh1640127-02-coalesce_attempted_spill_non_spillable.patch
+- Resolves: rhbz#1633817
 
 * Mon Oct 29 2018 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.191.b12-7
 - Add patch jdk8210425-rh1632174-03-compile_with_o2_and_ffp_contract_off_as_for_fdlibm_zero.patch:
   - Annother fix for optimization gaps (annocheck issues)
   - Zero 8u version fix was missing. Hence, only shows up on Zero arches.
+- Resolves: rhbz#1633817
 
 * Mon Oct 29 2018 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.191.b12-6
 - Add fixes for optimization gaps (annocheck issues):
@@ -558,10 +644,12 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
   - 8210416: [linux] Poor StrictMath performance due to non-optimized compilation
   - 8210425: [x86] sharedRuntimeTrig/sharedRuntimeTrans compiled without optimization
              8u upstream and aarch64/jdk8u upstream versions.
+- Resolves: rhbz#1633817
 
 * Mon Oct 29 2018 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.191.b12-5
 - Removed patch, rh1214835.patch, since it's invalid:
   See https://icedtea.classpath.org/bugzilla/show_bug.cgi?id=2304#c3
+- Resolves: rhbz#1633817
 
 * Mon Oct 29 2018 Severin Gehwolf <sgehwolf@redhat.com> - 1:1.8.0.191.b12-4
 - Update(s) from upstreamed patches:
@@ -577,6 +665,7 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 - Use --with-native-debug-symbols=internal which JDK-8036003 adds.
 - Remove comment for make invocation since it's no longer valid.
   --with-native-debug-symbols=internal will do everything we need.
+- Resolves: rhbz#1633817
 
 * Tue Oct 23 2018 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.191.b12-3
 - cups moved to headful package
