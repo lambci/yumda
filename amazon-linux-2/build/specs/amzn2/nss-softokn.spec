@@ -40,7 +40,7 @@ rpm.define(string.format("nss_softokn_archive_version %s",
 Summary:          Network Security Services Softoken Module
 Name:             nss-softokn
 Version:          %{nss_softokn_version}
-Release: 5%{?dist}.0.2
+Release:          8%{?dist}
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -109,6 +109,12 @@ Patch200:	   nss-softokn-ike-patch.patch
 Patch201:	   nss-softokn-fips-update.patch
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1473806
 Patch202:	   nss-softokn-fix-public-key-from-priv.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1559906
+Patch203:	   nss-softokn-tls-cavs.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1586176
+Patch204:	   nss-3.44-encrypt-update.patch
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1515342
+Patch205:	   nss-softokn-3.44-handle-malformed-ecdh.patch
 
 %description
 Network Security Services Softoken Cryptographic Module
@@ -171,6 +177,9 @@ pushd nss
 #%patch105 -p1 -b .aes-zeroize
 %patch200 -p1 -b .ike-mech
 %patch201 -p1 -b .fips-update
+%patch203 -p1 -b .tls-cavs
+%patch204 -p1 -b .encrypt-update
+%patch205 -p1 -b .handle-malformed-ecdh
 popd
 %patch202 -p1 -b .pub-priv-mech
 
@@ -500,6 +509,15 @@ done
 %{_includedir}/nss3/shsign.h
 
 %changelog
+* Wed Dec 4 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-8
+- Fix segfault on empty or malformed ecdh keys (#1777712)
+
+* Wed Dec 4 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-7
+- Fix out-of-bounds write in NSC_EncryptUpdate (#1775911,#1775910)
+
+* Tue Jun 18 2019 Daiki Ueno <dueno@redhat.com> - 3.44.0-6
+- Fix fipstest to use the standard mechanism for TLS 1.2 PRF
+
 * Wed Jun 5 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-5
 - Add pub from priv mechanism
 

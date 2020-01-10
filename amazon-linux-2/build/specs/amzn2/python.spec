@@ -106,7 +106,7 @@ Summary: An interpreted, interactive, object-oriented programming language
 Name: %{python}
 # Remember to also rebase python-docs when changing this:
 Version: 2.7.16
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: Python
 Group: Development/Languages
 Requires: %{python}-libs%{?_isa} = %{version}-%{release}
@@ -874,7 +874,7 @@ Requires: %{name} = %{version}-%{release}
 Requires: %{tkinter} = %{version}-%{release}
 %if %{main_python}
 Obsoletes: python2-tools
-Provides: python2-tools = %{version}
+Provides: python2-tools = %{version}-%{release}
 %endif
 
 %description tools
@@ -1782,7 +1782,7 @@ rm -fr %{buildroot}
 %doc Tools/pynche/README.pynche
 %{site_packages}/pynche
 %{_bindir}/smtpd*.py*
-%{_bindir}/2to3*
+%exclude %{_bindir}/2to3*
 %{_bindir}/idle*
 %{_bindir}/pynche*
 %{_bindir}/pygettext*.py*
@@ -1956,6 +1956,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon Dec 09 2019 Jason Green <jasg@amazon.com> - 2.7.16-5
+- Exclude 2to3
+
 * Thu Nov 07 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.7.16-4
 - Fix CVE-2019-16056
 

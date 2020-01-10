@@ -3,7 +3,7 @@
 # ==================
 
 %define _trivial .0
-%define _buildid .3
+%define _buildid .4
 %global pybasever 3.7
 
 # pybasever without the dot:
@@ -595,8 +595,8 @@ Conflicts: %{name} < %{version}-%{release}
 # https://bugzilla.redhat.com/show_bug.cgi?id=1111275
 # /usr/bin/2to3 was moved from python2-tools to python3-tools
 # TODO Remove in Fedora 29
-Conflicts: python2-tools < 2.7.13-17
-Conflicts: python-tools < 2.7.13-17
+Conflicts: python2-tools < 2.7.16-5
+Conflicts: python-tools < 2.7.16-5
 # https://bugzilla.redhat.com/show_bug.cgi?id=1312030
 # /usr/bin/2to3 was moved from python3-tools to python3-devel
 # TODO Remove in Fedora 30
