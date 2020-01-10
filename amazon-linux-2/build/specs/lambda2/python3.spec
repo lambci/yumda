@@ -3,7 +3,7 @@
 # ==================
 
 %define _trivial .0
-%define _buildid .3
+%define _buildid .4
 %global pybasever 3.7
 
 # pybasever without the dot:
@@ -1206,7 +1206,7 @@ find %{buildroot} -name '*.pyo' -delete
 # ======================================================
 
 %changelog
-* Thu Nov 28 2019 Michael Hart <michael@lambci.org>
+* Fri Jan 10 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Nov 11 2019 Andrew Egelhofer <egelhofe@amazon.com> - 3.7.4-1.amzn2.0.3
