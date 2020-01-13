@@ -1,7 +1,7 @@
 %global gitexecdir          %{_libexecdir}/git-core
 
 Name:           git
-Version:        2.24.1
+Version:        2.25.0
 Release:        1%{?rcrev}%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
