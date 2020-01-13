@@ -30,8 +30,7 @@ docker run --rm -v $PWD:/tmp/fs lambci/yumda:build-1 bash -c "
     grep -v -e git-2.14 -e libwebp-0.4.3-3.el6 | \
     sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
     <(ls -1 /tmp/fs/lambda1/SRPMS/Packages | sort) | \
-    grep '^<'
-"
+    grep '^<'"
 ```
 
 Amazon Linux 2:
@@ -43,8 +42,7 @@ docker run --rm -v $PWD:/tmp/fs lambci/yumda:build-2 bash -c "
       -e libidn2-2.3.0-1.el7.src.rpm -e libmetalink-0.1.3-1.el7.src.rpm | \
     sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
     <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
-    grep '^<'
-"
+    grep '^<'"
 ```
 
 ## Pulling down Amazon source RPMS
