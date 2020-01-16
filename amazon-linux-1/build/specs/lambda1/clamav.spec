@@ -1,4 +1,4 @@
-%define _buildid .38
+%define _buildid .42
 
 #global prerelease  rc1
 
@@ -25,7 +25,7 @@
 
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
-Version:    0.101.2
+Version:    0.101.5
 Release: 1%{?_buildid}%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
@@ -51,11 +51,9 @@ Source7:    clamd.SERVICE.init
 #http://database.clamav.net/main.cvd
 Source10:   main-58.cvd
 #http://database.clamav.net/daily.cvd
-Source11:   daily-25401.cvd
+Source11:   daily-25642.cvd
 #http://database.clamav.net/bytecode.cvd
-Source12:   bytecode-328.cvd
-#for devel
-Source100:  clamd-gen
+Source12:   bytecode-331.cvd
 #for update
 Source200:  freshclam-sleep
 Source201:  freshclam.sysconfig
@@ -314,13 +312,13 @@ install -D -m 0644 -p etc/clamd.conf.sample _doc_server/clamd.conf
 %if %{with sysv}
 install -m 0644 -p %SOURCE520       $RPM_BUILD_ROOT%pkgdatadir/
 %endif
-install -m 0755 -p %SOURCE100       $RPM_BUILD_ROOT%pkgdatadir/
 cp -pa _doc_server/*            $RPM_BUILD_ROOT%pkgdatadir/template
 
 %if %{with sysv}
 smartsubst 's!/usr/share/clamav!%pkgdatadir!g' $RPM_BUILD_ROOT%pkgdatadir/clamd-wrapper
 %endif
 
+#Do not remove these
 %if %{with systemd}
 install -D -p -m 0644 %SOURCE530        $RPM_BUILD_ROOT%_unitdir/clamd@.service
 %endif
@@ -333,6 +331,8 @@ install -D -p -m 0755 %SOURCE200    $RPM_BUILD_ROOT%pkgdatadir/freshclam-sleep
 install -D -p -m 0644 %SOURCE201    $RPM_BUILD_ROOT%_sysconfdir/sysconfig/freshclam
 install -D -p -m 0600 %SOURCE202    $RPM_BUILD_ROOT%_sysconfdir/cron.d/clamav-update
 mv -f $RPM_BUILD_ROOT%_sysconfdir/freshclam.conf{.sample,}
+# Can contain HTTPProxyPassword (bugz#1733112)
+chmod 600 $RPM_BUILD_ROOT%_sysconfdir/freshclam.conf
 
 smartsubst 's!webmaster,clamav!webmaster,%updateuser!g;
         s!/usr/share/clamav!%pkgdatadir!g;
@@ -352,6 +352,7 @@ sed -e 's!<SERVICE>!scan!g;' $RPM_BUILD_ROOT%pkgdatadir/template/clamd.init \
 %endif
 
 install -D -p -m 0644 %SOURCE410 $RPM_BUILD_ROOT%_sysconfdir/init/clamd.scan.conf
+# Do NOT remove these
 %if %{with systemd}
 install -D -p -m 0644 %SOURCE430 $RPM_BUILD_ROOT%_unitdir/clamd@scan.service
 %endif
@@ -432,7 +433,6 @@ ln -s %pkgdatadir/clamd-wrapper     $RPM_BUILD_ROOT%_initrddir/clamd-wrapper
 %exclude %{_includedir}
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
-%exclude %{pkgdatadir}/clamd-gen
 %exclude %{pkgdatadir}/template
 %exclude %{_bindir}/clamav-config
 %exclude %{_sbindir}/clamd
@@ -440,8 +440,37 @@ ln -s %pkgdatadir/clamd-wrapper     $RPM_BUILD_ROOT%_initrddir/clamd-wrapper
 %exclude %{_localstatedir}/run/clamd.scan/clamd.sock
 
 %changelog
-* Sat Nov 16 2019 Michael Hart <michael@lambci.org>
+* Thu Jan 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Dec 18 2019 Chanchal Mathew <chancham@amazon.com>
+- import source package EPEL7/clamav-0.101.5-1.el7
+
+* Sat Nov 23 2019 Orion Poplawski <orion@nwra.com> - 0.101.5-1
+- Update to 0.101.5 (CVE-2019-15961) (bz#1775550)
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-3
+- Drop clamd@scan.service file (bz#1725810)
+- Change /var/run to /run
+
+* Mon Nov 18 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-2
+- Add TimeoutStartSec=420 to clamd@.service to match upstream (bz#1764835)
+
+* Thu Aug 22 2019 Orion Poplawski <orion@nwra.com> - 0.101.4-1
+- Update to 0.101.4
+
+* Wed Aug 7 2019 Orion Poplawski <orion@nwra.com> - 0.101.3-1
+- Update to 0.101.3
+- Fix permissions on freshclam.conf (bugz#1733112)
+
+* Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 0.101.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Sun Jun 30 2019 Sérgio Basto <sergio@serjux.com> - 0.101.2-2
+- One year later we may remove pakages workaround of clamav-milter-systemd,
+  clamav-scanner-systemd and clamav-server-systemd, before I forget it was one
+  workaround to allow migration of service without stop it and disable it
+  (#1583599).
 
 * Fri May 3 2019 Paul Ezvan <paulezva@amazon.com>
 - Also obsoletes clamav-scanner-sysvinit which was merged into clamd.
