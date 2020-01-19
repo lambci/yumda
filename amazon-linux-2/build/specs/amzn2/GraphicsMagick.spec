@@ -8,6 +8,10 @@
 %global libQ -Q16
 %endif
 
+%if ! 0%{?flatpak}
+%global perl 1
+%endif
+
 %global multilib_archs x86_64 %{ix86} ppc64 ppc64le ppc s390x s390 sparc64 sparcv9
 # hack for older platforms/rpm-versions that do not support %%__isa_bits (like el5)
 %ifarch %{multilib_archs}
@@ -27,7 +31,7 @@
 
 Summary: An ImageMagick fork, offering faster image generation and better quality
 Name: GraphicsMagick
-Version: 1.3.32
+Version: 1.3.34
 Release: 1%{?dist}
 
 License: MIT
@@ -59,9 +63,11 @@ BuildRequires: libxml2-devel
 BuildRequires: libX11-devel libXext-devel libXt-devel
 BuildRequires: lpr
 BuildRequires: p7zip
+%if 0%{?perl}
 BuildRequires: perl-devel
 BuildRequires: perl-generators
 BuildRequires: perl(ExtUtils::MakeMaker)
+%endif
 BuildRequires: xdg-utils
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
@@ -109,6 +115,7 @@ Obsoletes: GraphicsMagick < 1.3.19-4
 %description doc
 Documentation for GraphicsMagick.
 
+%if 0%{?perl}
 %package perl
 Summary: GraphicsMagick perl bindings
 Requires: %{name}%{?_isa} = %{version}-%{release}
@@ -119,6 +126,7 @@ Perl bindings to GraphicsMagick.
 
 Install GraphicsMagick-perl if you want to use any perl scripts that use
 GraphicsMagick.
+%endif
 
 %package c++
 Summary: GraphicsMagick Magick++ library (C++ bindings)
@@ -178,8 +186,12 @@ CFLAGS="$RPM_OPT_FLAGS -DFT_ENCODING_PRC=FT_ENCODING_GB2312"
            --with-lcms2 \
            --with-magick_plus_plus \
            --with-modules \
+%if 0%{?flatpak}
+           --without-perl \
+%else
            --with-perl \
            --with-perl-options="INSTALLDIRS=vendor %{?perl_prefix}" \
+%endif
            %{?_with_quantum_depth} \
            %{?_enable_quantum_library_names} \
            --with-threads \
@@ -191,11 +203,15 @@ CFLAGS="$RPM_OPT_FLAGS -DFT_ENCODING_PRC=FT_ENCODING_GB2312"
            --with-gs-font-dir=%{_datadir}/fonts/default/Type1
 
 %make_build
+%if 0%{?perl}
 %make_build perl-build
+%endif
 
 
 %install
 %make_install
+
+%if 0%{?perl}
 %make_install -C PerlMagick
 
 # perlmagick: fix perl path of demo files
@@ -219,6 +235,7 @@ if [ -z perl-pkg-files ] ; then
     echo "ERROR: EMPTY FILE LIST"
     exit -1
 fi
+%endif
 
 rm -rf %{buildroot}%{_datadir}/GraphicsMagick
 # Keep config
@@ -250,7 +267,9 @@ EOF
 
 
 %check
+%if 0%{?perl}
 make test -C PerlMagick ||:
+%endif
 time \
 %make_build check ||:
 # multilib hack only supports 32/64 bits for now
@@ -306,12 +325,27 @@ exit 1
 %{_libdir}/pkgconfig/GraphicsMagick++.pc
 %{_mandir}/man1/GraphicsMagick++-config.*
 
+%if 0%{?perl}
 %files perl -f perl-pkg-files
 %{_mandir}/man3/*
 %doc PerlMagick/demo/ PerlMagick/Changelog PerlMagick/README.txt
+%endif
 
 
 %changelog
+* Mon Dec 30 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.34-1
+- 1.3.34
+
+* Sat Aug 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.33-1
+- 1.3.33
+- use %%perl feature macro (instead of %%flatpak) everywhere
+
+* Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.32-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Wed Jul 17 2019 Kalev Lember <klember@redhat.com> - 1.3.32-2
+- Disable perl support for flatpak builds
+
 * Mon Jun 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.32-1
 - 1.3.32
 

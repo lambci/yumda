@@ -1,8 +1,6 @@
-%define _trivial .0
-%define _buildid .2
 %define glibcsrcdir glibc-2.26-193-ga0bc5dd3be
 %define glibcversion 2.26
-%define glibcrelease 32%{?dist}%{?_trivial}%{?_buildid}
+%define glibcrelease 34%{?dist}
 # Pre-release tarballs are pulled in from git using a command that is
 # effectively:
 #
@@ -312,6 +310,15 @@ Patch3124: 0025-Remove-slow-paths-from-log.patch
 Patch3125: 0026-aarch64-Improve-strncmp-for-mutually-misaligned-inpu.patch
 Patch3126: 0027-aarch64-strncmp-Unbreak-builds-with-old-binutils.patch
 Patch3127: 0028-aarch64-strncmp-Use-lsr-instead-of-mov-lsr.patch
+
+# CVE-2016-10739
+Patch10001: CVE-2016-10739a.patch
+Patch10002: CVE-2016-10739b.patch
+Patch10003: CVE-2016-10739c.patch
+Patch10004: CVE-2016-10739d.patch
+Patch10005: CVE-2016-10739e.patch
+Patch10006: CVE-2016-10739f.patch
+Patch10007: CVE-2016-10739g.patch
 ##############################################################################
 # End of glibc patches.
 ##############################################################################
@@ -893,6 +900,13 @@ microbenchmark tests on the system.
 %patch3125 -p1
 %patch3126 -p1
 %patch3127 -p1
+#patch10001 -p1
+#patch10002 -p1
+#patch10003 -p1
+#patch10004 -p1
+#patch10005 -p1
+#patch10006 -p1
+#patch10007 -p1
 ##############################################################################
 # %%prep - Additional prep required...
 ##############################################################################
@@ -2252,7 +2266,14 @@ rm -f *.filelist*
 %endif
 
 %changelog
-* Thu Oct 3 2019 Anchal Agarwal <anchalag@amazon.com> - 2.26-32
+* Fri Jan 17 2020 Frederick Lefebvre <fredlef@amazon.com> - 2.26-34
+- Rollback fix for CVE-2016-10739
+
+* Mon Oct 28 2019 Frederick Lefebvre <fredlef@amazon.com> - 2.26-33
+- CVE-2016-10739: getaddrinfo: Fully parse IPv4 address strings [BZ #20018]
+- resolv: Do not send queries for non-host-names in nss_dns [BZ#24112]
+
+* Thu Oct  3 2019 Anchal Agarwal <anchalag@amazon.com> - 2.26-32
 - AArch64-Optimized-memcmp.patch
 - aarch64-Use-the-L-macro-for-labels-in-memcmp.patch
 - aarch64-Optimized-memcmp-for-medium-to-large-sizes.patch
