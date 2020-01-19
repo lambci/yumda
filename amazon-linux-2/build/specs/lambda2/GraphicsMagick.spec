@@ -27,7 +27,7 @@
 
 Summary: An ImageMagick fork, offering faster image generation and better quality
 Name: GraphicsMagick
-Version: 1.3.32
+Version: 1.3.34
 Release: 1%{?dist}
 
 License: MIT
@@ -58,9 +58,6 @@ BuildRequires: libwmf-devel
 BuildRequires: libxml2-devel
 BuildRequires: lpr
 BuildRequires: p7zip
-BuildRequires: perl-devel
-BuildRequires: perl-generators
-BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: xdg-utils
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
@@ -167,8 +164,21 @@ CFLAGS="$RPM_OPT_FLAGS -DFT_ENCODING_PRC=FT_ENCODING_GB2312"
 
 
 %changelog
-* Tue Jul 9 2019 Michael Hart <michael@lambci.org>
+* Sun Jan 19 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Dec 30 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.34-1
+- 1.3.34
+
+* Sat Aug 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.33-1
+- 1.3.33
+- use %%perl feature macro (instead of %%flatpak) everywhere
+
+* Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.32-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Wed Jul 17 2019 Kalev Lember <klember@redhat.com> - 1.3.32-2
+- Disable perl support for flatpak builds
 
 * Mon Jun 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.3.32-1
 - 1.3.32
