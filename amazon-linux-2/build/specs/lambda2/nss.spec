@@ -41,7 +41,7 @@ rpm.define(string.format("nss_archive_version %s",
 Summary:          Network Security Services
 Name:             nss
 Version:          %{nss_version}
-Release: 4%{?dist}.0.2
+Release:          7%{?dist}
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -167,7 +167,9 @@ Patch155: nss-post-handshake-auth-with-tickets.patch
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1473806
 Patch156: nss-fix-public-key-from-priv.patch
 Patch157: nss-add-ipsec-usage-to-manpage.patch
-
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1515342
+Patch159: nss-3.44-handle-malformed-ecdh.patch
+Patch160: nss-3.44-handle-malformed-ecdh-gtests.patch
 
 Prefix: %{_prefix}
 
@@ -256,6 +258,10 @@ pushd nss
 popd
 %patch156 -p1 -b .pub-priv-mechs
 %patch157 -p1 -b .ipsec-usage
+pushd nss
+%patch159 -p1 -b .handle-malformed-ecdh
+%patch160 -p1 -b .handle-malformed-ecdh-gtests
+popd
 
 #########################################################
 # Higher-level libraries and test tools need access to
@@ -586,8 +592,19 @@ fi
 
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Sun Jan 19 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Dec 6 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-7
+- Increase timeout on ssl_gtest so that slow platforms can complete when
+   running on a busy system.
+
+* Thu Dec 5 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-6
+- back out out-of-bounds patch (patch for nss-softokn).
+- Fix segfault on empty or malformed ecdh keys (#1777712)
+
+* Wed Dec 4 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-5
+- Fix out-of-bounds write in NSC_EncryptUpdate (#1775910)
 
 * Wed Jun 5 2019 Bob Relyea <rrelyea@redhat.com> - 3.44.0-4
 - Fix certutil man page
