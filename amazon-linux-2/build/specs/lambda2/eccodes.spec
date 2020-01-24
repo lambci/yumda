@@ -107,6 +107,8 @@ ExcludeArch: armv7hl
 ExcludeArch: aarch64
 %endif
 
+Prefix: %{_prefix}
+
 %description
 ecCodes is a package developed by ECMWF which provides an application
 programming interface and a set of tools for decoding and encoding messages
@@ -141,43 +143,16 @@ bufr_dump produces output in JSON format suitable for many web based
 applications.
 
 #####################################################
-%package devel
-Summary:    Contains ecCodes development files
-Requires:   %{name}%{?_isa} = %{version}-%{release}
-Requires:   gcc-gfortran%{?_isa}
-Requires:   jasper-devel%{?_isa}
-
-%if 0%{obsolete_grib_api}
-# Provides:   grib_api-devel = %%{final_grib_api_version}
-Obsoletes:  grib_api-devel < %{final_grib_api_version}
-%endif
-
-%description devel
-Header files and libraries for ecCodes.
-
-#####################################################
 %package data
 Summary:    Data needed by the eccodes library and tools
 BuildArch:  noarch
+Prefix: %{_prefix}
 
 %description data
 This package provides all tables and definitions needed
 to encode and decode grib and bufr files, and includes
 both the official WMO tables and a number of often used
 local definitions by ECMWF and other meteorological centers.
-
-#####################################################
-%package doc
-Summary:    Documentation and example code
-BuildArch:  noarch
-
-# a sub package grib_api-doc did not exist
-# so no obsoletes needed here
-
-%description doc
-This package contains the html documentation for ecCodes
-and a fair number of example programs and scripts to use it
-in C, and Fortran 90.
 
 #####################################################
 %prep
@@ -256,8 +231,6 @@ cp fortran/grib_api_constants.h build/fortran/
 
 %install
 %make_install -C build
-mkdir -p %{buildroot}%{_fmoddir}
-mv %{buildroot}%{_includedir}/*.mod %{buildroot}%{_fmoddir}/
 
 # remove a script that does not belong in the doc section
 # and triggers an rpmlint error
@@ -265,77 +238,10 @@ rm %{buildroot}%{_datadir}/%{name}/definitions/installDefinitions.sh
 # by the way, is there a way in the files section to include a directory
 # but exclude a given file in it? I could not find such a trick.
 
-# copy the html documentation to the install directory
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}/
-cp -r html %{buildroot}%{_datadir}/doc/%{name}/
-# and remove an unneeded Makefile from the html directory
-rm %{buildroot}%{_datadir}/doc/%{name}/html/Makefile.am
-
-# copy the example scripts/programs to the install directory
-# but dont copy the shell scripts and Makefiles, since these
-# are part of the cmake test setup and not usefull as example.
-# Use %%{_datadir}/doc/%%{name}/ rather than %%{_datadir}/%%{name}/
-# otherwise the rpmbuild will create a lot off unnecessary
-# pyc and pyo files.
-
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}/examples/C
-cp examples/C/*.c %{buildroot}%{_datadir}/doc/%{name}/examples/C
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}/examples/F90
-cp examples/F90/*.f90 %{buildroot}%{_datadir}/doc/%{name}/examples/F90
-
-# also not needed for x86_64
-# maybe they fixed it for all archs?
-#%%ifarch i686 armv7hl
-#  # pass (nothing to do)
-#%%else
-#  # it seems pkgconfig files end up in lib in stead of lib64 now
-#  # so move them to the right place
-#  mv %%{buildroot}/%%{_usr}/lib/pkgconfig/ \
-#     %%{buildroot}/%%{_libdir}/pkgconfig/
-#%%endif
-
-# It seems the cmake options
-# -DCMAKE_SKIP_RPATH=TRUE
-# -DCMAKE_SKIP_INSTALL_RPATH=TRUE
-# have no effect on the generated *.pc files.
-# These still contain an rpath reference, so patch them and remove 
-# the rpath using sed
-sed -i 's|^libs=.*$|libs=-L${libdir} -leccodes|g' %{buildroot}/%{_libdir}/pkgconfig/eccodes.pc
-sed -i 's|^libs=.*$|libs=-L${libdir} -leccodes_f90 -leccodes|g' %{buildroot}/%{_libdir}/pkgconfig/eccodes_f90.pc
-
-%ldconfig_scriptlets
-
-%check
-cd build
-
-# notes:
-# * the LD_LIBRARY_PATH setting is required to let the tests
-#   run inside the build dir, otherwise they are broken due to
-#   the removal of rpath
-# * the LIBRARY_PATH setting is needed te let the
-#   'eccodes_t_bufr_dump_(de|en)code_C' tests run.
-#   These tests compile on the fly generated C code, and
-#   without this setting the loader does not find the libraries.
-
-LD_LIBRARY_PATH=%{buildroot}/%{_libdir} \
-LIBRARY_PATH=%{buildroot}/%{_libdir} \
-ctest3 -V %{?_smp_mflags}
-
 %files
 %license LICENSE
-%doc README.md ChangeLog AUTHORS NEWS NOTICE
 %{_bindir}/*
 %{_libdir}/*.so.*
-
-%files devel
-%{_includedir}/*
-%{_fmoddir}/%{name}.mod
-%{_fmoddir}/grib_api.mod
-%{_libdir}/pkgconfig/%{name}.pc
-%{_libdir}/pkgconfig/%{name}_f90.pc
-%{_libdir}/*.so
-%dir %{_libdir}/cmake/%{name}
-%{_libdir}/cmake/%{name}/*
 
 %files data
 %dir %{_datadir}/%{name}
@@ -343,10 +249,16 @@ ctest3 -V %{?_smp_mflags}
 %{_datadir}/%{name}/samples/
 %{_datadir}/%{name}/ifs_samples/
 
-%files doc
-%doc %{_datadir}/doc/%{name}/
+%exclude %{_includedir}/*
+%exclude %{_libdir}/pkgconfig/*.pc
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/cmake
+
 
 %changelog
+* Fri Jan 24 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Oct 27 2019 Jos de Kloe <josdekloe@gmail.com> - 2.14.1-1
 - Upgrade to upstream version 2.14.1
 
