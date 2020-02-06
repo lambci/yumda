@@ -248,6 +248,7 @@ guile.x86_64                 5:2.0.14-3.lambda2.0.2                      lambda2
 gzip.x86_64                  1.5-10.lambda2                              lambda2
 harfbuzz.x86_64              1.3.2-1.lambda2.0.2                         lambda2
 harfbuzz-icu.x86_64          1.3.2-1.lambda2.0.2                         lambda2
+hdf5.x86_64                  1.8.12-11.lambda2                           lambda2
 httpd.x86_64                 2.4.41-1.lambda2.0.1                        lambda2
 httpd-filesystem.noarch      2.4.41-1.lambda2.0.1                        lambda2
 httpd-tools.x86_64           2.4.41-1.lambda2.0.1                        lambda2

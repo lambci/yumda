@@ -37,25 +37,10 @@ BuildRequires: libtool
 BuildRequires: openssh-clients
 BuildRequires: libaec-devel
 
-%global with_mpich 1
-%global with_openmpi 1
+%global with_mpich 0
+%global with_openmpi 0
 
-%ifarch ppc64
-# No openmpi3 on ppc64
-%global with_openmpi3 0
-%else
-%global with_openmpi3 1
-%endif
-
-%if %{with_mpich}
-%global mpi_list mpich
-%endif
-%if %{with_openmpi}
-%global mpi_list %{?mpi_list} openmpi
-%endif
-%if 0%{?with_openmpi3}
-%global mpi_list %{?mpi_list} openmpi3
-%endif
+Prefix: %{_prefix}
 
 %description
 HDF5 is a general purpose library and file format for storing scientific data.
@@ -65,130 +50,6 @@ structure for organizing objects in an HDF5 file. Using these two basic
 objects, one can create and store almost any kind of scientific data
 structure, such as images, arrays of vectors, and structured and unstructured
 grids. You can also mix and match them in HDF5 files according to your needs.
-
-
-%package devel
-Summary: HDF5 development files
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-Requires: libaec-devel%{?_isa}
-Requires: zlib-devel%{?_isa}
-
-%description devel
-HDF5 development headers and libraries.
-
-
-%package static
-Summary: HDF5 static libraries
-Group: Development/Libraries
-Requires: %{name}-devel = %{version}-%{release}
-
-%description static
-HDF5 static libraries.
-
-
-%if %{with_mpich}
-%package mpich
-Summary: HDF5 mpich libraries
-Group: Development/Libraries
-Requires: mpich
-BuildRequires: mpich-devel
-Obsoletes: %{name}-mpich2 < 1.8.11-4
-
-%description mpich
-HDF5 parallel mpich libraries
-
-
-%package mpich-devel
-Summary: HDF5 mpich development files
-Group: Development/Libraries
-Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
-Requires: libaec-devel%{?_isa}
-Requires: zlib-devel%{?_isa}
-# RHEL doesn't provide with %{_isa}
-Requires: mpich-devel
-Provides: %{name}-mpich2-devel = %{version}-%{release}
-Obsoletes: %{name}-mpich2-devel < 1.8.11-4
-
-%description mpich-devel
-HDF5 parallel mpich development files
-
-
-%package mpich-static
-Summary: HDF5 mpich static libraries
-Group: Development/Libraries
-Requires: %{name}-mpich-devel%{?_isa} = %{version}-%{release}
-Provides: %{name}-mpich2-static = %{version}-%{release}
-Obsoletes: %{name}-mpich2-static < 1.8.11-4
-
-%description mpich-static
-HDF5 parallel mpich static libraries
-%endif
-
-
-%if %{with_openmpi}
-%package openmpi
-Summary: HDF5 openmpi libraries
-Group: Development/Libraries
-Requires: openmpi
-BuildRequires: openmpi-devel
-
-%description openmpi
-HDF5 parallel openmpi libraries
-
-
-%package openmpi-devel
-Summary: HDF5 openmpi development files
-Group: Development/Libraries
-Requires: %{name}-openmpi%{_isa} = %{version}-%{release}
-Requires: libaec-devel%{?_isa}
-Requires: zlib-devel%{?_isa}
-Requires: openmpi-devel%{?_isa}
-
-%description openmpi-devel
-HDF5 parallel openmpi development files
-
-
-%package openmpi-static
-Summary: HDF5 openmpi static libraries
-Group: Development/Libraries
-Requires: %{name}-openmpi-devel%{?_isa} = %{version}-%{release}
-
-%description openmpi-static
-HDF5 parallel openmpi static libraries
-
-%if 0%{?with_openmpi3}
-%package openmpi3
-Summary: HDF5 openmpi3 libraries
-Group: Development/Libraries
-Requires: openmpi3
-BuildRequires: openmpi3-devel
-
-%description openmpi3
-HDF5 parallel openmpi3 libraries
-
-
-%package openmpi3-devel
-Summary: HDF5 openmpi3 development files
-Group: Development/Libraries
-Requires: %{name}-openmpi3%{_isa} = %{version}-%{release}
-Requires: libaec-devel%{?_isa}
-Requires: zlib-devel%{?_isa}
-Requires: openmpi3-devel%{?_isa}
-
-%description openmpi3-devel
-HDF5 parallel openmpi3 development files
-
-
-%package openmpi3-static
-Summary: HDF5 openmpi3 static libraries
-Group: Development/Libraries
-Requires: %{name}-openmpi3-devel%{?_isa} = %{version}-%{release}
-
-%description openmpi3-static
-HDF5 parallel openmpi3 static libraries
-%endif
-%endif
 
 
 %prep
@@ -238,43 +99,10 @@ ln -s ../configure .
 make %{?_smp_mflags}
 popd
 
-#MPI builds
-export CC=mpicc
-export CXX=mpicxx
-export F9X=mpif90
-# Work around a bug in mpich when hostname is not resovable
-export RUNPARALLEL="mpiexec -np 4 -host localhost"
-for mpi in %{mpi_list}
-do
-  mkdir $mpi
-  pushd $mpi
-  module load mpi/$mpi-%{_arch}
-  ln -s ../configure .
-  %configure \
-    %{configure_opts} \
-    --enable-parallel \
-    --libdir=%{_libdir}/$mpi/lib \
-    --bindir=%{_libdir}/$mpi/bin \
-    --sbindir=%{_libdir}/$mpi/sbin \
-    --includedir=%{_includedir}/$mpi-%{_arch} \
-    --datarootdir=%{_libdir}/$mpi/share \
-    --mandir=%{_libdir}/$mpi/share/man
-  make %{?_smp_mflags}
-  module purge
-  popd
-done
-
 
 %install
 make -C build install DESTDIR=${RPM_BUILD_ROOT}
 rm $RPM_BUILD_ROOT/%{_libdir}/*.la
-for mpi in %{mpi_list}
-do
-  module load mpi/$mpi-%{_arch}
-  make -C $mpi install DESTDIR=${RPM_BUILD_ROOT}
-  rm $RPM_BUILD_ROOT/%{_libdir}/$mpi/lib/*.la
-  module purge
-done
 #Fortran modules
 mkdir -p ${RPM_BUILD_ROOT}%{_fmoddir}
 mv ${RPM_BUILD_ROOT}%{_includedir}/*.mod ${RPM_BUILD_ROOT}%{_fmoddir}
@@ -315,31 +143,8 @@ mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man1
 cp -p debian/man/*.1 ${RPM_BUILD_ROOT}%{_mandir}/man1/
 
 
-%check
-make -C build check
-# Limit to 4 processors to try to avoid oversubscribing
-export NPROCS=4
-# disable parallel tests on s390(x) - something gets wrong in DNS resolver in glibc
-# they are passed when run manually in mock
-%ifnarch s390 s390x
-export HDF5_Make_Ignore=yes
-for mpi in %{mpi_list}
-do
-  module load mpi/$mpi-%{_arch}
-  make -C $mpi check
-  module purge
-done
-%endif
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc COPYING MANIFEST README.txt release_docs/RELEASE.txt
-%doc release_docs/HISTORY*.txt
+%license COPYING
 %{_bindir}/gif2h5
 %{_bindir}/h52gif
 %{_bindir}/h5copy
@@ -356,147 +161,24 @@ done
 %{_bindir}/h5stat
 %{_bindir}/h5unjam
 %{_libdir}/*.so.*
-%{_mandir}/man1/gif2h5.1*
-%{_mandir}/man1/h52gif.1*
-%{_mandir}/man1/h5copy.1*
-%{_mandir}/man1/h5diff.1*
-%{_mandir}/man1/h5dump.1*
-%{_mandir}/man1/h5import.1*
-%{_mandir}/man1/h5jam.1*
-%{_mandir}/man1/h5ls.1*
-%{_mandir}/man1/h5mkgrp.1*
-%{_mandir}/man1/h5perf_serial.1*
-%{_mandir}/man1/h5repack.1*
-%{_mandir}/man1/h5repart.1*
-%{_mandir}/man1/h5stat.1*
-%{_mandir}/man1/h5unjam.1*
 
-%files devel
-%{macrosdir}/macros.hdf5
-%{_bindir}/h5c++*
-%{_bindir}/h5cc*
-%{_bindir}/h5fc*
-%{_bindir}/h5redeploy
-%{_includedir}/*.h
-%{_libdir}/*.so
-%{_libdir}/*.settings
-%{_fmoddir}/*.mod
-%{_datadir}/hdf5_examples/
-%{_mandir}/man1/h5c++.1*
-%{_mandir}/man1/h5cc.1*
-%{_mandir}/man1/h5fc.1*
-%{_mandir}/man1/h5redeploy.1*
-
-%files static
-%{_libdir}/*.a
-
-%if %{with_mpich}
-%files mpich
-%doc COPYING MANIFEST README.txt release_docs/RELEASE.txt
-%doc release_docs/HISTORY*.txt
-%{_libdir}/mpich/bin/gif2h5
-%{_libdir}/mpich/bin/h52gif
-%{_libdir}/mpich/bin/h5copy
-%{_libdir}/mpich/bin/h5debug
-%{_libdir}/mpich/bin/h5diff
-%{_libdir}/mpich/bin/h5dump
-%{_libdir}/mpich/bin/h5import
-%{_libdir}/mpich/bin/h5jam
-%{_libdir}/mpich/bin/h5ls
-%{_libdir}/mpich/bin/h5mkgrp
-%{_libdir}/mpich/bin/h5redeploy
-%{_libdir}/mpich/bin/h5repack
-%{_libdir}/mpich/bin/h5perf
-%{_libdir}/mpich/bin/h5perf_serial
-%{_libdir}/mpich/bin/h5repart
-%{_libdir}/mpich/bin/h5stat
-%{_libdir}/mpich/bin/h5unjam
-%{_libdir}/mpich/bin/ph5diff
-%{_libdir}/mpich/lib/*.so.*
-
-%files mpich-devel
-%{_includedir}/mpich-%{_arch}
-%{_libdir}/mpich/bin/h5pcc
-%{_libdir}/mpich/bin/h5pfc
-%{_libdir}/mpich/lib/lib*.so
-%{_libdir}/mpich/lib/lib*.settings
-
-%files mpich-static
-%{_libdir}/mpich/lib/*.a
-%endif
-
-%if %{with_openmpi}
-%files openmpi
-%doc COPYING MANIFEST README.txt release_docs/RELEASE.txt
-%doc release_docs/HISTORY*.txt
-%{_libdir}/openmpi/bin/gif2h5
-%{_libdir}/openmpi/bin/h52gif
-%{_libdir}/openmpi/bin/h5copy
-%{_libdir}/openmpi/bin/h5debug
-%{_libdir}/openmpi/bin/h5diff
-%{_libdir}/openmpi/bin/h5dump
-%{_libdir}/openmpi/bin/h5import
-%{_libdir}/openmpi/bin/h5jam
-%{_libdir}/openmpi/bin/h5ls
-%{_libdir}/openmpi/bin/h5mkgrp
-%{_libdir}/openmpi/bin/h5perf
-%{_libdir}/openmpi/bin/h5perf_serial
-%{_libdir}/openmpi/bin/h5redeploy
-%{_libdir}/openmpi/bin/h5repack
-%{_libdir}/openmpi/bin/h5repart
-%{_libdir}/openmpi/bin/h5stat
-%{_libdir}/openmpi/bin/h5unjam
-%{_libdir}/openmpi/bin/ph5diff
-%{_libdir}/openmpi/lib/*.so.*
-
-%files openmpi-devel
-%{_includedir}/openmpi-%{_arch}
-%{_libdir}/openmpi/bin/h5pcc
-%{_libdir}/openmpi/bin/h5pfc
-%{_libdir}/openmpi/lib/lib*.so
-%{_libdir}/openmpi/lib/lib*.settings
-
-%files openmpi-static
-%{_libdir}/openmpi/lib/*.a
-
-%if 0%{?with_openmpi3}
-%files openmpi3
-%doc COPYING MANIFEST README.txt release_docs/RELEASE.txt
-%doc release_docs/HISTORY*.txt
-%{_libdir}/openmpi3/bin/gif2h5
-%{_libdir}/openmpi3/bin/h52gif
-%{_libdir}/openmpi3/bin/h5copy
-%{_libdir}/openmpi3/bin/h5debug
-%{_libdir}/openmpi3/bin/h5diff
-%{_libdir}/openmpi3/bin/h5dump
-%{_libdir}/openmpi3/bin/h5import
-%{_libdir}/openmpi3/bin/h5jam
-%{_libdir}/openmpi3/bin/h5ls
-%{_libdir}/openmpi3/bin/h5mkgrp
-%{_libdir}/openmpi3/bin/h5perf
-%{_libdir}/openmpi3/bin/h5perf_serial
-%{_libdir}/openmpi3/bin/h5redeploy
-%{_libdir}/openmpi3/bin/h5repack
-%{_libdir}/openmpi3/bin/h5repart
-%{_libdir}/openmpi3/bin/h5stat
-%{_libdir}/openmpi3/bin/h5unjam
-%{_libdir}/openmpi3/bin/ph5diff
-%{_libdir}/openmpi3/lib/*.so.*
-
-%files openmpi3-devel
-%{_includedir}/openmpi3-%{_arch}
-%{_libdir}/openmpi3/bin/h5pcc
-%{_libdir}/openmpi3/bin/h5pfc
-%{_libdir}/openmpi3/lib/lib*.so
-%{_libdir}/openmpi3/lib/lib*.settings
-
-%files openmpi3-static
-%{_libdir}/openmpi3/lib/*.a
-%endif
-%endif
-
+%exclude %{macrosdir}
+%exclude %{_bindir}/h5c++*
+%exclude %{_bindir}/h5cc*
+%exclude %{_bindir}/h5fc*
+%exclude %{_bindir}/h5redeploy
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/*.settings
+%exclude %{_fmoddir}
+%exclude %{_datadir}
+%exclude %{_mandir}
+%exclude %{_libdir}/*.a
 
 %changelog
+* Thu Feb 6 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Apr 28 2019 Dave Love <loveshack@fedoraproject.org> - 1.8.12-11
 - Build an openmpi3 version on el7
 
