@@ -238,6 +238,9 @@ rm %{buildroot}%{_datadir}/%{name}/definitions/installDefinitions.sh
 # by the way, is there a way in the files section to include a directory
 # but exclude a given file in it? I could not find such a trick.
 
+# Remove this at it requires ksh
+rm %{buildroot}%{_bindir}/bufr_compare_dir
+
 %files
 %license LICENSE
 %{_bindir}/*
