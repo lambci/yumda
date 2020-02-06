@@ -33,6 +33,7 @@ Patch17: netpbm-manual-pages.patch
 Patch18: netpbm-ppmfadeusage.patch
 BuildRequires: libjpeg-devel, libpng-devel, libtiff-devel, flex
 BuildRequires: libX11-devel, python, jasper-devel, libxml2-devel
+Prefix: %{_prefix}
 
 %description
 The netpbm package contains a library of functions which support
@@ -45,6 +46,7 @@ Summary: Tools for manipulating graphics files in netpbm supported formats
 Group: Applications/Multimedia
 Requires: ghostscript
 Requires: netpbm = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description progs
 The netpbm-progs package contains a group of scripts for manipulating the
