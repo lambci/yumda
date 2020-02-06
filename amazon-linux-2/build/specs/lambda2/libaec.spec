@@ -9,6 +9,8 @@ Source0:        https://gitlab.dkrz.de/k202009/libaec/-/archive/v%{version}/liba
 BuildRequires:  gcc
 BuildRequires:  cmake3 >= 3.1
 
+Prefix: %{_prefix}
+
 %description
 Libaec provides fast loss-less compression of 1 up to 32 bit wide
 signed or unsigned integers (samples). The library achieves best
@@ -24,13 +26,6 @@ System Standard documents 121.0-B-2 and 120.0-G-2.
 Libaec includes a free drop-in replacement for the SZIP
 library (http://www.hdfgroup.org/doc_resource/SZIP).
 
-%package devel
-Summary:        Devel package for libaec (Adaptive Entropy Coding library)
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Devel files for libaec (Adaptive Entropy Coding library).
-
 %prep
 %setup -q -n %{name}-v%{version}
 
@@ -44,23 +39,23 @@ popd
 %install
 %make_install -C build
 
-%check
-make -C build test CTEST_OUTPUT_ON_FAILURE=1
-
-%ldconfig_scriptlets
+if [ -d "%{buildroot}%{_prefix}/lib64" ] && [ "%{_libdir}" != "%{_prefix}/lib64" ]; then
+  mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
+fi
 
 %files
-%doc README.md README.SZIP CHANGELOG.md
 %license Copyright.txt doc/patent.txt
 %{_bindir}/aec
 %{_libdir}/lib*.so.*
-%{_mandir}/man1/aec.*
 
-%files devel
-%{_includedir}/*.h
-%{_libdir}/lib*.so
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/lib*.so
 
 %changelog
+* Thu Feb 6 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Feb 12 2019 Christoph Junghans <junghans@votca.org> - 1.0.4-1
 - Version bump to 1.0.4
 

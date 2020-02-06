@@ -302,6 +302,7 @@ libXt.x86_64                 1.1.5-3.lambda2.0.2                         lambda2
 libXtst.x86_64               1.2.3-1.lambda2.0.2                         lambda2
 libXv.x86_64                 1.0.11-1.lambda2.0.2                        lambda2
 libXxf86vm.x86_64            1.1.4-1.lambda2.0.2                         lambda2
+libaec.x86_64                1.0.4-1.lambda2                             lambda2
 libaio.x86_64                0.3.109-13.lambda2.0.2                      lambda2
 libao.x86_64                 1.1.0-8.lambda2.0.2                         lambda2
 libarchive.x86_64            3.1.2-12.lambda2                            lambda2
