@@ -33,25 +33,7 @@ Requires:       hdf5%{?_isa} = %{_hdf5_version}
 # Don't require hdf5 library, might be mpi, use explicit requires
 %global __requires_exclude ^libhdf5
 
-%global with_mpich 1
-%global with_openmpi 1
-%if 0%{?rhel} && 0%{?rhel} <= 6 || 0%{?fedora} && 0%{?fedora} < 20
-%ifarch ppc64
-# No mpich on ppc64 in EL6
-%global with_mpich 0
-%endif
-%endif
-%ifarch s390 s390x
-# No openmpi on s390(x)
-%global with_openmpi 0
-%endif
-
-%if %{with_mpich}
-%global mpi_list mpich
-%endif
-%if %{with_openmpi}
-%global mpi_list %{?mpi_list} openmpi
-%endif
+Prefix: %{_prefix}
 
 %description
 NetCDF (network Common Data Form) is an interface for array-oriented 
@@ -85,100 +67,6 @@ NetCDF data is:
      access the same NetCDF file.
 
 
-%package devel
-Summary:        Development files for netcdf
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       pkgconfig%{?_isa}
-Requires:       hdf5-devel%{?_isa}
-Requires:       libcurl-devel%{?_isa}
-
-%description devel
-This package contains the netCDF C header files, shared devel libs, and 
-man pages.
-
-
-%package static
-Summary:        Static libs for netcdf
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description static
-This package contains the netCDF C static libs.
-
-
-%if %{with_mpich}
-%package mpich
-Summary: NetCDF mpich libraries
-Group: Development/Libraries
-Requires: mpich%{?_isa}
-Requires: hdf5-mpich%{?_isa} = %{_hdf5_version}
-BuildRequires: mpich-devel
-BuildRequires: hdf5-mpich-devel >= 1.8.4
-
-%description mpich
-NetCDF parallel mpich libraries
-
-
-%package mpich-devel
-Summary: NetCDF mpich development files
-Group: Development/Libraries
-Requires: %{name}-mpich%{?_isa} = %{version}-%{release}
-Requires: mpich%{?_isa}
-Requires: pkgconfig%{?_isa}
-Requires: hdf5-mpich-devel%{?_isa}
-Requires: libcurl-devel%{?_isa}
-
-%description mpich-devel
-NetCDF parallel mpich development files
-
-
-%package mpich-static
-Summary: NetCDF mpich static libraries
-Group: Development/Libraries
-Requires: %{name}-mpich-devel%{?_isa} = %{version}-%{release}
-
-%description mpich-static
-NetCDF parallel mpich static libraries
-%endif
-
-
-%if %{with_openmpi}
-%package openmpi
-Summary: NetCDF openmpi libraries
-Group: Development/Libraries
-Requires: openmpi%{?_isa}
-Requires: hdf5-openmpi%{?_isa} = %{_hdf5_version}
-BuildRequires: openmpi-devel
-BuildRequires: hdf5-openmpi-devel >= 1.8.4
-
-%description openmpi
-NetCDF parallel openmpi libraries
-
-
-%package openmpi-devel
-Summary: NetCDF openmpi development files
-Group: Development/Libraries
-Requires: %{name}-openmpi%{_isa} = %{version}-%{release}
-Requires: openmpi-devel%{?_isa}
-Requires: pkgconfig%{?_isa}
-Requires: hdf5-openmpi-devel%{?_isa}
-Requires: libcurl-devel%{?_isa}
-
-%description openmpi-devel
-NetCDF parallel openmpi development files
-
-
-%package openmpi-static
-Summary: NetCDF openmpi static libraries
-Group: Development/Libraries
-Requires: %{name}-openmpi-devel%{?_isa} = %{version}-%{release}
-
-%description openmpi-static
-NetCDF parallel openmpi static libraries
-%endif
-
-
 %prep
 %setup -q
 %patch0 -p1 -b .pkgconfig
@@ -208,134 +96,35 @@ ln -s ../configure .
 make %{?_smp_mflags}
 popd
 
-# MPI builds
-export CC=mpicc
-for mpi in %{mpi_list}
-do
-  mkdir $mpi
-  pushd $mpi
-  module load mpi/$mpi-%{_arch}
-  ln -s ../configure .
-  # parallel tests hang on s390(x)
-  %configure %{configure_opts} \
-    --libdir=%{_libdir}/$mpi/lib \
-    --bindir=%{_libdir}/$mpi/bin \
-    --sbindir=%{_libdir}/$mpi/sbin \
-    --includedir=%{_includedir}/$mpi-%{_arch} \
-    --datarootdir=%{_libdir}/$mpi/share \
-    --mandir=%{_libdir}/$mpi/share/man \
-    %ifnarch s390 s390x
-    --enable-parallel-tests
-    %else
-      %{nil}
-    %endif
-  make %{?_smp_mflags}
-  module purge
-  popd
-done
-
 
 %install
 make -C build install DESTDIR=${RPM_BUILD_ROOT}
 /bin/rm -f ${RPM_BUILD_ROOT}%{_libdir}/*.la
 chrpath --delete ${RPM_BUILD_ROOT}/%{_bindir}/nc{copy,dump,gen,gen3}
 /bin/rm -f ${RPM_BUILD_ROOT}%{_infodir}/dir
-for mpi in %{mpi_list}
-do
-  module load mpi/$mpi-%{_arch}
-  make -C $mpi install DESTDIR=${RPM_BUILD_ROOT}
-  rm $RPM_BUILD_ROOT/%{_libdir}/$mpi/lib/*.la
-  chrpath --delete ${RPM_BUILD_ROOT}/%{_libdir}/$mpi/bin/nc{copy,dump,gen,gen3}
-  module purge
-done
-
-
-%check
-make -C build check
-# This is hanging here:
-# Testing very simple parallel I/O with 4 processors...
-# *** tst_parallel testing very basic parallel access.
-for mpi in %{mpi_list}
-do
-  module load mpi/$mpi-%{_arch}
-  make -C $mpi check
-  module purge
-done
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
 
 
 %files
-%doc COPYRIGHT README.md RELEASE_NOTES.md
+%license COPYRIGHT
 %{_bindir}/nccopy
 %{_bindir}/ncdump
 %{_bindir}/ncgen
 %{_bindir}/ncgen3
 %{_libdir}/*.so.7*
-%{_mandir}/man1/*
 
-%files devel
-%doc examples
-%{_bindir}/nc-config
-%{_includedir}/netcdf.h
-%{_includedir}/netcdf_meta.h
-%{_libdir}/libnetcdf.settings
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/netcdf.pc
-%{_mandir}/man3/*
-
-%files static
-%{_libdir}/*.a
-
-%if %{with_mpich}
-%files mpich
-%doc COPYRIGHT README.md RELEASE_NOTES.md
-%{_libdir}/mpich/bin/nccopy
-%{_libdir}/mpich/bin/ncdump
-%{_libdir}/mpich/bin/ncgen
-%{_libdir}/mpich/bin/ncgen3
-%{_libdir}/mpich/lib/*.so.7*
-%doc %{_libdir}/mpich/share/man/man1/*.1*
-
-%files mpich-devel
-%{_libdir}/mpich/bin/nc-config
-%{_includedir}/mpich-%{_arch}
-%{_libdir}/mpich/lib/libnetcdf.settings
-%{_libdir}/mpich/lib/*.so
-%{_libdir}/mpich/lib/pkgconfig/%{name}.pc
-%doc %{_libdir}/mpich/share/man/man3/*.3*
-
-%files mpich-static
-%{_libdir}/mpich/lib/*.a
-%endif
-
-%if %{with_openmpi}
-%files openmpi
-%doc COPYRIGHT README.md RELEASE_NOTES.md
-%{_libdir}/openmpi/bin/nccopy
-%{_libdir}/openmpi/bin/ncdump
-%{_libdir}/openmpi/bin/ncgen
-%{_libdir}/openmpi/bin/ncgen3
-%{_libdir}/openmpi/lib/*.so.7*
-%doc %{_libdir}/openmpi/share/man/man1/*.1*
-
-%files openmpi-devel
-%{_libdir}/openmpi/bin/nc-config
-%{_includedir}/openmpi-%{_arch}
-%{_libdir}/openmpi/lib/libnetcdf.settings
-%{_libdir}/openmpi/lib/*.so
-%{_libdir}/openmpi/lib/pkgconfig/%{name}.pc
-%doc %{_libdir}/openmpi/share/man/man3/*.3*
-
-%files openmpi-static
-%{_libdir}/openmpi/lib/*.a
-%endif
+%exclude %{_bindir}/nc-config
+%exclude %{_includedir}
+%exclude %{_mandir}
+%exclude %{_libdir}/libnetcdf.settings
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/*.a
 
 
 %changelog
+* Thu Feb 6 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Dec 10 2015 Orion Poplawski <orion@cora.nwra.com> - 4.3.3.1-5
 - Rebuild for openmpi 1.10.0
 
