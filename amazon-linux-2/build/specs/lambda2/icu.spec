@@ -146,11 +146,6 @@ install -p -m755 -D %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/icu-config
 %{_bindir}/uconv
 %{_sbindir}/*
 
-%files -n lib%{name}
-%defattr(-,root,root,-)
-%license license.html
-%{_libdir}/*.so.*
-
 %exclude %{_bindir}/%{name}-config*
 %exclude %{_bindir}/icuinfo
 %exclude %{_mandir}
@@ -158,10 +153,11 @@ install -p -m755 -D %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/icu-config
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
 %exclude %{_libdir}/%{name}
+%exclude %{_libdir}/*.so.*
 %exclude %{_datadir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Feb 6 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Thu Jun 07 2018 Mike FABIAN <mfabian@redhat.com> - 50.1.2-17
