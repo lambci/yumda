@@ -15,7 +15,7 @@ Source11:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/201
 Source12:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/windowsZones.txt
 Source13:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/zoneinfo64.txt
 BuildRequires: doxygen, autoconf, python
-Requires: lib%{name}%{?_isa} = %{version}-%{release}
+Requires: lib%{name}%{?_isa} >= %{version}
 
 Patch1: icu.8198.revert.icu5431.patch
 Patch2: icu.8800.freeserif.crash.patch
