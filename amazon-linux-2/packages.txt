@@ -108,7 +108,7 @@ dejavu-sans-fonts.noarch     2.33-6.lambda2                              lambda2
 dejavu-sans-mono-fonts.noarch
                              2.33-6.lambda2                              lambda2
 dejavu-serif-fonts.noarch    2.33-6.lambda2                              lambda2
-diffutils.x86_64             3.3-4.lambda2.0.2                           lambda2
+diffutils.x86_64             3.3-5.lambda2                               lambda2
 eccodes.x86_64               2.14.1-1.lambda2                            lambda2
 eccodes-data.noarch          2.14.1-1.lambda2                            lambda2
 elfutils.x86_64              0.176-2.lambda2                             lambda2
