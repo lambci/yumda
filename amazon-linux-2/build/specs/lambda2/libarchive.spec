@@ -1,6 +1,6 @@
 Name:           libarchive
 Version:        3.1.2
-Release:        12%{?dist}
+Release:        14%{?dist}
 Summary:        A library for handling streaming archive formats
 
 Group:          System Environment/Libraries
@@ -59,6 +59,7 @@ Patch26: libarchive-3.1.2-CVE-2019-1000019.patch
 Patch27: libarchive-3.1.2-CVE-2019-1000020.patch
 Patch28: libarchive-3.3.2-CVE-2018-1000878.patch
 Patch29: libarchive-3.3.2-CVE-2018-1000877.patch
+Patch30: libarchive-3.2.1-CVE-2019-18408.patch
 
 Prefix: %{_prefix}
 
@@ -126,6 +127,7 @@ libarchive packages.
 %patch27 -p1 -b .CVE-2019-1000020
 %patch28 -p1 -b .CVE-2019-1000878
 %patch29 -p1 -b .CVE-2019-1000877
+%patch30 -p1 -b .CVE-2019-18408
 
 
 %build
@@ -171,8 +173,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Tue Feb 11 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Jan 17 2020 Patrik Novotný <panovotn@redhat.com> - 3.1.2-14
+- Fix patch application error
+
+* Wed Jan 15 2020 Patrik Novotný <panovotn@redhat.com> - 3.1.2-13
+- Fix CVE-2019-18408: RAR use-after-free
 
 * Tue Apr 30 2019 Ondrej Dubaj <odubaj@redhat.com> - 3.1.2-12
 - fixed use after free in RAR decoder (#1700749)

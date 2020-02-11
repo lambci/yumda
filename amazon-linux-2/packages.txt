@@ -60,8 +60,8 @@ boost-test.x86_64            1.53.0-27.lambda2.0.3                       lambda2
 boost-thread.x86_64          1.53.0-27.lambda2.0.3                       lambda2
 boost-timer.x86_64           1.53.0-27.lambda2.0.3                       lambda2
 boost-wave.x86_64            1.53.0-27.lambda2.0.3                       lambda2
-bsdcpio.x86_64               3.1.2-12.lambda2                            lambda2
-bsdtar.x86_64                3.1.2-12.lambda2                            lambda2
+bsdcpio.x86_64               3.1.2-14.lambda2                            lambda2
+bsdtar.x86_64                3.1.2-14.lambda2                            lambda2
 bzip2.x86_64                 1.0.6-13.lambda2.0.2                        lambda2
 bzip2-libs.x86_64            1.0.6-13.lambda2.0.2                        lambda2
 c-ares.x86_64                1.10.0-3.lambda2.0.2                        lambda2
@@ -305,7 +305,7 @@ libXxf86vm.x86_64            1.1.4-1.lambda2.0.2                         lambda2
 libaec.x86_64                1.0.4-1.lambda2                             lambda2
 libaio.x86_64                0.3.109-13.lambda2.0.2                      lambda2
 libao.x86_64                 1.1.0-8.lambda2.0.2                         lambda2
-libarchive.x86_64            3.1.2-12.lambda2                            lambda2
+libarchive.x86_64            3.1.2-14.lambda2                            lambda2
 libart_lgpl.x86_64           2.3.21-10.lambda2.0.2                       lambda2
 libassuan.x86_64             2.1.0-3.lambda2.0.2                         lambda2
 libasyncns.x86_64            0.8-7.lambda2.0.2                           lambda2
