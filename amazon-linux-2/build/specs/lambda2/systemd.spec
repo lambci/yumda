@@ -5,7 +5,7 @@
 %global _hardened_build 1
 
 %define _trivial .0
-%define _buildid .9
+%define _buildid .12
 
 
 Name:           systemd
@@ -677,6 +677,10 @@ Patch10013: cve-2018-15688.patch
 Patch10014: cve-2019-6454a.patch
 Patch10015: cve-2019-6454b.patch
 
+Patch10016: cve-2020-1712a.patch
+Patch10017: cve-2020-1712b.patch
+Patch10018: cve-2020-1712c.patch
+
 %global num_patches %{lua: c=0; for i,p in ipairs(patches) do c=c+1; end; print(c);}
 
 BuildRequires:  libcap-devel
@@ -1011,8 +1015,15 @@ mkdir -p %{buildroot}%{_prefix}/lib/systemd/logind.conf.d/
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Tue Feb 11 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Sun Feb  2 2020 Frederick Lefebvre <fredlef@amazon.com> - 219-57.amzn2.0.12
+- polkit: on async pk requests, re-validate action/details
+
+* Fri Jan 31 2020 Frederick Lefebvre <fredlef@amazon.com> - 219-57.amzn2.0.11
+- sd-bus: introduce API for re-enqueuing incoming messages
+- polkit: when authorizing via PK let's re-resolve callback/userdata instead of caching it
 
 * Thu Feb 14 2019 Frederick Lefebvre <fredlef@amazon.com> - 219-57.amzn2.0.9
 - Do not allocate object prefix for dbus messages on the stack (cve-2019-6454)
