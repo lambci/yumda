@@ -83,7 +83,7 @@ cpio.x86_64                  2.11-27.lambda2                             lambda2
 cpp.x86_64                   7.3.1-6.lambda2.0.4                         lambda2
 cracklib.x86_64              2.9.0-11.lambda2.0.2                        lambda2
 cracklib-dicts.x86_64        2.9.0-11.lambda2.0.2                        lambda2
-cups-libs.x86_64             1:1.6.3-35.lambda2                          lambda2
+cups-libs.x86_64             1:1.6.3-40.lambda2                          lambda2
 curl.x86_64                  7.61.1-12.lambda2.0.1                       lambda2
 cyrus-sasl.x86_64            2.1.26-23.lambda2                           lambda2
 cyrus-sasl-gs2.x86_64        2.1.26-23.lambda2                           lambda2

@@ -11,7 +11,7 @@ Summary: CUPS printing system
 Name: cups
 Epoch: 1
 Version: 1.6.3
-Release: 35%{?dist}
+Release: 40%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Url: http://www.cups.org/
@@ -100,6 +100,9 @@ Patch69: cups-1.6.3-overriden-h.patch
 Patch70: cups-net-backends-etimedout-enotconn.patch
 Patch71: cups-1.6.3-tlsv12.patch
 Patch72: cups-1.6.3-page-count.patch
+Patch73: 0001-Fix-stuck-multi-file-jobs-Issue-5359-Issue-5413.patch
+Patch74: 0001-The-scheduler-now-uses-the-getgrouplist-function-whe.patch
+Patch75: cups-dont-send-http-options-field.patch
 
 Patch100: cups-lspp.patch
 
@@ -118,6 +121,8 @@ BuildRequires: avahi-devel
 BuildRequires: systemd, systemd-devel
 BuildRequires: dbus-devel
 BuildRequires: automake
+# we need c++ compiler for f.e. cups-driverd binary
+BuildRequires: gcc-c++
 
 # Make sure we get postscriptdriver tags.
 BuildRequires: python-cups
@@ -313,6 +318,12 @@ natively, without needing the lp/lpr commands.
 %patch71 -p1 -b .tlsv12
 # CUPS print jobs show incorrect number under the "pages" column (bug #1434153)
 %patch72 -p1 -b .page-count
+# 1622430 - Jobs with multiple files don't complete when backend fails
+%patch73 -p1 -b .multifile-stuck
+# 1570480 - CUPS cannot authorize users obtained from external identity servers by sssd
+%patch74 -p1 -b .getgrouplist
+# 1700637 - Stop advertising the HTTP methods that are supported
+%patch75 -p1 -b .dont-send-http-options-field
 
 sed -i -e '1iMaxLogSize 0' conf/cupsd.conf.in
 
@@ -325,10 +336,12 @@ iconv -f MACINTOSH -t UTF-8 "$f"~ > "$f"
 rm -f "$f"~
 
 aclocal -I config-scripts
-autoconf -I config-scripts
+autoconf -f -I config-scripts
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -fstack-protector-all -DLDAP_DEPRECATED=1"
+export CC=gcc
+export CXX=g++
 %configure --disable-debug \
 %if %lspp
 	--enable-lspp \
@@ -368,8 +381,24 @@ make BUILDROOT=$RPM_BUILD_ROOT install
 %exclude %{_unitdir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Tue Feb 11 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Apr 17 2019 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-40
+- 1700637 - Stop advertising the HTTP methods that are supported
+
+* Mon Feb 18 2019 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-39
+- resolve covscan issue found in fix for 1570480
+- automake sometimes fails to generate correct macros - so force autoconf
+
+* Wed Feb 06 2019 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-38
+- 1570480 - CUPS cannot authorize users obtained from external identity servers by sssd
+
+* Thu Jan 03 2019 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-37
+- 1659998 - cups fails to build if clang is installed
+
+* Fri Dec 14 2018 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-36
+- 1622430 - Jobs with multiple files don't complete when backend fails
 
 * Fri Dec 15 2017 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-35
 - 1466497 - Remove weak SSL/TLS ciphers from CUPS - fixing covscan issues
