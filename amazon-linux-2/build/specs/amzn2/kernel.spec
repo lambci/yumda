@@ -1,4 +1,4 @@
-%define buildid 129.185
+%define buildid 131.185
 
 # We have to override the new %%install behavior because, well... the kernel is special.
 %global __spec_install_pre %%{___build_pre}
@@ -43,7 +43,7 @@ Summary: The Linux kernel
 %endif
 
 # what kernel is it we are building
-%global kversion 4.14.158
+%global kversion 4.14.165
 %define rpmversion %{kversion}
 
 # What parts do we want to build?  We must build at least one kernel.
@@ -97,7 +97,7 @@ Summary: The Linux kernel
 
 %define make_target bzImage
 
-%define KVERREL %{version}-%{release}.%{_target_cpu}
+%define KVERREL %{rpmversion}-%{pkg_release}.%{_target_cpu}
 %define hdrarch %_target_cpu
 %define asmarch %_target_cpu
 
@@ -341,8 +341,8 @@ BuildRequires: pesign >= 0.10-4
 BuildRequires: hmaccalc
 %endif
 
-Source0: linux-4.14.158.tar
-Source1: linux-4.14.158-patches.tar
+Source0: linux-4.14.165.tar
+Source1: linux-4.14.165-patches.tar
 
 # this is for %{signmodules}
 Source11: x509.genkey
@@ -1481,7 +1481,7 @@ find . -lname "$(pwd)*" -exec sh -c 'ln -snvf $(python -c "from os.path import *
   if [ "%{signmodules}" == "1" ]; then \
     if [ "%{with_debug}" != "0" ]; \
     then \
-      Arch=`head -1 configs/kernel-%{version}-%{_target_cpu}-debug.config | cut -b 3-` \
+      Arch=`head -1 configs/kernel-%{rpmversion}-%{_target_cpu}-debug.config | cut -b 3-` \
       rm -rf .tmp_versions \
       mv .tmp_versions.sign.debug .tmp_versions \
       mv signing_key.pem.sign.debug signing_key.pem \
@@ -1489,7 +1489,7 @@ find . -lname "$(pwd)*" -exec sh -c 'ln -snvf $(python -c "from os.path import *
       make -s ARCH=$Arch V=1 INSTALL_MOD_PATH=$RPM_BUILD_ROOT modules_sign KERNELRELEASE=%{KVERREL}.debug \
       %{modsign_cmd} $RPM_BUILD_ROOT/lib/modules/%{KVERREL}.debug/extra/ \
     else \
-      Arch=`head -1 configs/kernel-%{version}-%{_target_cpu}.config | cut -b 3-` \
+      Arch=`head -1 configs/kernel-%{rpmversion}-%{_target_cpu}.config | cut -b 3-` \
       rm -rf .tmp_versions \
       mv signing_key.pem.sign signing_key.pem \
       mv signing_key.x509.sign signing_key.x509 \
@@ -1863,194 +1863,225 @@ fi
 %kernel_variant_files %{with_up}
 %kernel_variant_files %{with_debug} debug
 
-%changelog
-* Tue Dec 24 2019 Builder <builder@amazon.com>
-- builder/c427ec555cd1060c99327f88ec3d3484af1b7258 last changes:
+#
+# Finally kernel-livepatch as it has it's own version/release
+# NOTE: Don't move this anywhere else, otherwise it'll need
+# it's own Name: and that affects all the packages that
+# follow. Aslo having a Version, Release affects other subpackages
+# so safely tuck this to the end.
+# Other Caveats: This spec file uses a special hack for __spec_install_post
+# Hence, all operations in __spec_install_post should not refer to
+# either %%{version} or %%{release}
+#
+%ifarch x86_64
+%package -n kernel-livepatch-%{rpmversion}-%{buildid}
+Summary: Livepatches for the Linux Kernel
+Version: 1.0
+Release: 0%{?dist}
+Requires: kpatch
+%systemd_requires
 
-- linux/b701c605edf047eda654ab00dd84675a16dcea74 last changes:
-  + [b701c60] [2019-12-18] Add support for setting owner info, dos attributes, and create time (bprotopopov@hotmail.com)
-  + [f796fd8] [2018-08-28] SMB3: Backup intent flag missing from compounded ops (stfrench@microsoft.com)
-  + [aed9a38] [2019-12-19] drivers/amazon: efa: update to 1.5.0 (luqia@amazon.com)
-  + [128b4a7] [2019-12-16] Revert "Fix the locking in dcache_readdir() and friends". (fllinden@amazon.com)
-  + [c9772c4] [2019-12-04] lustre: hold lock while walking changelog dev list (astroh@amazon.com)
-  + [49026e1] [2019-11-15] arm64: fix merge error in errata changes (fllinden@amazon.com)
-  + [02d7944] [2019-11-12] nvme-pci: use atomic bitops to mark a queue enabled (hch@lst.de)
-  + [6330404] [2019-11-11] nvme-pci: Don't disable on timeout in reset state (keith.busch@intel.com)
-  + [8bbda70] [2019-11-11] nvme-pci: Unblock reset_work on IO failure (keith.busch@intel.com)
-  + [a18acfe] [2019-11-11] nvme-pci: shutdown on timeout during deletion (keith.busch@intel.com)
-  + [9420a3d] [2018-02-08] nvme-pci: Fix timeouts in connecting state (keith.busch@intel.com)
-  + [f55a5b8] [2019-11-11] nvme: rename NVME_CTRL_RECONNECTING state to NVME_CTRL_CONNECTING (maxg@mellanox.com)
-  + [114e77c] [2017-10-25] nvme: allow controller RESETTING to RECONNECTING transition (jsmart2021@gmail.com)
-  + [d06cecc] [2019-11-11] nvme-pci: introduce RECONNECTING state to mark initializing procedure (jianchao.w.wang@oracle.com)
-  + [cc3363e] [2019-11-11] Revert "nvme/pci: Better support for disabling controller" (sblbir@amazon.com)
-  + [93c9530] [2019-11-04] update ena driver to version 2.1.3 (alakeshh@amazon.com)
-  + [a281e97] [2018-06-22] arm64: Avoid flush_icache_range() in alternatives patching code (will.deacon@arm.com)
-  + [2c654ec] [2018-09-27] arm64: pull in upstream erratum workarounds (fllinden@amazon.com)
-  + [b6d0cc9] [2018-03-13] arm64: kconfig: Ensure spinlock fastpaths are inlined if !PREEMPT (will.deacon@arm.com)
-  + [5725947] [2018-03-13] arm64: locking: Replace ticket lock implementation with qspinlock (will.deacon@arm.com)
-  + [aec9adb] [2018-01-31] arm64: barrier: Implement smp_cond_load_relaxed (will.deacon@arm.com)
-  + [b5ee66d] [2018-04-26] MAINTAINERS: Add myself as a co-maintainer for the locking subsystem (will.deacon@arm.com)
-  + [7a1f658] [2018-04-26] locking/qspinlock: Use try_cmpxchg() instead of cmpxchg() when locking (will.deacon@arm.com)
-  + [cc5b75a] [2018-04-26] locking/qspinlock: Elide back-to-back RELEASE operations with smp_wmb() (will.deacon@arm.com)
-  + [b34cd4b] [2018-04-26] locking/qspinlock: Use smp_store_release() in queued_spin_unlock() (will.deacon@arm.com)
-  + [ae2a618] [2018-04-26] locking/qspinlock: Use smp_cond_load_relaxed() to wait for next node (will.deacon@arm.com)
-  + [ab363d8] [2018-04-26] locking/mcs: Use smp_cond_load_acquire() in MCS spin loop (jason.low2@hp.com)
-  + [cbe40fa] [2018-04-26] locking/qspinlock: Use atomic_cond_read_acquire() (will.deacon@arm.com)
-  + [f3dbb19] [2018-04-26] locking/barriers: Introduce smp_cond_load_relaxed() and atomic_cond_read_relaxed() (will.deacon@arm.com)
-  + [6ee0e38] [2017-10-12] locking/atomic: Add atomic_cond_read_acquire() (will.deacon@arm.com)
-  + [ab38f45] [2019-08-29] iommu: use config option to specify if iommu mode should be strict (fllinden@amazon.com)
-  + [d44c140] [2018-09-20] iommu/arm-smmu: Support non-strict mode (robin.murphy@arm.com)
-  + [8b7af36] [2018-09-20] iommu/io-pgtable-arm-v7s: Add support for non-strict mode (robin.murphy@arm.com)
-  + [b913e7f] [2018-09-20] iommu/arm-smmu-v3: Add support for non-strict mode (thunder.leizhen@huawei.com)
-  + [8733118] [2018-09-20] iommu/io-pgtable-arm: Add support for non-strict mode (thunder.leizhen@huawei.com)
-  + [c59509e] [2018-09-20] iommu: Add "iommu.strict" command line option (thunder.leizhen@huawei.com)
-  + [b29e343] [2018-09-20] iommu/dma: Add support for non-strict mode (thunder.leizhen@huawei.com)
-  + [de250e9] [2018-09-20] iommu/arm-smmu-v3: Implement flush_iotlb_all hook (thunder.leizhen@huawei.com)
-  + [171c4a7] [2017-09-28] iommu/io-pgtable-arm-v7s: Convert to IOMMU API TLB sync (robin.murphy@arm.com)
-  + [4cb859f] [2017-09-28] iommu/io-pgtable-arm: Convert to IOMMU API TLB sync (robin.murphy@arm.com)
-  + [02972b1] [2019-03-12] irqchip/gic-v3-its: Fix comparison logic in lpi_range_cmp (linux@rasmusvillemoes.dk)
-  + [1c62254] [2019-01-29] irqchip/gic-v3-its: Gracefully fail on LPI exhaustion (marc.zyngier@arm.com)
-  + [39504ef] [2018-08-28] irqchip/gic-v3-its: Cap lpi_id_bits to reduce memory footprint (jia.he@hxt-semitech.com)
-  + [d3739d75] [2018-05-31] irqchip/gic-v3-its: Reduce minimum LPI allocation to 1 for PCI devices (marc.zyngier@arm.com)
-  + [3c4b03e] [2018-05-31] irqchip/gic-v3-its: Honor hypervisor enforced LPI range (marc.zyngier@arm.com)
-  + [998fee4] [2018-05-30] irqchip/gic-v3: Expose GICD_TYPER in the rdist structure (marc.zyngier@arm.com)
-  + [af7f9c1] [2018-05-27] irqchip/gic-v3-its: Drop chunk allocation compatibility (marc.zyngier@arm.com)
-  + [7d1b414] [2018-05-27] irqchip/gic-v3-its: Move minimum LPI requirements to individual busses (marc.zyngier@arm.com)
-  + [5d673af] [2018-05-27] irqchip/gic-v3-its: Use full range of LPIs (marc.zyngier@arm.com)
-  + [8bc38d4] [2018-05-27] irqchip/gic-v3-its: Refactor LPI allocator (marc.zyngier@arm.com)
-  + [d5b8a96] [2018-06-22] irqchip/gic-v3-its: Only emit VSYNC if targetting a valid collection (marc.zyngier@arm.com)
-  + [4c4d751] [2018-06-22] irqchip/gic-v3-its: Only emit SYNC if targetting a valid collection (marc.zyngier@arm.com)
-  + [8cd472d] [2017-07-28] irqchip/gic-v3-its: Pass its_node pointer to each command builder (marc.zyngier@arm.com)
-  + [02a4950] [2018-05-17] nvme-pci: move ->cq_vector == -1 check outside of ->q_lock (axboe@kernel.dk)
-  + [4a681a7] [2019-09-13] nvme/host/pci: Fix a race in controller removal (sblbir@amzn.com)
-  + [072d8c8] [2019-09-13] nvme/host/core: Allow overriding of wait_ready timeout (sblbir@amzn.com)
-  + [8dc2b96] [2019-09-10] nvme/pci: Better support for disabling controller (sblbir@amzn.com)
-  + [8aafb16] [2017-11-02] nvme: move the dying queue check from cancel to completion (hch@lst.de)
-  + [d268589] [2019-08-28] blk-mq: fix hang caused by freeze/unfreeze sequence (bob.liu@oracle.com)
-  + [ae26639] [2019-08-16] nvme: change namespaces_mutext to namespaces_rwsem (jianchao.w.wang@oracle.com)
-  + [5d32d54] [2018-09-26] block: Allow unfreezing of a queue while requests are in progress (bvanassche@acm.org)
-  + [b937931] [2019-08-16] percpu-refcount: Introduce percpu_ref_resurrect() (bvanassche@acm.org)
-  + [95f86e3] [2019-09-05] Add Amazon EFA driver version 1.4 (alakeshh@amazon.com)
-  + [ffa5acc] [2019-04-02] block: don't show io_timeout if driver has no timeout handler (zhangweiping@didiglobal.com)
-  + [0953e77] [2018-11-29] block: add io timeout to sysfs (zhangweiping@didiglobal.com)
-  + [f72c9bd] [2019-08-15] xen: Restore xen-pirqs on resume from hibernation (anchalag@amazon.com)
-  + [2996ca6] [2019-01-09] livepatch: Change unsigned long old_addr -> void *old_func in struct klp_func (pmladek@suse.com)
-  + [6daa0e5] [2018-11-07] livepatch: Replace synchronize_sched() with synchronize_rcu() (paulmck@linux.ibm.com)
-  + [0a0edd3] [2018-07-12] livepatch: Remove reliable stacktrace check in klp_try_switch_task() (kamalesh@linux.vnet.ibm.com)
-  + [b3db383] [2018-04-16] livepatch: Allow to call a custom callback when freeing shadow variables (pmladek@suse.com)
-  + [00dd0e1] [2018-04-16] livepatch: Initialize shadow variables safely by a custom callback (pmladek@suse.com)
-  + [1bd86c6] [2017-12-21] livepatch: add locking to force and signal functions (mbenes@suse.cz)
-  + [901bfb8] [2018-01-10] livepatch: Remove immediate feature (mbenes@suse.cz)
-  + [7677fef] [2017-11-22] livepatch: force transition to finish (mbenes@suse.cz)
-  + [992011b] [2017-11-15] livepatch: send a fake signal to all blocking tasks (mbenes@suse.cz)
-  + [2091b73] [2017-10-20] livepatch: __klp_disable_patch() should never be called for disabled patches (pmladek@suse.com)
-  + [a597c53] [2017-10-20] livepatch: Correctly call klp_post_unpatch_callback() in error paths (pmladek@suse.com)
-  + [1724a5d] [2017-10-13] livepatch: add transition notices (joe.lawrence@redhat.com)
-  + [2056375] [2017-10-13] livepatch: move transition "complete" notice into klp_complete_transition() (joe.lawrence@redhat.com)
-  + [b2f6b10] [2017-10-13] livepatch: add (un)patch callbacks (joe.lawrence@redhat.com)
-  + [c993385] [2017-09-14] livepatch: __klp_shadow_get_or_alloc() is local to shadow.c (jkosina@suse.cz)
-  + [ac66781] [2017-08-31] livepatch: introduce shadow variable API (joe.lawrence@redhat.com)
-  + [79b3121] [2019-08-15] Partially revert cc946adcb9e983ad9fe56ebe35f1292e111ff10e (sblbir@amzn.com)
-  + [6208f29] [2019-07-11] PCI: Add ACS quirk for Amazon Annapurna Labs root ports (alisaidi@amazon.com)
-  + [3a186c7] [2019-07-11] PCI: Add Amazon's Annapurna Labs vendor ID (jonnyc@amazon.com)
-  + [98e8874] [2019-06-24] linux/ena: update ENA linux driver to version 2.1.1 (fllinden@amazon.com)
-  + [f1c841d] [2019-07-02] microvm: enable debug in case of tcp out of memory (alakeshh@amazon.com)
-  + [32cc653] [2019-07-03] Fix microvm config dependency in Kconfig (alakeshh@amazon.com)
-  + [cc348be] [2019-02-12] NFS: Remove redundant semicolon (zhangliguang@linux.alibaba.com)
-  + [9dcb0e6] [2019-05-31] arm64: acpi/pci: invoke _DSM whether to preserve firmware PCI setup (fllinden@amazon.com)
-  + [37e438a] [2019-03-28] PCI: al: Add Amazon Annapurna Labs PCIe host controller driver (jonnyc@amazon.com)
-  + [fde252f] [2019-04-24] irqchip/gic-v2m: invoke from gic-v3 initialization and add acpi quirk flow (zeev@amazon.com)
-  + [bc8efec] [2019-04-03] lustre: fix ACL handling (fllinden@amazon.com)
-  + [6afbaec] [2018-05-18] x86/stacktrace: Enable HAVE_RELIABLE_STACKTRACE for the ORC unwinder (jslaby@suse.cz)
-  + [5aa67ef] [2018-05-18] x86/unwind/orc: Detect the end of the stack (jpoimboe@redhat.com)
-  + [253596e] [2018-05-18] x86/stacktrace: Do not fail for ORC with regs on stack (jslaby@suse.cz)
-  + [540a9a3] [2018-05-18] x86/stacktrace: Clarify the reliable success paths (jslaby@suse.cz)
-  + [b4324c0] [2018-05-18] x86/stacktrace: Remove STACKTRACE_DUMP_ONCE (jslaby@suse.cz)
-  + [947a0c1] [2018-05-18] x86/stacktrace: Do not unwind after user regs (jslaby@suse.cz)
-  + [cf22e7d] [2019-03-12] Add new config CONFIG_MICROVM to enable microvm optimized kernel (alakeshh@amazon.com)
-  + [43cb7ae] [2019-02-19] tcp: Namespace-ify sysctl_tcp_rmem and sysctl_tcp_wmem (edumazet@google.com)
-  + [c9fd5bd7] [2017-11-07] net: allow per netns sysctl_rmem and sysctl_wmem for protos (edumazet@google.com)
-  + [a7d4d7a] [2019-03-01] Config glue for lustre client. (fllinden@amazon.com)
-  + [cb09ab2] [2019-03-01] Import lustre client 2.10.5 (fllinden@amazon.com)
-  + [eb03791] [2018-06-05] iomap: fsync swap files before iterating mappings (darrick.wong@oracle.com)
-  + [b5a0423] [2018-06-01] iomap: inline data should be an iomap type, not a flag (hch@lst.de)
-  + [38352dd] [2018-05-16] iomap: don't allow holes in swapfiles (osandov@fb.com)
-  + [23b4824] [2018-05-16] iomap: provide more useful errors for invalid swap files (osandov@fb.com)
-  + [c517bfb] [2018-05-10] iomap: add a swapfile activation function (darrick.wong@oracle.com)
-  + [29c5730] [2019-01-30] xfs, iomap: define and use the IOMAP_F_DIRTY flag in xfs (fllinden@amazon.com)
-  + [f406734] [2018-08-01] xfs: only validate summary counts on primary superblock (darrick.wong@oracle.com)
-  + [2d88292] [2018-07-26] libxfs: add more bounds checking to sb sanity checks (billodo@redhat.com)
-  + [8f13271] [2018-07-29] xfs: refactor superblock verifiers (darrick.wong@oracle.com)
-  + [421e022] [2019-01-31] xen-netfront: call netif_device_attach on resume (fllinden@amazon.com)
-  + [6b83878] [2018-10-04] ACPI/PPTT: Handle architecturally unknown cache types (jhugo@codeaurora.org)
-  + [40d0da6] [2018-06-05] ACPI / PPTT: fix build when CONFIG_ACPI_PPTT is not enabled (sudeep.holla@arm.com)
-  + [a771435] [2018-06-29] ACPI / PPTT: use ACPI ID whenever ACPI_PPTT_ACPI_PROCESSOR_ID_VALID is set (Sudeep.Holla@arm.com)
-  + [f9480d5] [2018-05-11] arm64: topology: divorce MC scheduling domain from core_siblings (jeremy.linton@arm.com)
-  + [588a6ac] [2018-05-11] ACPI: Add PPTT to injectable table list (jeremy.linton@arm.com)
-  + [4a6bbd0] [2018-05-11] arm64: topology: enable ACPI/PPTT based CPU topology (jeremy.linton@arm.com)
-  + [83cef7f] [2018-05-11] arm64: topology: rename cluster_id (jeremy.linton@arm.com)
-  + [adc6b82] [2018-05-11] arm64: Add support for ACPI based firmware tables (jeremy.linton@arm.com)
-  + [24d5981] [2018-05-11] drivers: base cacheinfo: Add support for ACPI based firmware tables (jeremy.linton@arm.com)
-  + [9a17877] [2018-05-11] ACPI: Enable PPTT support on ARM64 (jeremy.linton@arm.com)
-  + [5be3338] [2018-05-11] ACPI/PPTT: Add Processor Properties Topology Table parsing (jeremy.linton@arm.com)
-  + [253e20b] [2018-05-11] arm64/acpi: Create arch specific cpu to acpi id helper (jeremy.linton@arm.com)
-  + [0023103] [2018-05-11] cacheinfo: rename of_node to fw_token (jeremy.linton@arm.com)
-  + [be9b9b4] [2018-05-11] drivers: base: cacheinfo: setup DT cache properties early (jeremy.linton@arm.com)
-  + [ea16db6] [2018-05-11] drivers: base: cacheinfo: move cache_setup_of_node() (jeremy.linton@arm.com)
-  + [13dcbf5] [2017-11-17] ACPICA: ACPI 6.2: Additional PPTT flags (jeremy.linton@arm.com)
-  + [bff52c8] [2018-07-23] arm64: acpi: fix alignment fault in accessing ACPI (takahiro.akashi@linaro.org)
-  + [7be244c] [2018-07-02] arm64: kexec: always reset to EL2 if present (mark.rutland@arm.com)
-  + [4abaa4c] [2018-03-08] efi/arm64: Check whether x18 is preserved by runtime services calls (ard.biesheuvel@linaro.org)
-  + [4304102] [2018-10-11] arm64: Fix /proc/iomem for reserved but not memory regions (will.deacon@arm.com)
-  + [7a5bf0c] [2018-07-23] arm64: export memblock_reserve()d regions via /proc/iomem (james.morse@arm.com)
-  + [13f14c6] [2018-11-10] net: ena: Import the ENA v2 driver (2.0.2g) (alakeshh@amazon.com)
-  + [c3f63a2] [2018-11-10] xen: Only restore the ACPI SCI interrupt in xen_restore_pirqs. (fllinden@amazon.com)
-  + [eb72a07] [2018-10-26] xen: restore pirqs on resume from hibernation. (fllinden@amazon.com)
-  + [b2e2788] [2018-10-29] ACPICA: Enable sleep button on ACPI legacy wake (anchalag@amazon.com)
-  + [92c1bbf] [2018-10-18] block: xen-blkfront: consider new dom0 features on restore (eduval@amazon.com)
-  + [be6e59c] [2017-11-30] vmxnet3: increase default rx ring sizes (skhare@vmware.com)
-  + [7c7073f] [2018-04-27] x86/CPU/AMD: Derive CPU topology from CPUID function 0xB when available (suravee.suthikulpanit@amd.com)
-  + [02ca47a] [2017-09-07] sched/topology: Introduce NUMA identity node sched domain (suravee.suthikulpanit@amd.com)
-  + [85454968] [2018-06-13] x86/CPU/AMD: Fix LLC ID bit-shift calculation (suravee.suthikulpanit@amd.com)
-  + [8a89947] [2018-04-27] x86/CPU/AMD: Calculate last level cache ID from number of sharing threads (suravee.suthikulpanit@amd.com)
-  + [b646178] [2018-04-27] x86/CPU: Rename intel_cacheinfo.c to cacheinfo.c (bp@suse.de)
-  + [e33c3e3] [2018-05-17] x86/MCE/AMD: Read MCx_MISC block addresses on any CPU (bp@suse.de)
-  + [9d36264] [2018-08-15] blk-wbt: Avoid lock contention and thundering herd issue in wbt_wait (anchalag@amazon.com)
-  + [5141c4a] [2018-01-12] blk-mq: simplify queue mapping & schedule with each possisble CPU (hch@lst.de)
-  + [504a76b] [2018-04-09] x86: tsc: avoid system instability in hibernation (eduval@amazon.com)
-  + [0497577] [2018-06-05] xen-blkfront: Fixed blkfront_restore to remove a call to negotiate_mq (anchalag@amazon.com)
-  + [904f750] [2018-03-24] KVM: X86: Fix setup the virt_spin_lock_key before static key get initialized (wanpengli@tencent.com)
-  + [718f937] [2017-10-28] x86/paravirt: Set up the virt_spin_lock_key after static keys get initialized (douly.fnst@cn.fujitsu.com)
-  + [1dcda19] [2018-02-13] KVM: X86: Choose qspinlock when dedicated physical CPUs are available (wanpengli@tencent.com)
-  + [ed99609] [2018-02-13] KVM: Introduce paravirtualization hints and KVM_HINTS_DEDICATED (wanpengli@tencent.com)
-  + [ea9f0ba] [2017-09-06] locking/paravirt: Use new static key for controlling call of virt_spin_lock() (jgross@suse.com)
-  + [5e38bc4] [2018-03-27] Revert "xen: dont fiddle with event channel masking in suspend/resume" (anchalag@amazon.com)
-  + [30f3670] [2018-01-18] ACPI: SPCR: Make SPCR available to x86 (prarit@redhat.com)
-  + [aa34040] [2016-04-26] xen-blkfront: add 'persistent_grants' parameter (aliguori@amazon.com)
-  + [0a99d07] [2017-03-10] xen-blkfront: resurrect request-based mode (kamatam@amazon.com)
-  + [e9b525e] [2017-11-02] Not-for-upstream: PM / hibernate: Speed up hibernation by batching requests (cyberax@amazon.com)
-  + [878e723] [2017-10-27] PM / hibernate: update the resume offset on SNAPSHOT_SET_SWAP_AREA (cyberax@amazon.com)
-  + [230d7b0] [2017-08-24] x86/xen: close event channels for PIRQs in system core suspend callback (kamatam@amazon.com)
-  + [7e48fcb] [2017-08-24] xen/events: add xen_shutdown_pirqs helper function (kamatam@amazon.com)
-  + [ca36e7d] [2017-07-21] x86/xen: save and restore steal clock (kamatam@amazon.com)
-  + [b60256e] [2017-07-13] xen/time: introduce xen_{save,restore}_steal_clock (kamatam@amazon.com)
-  + [598810c] [2017-01-09] xen-netfront: add callbacks for PM suspend and hibernation support (kamatam@amazon.com)
-  + [5225ad3] [2017-06-08] xen-blkfront: add callbacks for PM suspend and hibernation (kamatam@amazon.com)
-  + [4b28881] [2017-02-11] x86/xen: add system core suspend and resume callbacks (kamatam@amazon.com)
-  + [fe741a9] [2018-02-22] x86/xen: Introduce new function to map HYPERVISOR_shared_info on Resume (anchalag@amazon.com)
-  + [18e11e1] [2017-07-13] xenbus: add freeze/thaw/restore callbacks support (kamatam@amazon.com)
-  + [fb41e0a] [2017-07-13] xen/manage: introduce helper function to know the on-going suspend mode (kamatam@amazon.com)
-  + [e6bea3b] [2017-07-12] xen/manage: keep track of the on-going suspend mode (kamatam@amazon.com)
-  + [2d7d2d9] [2018-02-27] Importing Amazon ENA driver 1.5.0 into amazon-4.14.y/master. (vallish@amazon.com)
-  + [1954f5b] [2018-02-12] drivers/amazon: introduce AMAZON_ENA_ETHERNET (vallish@amazon.com)
-  + [b722e574] [2018-02-12] drivers/amazon: add network device drivers support (vallish@amazon.com)
-  + [84dc5da] [2018-02-12] drivers: introduce AMAZON_DRIVER_UPDATES (vallish@amazon.com)
-  + [9d0a089] [2017-10-27] not-for-upstream: testmgr config changes to enable FIPS boot (alakeshh@amazon.com)
-  + [8f4d880] [2017-09-19] nvme: update timeout module parameter type (vallish@amazon.com)
-  + [16fcbe4] [2015-12-08] force perf to use /usr/bin/python instead of /usr/bin/python2 (kamatam@amazon.com)
-  + [831695f] [2013-02-13] bump default tcp_wmem from 16KB to 20KB (gafton@amazon.com)
-  + [6d09692] [2016-01-26] bump the default TTL to 255 (kamatam@amazon.com)
-  + [d2e7a1d] [2012-02-10] scsi: sd_revalidate_disk prevent NULL ptr deref (kernel-team@fedoraproject.org)
-  + [cc42730] [2008-10-06] kbuild: AFTER_LINK (roland@redhat.com)
+%description -n kernel-livepatch-%{rpmversion}-%{buildid}
+This package contains the live patch modules for bug fixes
+against the version of the kernel. This package contains
+version 0 (no real livepatches) and helps subscribe to
+the kernel livepatch updates for the kernel.
+
+%files -n kernel-livepatch-%{rpmversion}-%{buildid}
+%defattr(-,root,root)
+%{nil}
+%endif
+
+%changelog
+* Wed Jan 15 2020 Builder <builder@amazon.com>
+- builder/bc1a79d06543f668da2a0fbcc3bbc4a78fea2a95 last changes:
+  + [bc1a79d] [2020-01-15] Rebase to v4.14.165 (linuxci@amazon.com)
+  + [a3c0380] [2019-04-11] Add a dummy livepatch package for livepatching. (sblbir@amzn.com)
+
+- linux/d0643434b56e20becf25902b0a2f11d81890a2bb last changes:
+  + [d064343] [2019-12-18] Add support for setting owner info, dos attributes, and create time (bprotopopov@hotmail.com)
+  + [ed262db] [2018-08-28] SMB3: Backup intent flag missing from compounded ops (stfrench@microsoft.com)
+  + [92de046] [2019-12-19] drivers/amazon: efa: update to 1.5.0 (luqia@amazon.com)
+  + [c67f8ec] [2019-12-16] Revert "Fix the locking in dcache_readdir() and friends". (fllinden@amazon.com)
+  + [ce45be8] [2019-12-04] lustre: hold lock while walking changelog dev list (astroh@amazon.com)
+  + [1563cef] [2019-11-15] arm64: fix merge error in errata changes (fllinden@amazon.com)
+  + [0ada5e0] [2019-11-12] nvme-pci: use atomic bitops to mark a queue enabled (hch@lst.de)
+  + [5aeaeb7] [2019-11-11] nvme-pci: Don't disable on timeout in reset state (keith.busch@intel.com)
+  + [1244b68] [2019-11-11] nvme-pci: Unblock reset_work on IO failure (keith.busch@intel.com)
+  + [5cb4bb7] [2019-11-11] nvme-pci: shutdown on timeout during deletion (keith.busch@intel.com)
+  + [06d0f8a] [2018-02-08] nvme-pci: Fix timeouts in connecting state (keith.busch@intel.com)
+  + [12461406] [2019-11-11] nvme: rename NVME_CTRL_RECONNECTING state to NVME_CTRL_CONNECTING (maxg@mellanox.com)
+  + [9580cc0] [2017-10-25] nvme: allow controller RESETTING to RECONNECTING transition (jsmart2021@gmail.com)
+  + [61d1166] [2019-11-11] nvme-pci: introduce RECONNECTING state to mark initializing procedure (jianchao.w.wang@oracle.com)
+  + [c97d500] [2019-11-11] Revert "nvme/pci: Better support for disabling controller" (sblbir@amazon.com)
+  + [9020cb3] [2019-11-04] update ena driver to version 2.1.3 (alakeshh@amazon.com)
+  + [d22a04b] [2018-06-22] arm64: Avoid flush_icache_range() in alternatives patching code (will.deacon@arm.com)
+  + [e48276d] [2018-09-27] arm64: pull in upstream erratum workarounds (fllinden@amazon.com)
+  + [002fa849] [2018-03-13] arm64: kconfig: Ensure spinlock fastpaths are inlined if !PREEMPT (will.deacon@arm.com)
+  + [c294b14] [2018-03-13] arm64: locking: Replace ticket lock implementation with qspinlock (will.deacon@arm.com)
+  + [fe56b45] [2018-01-31] arm64: barrier: Implement smp_cond_load_relaxed (will.deacon@arm.com)
+  + [68b0111] [2018-04-26] MAINTAINERS: Add myself as a co-maintainer for the locking subsystem (will.deacon@arm.com)
+  + [91ab68b8] [2018-04-26] locking/qspinlock: Use try_cmpxchg() instead of cmpxchg() when locking (will.deacon@arm.com)
+  + [0556678] [2018-04-26] locking/qspinlock: Elide back-to-back RELEASE operations with smp_wmb() (will.deacon@arm.com)
+  + [490f54e] [2018-04-26] locking/qspinlock: Use smp_store_release() in queued_spin_unlock() (will.deacon@arm.com)
+  + [690b919] [2018-04-26] locking/qspinlock: Use smp_cond_load_relaxed() to wait for next node (will.deacon@arm.com)
+  + [50dbbbc] [2018-04-26] locking/mcs: Use smp_cond_load_acquire() in MCS spin loop (jason.low2@hp.com)
+  + [231d2bd] [2018-04-26] locking/qspinlock: Use atomic_cond_read_acquire() (will.deacon@arm.com)
+  + [2c322174] [2018-04-26] locking/barriers: Introduce smp_cond_load_relaxed() and atomic_cond_read_relaxed() (will.deacon@arm.com)
+  + [8999f5a] [2017-10-12] locking/atomic: Add atomic_cond_read_acquire() (will.deacon@arm.com)
+  + [affcd11] [2019-08-29] iommu: use config option to specify if iommu mode should be strict (fllinden@amazon.com)
+  + [e998335] [2018-09-20] iommu/arm-smmu: Support non-strict mode (robin.murphy@arm.com)
+  + [6d9078c] [2018-09-20] iommu/io-pgtable-arm-v7s: Add support for non-strict mode (robin.murphy@arm.com)
+  + [f6fb1cd] [2018-09-20] iommu/arm-smmu-v3: Add support for non-strict mode (thunder.leizhen@huawei.com)
+  + [20b6061] [2018-09-20] iommu/io-pgtable-arm: Add support for non-strict mode (thunder.leizhen@huawei.com)
+  + [fd60743] [2018-09-20] iommu: Add "iommu.strict" command line option (thunder.leizhen@huawei.com)
+  + [9d8d848] [2018-09-20] iommu/dma: Add support for non-strict mode (thunder.leizhen@huawei.com)
+  + [a8bd6c3] [2018-09-20] iommu/arm-smmu-v3: Implement flush_iotlb_all hook (thunder.leizhen@huawei.com)
+  + [91ed9b3] [2017-09-28] iommu/io-pgtable-arm-v7s: Convert to IOMMU API TLB sync (robin.murphy@arm.com)
+  + [4206021] [2017-09-28] iommu/io-pgtable-arm: Convert to IOMMU API TLB sync (robin.murphy@arm.com)
+  + [f830df6] [2019-03-12] irqchip/gic-v3-its: Fix comparison logic in lpi_range_cmp (linux@rasmusvillemoes.dk)
+  + [0c61ae6] [2019-01-29] irqchip/gic-v3-its: Gracefully fail on LPI exhaustion (marc.zyngier@arm.com)
+  + [e4b5161] [2018-08-28] irqchip/gic-v3-its: Cap lpi_id_bits to reduce memory footprint (jia.he@hxt-semitech.com)
+  + [71ae75a] [2018-05-31] irqchip/gic-v3-its: Reduce minimum LPI allocation to 1 for PCI devices (marc.zyngier@arm.com)
+  + [1dac99b] [2018-05-31] irqchip/gic-v3-its: Honor hypervisor enforced LPI range (marc.zyngier@arm.com)
+  + [760f5ea] [2018-05-30] irqchip/gic-v3: Expose GICD_TYPER in the rdist structure (marc.zyngier@arm.com)
+  + [9a4f545] [2018-05-27] irqchip/gic-v3-its: Drop chunk allocation compatibility (marc.zyngier@arm.com)
+  + [6c3e54b] [2018-05-27] irqchip/gic-v3-its: Move minimum LPI requirements to individual busses (marc.zyngier@arm.com)
+  + [3390c91] [2018-05-27] irqchip/gic-v3-its: Use full range of LPIs (marc.zyngier@arm.com)
+  + [66db23b] [2018-05-27] irqchip/gic-v3-its: Refactor LPI allocator (marc.zyngier@arm.com)
+  + [b21f5b5] [2018-06-22] irqchip/gic-v3-its: Only emit VSYNC if targetting a valid collection (marc.zyngier@arm.com)
+  + [e814fed] [2018-06-22] irqchip/gic-v3-its: Only emit SYNC if targetting a valid collection (marc.zyngier@arm.com)
+  + [17ce07a] [2017-07-28] irqchip/gic-v3-its: Pass its_node pointer to each command builder (marc.zyngier@arm.com)
+  + [84226b1] [2018-05-17] nvme-pci: move ->cq_vector == -1 check outside of ->q_lock (axboe@kernel.dk)
+  + [6a5ffcf] [2019-09-13] nvme/host/pci: Fix a race in controller removal (sblbir@amzn.com)
+  + [6d7a19b] [2019-09-13] nvme/host/core: Allow overriding of wait_ready timeout (sblbir@amzn.com)
+  + [22ab793] [2019-09-10] nvme/pci: Better support for disabling controller (sblbir@amzn.com)
+  + [c90483c] [2017-11-02] nvme: move the dying queue check from cancel to completion (hch@lst.de)
+  + [a6c4f2d] [2019-08-28] blk-mq: fix hang caused by freeze/unfreeze sequence (bob.liu@oracle.com)
+  + [8960479] [2019-08-16] nvme: change namespaces_mutext to namespaces_rwsem (jianchao.w.wang@oracle.com)
+  + [6518bc8] [2018-09-26] block: Allow unfreezing of a queue while requests are in progress (bvanassche@acm.org)
+  + [1533316] [2019-08-16] percpu-refcount: Introduce percpu_ref_resurrect() (bvanassche@acm.org)
+  + [094980f] [2019-09-05] Add Amazon EFA driver version 1.4 (alakeshh@amazon.com)
+  + [935b9bd] [2019-04-02] block: don't show io_timeout if driver has no timeout handler (zhangweiping@didiglobal.com)
+  + [c9c891e] [2018-11-29] block: add io timeout to sysfs (zhangweiping@didiglobal.com)
+  + [5703e6f] [2019-08-15] xen: Restore xen-pirqs on resume from hibernation (anchalag@amazon.com)
+  + [0017bea] [2019-01-09] livepatch: Change unsigned long old_addr -> void *old_func in struct klp_func (pmladek@suse.com)
+  + [ff4a8ca] [2018-11-07] livepatch: Replace synchronize_sched() with synchronize_rcu() (paulmck@linux.ibm.com)
+  + [98e5d79] [2018-07-12] livepatch: Remove reliable stacktrace check in klp_try_switch_task() (kamalesh@linux.vnet.ibm.com)
+  + [cd3c91f] [2018-04-16] livepatch: Allow to call a custom callback when freeing shadow variables (pmladek@suse.com)
+  + [792d223] [2018-04-16] livepatch: Initialize shadow variables safely by a custom callback (pmladek@suse.com)
+  + [1eb3676] [2017-12-21] livepatch: add locking to force and signal functions (mbenes@suse.cz)
+  + [2e05f23] [2018-01-10] livepatch: Remove immediate feature (mbenes@suse.cz)
+  + [5828cb5] [2017-11-22] livepatch: force transition to finish (mbenes@suse.cz)
+  + [4ba63a7] [2017-11-15] livepatch: send a fake signal to all blocking tasks (mbenes@suse.cz)
+  + [8180ec9] [2017-10-20] livepatch: __klp_disable_patch() should never be called for disabled patches (pmladek@suse.com)
+  + [086798c] [2017-10-20] livepatch: Correctly call klp_post_unpatch_callback() in error paths (pmladek@suse.com)
+  + [0e7cc4b] [2017-10-13] livepatch: add transition notices (joe.lawrence@redhat.com)
+  + [d0bff89] [2017-10-13] livepatch: move transition "complete" notice into klp_complete_transition() (joe.lawrence@redhat.com)
+  + [e737080] [2017-10-13] livepatch: add (un)patch callbacks (joe.lawrence@redhat.com)
+  + [93edcce] [2017-09-14] livepatch: __klp_shadow_get_or_alloc() is local to shadow.c (jkosina@suse.cz)
+  + [5ef3cda] [2017-08-31] livepatch: introduce shadow variable API (joe.lawrence@redhat.com)
+  + [8dd938c] [2019-08-15] Partially revert cc946adcb9e983ad9fe56ebe35f1292e111ff10e (sblbir@amzn.com)
+  + [070cfd8] [2019-07-11] PCI: Add ACS quirk for Amazon Annapurna Labs root ports (alisaidi@amazon.com)
+  + [80f9333] [2019-07-11] PCI: Add Amazon's Annapurna Labs vendor ID (jonnyc@amazon.com)
+  + [858677c] [2019-06-24] linux/ena: update ENA linux driver to version 2.1.1 (fllinden@amazon.com)
+  + [058f4dd] [2019-07-02] microvm: enable debug in case of tcp out of memory (alakeshh@amazon.com)
+  + [11d90cd] [2019-07-03] Fix microvm config dependency in Kconfig (alakeshh@amazon.com)
+  + [0eeb963] [2019-02-12] NFS: Remove redundant semicolon (zhangliguang@linux.alibaba.com)
+  + [dd5d0e7] [2019-05-31] arm64: acpi/pci: invoke _DSM whether to preserve firmware PCI setup (fllinden@amazon.com)
+  + [ed0d19e] [2019-03-28] PCI: al: Add Amazon Annapurna Labs PCIe host controller driver (jonnyc@amazon.com)
+  + [cb70c55] [2019-04-24] irqchip/gic-v2m: invoke from gic-v3 initialization and add acpi quirk flow (zeev@amazon.com)
+  + [185c5c7] [2019-04-03] lustre: fix ACL handling (fllinden@amazon.com)
+  + [c57446f] [2018-05-18] x86/stacktrace: Enable HAVE_RELIABLE_STACKTRACE for the ORC unwinder (jslaby@suse.cz)
+  + [46934a9] [2018-05-18] x86/unwind/orc: Detect the end of the stack (jpoimboe@redhat.com)
+  + [dbf593f] [2018-05-18] x86/stacktrace: Do not fail for ORC with regs on stack (jslaby@suse.cz)
+  + [e26fc20] [2018-05-18] x86/stacktrace: Clarify the reliable success paths (jslaby@suse.cz)
+  + [4a4d9f1] [2018-05-18] x86/stacktrace: Remove STACKTRACE_DUMP_ONCE (jslaby@suse.cz)
+  + [9cf69d3] [2018-05-18] x86/stacktrace: Do not unwind after user regs (jslaby@suse.cz)
+  + [19823ac] [2019-03-12] Add new config CONFIG_MICROVM to enable microvm optimized kernel (alakeshh@amazon.com)
+  + [7f4615e] [2019-02-19] tcp: Namespace-ify sysctl_tcp_rmem and sysctl_tcp_wmem (edumazet@google.com)
+  + [8fb7aff] [2017-11-07] net: allow per netns sysctl_rmem and sysctl_wmem for protos (edumazet@google.com)
+  + [aafafd5] [2019-03-01] Config glue for lustre client. (fllinden@amazon.com)
+  + [ea366d7] [2019-03-01] Import lustre client 2.10.5 (fllinden@amazon.com)
+  + [1c0a0d7] [2018-06-05] iomap: fsync swap files before iterating mappings (darrick.wong@oracle.com)
+  + [8808f89] [2018-06-01] iomap: inline data should be an iomap type, not a flag (hch@lst.de)
+  + [6d10e5e] [2018-05-16] iomap: don't allow holes in swapfiles (osandov@fb.com)
+  + [9c7bf3d] [2018-05-16] iomap: provide more useful errors for invalid swap files (osandov@fb.com)
+  + [0f163ec] [2018-05-10] iomap: add a swapfile activation function (darrick.wong@oracle.com)
+  + [d90c957] [2019-01-30] xfs, iomap: define and use the IOMAP_F_DIRTY flag in xfs (fllinden@amazon.com)
+  + [3ae118b] [2018-08-01] xfs: only validate summary counts on primary superblock (darrick.wong@oracle.com)
+  + [7afb18c] [2018-07-26] libxfs: add more bounds checking to sb sanity checks (billodo@redhat.com)
+  + [ae4cfbc] [2018-07-29] xfs: refactor superblock verifiers (darrick.wong@oracle.com)
+  + [659b333] [2019-01-31] xen-netfront: call netif_device_attach on resume (fllinden@amazon.com)
+  + [a5235a6] [2018-10-04] ACPI/PPTT: Handle architecturally unknown cache types (jhugo@codeaurora.org)
+  + [eb74c54] [2018-06-05] ACPI / PPTT: fix build when CONFIG_ACPI_PPTT is not enabled (sudeep.holla@arm.com)
+  + [1f0df4d] [2018-06-29] ACPI / PPTT: use ACPI ID whenever ACPI_PPTT_ACPI_PROCESSOR_ID_VALID is set (Sudeep.Holla@arm.com)
+  + [2870365] [2018-05-11] arm64: topology: divorce MC scheduling domain from core_siblings (jeremy.linton@arm.com)
+  + [518728d] [2018-05-11] ACPI: Add PPTT to injectable table list (jeremy.linton@arm.com)
+  + [cdb67fb] [2018-05-11] arm64: topology: enable ACPI/PPTT based CPU topology (jeremy.linton@arm.com)
+  + [a53116c] [2018-05-11] arm64: topology: rename cluster_id (jeremy.linton@arm.com)
+  + [0e56678] [2018-05-11] arm64: Add support for ACPI based firmware tables (jeremy.linton@arm.com)
+  + [9141d5a] [2018-05-11] drivers: base cacheinfo: Add support for ACPI based firmware tables (jeremy.linton@arm.com)
+  + [3375168] [2018-05-11] ACPI: Enable PPTT support on ARM64 (jeremy.linton@arm.com)
+  + [022c476] [2018-05-11] ACPI/PPTT: Add Processor Properties Topology Table parsing (jeremy.linton@arm.com)
+  + [02e9614] [2018-05-11] arm64/acpi: Create arch specific cpu to acpi id helper (jeremy.linton@arm.com)
+  + [60a897c] [2018-05-11] cacheinfo: rename of_node to fw_token (jeremy.linton@arm.com)
+  + [91ea0ba] [2018-05-11] drivers: base: cacheinfo: setup DT cache properties early (jeremy.linton@arm.com)
+  + [f898742] [2018-05-11] drivers: base: cacheinfo: move cache_setup_of_node() (jeremy.linton@arm.com)
+  + [22e3b4c] [2017-11-17] ACPICA: ACPI 6.2: Additional PPTT flags (jeremy.linton@arm.com)
+  + [8621bd2] [2018-07-23] arm64: acpi: fix alignment fault in accessing ACPI (takahiro.akashi@linaro.org)
+  + [5b6d0b9] [2018-07-02] arm64: kexec: always reset to EL2 if present (mark.rutland@arm.com)
+  + [3c907ec] [2018-03-08] efi/arm64: Check whether x18 is preserved by runtime services calls (ard.biesheuvel@linaro.org)
+  + [574d1a9] [2018-10-11] arm64: Fix /proc/iomem for reserved but not memory regions (will.deacon@arm.com)
+  + [171c27f] [2018-07-23] arm64: export memblock_reserve()d regions via /proc/iomem (james.morse@arm.com)
+  + [30ab8df] [2018-11-10] net: ena: Import the ENA v2 driver (2.0.2g) (alakeshh@amazon.com)
+  + [6165d9d] [2018-11-10] xen: Only restore the ACPI SCI interrupt in xen_restore_pirqs. (fllinden@amazon.com)
+  + [849db11] [2018-10-26] xen: restore pirqs on resume from hibernation. (fllinden@amazon.com)
+  + [892cf22] [2018-10-29] ACPICA: Enable sleep button on ACPI legacy wake (anchalag@amazon.com)
+  + [30529b2] [2018-10-18] block: xen-blkfront: consider new dom0 features on restore (eduval@amazon.com)
+  + [f1029dc] [2017-11-30] vmxnet3: increase default rx ring sizes (skhare@vmware.com)
+  + [7fc54d4] [2018-04-27] x86/CPU/AMD: Derive CPU topology from CPUID function 0xB when available (suravee.suthikulpanit@amd.com)
+  + [c1b637d] [2017-09-07] sched/topology: Introduce NUMA identity node sched domain (suravee.suthikulpanit@amd.com)
+  + [5155346] [2018-06-13] x86/CPU/AMD: Fix LLC ID bit-shift calculation (suravee.suthikulpanit@amd.com)
+  + [ab1bc69] [2018-04-27] x86/CPU/AMD: Calculate last level cache ID from number of sharing threads (suravee.suthikulpanit@amd.com)
+  + [a683ae3] [2018-04-27] x86/CPU: Rename intel_cacheinfo.c to cacheinfo.c (bp@suse.de)
+  + [2c64613] [2018-05-17] x86/MCE/AMD: Read MCx_MISC block addresses on any CPU (bp@suse.de)
+  + [c958669] [2018-08-15] blk-wbt: Avoid lock contention and thundering herd issue in wbt_wait (anchalag@amazon.com)
+  + [1e4dc68] [2018-01-12] blk-mq: simplify queue mapping & schedule with each possisble CPU (hch@lst.de)
+  + [00747b0] [2018-04-09] x86: tsc: avoid system instability in hibernation (eduval@amazon.com)
+  + [b491490] [2018-06-05] xen-blkfront: Fixed blkfront_restore to remove a call to negotiate_mq (anchalag@amazon.com)
+  + [3e595b1] [2018-03-24] KVM: X86: Fix setup the virt_spin_lock_key before static key get initialized (wanpengli@tencent.com)
+  + [656787e] [2017-10-28] x86/paravirt: Set up the virt_spin_lock_key after static keys get initialized (douly.fnst@cn.fujitsu.com)
+  + [2ef376c] [2018-02-13] KVM: X86: Choose qspinlock when dedicated physical CPUs are available (wanpengli@tencent.com)
+  + [682aa40] [2018-02-13] KVM: Introduce paravirtualization hints and KVM_HINTS_DEDICATED (wanpengli@tencent.com)
+  + [8b41ab2] [2017-09-06] locking/paravirt: Use new static key for controlling call of virt_spin_lock() (jgross@suse.com)
+  + [47b841a] [2018-03-27] Revert "xen: dont fiddle with event channel masking in suspend/resume" (anchalag@amazon.com)
+  + [80546fc] [2018-01-18] ACPI: SPCR: Make SPCR available to x86 (prarit@redhat.com)
+  + [298bf02] [2016-04-26] xen-blkfront: add 'persistent_grants' parameter (aliguori@amazon.com)
+  + [f3d693d] [2017-03-10] xen-blkfront: resurrect request-based mode (kamatam@amazon.com)
+  + [b149449] [2017-11-02] Not-for-upstream: PM / hibernate: Speed up hibernation by batching requests (cyberax@amazon.com)
+  + [6e5d017] [2017-10-27] PM / hibernate: update the resume offset on SNAPSHOT_SET_SWAP_AREA (cyberax@amazon.com)
+  + [24c7a71] [2017-08-24] x86/xen: close event channels for PIRQs in system core suspend callback (kamatam@amazon.com)
+  + [0482e3ca] [2017-08-24] xen/events: add xen_shutdown_pirqs helper function (kamatam@amazon.com)
+  + [4527577] [2017-07-21] x86/xen: save and restore steal clock (kamatam@amazon.com)
+  + [87d396f] [2017-07-13] xen/time: introduce xen_{save,restore}_steal_clock (kamatam@amazon.com)
+  + [3e993b0] [2017-01-09] xen-netfront: add callbacks for PM suspend and hibernation support (kamatam@amazon.com)
+  + [6781ade] [2017-06-08] xen-blkfront: add callbacks for PM suspend and hibernation (kamatam@amazon.com)
+  + [e4285f9] [2017-02-11] x86/xen: add system core suspend and resume callbacks (kamatam@amazon.com)
+  + [a8e4844] [2018-02-22] x86/xen: Introduce new function to map HYPERVISOR_shared_info on Resume (anchalag@amazon.com)
+  + [df659a9] [2017-07-13] xenbus: add freeze/thaw/restore callbacks support (kamatam@amazon.com)
+  + [d587fd1] [2017-07-13] xen/manage: introduce helper function to know the on-going suspend mode (kamatam@amazon.com)
+  + [2b28a2c] [2017-07-12] xen/manage: keep track of the on-going suspend mode (kamatam@amazon.com)
+  + [0fbb1be] [2018-02-27] Importing Amazon ENA driver 1.5.0 into amazon-4.14.y/master. (vallish@amazon.com)
+  + [bca80be] [2018-02-12] drivers/amazon: introduce AMAZON_ENA_ETHERNET (vallish@amazon.com)
+  + [9de9c8b] [2018-02-12] drivers/amazon: add network device drivers support (vallish@amazon.com)
+  + [f8da70d] [2018-02-12] drivers: introduce AMAZON_DRIVER_UPDATES (vallish@amazon.com)
+  + [f416a3e] [2017-10-27] not-for-upstream: testmgr config changes to enable FIPS boot (alakeshh@amazon.com)
+  + [39390ee] [2017-09-19] nvme: update timeout module parameter type (vallish@amazon.com)
+  + [1623891] [2015-12-08] force perf to use /usr/bin/python instead of /usr/bin/python2 (kamatam@amazon.com)
+  + [e8ea784] [2013-02-13] bump default tcp_wmem from 16KB to 20KB (gafton@amazon.com)
+  + [d379219] [2016-01-26] bump the default TTL to 255 (kamatam@amazon.com)
+  + [b07bc71] [2012-02-10] scsi: sd_revalidate_disk prevent NULL ptr deref (kernel-team@fedoraproject.org)
+  + [3e7b03b] [2008-10-06] kbuild: AFTER_LINK (roland@redhat.com)
 
 

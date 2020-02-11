@@ -1,13 +1,14 @@
 Summary: A GNU collection of diff utilities
 Name: diffutils
 Version: 3.3
-Release: 4%{?dist}.0.2
+Release: 5%{?dist}
 Group: Applications/Text
 URL: http://www.gnu.org/software/diffutils/diffutils.html
 Source: ftp://ftp.gnu.org/gnu/diffutils/diffutils-%{version}.tar.xz
 Patch1: diffutils-cmp-s-empty.patch
 Patch2: diffutils-mkdir_p.patch
 Patch4: diffutils-i18n.patch
+Patch5: diffutils-3.3-diffseq.patch
 License: GPLv3+
 Requires(post): info
 Requires(preun): info
@@ -37,6 +38,8 @@ Install diffutils if you need to compare text files.
 %patch2 -p1 -b .mkdir_p
 
 %patch4 -p1 -b .i18n
+
+%patch5 -p1 -b .diffseq
 
 %build
 %configure
@@ -71,6 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_infodir}/diffutils.info*gz
 
 %changelog
+* Wed Nov 21 2018 Than Ngo <than@redhat.com> - 3.3-5
+- Resolves: #1611281, diff -y produces garbage
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.3-4
 - Mass rebuild 2014-01-24
 
