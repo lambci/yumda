@@ -6,9 +6,6 @@
 # Please preserve changelog entries
 #
 
-%define _trivial .0
-%define _buildid .1
-
 # API/ABI check
 %global apiver      20180731
 %global zendver     20180731
@@ -62,8 +59,7 @@
 %global with_libcclient 0
 %global with_lmdb 0
 %global with_argon 0
-%global with_sodium 0
-%global with_sodium 0
+%global with_sodium 1
 %global with_tidy 0
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1081453
@@ -82,12 +78,12 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.11
+%global upver        7.3.13
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
 Version: %{upver}%{?rcver:~%{rcver}}
-Release: 1%{?dist}%{?_trivial}%{?_buildid}
+Release: 1%{?dist}
 # All files licensed under PHP version 3.01, except
 # Zend is licensed under Zend
 # TSRM is licensed under BSD
@@ -750,6 +746,7 @@ Group: System Environment/Libraries
 BuildRequires:  pkgconfig(libsodium) >= 1.0.9
 
 Requires: php-common%{?_isa} = %{version}-%{release}
+Obsoletes: php-pecl-libsodium
 Obsoletes: php-pecl-libsodium2 < 7
 Provides:  php-pecl(libsodium)         = %{version}
 Provides:  php-pecl(libsodium)%{?_isa} = %{version}
@@ -1630,6 +1627,9 @@ getent passwd nginx > /dev/null || \
 
 
 %changelog
+* Wed Jan 15 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.13-1
+- Package updated to 7.3.13
+
 * Wed Oct 30 2019 Trinity Quirk <tquirk@amazon.com> - 7.3.11-1
 - Package updated to 7.3.11
 
