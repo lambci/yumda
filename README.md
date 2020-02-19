@@ -24,7 +24,7 @@ Usage:
 docker run lambci/yumda:<version> yum <yum-args>
 ```
 
-For newer Amazon Linux 2 Lambda runtimes (`nodejs10.x`, `nodejs12.x`, `python3.8`, `java11`) use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
+For newer Amazon Linux 2 Lambda runtimes (`nodejs10.x`, `nodejs12.x`, `python3.8`, `java11`, `ruby2.7`) use `lambci/yumda:2` – for all others use `lambci/yumda:1`.
 
 Eg, to see what [packages are available for Amazon Linux 2 runtimes](https://github.com/lambci/yumda/blob/master/amazon-linux-2/packages.txt):
 
