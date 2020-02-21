@@ -5,7 +5,7 @@ Summary: A GNU file archiving program
 Name: tar
 Epoch: 2
 Version: 1.26
-Release: 34%{?dist}
+Release: 35%{?dist}
 License: GPLv3+
 Group: Applications/Archiving
 URL: http://www.gnu.org/software/tar/
@@ -172,6 +172,11 @@ Patch27: tar-1.26-large-sparse-file-listing.patch
 # ~> rhbz#1504146
 Patch28: tar-1.26-keep-directory-symlink-doc-and-test.patch
 
+# Fix --delay-directory-restore
+# ~> rhbz#1513946
+# ~> upstream: d06126f814563b01e598b85a8cc233604a2948f2
+Patch29: tar-1.26-delay-dir-restore.patch
+
 # Silence gcc warnings
 # ~> upstream tar: 17f99bc6f, 5bb0433
 # ~> upstream paxutils: 0b3d84a0
@@ -233,6 +238,7 @@ the rmt package on the remote box.
 %patch26 -p1 -b .extract-xattrs-hangs
 %patch27 -p1 -b .large-sparse-file-listing
 %patch28 -p1 -b .test-and-doc-for-keep-dir-symlink
+%patch29 -p1 -b .delayed-dir
 %patch999 -p1 -b .silence-gcc
 
 autoreconf -v
@@ -264,8 +270,11 @@ ln -s tar $RPM_BUILD_ROOT%{_bindir}/gtar
 %exclude %{_sysconfdir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Jul 09 2018 Pavel Raiskup <praiskup@redhat.com> - 1.26-35
+- fix --keep-directory-restore (rhbz#1513946)
 
 * Thu Oct 19 2017 Pavel Raiskup <praiskup@redhat.com> - 1.26-34
 - document --keep-directory-symlink in manual page (rhbz#1504146)

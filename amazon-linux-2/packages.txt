@@ -670,7 +670,7 @@ stix-fonts.noarch            1.1.0-5.lambda2                             lambda2
 stix-math-fonts.noarch       1.1.0-5.lambda2                             lambda2
 systemd-libs.x86_64          219-57.lambda2.0.12                         lambda2
 t1lib.x86_64                 5.1.2-14.lambda2.0.2                        lambda2
-tar.x86_64                   2:1.26-34.lambda2                           lambda2
+tar.x86_64                   2:1.26-35.lambda2                           lambda2
 tcp_wrappers.x86_64          7.6-77.lambda2.0.2                          lambda2
 tcp_wrappers-libs.x86_64     7.6-77.lambda2.0.2                          lambda2
 tdb-tools.x86_64             1.3.16-1.lambda2                            lambda2
