@@ -1,4 +1,4 @@
-%define _buildid .48
+%define _buildid .50
 
 %bcond_with X11 # without
 %bcond_with bootstrap # without
@@ -186,7 +186,7 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u232-b09
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u242-b08
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
@@ -991,14 +991,15 @@ Patch512: rh1649664-awt2dlibraries_compiled_with_no_strict_overflow.patch
 Patch523: pr2974-rh1337583-add_systemlineendings_option_to_keytool_and_use_line_separator_instead_of_crlf_in_pkcs10.patch
 # PR3083, RH1346460: Regression in SSL debug output without an ECC provider
 Patch528: pr3083-rh1346460-for_ssl_debug_return_null_instead_of_exception_when_theres_no_ecc_provider.patch
-# RH1566890: CVE-2018-3639
-Patch529: rh1566890-CVE_2018_3639-speculative_store_bypass.patch
-Patch531: rh1566890-CVE_2018_3639-speculative_store_bypass_toggle.patch
 # PR3601: Fix additional -Wreturn-type issues introduced by 8061651
 Patch530: pr3601-fix_additional_Wreturn_type_issues_introduced_by_8061651_for_prims_jvm_cpp.patch
 # PR2888: OpenJDK should check for system cacerts database (e.g. /etc/pki/java/cacerts)
 # PR3575, RH1567204: System cacerts database handling should not affect jssecacerts
 Patch539: pr2888-openjdk_should_check_for_system_cacerts_database_eg_etc_pki_java_cacerts.patch
+# RH1566890: CVE-2018-3639
+Patch529: rh1566890-CVE_2018_3639-speculative_store_bypass.patch
+Patch531: rh1566890-CVE_2018_3639-speculative_store_bypass_toggle.patch
+# JDK-8009550, RH910107: PlatformPCSC should load versioned so
 Patch541: rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch
 
 #############################################
@@ -1420,9 +1421,9 @@ sh %{SOURCE12}
 %patch400
 %patch523
 %patch528
+%patch530
 %patch529
 %patch531
-%patch530
 %patch571
 %patch574
 %patch575
@@ -2146,6 +2147,54 @@ ln -sf %{_jvmdir}/%{sdklnk %{nil}} %{_jvmdir}/%{sdklnk_noarch %{nil}}
 %endif
 
 %changelog
+* Wed Jan 22 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7
+
+* Wed Jan 15 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b08-0
+- Update to aarch64-shenandoah-jdk8u242-b08.
+- Remove local copies of JDK-8031111 & JDK-8132111 as replaced by upstream versions.
+- Resolves: rhbz#1785753
+
+* Wed Jan 15 2020 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-1
+- Add backports of JDK-8031111 & JDK-8132111 to fix TCK issue.
+- Resolves: rhbz#1785753
+
+* Mon Jan 13 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-0
+- Update to aarch64-shenandoah-jdk8u242-b07.
+- Switch to GA mode for final release.
+- Remove Shenandoah S390 patch which is now included upstream as JDK-8236829.
+- Resolves: rhbz#1785753
+
+* Tue Jan 07 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b06 (EA)
+- Resolves: rhbz#1785753
+
+* Sun Jan 05 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u242-b05.
+- Attempt to fix Shenandoah formatting failures on S390, introduced by JDK-8232102.
+- Revise b05 snapshot to include JDK-8236178.
+- Add additional Shenandoah formatting fixes revealed by successful -Wno-error=format run
+- Resolves: rhbz#1785753
+
+* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b02.
+- Resolves: rhbz#1785753
+
+* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.1.ea
+- Revert SSBD removal for now, until appropriate messaging has been decided.
+- Resolves: rhbz#1785753
+
+* Thu Dec 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b01.
+- Switch to EA mode.
+- Resolves: rhbz#1785753
+
+* Tue Dec 24 2019 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-1
+- Remove CVE-2018-3639 mitigation due to performance regression and
+    OpenJDK position on speculative execution vulnerabilities.
+    https://mail.openjdk.java.net/pipermail/vuln-announce/2019-July/000002.html
+- Resolves: rhbz#1785753
+
 * Thu Oct 17 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7
 
@@ -2197,17 +2246,12 @@ ln -sf %{_jvmdir}/%{sdklnk %{nil}} %{_jvmdir}/%{sdklnk_noarch %{nil}}
 
 * Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6
+- import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-2.el7_6
 
 * Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
 - Use normal_suffix for Javadoc zip filename to copy, as there is is no debug version.
 - Resolves: rhbz#1724452
-
-* Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
-- import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-2.el7_6
-
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
 - Provide Javadoc debug subpackages for now, but populate them from the normal build.
-- Resolves: rhbz#1724452
 
 * Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-1
 - Update to aarch64-shenandoah-jdk8u222-b09.
