@@ -277,7 +277,7 @@ kmod-libs.x86_64             25-3.lambda2.0.2                            lambda2
 lcms2.x86_64                 2.6-3.lambda2.0.2                           lambda2
 lcms2-utils.x86_64           2.6-3.lambda2.0.2                           lambda2
 ldb-tools.x86_64             1.4.2-1.lambda2                             lambda2
-lemon.x86_64                 3.7.17-8.lambda2.0.2                        lambda2
+lemon.x86_64                 3.7.17-8.lambda2.1.1                        lambda2
 less.x86_64                  458-9.lambda2.0.2                           lambda2
 libICE.x86_64                1.0.9-9.lambda2.0.2                         lambda2
 libSM.x86_64                 1.2.2-2.lambda2.0.2                         lambda2
@@ -664,8 +664,8 @@ shared-mime-info.x86_64      1.8-4.lambda2                               lambda2
 sound-theme-freedesktop.noarch
                              0.8-3.lambda2                               lambda2
 sox.x86_64                   14.4.1-7.lambda2                            lambda2
-sqlite.x86_64                3.7.17-8.lambda2.0.2                        lambda2
-sqlite-libs.x86_64           3.7.17-8.lambda2.0.2                        lambda2
+sqlite.x86_64                3.7.17-8.lambda2.1.1                        lambda2
+sqlite-libs.x86_64           3.7.17-8.lambda2.1.1                        lambda2
 stix-fonts.noarch            1.1.0-5.lambda2                             lambda2
 stix-math-fonts.noarch       1.1.0-5.lambda2                             lambda2
 systemd-libs.x86_64          219-57.lambda2.0.12                         lambda2
