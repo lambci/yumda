@@ -1,4 +1,4 @@
-%define _buildid .48
+%define _buildid .50
 
 # The -g flag says to use strip -g instead of full strip on DSOs or EXEs.
 # This fixes detailed NMT and other tools which need minimal debug info.
@@ -31,7 +31,7 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u232-b09
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u242-b08
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
@@ -327,8 +327,56 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 %exclude %{_jvmdir}/%{sdkdir}/tapset
 
 %changelog
-* Fri Jan 10 2020 Michael Hart <michael@lambci.org>
+* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Wed Jan 22 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7
+
+* Wed Jan 15 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b08-0
+- Update to aarch64-shenandoah-jdk8u242-b08.
+- Remove local copies of JDK-8031111 & JDK-8132111 as replaced by upstream versions.
+- Resolves: rhbz#1785753
+
+* Wed Jan 15 2020 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-1
+- Add backports of JDK-8031111 & JDK-8132111 to fix TCK issue.
+- Resolves: rhbz#1785753
+
+* Mon Jan 13 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-0
+- Update to aarch64-shenandoah-jdk8u242-b07.
+- Switch to GA mode for final release.
+- Remove Shenandoah S390 patch which is now included upstream as JDK-8236829.
+- Resolves: rhbz#1785753
+
+* Tue Jan 07 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b06 (EA)
+- Resolves: rhbz#1785753
+
+* Sun Jan 05 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u242-b05.
+- Attempt to fix Shenandoah formatting failures on S390, introduced by JDK-8232102.
+- Revise b05 snapshot to include JDK-8236178.
+- Add additional Shenandoah formatting fixes revealed by successful -Wno-error=format run
+- Resolves: rhbz#1785753
+
+* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b02.
+- Resolves: rhbz#1785753
+
+* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.1.ea
+- Revert SSBD removal for now, until appropriate messaging has been decided.
+- Resolves: rhbz#1785753
+
+* Thu Dec 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u242-b01.
+- Switch to EA mode.
+- Resolves: rhbz#1785753
+
+* Tue Dec 24 2019 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-1
+- Remove CVE-2018-3639 mitigation due to performance regression and
+    OpenJDK position on speculative execution vulnerabilities.
+    https://mail.openjdk.java.net/pipermail/vuln-announce/2019-July/000002.html
+- Resolves: rhbz#1785753
 
 * Thu Oct 17 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7
@@ -381,17 +429,12 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 
 * Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6
+- import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-2.el7_6
 
 * Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
 - Use normal_suffix for Javadoc zip filename to copy, as there is is no debug version.
 - Resolves: rhbz#1724452
-
-* Mon Jul 8 2019 kaos-source-imports <nobody@amazon.com>
-- import source package EL7/java-1.8.0-openjdk-1.8.0.201.b09-2.el7_6
-
-* Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-2
 - Provide Javadoc debug subpackages for now, but populate them from the normal build.
-- Resolves: rhbz#1724452
 
 * Mon Jul 08 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b09-1
 - Update to aarch64-shenandoah-jdk8u222-b09.
