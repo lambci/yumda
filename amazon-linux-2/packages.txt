@@ -482,8 +482,8 @@ nss_db.x86_64                2.26-34.lambda2                             lambda2
 nss_hesiod.x86_64            2.26-34.lambda2                             lambda2
 nss_nis.x86_64               2.26-34.lambda2                             lambda2
 oniguruma.x86_64             5.9.6-1.lambda2.0.3                         lambda2
-openjpeg.x86_64              1.5.1-17.lambda2.0.2                        lambda2
-openjpeg-libs.x86_64         1.5.1-17.lambda2.0.2                        lambda2
+openjpeg.x86_64              1.5.1-18.lambda2                            lambda2
+openjpeg-libs.x86_64         1.5.1-18.lambda2                            lambda2
 openldap.x86_64              2.4.44-15.lambda2                           lambda2
 openldap-clients.x86_64      2.4.44-15.lambda2                           lambda2
 openldap-servers.x86_64      2.4.44-15.lambda2                           lambda2
