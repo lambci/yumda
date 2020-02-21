@@ -1,7 +1,7 @@
 Summary: The GNU versions of find utilities (find and xargs)
 Name: findutils
 Version: 4.5.11
-Release: 5%{?dist}.0.2
+Release: 6%{?dist}
 Epoch: 1
 License: GPLv3+
 Group: Applications/File
@@ -28,6 +28,9 @@ Patch5: findutils-4.5.11-ppc-gnulib-tests.patch
 # print a warning if find -perm +omode is used (#1116237)
 Patch6: findutils-4.5.11-bz1116237.patch
 
+# fix file descriptor leak with --execdir option (#1309633)
+Patch7: findutils-4.5.11-fd-leak.patch
+ 
 Conflicts: filesystem < 3
 Provides: /bin/find
 Provides: bundled(gnulib)
@@ -62,6 +65,9 @@ rm -rf locate
 %patch5 -p1
 %patch6 -p1
 
+%patch7 -p1
+chmod 0755 "find/testsuite/sv-34976-execdir-fd-leak.sh"
+
 # needed because of findutils-4.4.0-no-locate.patch
 autoreconf -iv
 
@@ -87,8 +93,11 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %exclude %{_datadir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Feb 18 2016 Kamil Dudka <kdudka@redhat.com> - 1:4.5.11-6
+- fix file descriptor leak with --execdir option (#1309633)
 
 * Mon Jun 01 2015 Kamil Dudka <kdudka@redhat.com> - 1:4.5.11-5
 - print a warning if find -perm +omode is used (#1116237)
