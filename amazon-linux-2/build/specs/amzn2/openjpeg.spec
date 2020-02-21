@@ -9,7 +9,7 @@
 
 Name:    openjpeg
 Version: 1.5.1
-Release: 17%{?dist}.0.2
+Release: 18%{?dist}
 Summary: JPEG 2000 command line tools
 
 License: BSD
@@ -49,6 +49,7 @@ Patch111: openjpeg-CVE-2016-5139.patch
 Patch112: openjpeg-CVE-2016-5158.patch
 Patch113: openjpeg-CVE-2016-5159.patch
 Patch114: openjpeg-fix-memory-leaks.patch
+Patch115: openjpeg-1.5.1-decoding-regression.patch
 
 
 %if 0%{?cmake_build}
@@ -117,6 +118,7 @@ autoreconf -i -f
 %patch112 -p1 -b .CVE-2016-5158
 %patch113 -p1 -b .CVE-2016-5159
 %patch114 -p1 -b .memory-leaks
+%patch115 -p1 -b .decoding-regression
 
 %build
 
@@ -208,6 +210,10 @@ make test -C %{_target_platform}
 
 
 %changelog
+* Thu Apr 05 2018 Nikola Forró <nforro@redhat.com> - 1.5.1-18
+- Fix regression in decoding
+  Resolves: #1553235
+
 * Thu Mar 02 2017 Nikola Forró <nforro@redhat.com> - 1.5.1-17
 - Revert previous changes in patch for CVE-2016-5159
 - Fix memory leaks

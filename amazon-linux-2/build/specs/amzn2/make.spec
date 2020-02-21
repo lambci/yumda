@@ -3,7 +3,7 @@ Summary: A GNU tool which simplifies the build process for users
 Name: make
 Epoch: 1
 Version: 3.82
-Release: 23%{?dist}.0.2
+Release: 24%{?dist}
 License: GPLv2+
 Group: Development/Tools
 URL: http://www.gnu.org/software/make/
@@ -70,6 +70,11 @@ Patch22: make-3.82-var.patch
 # In very obscure situations we may write the free token back to the pipe.
 Patch23: make-3.82-jobserver-tokens.patch
 
+# BZ 1582545
+# A mix of explicit and implicit targets (in that order) in the same
+# rule is no longer fatal (but still deprecated).
+Patch24: make-3.82-mixed-implicit.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
@@ -107,6 +112,7 @@ makefile.
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
 
 rm -f tests/scripts/features/parallelism.orig
 
@@ -151,6 +157,11 @@ fi
 %{_infodir}/*.info*
 
 %changelog
+* Wed Dec 05 2018 DJ Delorie <dj@redhat.com> - 1:3.82-24
+- Change fatal() to error() when a mix of explicit and implicit
+  targets (in that order) is detected.
+  Resolves: #1582545
+
 * Thu Jul 07 2016 Patsy Franklin <pfrankli@redhat.com> - 1:3.82-23
 - In very obscure situations we may incorrectly write the free token
   back to the pipe.

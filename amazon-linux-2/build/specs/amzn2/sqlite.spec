@@ -7,12 +7,12 @@
 %define docver 3071700
 %define rpmver 3.7.17
 
-%define _trivial .0
+%define _trivial .1
 %define _buildid .1
 Summary: Library that implements an embeddable SQL database engine
 Name: sqlite
 Version: %{rpmver}
-Release: 8%{?dist}.0.2
+Release: 8%{?dist}%{?_trivial}%{?_buildid}
 License: Public Domain
 Group: Applications/Databases
 URL: http://www.sqlite.org/
@@ -41,6 +41,8 @@ Patch7: sqlite-3.7.17-large-pages.patch
 Patch8:  sqlite-3.7.17-collation-sequence.patch
 Patch9:  sqlite-3.7.17-vdbe-free.patch
 Patch10: sqlite-3.7.14-printf-overflow.patch
+# Fixes for CVE-2019-13734
+Patch11: sqlite-3.26.0-CVE-2019-13734.patch
 
 # Amazon patches
 Patch10001: sqlite-3.7.17-gcc73.patch
@@ -123,6 +125,7 @@ This package contains the tcl modules for %{name}.
 %patch8 -p1 -b .collation
 %patch9 -p1 -b .vdbe-free
 %patch10 -p1 -b .printf-overflow
+%patch11 -p1
 
 %patch10001 -p1
 
@@ -215,6 +218,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Jan 02 2020 Ondrej Dubaj <odubaj@redhat.com> 3.7.17-8.1
+- Fixes for CVE-2019-13734 (#1786505)
+
 * Thu Jul 23 2015 Jan Stanek <jstanek@redhat.com> 3.7.17-8
 - Fixes for CVE-2015-3415 CVE-2015-3414 CVE-2015-3416
   Resolves: rhbz#1244732
