@@ -7,16 +7,16 @@
 
 Name: lm_sensors
 Version: 3.4.0
-Release: 4.%{date}git%{shortcommit}%{?dist}.0.2
+Release: 8.%{date}git%{shortcommit}%{?dist}
 Summary: Hardware monitoring tools
 Group: Applications/System
-License: LGPLv2+ and GPLv3+ and GPLv2+ and Verbatim and Public domain
+License: LGPLv2+ and GPLv3+ and GPLv2+ and Verbatim and Public Domain
 
 #URL: http://www.lm-sensors.org/
 URL: http://github.com/groeck/lm-sensors/
 
 # Official website seems to be dead. Using github temporarily.
-#Source: http://dl.lm-sensors.org/lm-sensors/releases/%{name}-%{version}.tar.bz2
+#Source: http://dl.lm-sensors.org/lm-sensors/releases/%%{name}-%%{version}.tar.bz2
 Source0: http://github.com/groeck/lm-sensors/archive/%{commit}/lm-sensors-%{commit}.tar.gz
 Source1: lm_sensors.sysconfig
 # these 2 were taken from PLD-linux, Thanks!
@@ -27,6 +27,20 @@ Source4: lm_sensors-modprobe-r
 Patch0: lm_sensors-3.3.4-lm_sensors-service-modprobe-warnings.patch
 Patch1: lm_sensors-3.4.0-fix-systemd-paths.patch
 Patch2: lm_sensors-3.4.0-alternative-architectures-warning.patch
+# Upstream patch:
+Patch3: 0001-Detect-AMD-Family-17h-thermal-sensors.patch
+# Upstream patch:
+Patch4: 0001-Add-detection-of-AMD-Ryzen-w-Vega-graphics.patch
+# Upstream patch:
+Patch5: 0001-Fix-a-use-after-free.patch
+# Upstream patch:
+Patch6: 0001-Remove-superfluous-call-to-get_input_value.patch
+# Upstream patch:
+Patch7: 0001-sensors-detect-Add-detection-of-AMD-Family-17h-model.patch
+# Patch that combines several upstream patches. The change to
+# sensors.conf.default is downstream-only, but can be dropped if lm_sensors
+# is rebased to 3.5.0 or later.
+Patch8: 0001-Fix-stale-links-and-outdated-info.patch
 
 Requires: %{name}-libs = %{version}-%{release}
 BuildRequires: kernel-headers >= 2.2.16, bison, libsysfs-devel, flex, gawk
@@ -54,6 +68,12 @@ Core libraries for lm_sensors applications
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 mv prog/init/README prog/init/README.initscripts
 chmod -x prog/init/fancontrol.init
@@ -108,9 +128,28 @@ sed -i '1 s|^#!/usr/bin/perl|#!%{_bindir}/perl|' %{buildroot}{%{_bindir},%{_sbin
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
+* Wed Mar 27 2019 Ondřej Lysoněk <olysonek@redhat.com> - 3.4.0-8.20160601gitf9185e5
+- Fixed stale links and outdated info
+- Resolves: rhbz#1356253
+
+* Tue Jan 15 2019 Ondřej Lysoněk <olysonek@redhat.com> - 3.4.0-7.20160601gitf9185e5
+- Detect AMD Rome - Family 17h model 30h
+- Resolves: rhbz#1650199
+
+* Mon Apr 23 2018 Ondřej Lysoněk <olysonek@redhat.com> - 3.4.0-6.20160601gitf9185e5
+- Fix License field capitalization
+- Resolves: rhbz#1577175
+- Add detection of AMD Ryzen w/ Vega graphics
+- Resolves: rhbz#1569542
+- Fix issues found by Coverity Scan
+- Resolves: rhbz#1578007
+
+* Fri Apr 20 2018 Ondřej Lysoněk <olysonek@redhat.com> - 3.4.0-5.20160601gitf9185e5
+- Detect AMD Family 17h thermal sensors
+- Resolves: rhbz#1569542
 * Tue Aug 23 2016 Martin Sehnoutka <msehnout@redhat.com> - 3.4.0-4.20160601gitf9185e5
 - Print warning message when running on an alternative architecture. 
 - Resolves: #1362664
