@@ -3,7 +3,7 @@
 
 Name:		ImageMagick
 Version:		%{VER}.%{Patchlevel}
-Release: 15%{?dist}.0.2
+Release:		18%{?dist}
 Summary:		An X application for displaying and manipulating images
 Group:		Applications/Multimedia
 License:		ImageMagick
@@ -21,6 +21,7 @@ Patch7:     ImageMagick-icon-mem.patch
 Patch8:     ImageMagick-splice-crash.patch
 Patch9:     ImageMagick-null-pointer-access.patch
 Patch10:    ImageMagick-cve-2016-5240.patch
+Patch11:    rhbz1633602-quantize.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	bzip2-devel, freetype-devel, libjpeg-devel, libpng-devel
@@ -29,6 +30,7 @@ BuildRequires:	ghostscript-devel
 BuildRequires:	libwmf-devel, jasper-devel, libtool-ltdl-devel
 BuildRequires:	libX11-devel, libXext-devel, libXt-devel
 BuildRequires:	libxml2-devel, librsvg2-devel, OpenEXR-devel
+BuildRequires:	lcms2-devel
 
 Prefix: %{_prefix}
 
@@ -64,6 +66,7 @@ mv README.txt.tmp README.txt
 %patch8 -p1 -b .splice-crash
 %patch9 -p1 -b .null-pointer-access
 %patch10 -p1 -b .cve-2016-5240
+%patch11 -p1 -b .quantize
 
 %build
 %configure --enable-shared \
@@ -79,7 +82,9 @@ mv README.txt.tmp README.txt
            --with-rsvg \
            --with-xml \
            --without-dps \
-           --without-included-ltdl --with-ltdl-include=/usr/include --with-ltdl-lib=/usr/lib64
+           --without-included-ltdl --with-ltdl-include=/usr/include \
+           --with-lcms2=yes \
+           --with-ltdl-lib=/usr/lib64
 # Disable rpath
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
@@ -110,8 +115,17 @@ make install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Apr 11 2019 Jan Horak <jhorak@redhat.com> - 6.7.8.9-18
+- Fixed white images
+
+* Tue Jan  8 2019 Jan Horak <jhorak@redhat.com> - 6.7.8.9-17
+- Enable lcms2 support (rhbz#1585291)
+
+* Wed Oct 24 2018 Jan Horak <jhorak@redhat.com> - 6.7.8.9-16
+- Added fix for long convert under some circumstances (rhbz#1633602)
 
 * Thu Jun  2 2016 Jan Horak <jhorak@redhat.com> - 6.7.8.9-15
 - Added fix for CVE-2016-5118, CVE-2016-5240, rhbz#1269562,
