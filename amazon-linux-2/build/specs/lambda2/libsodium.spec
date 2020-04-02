@@ -21,6 +21,7 @@ BuildRequires: gcc
 # manage update from 3rd party repository
 Obsoletes:      %{libname}%{soname} <= %{version}
 
+Prefix: %{_prefix}
 
 %description
 Sodium is a new, easy-to-use software library for encryption, decryption, 
@@ -34,25 +35,6 @@ The same cannot be said of NIST curves, where the specific origins of certain
 constants are not described by the standards. And despite the emphasis on 
 higher security, primitives are faster across-the-board than most 
 implementations of the NIST standards.
-
-
-%package        devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Obsoletes:      %{libname}%{soname}-devel <= %{version}
-
-%description    devel
-This package contains libraries and header files for
-developing applications that use %{name} libraries.
-
-%package        static
-Summary:        Static library for %{name}
-Requires:       %{name}-devel%{?_isa} = %{version}-%{release}
-Obsoletes:      %{libname}%{soname}-static <= %{version}
-
-%description    static
-This package contains the static library for statically
-linking applications to use %{name}.
 
 
 %prep
@@ -73,28 +55,20 @@ linking applications to use %{name}.
 rm -f %{buildroot}%{_libdir}/%{libname}.la
 
 
-%check
-make check
-
-
 %files
 %license LICENSE
 %{_libdir}/%{libname}.so.%{soname}*
 
-%files devel
-%doc AUTHORS ChangeLog README.markdown THANKS
-%doc test/default/*.{c,exp,h}
-%doc test/quirks/quirks.h
-%{_includedir}/sodium.h
-%{_includedir}/sodium/
-%{_libdir}/%{libname}.so
-%{_libdir}/pkgconfig/%{libname}.pc
-
-%files static
-%{_libdir}/libsodium.a
+%exclude %{_includedir}
+%exclude %{_libdir}/%{libname}.so
+%exclude %{_libdir}/pkgconfig/%{libname}.pc
+%exclude %{_libdir}/libsodium.a
 
 
 %changelog
+* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.0.18-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
