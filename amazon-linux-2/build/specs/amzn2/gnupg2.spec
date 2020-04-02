@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .3
+%define _buildid .4
 
 Summary: Utility for secure communication and data storage
 Name:    gnupg2
@@ -22,6 +22,7 @@ Patch8:  gnupg-2.0.22-cve-2018-12020.patch
 
 # Amazon Patches
 Patch1000: gnupg-2.0-Fix-CVE-2014-4617.patch
+Patch1001: gnupg2-2.0.22-gcc7.patch
 
 URL:     http://www.gnupg.org/
 
@@ -91,6 +92,7 @@ to the base GnuPG package
 
 # Amazon patches
 %patch1000 -p1 
+%patch1001 -p1 
 
 # pcsc-lite library major: 0 in 1.2.0, 1 in 1.2.9+ (dlopen()'d in pcsc-wrapper)
 # Note: this is just the name of the default shared lib to load in scdaemon,
@@ -206,7 +208,10 @@ fi
 
 
 %changelog
-* Thu Apr 24 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.0.22-5.amzn2.0.3
+* Tue Mar  3 2020 Frederick Lefebvre <fredlef@amazon.com> - 2.0.22-5.amzn2.0.4
+- Fix signature verification when built with a newer gcc
+
+* Wed Apr 24 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.0.22-5.amzn2.0.3
 - Fix CVE-2014-4617
 
 * Thu Jun 21 2018 Tomáš Mráz <tmraz@redhat.com> - 2.0.22-5

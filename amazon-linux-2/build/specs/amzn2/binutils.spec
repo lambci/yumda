@@ -62,7 +62,7 @@
 Summary: A GNU collection of binary utilities
 Name: %{?cross}binutils%{?_with_debug:-debug}
 Version: 2.29.1
-Release: 29%{?dist}
+Release: 30%{?dist}
 License: GPLv3+
 Group: Development/Tools
 URL: https://sourceware.org/binutils
@@ -239,6 +239,9 @@ Patch10001: binutils-CVE-2018-1000876.patch
 # CVE-2018-12641, CVE-2018-12697
 Patch10002: binutils-libiberty-demangler.patch
 
+# Purpose: Allow multiple relocation cases to work
+Patch10003: binutils-allow-multiple-relocs.patch
+
 #----------------------------------------------------------------------------
 
 Provides: bundled(libiberty)
@@ -404,6 +407,7 @@ using libelf instead of BFD.
 %patch30 -p1
 %patch10001 -p1
 %patch10002 -p1
+%patch10003 -p1
 
 # We cannot run autotools as there is an exact requirement of autoconf-2.59.
 
@@ -813,6 +817,9 @@ exit 0
 
 #----------------------------------------------------------------------------
 %changelog
+* Tue Feb 04 2020 Balbir Singh <sblbir@amazon.com> 2.29.1-30
+- Do not fail when we see multiple relocations for the same section
+
 * Wed Nov  6 2019 Frederick Lefebvre <fredlef@amzn.com> 2.29.1-29
 - libiberty: Prevent stack Exhaustion in the demangling functions
 - CVE-2018-12641, CVE-2018-12697

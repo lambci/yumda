@@ -1,20 +1,30 @@
 Name:		transfig
-Version:	3.2.6a
-Release: 1%{?dist}.0.2
+Version:	3.2.7b
+Release:	2%{?dist}
 Epoch:		1
 Summary:	Utility for converting FIG files (made by xfig) to other formats
 License:	MIT
 URL:		https://sourceforge.net/projects/mcj/
 Source0:	http://downloads.sourceforge.net/mcj/fig2dev-%{version}.tar.xz
-Patch1:         fig2dev-3.2.6a-CVE-2017-16899.patch
+# Patches from upstream for CVE-2019-19746 and CVE-2019-19797 + deps
+Patch1:		0001-Embed-png-and-jpeg-images-unchanged-into-pdfs.patch
+Patch2:		0002-Allow-fig-2-text-ending-with-multiple-A-ticket-55.patch
+Patch3:		0003-Reject-huge-arrow-types-ticket-57.patch
+Patch4:		0004-Convert-polygons-with-too-few-points-to-polylines.patch
+Patch5:		0005-Correctly-scan-embedded-pdfs-for-MediaBox-value.patch
+Patch6:		0006-fig2dev-version-prints-version-information.patch
+Patch7:		0007-Use-getopt-from-standard-libraries-if-available.patch
+Patch8:		0008-Replace-most-calls-to-fgets-by-getline-in-read.c.patch
 
 Requires:	ghostscript
 Requires:	bc
 Requires:	netpbm-progs
 
+BuildRequires:	gcc libtool
 BuildRequires:	libpng-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libXpm-devel
+BuildRequires:	ghostscript
 
 %description
 The transfig utility creates a makefile which translates FIG (created
@@ -26,28 +36,68 @@ environments).
 Install transfig if you need a utility for translating FIG or PIC
 figures into certain graphics languages.
 
+
 %prep
 %autosetup -p1 -n fig2dev-%{version}
+autoreconf -i
+# Fix the manpage not being in UTF-8
+iconv -f ISO-8859-15 -t UTF-8 man/fig2dev.1.in -o fig2dev.1.in.new
+touch -r man/fig2dev.1.in fig2dev.1.in.new
+mv fig2dev.1.in.new man/fig2dev.1.in
+
 
 %build
 %configure --enable-transfig
-make %{?_smp_mflags}
+%make_build
+
 
 %install
 %make_install
 
+
 %files
-%doc transfig/doc/manual.pdf
+%doc CHANGES transfig/doc/manual.pdf
 %{_bindir}/transfig
 %{_bindir}/fig2dev
 %{_bindir}/fig2ps2tex
 %{_bindir}/pic2tpic
-%{_datadir}/fig2dev/bitmaps/*.bmp
 %{_datadir}/fig2dev/i18n/*.ps
-%{_datadir}/fig2dev/rgb.txt
 %{_mandir}/man1/*.1.gz
 
+
 %changelog
+* Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1:3.2.7b-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Wed Jan 15 2020 Hans de Goede <hdegoede@redhat.com> - 1:3.2.7b-1
+- New upstream release 3.2.7b
+- Add patch fixing CVE-2019-19746 (rhbz#1787040)
+- Add patch fixing CVE-2019-19797 (rhbz#1786726)
+
+* Sat Jul 27 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1:3.2.7a-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Tue Jun 18 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1:3.2.7a-2
+- Add BR: ghostscript to fix ghostscript detection (#1720868)
+
+* Thu Jun 06 2019 Ondrej Dubaj <odubaj@redhat.com> - 1:3.2.7a-1
+- Updated to version 3.2.7a
+
+* Sun Feb 03 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1:3.2.6a-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Mon Jul 16 2018 Honza Horak <hhorak@redhat.com> - 1:3.2.6a-5
+- Remove license GPLv3+
+
+* Sun Jul 15 2018 Honza Horak <hhorak@redhat.com> - 1:3.2.6a-4
+- Add license GPLv3+
+
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1:3.2.6a-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1:3.2.6a-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Tue Nov 21 2017 Hans de Goede <hdegoede@redhat.com> - 3.2.6a-1
 - New upstream release 3.2.6a
 - Add patch fixing CVE-2017-16899 (rhbz#1515695)

@@ -2,11 +2,11 @@
 
 Name:		   libtirpc
 Version:		0.2.4
-Release: 0.10%{?dist}.0.2
+Release:		0.16%{?dist}
 Summary:		Transport Independent RPC Library
 Group:		  	System Environment/Libraries
 License:		SISSL and BSD
-URL:  			http://nfsv4.bullopensource.org/
+URL:  			http://git.linux-nfs.org/?p=steved/libtirpc.git;a=summary
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:	http://downloads.sourceforge.net/libtirpc/libtirpc-%{version}.tar.bz2
@@ -38,6 +38,18 @@ Patch007: libtirpc-0.2.4-clnt-mthr-create.patch
 #
 Patch008: libtirpc-0.2.4-makefd_xprt-fd.patch
 Patch009: libtirpc-0.2.4-CVE-2017-8779.patch
+
+#
+# RHEL7.6
+#
+Patch010: libtirpc-0.2.4-xdrstdio.patch
+Patch011: libtirpc-0.2.4-covscan.patch
+
+#
+# RHEL7.7
+#
+Patch012: libtirpc-0.2.4-badfree.patch
+Patch013: libtirpc-0.2.4-eof.patch
 
 %description
 This package contains SunLib's implementation of transport-independent
@@ -82,6 +94,14 @@ developing programs which use the tirpc library.
 %patch008 -p1
 #  CVE-2017-8779 libtirpc: libtirpc, libntirpc: Memory leak....
 %patch009 -p1
+# 1261738 - xdrstdio_create buffers do not output encoded values on ppc
+%patch010 -p1
+# 1627856 - Backport important issues found by covscan in...
+%patch011 -p1
+# 1631609 - BAD_FREE: "free" frees incorrect pointer "tmp" found by covscan
+%patch012 -p1
+# 1331554 - rpcbind closes connection when rpc fragment sent...
+%patch013 -p1
 
 # Remove .orig files
 find . -name "*.orig" | xargs rm -f
@@ -170,6 +190,25 @@ rm -rf %{buildroot}
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 17 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.16
+- getnetconfig.c: fix a BAD_FREE (CWE-763) (bz 1631609)
+- Fix EOF detection on non-blocking socket (bz 1331554)
+
+* Wed Sep 19 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.15
+- Fixed typo in spec file (bz 1627856)
+
+* Fri Sep 14 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.14
+- Removed a false positive from the covscan (bz 1627856)
+
+* Tue Sep 11 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.13
+- Fix issues found from covscan (bz 1627856)
+
+* Fri Jul 20 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.12
+- xdrstdio_create buffers do not output encoded values on ppc (bz 1261738)
+
+* Tue Jul 10 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.11
+- Updated the URL (bz 1583922)
+
 * Wed May 17 2017 Steve Dickson <steved@redhat.com> 0.2.4-0.10
 - Fix for CVE-2017-8779 (bz 1449463)
 

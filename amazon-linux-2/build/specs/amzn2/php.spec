@@ -78,7 +78,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.13
+%global upver        7.3.15
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -1355,6 +1355,9 @@ for mod in pgsql odbc ldap snmp xmlrpc \
       pdo_*|mysqli|wddx|xmlreader|xmlrpc)
         # Extensions with dependencies on 20-*
         ini=30-${mod}.ini;;
+      curl)
+        # Needs to be after 20-ldap, but may be needed by some of the 30s.
+        ini=25-${mod}.ini;;
       *)
         # Extensions with no dependency
         ini=20-${mod}.ini;;
@@ -1627,6 +1630,15 @@ getent passwd nginx > /dev/null || \
 
 
 %changelog
+* Wed Feb 26 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.15-1
+- Package updated to 7.3.15
+
+* Mon Feb 10 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.14-1
+- Package updated to 7.3.14
+
+* Mon Feb 10 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.13-2
+- Load curl extension after ldap to prevent segfault
+
 * Wed Jan 15 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.13-1
 - Package updated to 7.3.13
 
