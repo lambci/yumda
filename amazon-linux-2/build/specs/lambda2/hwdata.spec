@@ -1,7 +1,7 @@
 # This package is arch-specific just because of bundling different files for
 # different architectures. No -debuginfo package is needed.
 %global     debug_package %{nil}
-%global     uprelease   8.8
+%global     uprelease   9.3
 
 Name:       hwdata
 Summary:    Hardware identification and configuration data
@@ -38,8 +38,26 @@ make install DESTDIR=$RPM_BUILD_ROOT libdir=%{_prefix}/lib
 %{_datadir}/%{name}/*
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jun 26 2019 Vitezslav Crhonek <vcrhonek@redhat.com> - 0.252-9.3
+- Updated pci, usb, vendor ids and hwdb files
+  Resolves: #1636986
+
+* Wed Mar 06 2019 Vitezslav Crhonek <vcrhonek@redhat.com> - 0.252-9.2
+- Updated pci, usb, vendor ids and hwdb files
+  Resolves: #1636985
+
+* Mon Sep 24 2018 Vitezslav Crhonek <vcrhonek@redhat.com> - 0.252-9.1
+- Updated pci, usb, vendor ids and hwdb files
+  Resolves: #1560493
+
+* Thu Jun 14 2018 Vitezslav Crhonek <vcrhonek@redhat.com> - 0.252-8.9
+- Updated pci, usb, vendor ids and hwdb files
+  Resolves: #1560493
+- Blacklisted sha{256,512}-mb modules
+  Resolves: #1562114
 
 * Mon Feb 19 2018 Vitezslav Crhonek <vcrhonek@redhat.com> - 0.252-8.8
 - Updated pci, usb, vendor ids and hwdb files

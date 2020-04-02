@@ -256,7 +256,7 @@ hunspell.x86_64              1.3.2-15.lambda2.0.2                        lambda2
 hunspell-en.noarch           0.20121024-6.lambda2.0.1                    lambda2
 hunspell-en-GB.noarch        0.20121024-6.lambda2.0.1                    lambda2
 hunspell-en-US.noarch        0.20121024-6.lambda2.0.1                    lambda2
-hwdata.x86_64                0.252-8.8.lambda2                           lambda2
+hwdata.x86_64                0.252-9.3.lambda2                           lambda2
 icu.x86_64                   50.1.2-17.lambda2                           lambda2
 ilmbase.x86_64               1.0.3-7.lambda2.0.2                         lambda2
 jansson.x86_64               2.10-1.lambda2.0.2                          lambda2
