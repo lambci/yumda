@@ -1,7 +1,7 @@
 %global gitexecdir          %{_libexecdir}/git-core
 
 Name:           git
-Version:        2.25.0
+Version:        2.26.0
 Release:        1%{?rcrev}%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
@@ -145,7 +145,7 @@ find contrib -type f -print0 | xargs -r0 chmod -x
 %exclude %{_bindir}/git-cvsserver
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org> - 2.24.0-1
+* Thu Apr 2 2020 Michael Hart <michael@lambci.org> - 2.26.0-1
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Nov 26 2018 Todd Zullinger <tmz@pobox.com> - 2.17.2-2

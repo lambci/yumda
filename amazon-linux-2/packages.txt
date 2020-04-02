@@ -219,8 +219,8 @@ ghostscript.x86_64           9.06-8.lambda2.0.5                          lambda2
 ghostscript-fonts.noarch     5.50-32.lambda2                             lambda2
 giflib.x86_64                4.1.6-9.lambda2.0.2                         lambda2
 giflib-utils.x86_64          4.1.6-9.lambda2.0.2                         lambda2
-git.x86_64                   2.25.0-1.lambda2                            lambda2
-git-core.x86_64              2.25.0-1.lambda2                            lambda2
+git.x86_64                   2.26.0-1.lambda2                            lambda2
+git-core.x86_64              2.26.0-1.lambda2                            lambda2
 glib-networking.x86_64       2.50.0-1.lambda2.0.2                        lambda2
 glib2.x86_64                 2.56.1-4.lambda2                            lambda2
 glibc-devel.x86_64           2.26-34.lambda2                             lambda2
