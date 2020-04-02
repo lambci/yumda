@@ -17,7 +17,7 @@
 %global _performance_build 1
 
 %define _trivial .0
-%define _buildid .1
+%define _buildid .3
 Summary: Utilities from the general purpose cryptography library with TLS implementation
 Name: openssl
 Version: 1.0.2k
@@ -111,6 +111,9 @@ Patch111: openssl-1.0.2k-fix-9-lives.patch
 # Amazon patches
 Patch10001: openssl-1.0.2g-disable-sslv2v3.patch
 Patch10003: openssl-1.0.2k-fips-update.patch
+Patch10004: openssl-1.0.2k-CVE-2019-1563.patch
+Patch10005: openssl-1.0.2k-CVE-2019-1547.patch
+
 License: OpenSSL
 Group: System Environment/Libraries
 URL: http://www.openssl.org/
@@ -210,6 +213,8 @@ cp %{SOURCE12} %{SOURCE13} crypto/ec/
 
 %patch10001 -p1 -b .ssl2ssl3
 %patch10003 -p1 -b .fips-update
+%patch10004 -p1 -b .cve-2019-1563
+%patch10005 -p1 -b .cve-2019-1547
 
 sed -i 's/SHLIB_VERSION_NUMBER "1.0.0"/SHLIB_VERSION_NUMBER "%{version}"/' crypto/opensslv.h
 
@@ -388,8 +393,14 @@ rm -rf $RPM_BUILD_ROOT/%{_libdir}/fipscanister.*
 %exclude %{_prefix}
 
 %changelog
-* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Mar 12 2020 Heath Petty <hpetty@amazon.com 1.0.2k-19.amzn2.0.3
+- Fix CVE-2019-1547
+
+* Tue Feb 25 2020 Heath Petty <hpetty@amazon.com 1.0.2k-19.amzn2.0.2
+- Fix CVE-2019-1563
 
 * Tue Apr  9 2019 Tomáš Mráz <tmraz@redhat.com> 1.0.2k-19
 - close the RSA decryption 9 lives of Bleichenbacher cat
