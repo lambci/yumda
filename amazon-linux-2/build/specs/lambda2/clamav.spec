@@ -97,8 +97,10 @@ BuildRequires:  bc tcl groff graphviz
 %{?have_ocaml:BuildRequires: ocaml}
 # nc required for tests
 BuildRequires: nc
+%if %{with systemd}
 %{?systemd_requires}
 BuildRequires: systemd-devel
+%endif
 
 Requires:   clamav-lib = %version-%release
 Requires:   data(clamav)
