@@ -1023,7 +1023,7 @@ wkhtmltopdf.x86_64           1:0.12.5-1.lambda2                          lambda2
 wkhtmltox.x86_64             1:0.12.5-1.lambda2                          lambda2
 wkhtmltox-devel.x86_64       1:0.12.5-1.lambda2                          lambda2
 xkeyboard-config.noarch      2.20-1.lambda2                              lambda2
-xorg-x11-font-utils.x86_64   1:7.5-20.lambda2.0.2                        lambda2
+xorg-x11-font-utils.x86_64   1:7.5-21.lambda2                            lambda2
 xorg-x11-fonts-100dpi.noarch 7.5-9.lambda2                               lambda2
 xorg-x11-fonts-75dpi.noarch  7.5-9.lambda2                               lambda2
 xorg-x11-fonts-ISO8859-1-100dpi.noarch

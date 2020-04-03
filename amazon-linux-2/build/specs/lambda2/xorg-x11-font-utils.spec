@@ -1,27 +1,26 @@
 %define pkgname font-utils
-%define mkfontscale 1.1.0
+%define mkfontscale 1.1.3
 
 Summary: X.Org X11 font utilities
 Name: xorg-x11-%{pkgname}
 # IMPORTANT: If package ever gets renamed to something else, remove the Epoch line!
 Epoch: 1
 Version: 7.5
-Release: 20%{?dist}.0.2
+Release: 21%{?dist}
 License: MIT
 Group: User Interface/X
 URL: http://www.x.org
 
-Source0: ftp://ftp.x.org/pub/individual/app/bdftopcf-1.0.4.tar.bz2
-Source1: ftp://ftp.x.org/pub/individual/app/fonttosfnt-1.0.3.tar.bz2
+Source0: ftp://ftp.x.org/pub/individual/app/bdftopcf-1.1.tar.bz2
+Source1: ftp://ftp.x.org/pub/individual/app/fonttosfnt-1.0.4.tar.bz2
 Source2: ftp://ftp.x.org/pub/individual/app/mkfontdir-1.0.7.tar.bz2
 Source3: ftp://ftp.x.org/pub/individual/app/mkfontscale-%{mkfontscale}.tar.bz2
-Source4: ftp://ftp.x.org/pub/individual/font/font-util-1.3.0.tar.bz2
+Source4: ftp://ftp.x.org/pub/individual/font/font-util-1.3.1.tar.bz2
 # helper script used in %post for xorg-x11-fonts
 Source5: xorg-x11-fonts-update-dirs
 Source6: xorg-x11-fonts-update-dirs.1
 
 Patch2: mkfontscale-examine-all-encodings.patch
-Patch3: mkfontscale-man-page-additions.patch
 
 BuildRequires: pkgconfig(xfont) pkgconfig(x11)
 BuildRequires: libfontenc-devel >= 0.99.2-2
@@ -48,7 +47,6 @@ and generation.
 oldpwd=$(pwd)
 cd mkfontscale-%{mkfontscale}
 %patch2 -p1 -b .all-encodings
-%patch3 -p1
 cd ${oldpwd}
 
 %build
@@ -108,8 +106,11 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_libdir}/pkgconfig/fontutil.pc
 
 %changelog
-* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu May 17 2018 Peter Hutterer <peter.hutterer@redhat.com> 1:7.5-21
+- Rebase to F28 (#1564630)
 
 * Tue May 12 2015 Peter Robinson <pbrobinson@redhat.com> 1:7.5-20
 - rebuild
