@@ -67,11 +67,11 @@ bzip2-libs.x86_64            1.0.6-13.lambda2.0.2                        lambda2
 c-ares.x86_64                1.10.0-3.lambda2.0.2                        lambda2
 cairo.x86_64                 1.14.8-2.lambda2.0.2                        lambda2
 cairo-tools.x86_64           1.14.8-2.lambda2.0.2                        lambda2
-clamav.x86_64                0.101.5-1.lambda2                           lambda2
-clamav-data.noarch           0.101.5-1.lambda2                           lambda2
-clamav-filesystem.noarch     0.101.5-1.lambda2                           lambda2
-clamav-lib.x86_64            0.101.5-1.lambda2                           lambda2
-clamav-update.x86_64         0.101.5-1.lambda2                           lambda2
+clamav.x86_64                0.102.2-3.lambda2                           lambda2
+clamav-data.noarch           0.102.2-3.lambda2                           lambda2
+clamav-filesystem.noarch     0.102.2-3.lambda2                           lambda2
+clamav-lib.x86_64            0.102.2-3.lambda2                           lambda2
+clamav-update.x86_64         0.102.2-3.lambda2                           lambda2
 compat-gcc-48.x86_64         4.8.5-16.lambda2.0.2                        lambda2
 compat-gcc-48-c++.x86_64     4.8.5-16.lambda2.0.2                        lambda2
 compat-gcc-48-gfortran.x86_64
