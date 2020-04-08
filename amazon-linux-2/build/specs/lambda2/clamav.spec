@@ -34,7 +34,7 @@
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
 Version:    0.102.2
-Release:    3%{?dist}
+Release:    4%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
 %if %{with unrar}
@@ -93,13 +93,16 @@ BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
 BuildRequires:  zlib-devel
 #BuildRequires:  %%_includedir/tcpd.h
-BuildRequires:  bc tcl groff graphviz
+BuildRequires:  bc
+BuildRequires:  tcl
+BuildRequires:  groff
+BuildRequires:  graphviz
 %{?have_ocaml:BuildRequires: ocaml}
 # nc required for tests
-BuildRequires: nc
+BuildRequires:  nc
 %if %{with systemd}
 %{?systemd_requires}
-BuildRequires: systemd-devel
+BuildRequires:  systemd-devel
 %endif
 
 Requires:   clamav-lib = %version-%release
@@ -240,9 +243,7 @@ install -d -m 0755 \
     $RPM_BUILD_ROOT%homedir \
     $RPM_BUILD_ROOT%scanstatedir
 
-
 rm -f $RPM_BUILD_ROOT%_libdir/*.la
-
 
 touch $RPM_BUILD_ROOT%homedir/{daily,main,bytecode}.cld
 touch $RPM_BUILD_ROOT%homedir/mirrors.dat
@@ -388,8 +389,11 @@ rm $RPM_BUILD_ROOT%_unitdir/clamav-daemon.*
 
 
 %changelog
-* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
+* Wed Apr 8 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Mar 16 2020 Orion Poplawski <orion@cora.nwra.com> - 0.102.2-4
+- Quiet freshclam-sleep when used with proxy
 
 * Sat Feb 29 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-3
 - Add missingok to clamav-update.logrotate (bz#1807701)
