@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build --pull --squash -t lambci/yumda:1 .
+docker build --pull --squash --no-cache -t lambci/yumda:1 .
