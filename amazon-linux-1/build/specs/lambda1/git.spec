@@ -3,7 +3,7 @@
 %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
 
 Name:           git
-Version:        2.25.0
+Version:        2.26.1
 Release: 1%{?dist}
 Summary:        Fast Version Control System
 License:        GPLv2
@@ -114,7 +114,7 @@ EOF
 %exclude %{_bindir}/git-cvsserver
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org> - 2.24.0-1
+* Tue Apr 14 2020 Michael Hart <michael@lambci.org> - 2.26.1-1
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
 
 * Mon Dec 17 2018 Trinity Quirk <tquirk@amazon.com>
