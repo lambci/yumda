@@ -23,21 +23,6 @@ It features:
   conversions
 
 
-%package devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Development files for package %{name}
-
-%package doc
-Summary:        Documentation for %{name}
-Requires:       %{name} = %{version}-%{release}
-
-%description doc
-Documentation for %{name}
-
-
 %prep
 %setup -q -n %{name}-%{version}%{?prerel:%{prerel}}
 
@@ -54,31 +39,23 @@ pushd build
 %make_install
 popd
 
-# Install optional items.
-mkdir -p %{buildroot}%{_datadir}/%{name}/contrib
-install -p -m 0644 contrib/* %{buildroot}%{_datadir}/%{name}/contrib/
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
+if [ -d "%{buildroot}%{_prefix}/lib64" ] && [ "%{_libdir}" != "%{_prefix}/lib64" ]; then
+  mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
+fi
 
 %files
-%doc readme.txt
+%license readme.txt
 %{_libdir}/*.so.*
 
-%files devel
-%{_libdir}/*.so
-%{_libdir}/cmake/pugixml/
-%{_datadir}/%{name}
-%{_includedir}/*.hpp
-
-%files doc
-%doc docs/*
-
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/cmake
+%exclude %{_datadir}
+%exclude %{_includedir}
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Nov 24 2016 Richard Shaw <hobbes1069@gmail.com> - 1.8-1
 - Update to latest upstream release.
 

@@ -629,6 +629,7 @@ procps-ng-i18n.x86_64        3.3.10-26.lambda2                           lambda2
 psl.x86_64                   0.7.0-1.lambda2                             lambda2
 psmisc.x86_64                22.20-15.lambda2.0.2                        lambda2
 pth.x86_64                   2.0.7-23.lambda2.0.2                        lambda2
+pugixml.x86_64               1.8-1.lambda2                               lambda2
 pulseaudio-libs.x86_64       10.0-3.lambda2.0.2                          lambda2
 pulseaudio-libs-glib2.x86_64 10.0-3.lambda2.0.2                          lambda2
 pulseaudio-utils.x86_64      10.0-3.lambda2.0.2                          lambda2
