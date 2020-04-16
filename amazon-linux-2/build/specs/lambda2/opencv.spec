@@ -67,6 +67,8 @@ BuildRequires:  python-sphinx
 
 Requires:       opencv-core%{_isa} = %{version}-%{release}
 
+Prefix: %{_prefix}
+
 
 %description
 OpenCV means Intel® Open Source Computer Vision Library. It is a collection of
@@ -77,41 +79,10 @@ and Computer Vision algorithms.
 %package core
 Summary:        OpenCV core libraries
 Group:          Development/Libraries
+Prefix: %{_prefix}
 
 %description core
 This package contains the OpenCV C/C++ core libraries.
-
-%package devel
-Summary:        Development files for using the OpenCV library
-Group:          Development/Libraries
-Requires:       opencv%{_isa} = %{version}-%{release}
-Requires:       pkgconfig
-
-%description devel
-This package contains the OpenCV C/C++ library and header files, as well as
-documentation. It should be installed if you want to develop programs that
-will use the OpenCV library. You should consider installing opencv-devel-docs
-package.
-
-%package devel-docs
-Summary:        Development files for using the OpenCV library
-Group:          Development/Libraries
-Requires:       opencv-devel = %{version}-%{release}
-Requires:       pkgconfig
-BuildArch:      noarch
-
-%description devel-docs
-This package contains the OpenCV documentation and examples programs.
-
-%package python
-Summary:        Python bindings for apps which use OpenCV
-Group:          Development/Libraries
-Requires:       opencv = %{version}-%{release}
-Requires:       numpy
-
-%description python
-This package contains Python bindings for the OpenCV library.
-
 
 %prep
 %setup -q
@@ -165,6 +136,8 @@ pushd build
  -DINSTALL_C_EXAMPLES=1 \
  -DINSTALL_PYTHON_EXAMPLES=1 \
  -DENABLE_PRECOMPILED_HEADERS=OFF \
+ -DWITH_QT=OFF \
+ -DWITH_GTK=OFF \
  ..
 
 make VERBOSE=1 %{?_smp_mflags}
@@ -179,12 +152,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p" CPPROG="cp -p"
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
-rm -f $RPM_BUILD_ROOT%{_datadir}/OpenCV/samples/c/build_all.sh \
-      $RPM_BUILD_ROOT%{_datadir}/OpenCV/samples/c/cvsample.dsp \
-      $RPM_BUILD_ROOT%{_datadir}/OpenCV/samples/c/cvsample.vcproj \
-      $RPM_BUILD_ROOT%{_datadir}/OpenCV/samples/c/facedetect.cmd
-install -pm644 %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/OpenCV/samples/c/GNUmakefile
-
 # remove unnecessary documentation
 rm -rf $RPM_BUILD_ROOT%{_datadir}/OpenCV/doc
 
@@ -196,29 +163,8 @@ mv $RPM_BUILD_ROOT%{_datadir}/OpenCV/*.cmake \
   $RPM_BUILD_ROOT%{_libdir}/cmake/OpenCV
 
 
-%check
-# Check fails since we don't support most video
-# read/write capability and we don't provide a display
-# ARGS=-V increases output verbosity
-# Make test is unavailble as of 2.3.1
-%if 0
-#ifnarch ppc64
-pushd build
-    LD_LIBRARY_PATH=%{_builddir}/%{tar_name}-%{version}/lib:$LD_LIBARY_PATH make test ARGS=-V || :
-popd
-%endif
-
-
-%post core -p /sbin/ldconfig
-%postun core -p /sbin/ldconfig
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
-
 %files
-%doc doc/license.txt
+%license doc/license.txt
 %{_bindir}/opencv_*
 %{_libdir}/libopencv_calib3d.so.2.4*
 %{_libdir}/libopencv_contrib.so.2.4*
@@ -243,26 +189,19 @@ popd
 %{_libdir}/libopencv_video.so.2.4*
 
 
-%files devel
-%{_includedir}/opencv
-%{_includedir}/opencv2
-%{_libdir}/lib*.so
-%{_libdir}/pkgconfig/opencv.pc
-# own cmake dir avoiding dep on cmake
-%{_libdir}/cmake/
-
-
-%files devel-docs
-%doc doc/*.{htm,png,jpg}
-%doc %{_datadir}/OpenCV/samples
-%doc %{_datadir}/opencv/samples
-
-%files python
-%{python_sitearch}/cv.py*
-%{python_sitearch}/cv2.so
+%exclude %{_includedir}
+%exclude %{_libdir}/lib*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/cmake
+%exclude %{_datadir}/OpenCV/samples
+%exclude %{_datadir}/opencv/samples
+%exclude %{python_sitearch}
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.4.5-3
 - Mass rebuild 2014-01-24
 
