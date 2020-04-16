@@ -15,27 +15,12 @@ BuildRequires:  cmake
 Provides:       yaml-cpp = %{version}-%{release}
 Obsoletes:      yaml-cpp < 0.3.0-5
 
+Prefix: %{_prefix}
+
 %description
 yaml-cpp is a YAML parser and emitter in C++ written around the YAML 1.2 spec.
 
 This is a compatibility package for version 0.3.
-
-
-%package        devel
-Summary:        Development files for %{name}
-License:        MIT
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       pkgconfig
-Requires:       boost-devel
-
-Provides:       yaml-cpp-devel = %{version}-%{release}
-Obsoletes:      yaml-cpp-devel < 0.3.0-5
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
-
-This is a compatibility package for version 3.
 
 
 %prep
@@ -68,22 +53,19 @@ for header in %{buildroot}%{_includedir}/%{name}/*.h; do
 done
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc license.txt
+%license license.txt
 %{_libdir}/*.so.*
 
-%files devel
-%{_includedir}/%{name}
-%{_libdir}/lib%{name}.so
-%{_libdir}/pkgconfig/%{name}.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Oct 30 2013 Richard Shaw <hobbes1069@gmail.com> - 0.3.0-4
 - Change package name to yaml-cpp03 per reviewer input.
 
