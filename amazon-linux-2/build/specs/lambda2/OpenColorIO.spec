@@ -16,46 +16,17 @@ Summary:        Enables color transforms and image display across graphics apps
 
 License:        BSD
 URL:            http://opencolorio.org/
-# Github archive was generated on the fly using the following URL:
-# https://github.com/imageworks/OpenColorIO/tarball/v1.0.9
-Source0:        %{name}-%{version}.tar.gz
-Patch0:         OpenColorIO-yaml_cpp3.patch
 
-# Utilities
-%if 0%{?rhel} && 0%{?rhel} <= 6
-BuildRequires:  cmake28
-%else
-BuildRequires:  cmake
-%endif
-BuildRequires:  help2man
-BuildRequires:  python-markupsafe
+# Sources were downloaded using:
+# yumdownloader OpenColorIO.x86_64
+# And then queried using:
+# rpm -qp --qf 'Name: %{name}\n[Requires: %{requires}\n][Conflicts: %{conflicts}\n][Obsoletes: %{obsoletes}\n][Provides: %{provides}\n]' OpenColorIO*.x86_64.rpm | uniq
+Source0: OpenColorIO-1.0.9-4.el7.x86_64.rpm
 
-# WARNING: OpenColorIO and OpenImageIO are cross dependent.
-# If an ABI incompatible update is done in one, the other also needs to be
-# rebuilt.
-BuildRequires:  OpenImageIO-devel
+BuildRequires: rpm
+BuildRequires: cpio
 
-# Libraries
-BuildRequires:  python-devel
-BuildRequires:  mesa-libGL-devel mesa-libGLU-devel
-BuildRequires:  libX11-devel libXmu-devel libXi-devel
-BuildRequires:  freeglut-devel
-BuildRequires:  glew-devel
-BuildRequires:  zlib-devel
-
-#######################
-# Unbundled libraries #
-#######################
-BuildRequires:  tinyxml-devel
-BuildRequires:  lcms2-devel
-BuildRequires:  yaml-cpp03-devel >= 0.3.0
-
-# The following bundled projects are only used for document generation.
-#BuildRequires:  python-docutils
-#BuildRequires:  python-jinja2
-#BuildRequires:  python-pygments
-#BuildRequires:  python-setuptools
-#BuildRequires:  python-sphinx
+Prefix: %{_prefix}
 
 
 %description
@@ -65,110 +36,31 @@ solutions, OCIO is geared towards motion-picture post production, with an
 emphasis on visual effects and animation color pipelines.
 
 
-%package tools
-Summary:        Command line tools for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description tools
-Command line tools for %{name}.
-
-
-%package doc
-BuildArch:      noarch
-Summary:        API Documentation for %{name}
-Group:          Documentation
-Requires:       %{name} = %{version}-%{release}
-
-%description doc
-API documentation for %{name}.
-
-
-%package devel
-Summary:        Development libraries and headers for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Development libraries and headers for %{name}.
-
-
-%prep
-%setup -q
-%patch0 -p1 -b .yaml3
-
-# Remove what bundled libraries
-rm -f ext/lcms*
-rm -f ext/tinyxml*
-rm -f ext/yaml*
-
-
-%build
-rm -rf build && mkdir build && pushd build
-%cmake -DOCIO_BUILD_STATIC=OFF \
-       -DOCIO_BUILD_DOCS=ON \
-       -DOCIO_BUILD_TESTS=ON \
-       -DOCIO_PYGLUE_SONAME=OFF \
-       -DUSE_EXTERNAL_YAML=TRUE \
-       -DUSE_EXTERNAL_TINYXML=TRUE \
-       -DUSE_EXTERNAL_LCMS=TRUE \
-%ifnarch x86_64
-       -DOCIO_USE_SSE=OFF \
-%endif
-       ../
-
-make %{?_smp_mflags}
-
-
 %install
-pushd build
-%make_install
+rm -rf %{buildroot} && mkdir -p %{buildroot}
 
-# Generate man pages
-mkdir -p %{buildroot}%{_mandir}/man1
-help2man -N -s 1 %{?fedora:--version-string=%{version}} \
-         -o %{buildroot}%{_mandir}/man1/ociocheck.1 \
-         src/apps/ociocheck/ociocheck
-help2man -N -s 1 %{?fedora:--version-string=%{version}} \
-         -o %{buildroot}%{_mandir}/man1/ociobakelut.1 \
-         src/apps/ociobakelut/ociobakelut
-
-# Move installed documentation back so it doesn't conflict with the main package
+pushd %{buildroot}
+  rpm2cpio %{SOURCE0} | cpio -idm
 popd
-mkdir _tmpdoc
-mv %{buildroot}%{_docdir}/%{name}/* _tmpdoc/
 
-
-%check
-# Testing passes locally in mock but fails on the fedora build servers.
-#pushd build && make test
-
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+mv %{buildroot}/usr %{buildroot}%{_prefix}
+mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
 
 
 %files
-%doc ChangeLog LICENSE README
+%license %{_datadir}/doc/OpenColorIO-%{version}/LICENSE
 %{_libdir}/*.so.*
 %dir %{_datadir}/ocio
 %{_datadir}/ocio/setup_ocio.sh
-%{python_sitearch}/*.so
 
-%files tools
-%{_bindir}/*
-%{_mandir}/man1/*
-
-%files doc
-%doc _tmpdoc/*
-
-%files devel
-%{_includedir}/OpenColorIO/
-%{_includedir}/PyOpenColorIO/
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/%{name}.pc
+%exclude %{_datadir}
+%exclude %{_libdir}/python2.7
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Oct 04 2016 Richard Shaw <hobbes1069@gmail.com> - 1.0.9-4.1
 - Rebuild for updated OpenImageIO.
 
