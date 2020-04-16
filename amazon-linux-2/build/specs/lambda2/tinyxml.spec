@@ -12,22 +12,14 @@ Source1:        tinyxml.pc.in
 Patch0:         tinyxml-2.5.3-stl.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+Prefix: %{_prefix}
+
 %description
 TinyXML is a simple, small, C++ XML parser that can be easily integrating
 into other programs. Have you ever found yourself writing a text file parser
 every time you needed to save human readable data or serialize objects?
 TinyXML solves the text I/O file once and for all.
 (Or, as a friend said, ends the Just Another Text File Parser problem.)
-
-
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 
 %prep
@@ -71,25 +63,20 @@ sed -e 's![@]prefix[@]!%{_prefix}!g' \
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc changes.txt readme.txt
+%license readme.txt
 %{_libdir}/*.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%doc docs/*
-%{_includedir}/*
-%{_libdir}/*.so
-%{_datadir}/pkgconfig/%{name}.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_datadir}
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sat Mar 01 2014 Scott K Logan <logans@cottsay.net> - 2.6.2-3
 - Add basic pkgconfig
 
