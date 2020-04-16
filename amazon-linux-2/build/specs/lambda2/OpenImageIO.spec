@@ -9,39 +9,17 @@ Group:          Development/Libraries
 License:        BSD
 URL:            https://sites.google.com/site/openimageio/home
 
-Source0:        https://github.com/%{name}/%{subname}/archive/Release-%{version}.tar.gz#/%{name}-%{version}.tar.gz
-# Images for test suite
-#Source1:        oiio-images.tar.gz
+# Sources were downloaded using:
+# yumdownloader OpenImageIO.x86_64 OpenImageIO-utils.x86_64
+# And then queried using:
+# rpm -qp --qf 'Name: %{name}\n[Requires: %{requires}\n][Conflicts: %{conflicts}\n][Obsoletes: %{obsoletes}\n][Provides: %{provides}\n]' OpenImageIO*.x86_64.rpm | uniq
+Source0: OpenImageIO-1.5.24-3.el7.1.x86_64.rpm
+Source1: OpenImageIO-utils-1.5.24-3.el7.1.x86_64.rpm
 
-BuildRequires:  cmake
-BuildRequires:  txt2man
-BuildRequires:  qt4-devel
-BuildRequires:  boost-devel
-BuildRequires:  glew-devel
-BuildRequires:  OpenEXR-devel ilmbase-devel
-BuildRequires:  python2-devel
-BuildRequires:  libpng-devel libtiff-devel openjpeg-devel giflib-devel
-%if ! 0%{?rhel}
-BuildRequires:  libwebp-devel
-BuildRequires:  Field3D-devel
-BuildRequires:  LibRaw-devel
-%endif
-BuildRequires:  hdf5-devel
-BuildRequires:  zlib-devel
-BuildRequires:  jasper-devel
-BuildRequires:  pugixml-devel
-BuildRequires:  opencv-devel
+BuildRequires: rpm
+BuildRequires: cpio
 
-# WARNING: OpenColorIO and OpenImageIO are cross dependent.
-# If an ABI incompatible update is done in one, the other also needs to be
-# rebuilt.
-BuildRequires:  OpenColorIO-devel
-
-# We don't want to provide private python extension libs
-%{?filter_setup:
-%filter_provides_in %{python_sitearch}/.*\.so$ 
-%filter_setup
-}
+Prefix: %{_prefix}
 
 
 %description
@@ -56,122 +34,44 @@ classes, utilities, and applications. Main features include:
   truly vast amounts of image data.
 
 
-%package -n python-%{name}
-Summary:        Python 2 bindings for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description -n python-%{name}
-Python bindings for %{name}.
-
-
 %package utils
 Summary:        Command line utilities for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description utils
 Command-line tools to manipulate and get information on images using the
 %{name} library.
 
 
-%package iv
-Summary:        %{name} based image viewer
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description iv
-A really nice image viewer, iv, based on %{name} classes (and so will work
-with any formats for which plugins are available).
-
-
-%package devel
-Summary:        Documentation for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Development files for package %{name}
-
-
-%prep
-%setup -q -n oiio-Release-%{version}
-
-# Remove bundled pugixml
-rm -f src/include/pugixml.hpp \
-      src/include/pugiconfig.hpp \
-      src/libutil/pugixml.cpp 
-
-# Remove bundled tbb
-rm -rf src/include/tbb
-
-# Install test images
-#rm -rf ../oiio-images && mkdir ../oiio-images && pushd ../oiio-images
-#tar --strip-components=1 -xzf %{SOURCE1}
-
-
-%build
-rm -rf build/linux && mkdir -p build/linux && pushd build/linux
-# CMAKE_SKIP_RPATH is OK here because it is set to FALSE internally and causes
-# CMAKE_INSTALL_RPATH to be cleared, which is the desiered result.
-%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-       -DCMAKE_SKIP_RPATH:BOOL=TRUE \
-       -DINCLUDE_INSTALL_DIR:PATH=/usr/include/%{name} \
-       -DPYLIB_INSTALL_DIR:PATH=%{python_sitearch} \
-       -DINSTALL_DOCS:BOOL=FALSE \
-       -DUSE_EXTERNAL_PUGIXML:BOOL=TRUE \
-%ifarch ppc ppc64
-       -DNOTHREADS:BOOL=FALSE \
-%endif
-       -DVERBOSE=TRUE \
-       ../../
-
-make %{?_smp_mflags}
-
-
 %install
-pushd build/linux
-make DESTDIR=%{buildroot} install
+rm -rf %{buildroot} && mkdir -p %{buildroot}
 
-# Move man pages to the right directory
-mkdir -p %{buildroot}%{_mandir}/man1
-cp -a src/doc/*.1 %{buildroot}%{_mandir}/man1
+pushd %{buildroot}
+  rpm2cpio %{SOURCE0} | cpio -idm
+  rpm2cpio %{SOURCE1} | cpio -idm
+popd
 
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
-%check
-# Not all tests pass on linux
-#pushd build/linux && make test
+mv %{buildroot}/usr %{buildroot}%{_prefix}
+mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
 
 
 %files
-%{!?_licensedir:%global license %doc}
-%license LICENSE
-%doc CHANGES
+%{_datadir}/licenses/*
 %{_libdir}/libOpenImageIO.so.*
 %{_libdir}/libOpenImageIO_Util.so.*
 
-%files -n python-%{name}
-%{python_sitearch}/OpenImageIO.so
-
 %files utils
-%exclude %{_bindir}/iv
 %{_bindir}/*
-%exclude %{_mandir}/man1/iv.1.gz
-%{_mandir}/man1/*.1.gz
 
-%files iv
-%{_bindir}/iv
-%{_mandir}/man1/iv.1.gz
-
-%files devel
-%doc src/doc/*.pdf
-%{_libdir}/libOpenImageIO.so
-%{_libdir}/libOpenImageIO_Util.so
-%{_includedir}/*
+%exclude %{_datadir}
+%exclude %{_mandir}
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Oct 03 2016 Richard Shaw <hobbes1069@gmail.com> - 1.5.24-3
 - Rebuild for pugixml with c++11 enabled.
 
