@@ -10,41 +10,14 @@ Source0:        http://gstreamer.freedesktop.org/src/orc/%{name}-%{version}.tar.
 
 BuildRequires:	gtk-doc, libtool
 
+Prefix: %{_prefix}
+
 %description
 Orc is a library and set of tools for compiling and executing
 very simple programs that operate on arrays of data.  The "language"
 is a generic assembly language that represents many of the features
 available in SIMD architectures, including saturated addition and
 subtraction, and many arithmetic operations.
-
-%package doc
-Summary:	Documentation for Orc
-Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
-BuildArch:	noarch
-
-%description doc
-Documentation for Orc.
-
-%package devel
-Summary:	Development files and libraries for Orc
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{name}-compiler
-Requires:	pkgconfig
-
-%description devel
-This package contains the files needed to build packages that depend
-on orc.
-
-%package compiler
-Summary:	Orc compiler
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-Requires:	pkgconfig
-
-%description compiler
-The Orc compiler, to produce optimized code.
 
 
 %prep
@@ -68,32 +41,22 @@ rm -rf %{buildroot}/%{_libdir}/orc
 touch -r stamp-h1 %{buildroot}%{_includedir}/%{name}-0.4/orc/orc-stdint.h   
 
 
-%post -p /sbin/ldconfig
-
-
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc COPYING README
+%license COPYING
 %{_libdir}/liborc-*.so.*
 %{_bindir}/orc-bugreport
 
-%files doc
-%doc %{_datadir}/gtk-doc/html/orc/
-
-%files devel
-%doc examples/*.c
-%{_includedir}/%{name}-0.4/
-%{_libdir}/liborc-*.so
-%{_libdir}/pkgconfig/orc-0.4.pc
-%{_datadir}/aclocal/orc.m4
-
-%files compiler
-%{_bindir}/orcc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_datadir}
+%exclude %{_bindir}/orcc
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Mar 09 2017 Wim Taymans <wtaymans@redhat.com> - 0.4.26-1
 - Update to 0.4.26
 - Remove upstreamed patches
