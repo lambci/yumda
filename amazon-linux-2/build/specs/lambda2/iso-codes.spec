@@ -11,20 +11,12 @@ BuildArch: noarch
 # for /usr/share/xml
 Requires: xml-common
 
+Prefix: %{_prefix}
+
 %description
 This package provides the ISO 639 Language code list, the ISO 4217
 Currency code list, the ISO 3166 Territory code list, and ISO 3166-2
 sub-territory lists, and all their translations in gettext format.
-
-%package devel
-Summary: Files for development using %{name}
-Group:  Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-This package contains the pkg-config files for development
-when building programs that use %{name}.
-
 
 %prep
 %setup -q
@@ -36,17 +28,18 @@ make %{_smp_mflags}
 %install
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
-%find_lang iso-codes --all-name
-
-%files -f iso-codes.lang
-%doc ChangeLog README LICENSE
+%files
+%license LICENSE
 %dir %{_datadir}/xml/iso-codes
 %{_datadir}/xml/iso-codes/*.xml
 
-%files devel
-%{_datadir}/pkgconfig/iso-codes.pc
+%exclude %{_datadir}/pkgconfig
+%exclude %{_datadir}/locale
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 3.46-2
 - Mass rebuild 2013-12-27
 
