@@ -679,6 +679,7 @@ rubygem-redis.noarch         3.2.2-5.lambda2                             lambda2
 rubygem-test-unit.noarch     3.2.9-122.lambda2.0.1                       lambda2
 rubygem-xmlrpc.noarch        0.3.0-122.lambda2.0.1                       lambda2
 rubygems.noarch              3.0.3-122.lambda2.0.1                       lambda2
+sgml-common.noarch           0.6.3-39.lambda2                            lambda2
 shared-mime-info.x86_64      1.8-4.lambda2                               lambda2
 sound-theme-freedesktop.noarch
                              0.8-3.lambda2                               lambda2
@@ -1042,6 +1043,7 @@ wkhtmltopdf.x86_64           1:0.12.5-1.lambda2                          lambda2
 wkhtmltox.x86_64             1:0.12.5-1.lambda2                          lambda2
 wkhtmltox-devel.x86_64       1:0.12.5-1.lambda2                          lambda2
 xkeyboard-config.noarch      2.20-1.lambda2                              lambda2
+xml-common.noarch            0.6.3-39.lambda2                            lambda2
 xorg-x11-font-utils.x86_64   1:7.5-21.lambda2                            lambda2
 xorg-x11-fonts-100dpi.noarch 7.5-9.lambda2                               lambda2
 xorg-x11-fonts-75dpi.noarch  7.5-9.lambda2                               lambda2

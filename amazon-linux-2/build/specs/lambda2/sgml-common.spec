@@ -33,6 +33,8 @@ BuildRequires: libxml2
 BuildRequires: automake
 Requires: /bin/basename
 
+Prefix: %{_prefix}
+
 %description
 The sgml-common package contains a collection of entities and DTDs
 that are useful for processing SGML, but that don't need to be
@@ -44,6 +46,7 @@ Group: Applications/Text
 Summary: Common XML catalog and DTD files
 License: GPL+
 Requires(pre): %{_bindir}/xmlcatalog
+Prefix: %{_prefix}
 
 %description -n xml-common
 The xml-common is a subpackage of sgml-common which contains
@@ -137,7 +140,7 @@ fi
 
 %files
 %defattr (-,root,root, -)
-%doc __dist_doc/html/ AUTHORS NEWS ChangeLog COPYING README
+%license COPYING
 %dir %{_sysconfdir}/sgml
 %config(noreplace) %{_sysconfdir}/sgml/sgml.conf
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/sgml/catalog
@@ -150,11 +153,10 @@ fi
 %{_datadir}/sgml/html.soc
 %{_bindir}/sgmlwhich
 %{_bindir}/install-catalog
-%{_mandir}/man8/install-catalog.8*
 
 %files -n xml-common
 %defattr (-,root,root,-)
-%doc AUTHORS NEWS ChangeLog COPYING README
+%license COPYING
 %dir %{_sysconfdir}/xml
 %dir %{_sysconfdir}/sgml/docbook
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/xml/catalog
@@ -165,7 +167,12 @@ fi
 %dir %{_datadir}/xml
 %{_datadir}/xml/xml.xsd
 
+%exclude %{_mandir}
+
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.6.3-39
 - Mass rebuild 2013-12-27
 
