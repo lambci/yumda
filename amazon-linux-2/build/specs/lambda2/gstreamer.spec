@@ -60,6 +60,8 @@ BuildRequires:  ghostscript
 BuildRequires:  xfig
 %endif
 
+Prefix: %{_prefix}
+
 %description
 GStreamer is a streaming media framework, based on graphs of filters which
 operate on media data. Applications using this library can do anything
@@ -68,45 +70,12 @@ else media-related.  Its plugin-based architecture means that new data
 types or processing capabilities can be added simply by installing new 
 plugins.
 
-%package devel
-Summary:        Libraries/include files for GStreamer streaming media framework
-Group:          Development/Libraries
-
-Requires:       %{name} = %{version}-%{release}
-Requires:       glib2-devel >= %{_glib2}
-Requires:       libxml2-devel >= %{_libxml2}
-Requires:       check-devel
-
-%description devel
-GStreamer is a streaming media framework, based on graphs of filters which
-operate on media data. Applications using this library can do anything
-from real-time sound processing to playing videos, and just about anything
-else media-related.  Its plugin-based architecture means that new data
-types or processing capabilities can be added simply by installing new   
-plugins.
-
-This package contains the libraries and includes files necessary to develop
-applications and plugins for GStreamer. If you plan to develop applications
-with GStreamer, consider installing the gstreamer-devel-docs package and the
-documentation packages for any plugins you intend to use.
-
-%package devel-docs
-Summary: Developer documentation for GStreamer streaming media framework
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-# for /usr/share/gtk-doc/html
-Requires: gtk-doc
-BuildArch: noarch
-
-%description devel-docs
-This package contains developer documentation for the GStreamer streaming
-media framework.
-
 %package -n gstreamer-tools
 Summary:        common tools and files for GStreamer streaming media framework
 Group:          Applications/Multimedia
 # gst-feedback uses these
 Requires:       which, pkgconfig
+Prefix: %{_prefix}
 
 %description -n gstreamer-tools
 GStreamer is a streaming media framework, based on graphs of filters which
@@ -130,7 +99,7 @@ with different major/minor versions of GStreamer.
 %configure \
   --with-package-name='Fedora Core gstreamer package' \
   --with-package-origin='http://download.fedora.redhat.com/fedora' \
-  --enable-gtk-doc \
+  --disable-gtk-doc \
   --enable-debug \
   --disable-tests --disable-examples
 
@@ -142,7 +111,6 @@ rm -rf $RPM_BUILD_ROOT
 # Install doc temporarily in order to be included later by rpm
 make install DESTDIR=$RPM_BUILD_ROOT
 
-%find_lang gstreamer-%{majorminor}
 # Clean out files that should not be part of the rpm. 
 rm -f $RPM_BUILD_ROOT%{_libdir}/gstreamer-%{majorminor}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/gstreamer-%{majorminor}/*.a
@@ -150,21 +118,13 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 # Create empty cache directory
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/gstreamer-%{majorminor}
-# Add the provides script
-install -m0755 -D %{SOURCE1} $RPM_BUILD_ROOT%{_rpmconfigdir}/gstreamer.prov
-# Add the gstreamer plugin file attribute entry (rpm >= 4.9.0)
-install -m0644 -D %{SOURCE2} $RPM_BUILD_ROOT%{_rpmconfigdir}/fileattrs/gstreamer.attr
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-%files -f gstreamer-%{majorminor}.lang
+%files
 %defattr(-, root, root, -)
-%doc AUTHORS COPYING NEWS README RELEASE TODO
+%license COPYING
 %{_libdir}/libgstreamer-%{majorminor}.so.*
 %{_libdir}/libgstbase-%{majorminor}.so.*
 %{_libdir}/libgstcontroller-%{majorminor}.so.*
@@ -189,13 +149,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gst-xmlinspect-%{majorminor}
 %{_bindir}/gst-xmllaunch-%{majorminor}
 
-%doc %{_mandir}/man1/gst-feedback-%{majorminor}.*
-%doc %{_mandir}/man1/gst-inspect-%{majorminor}.*
-%doc %{_mandir}/man1/gst-launch-%{majorminor}.*
-%doc %{_mandir}/man1/gst-typefind-%{majorminor}.*
-%doc %{_mandir}/man1/gst-xmlinspect-%{majorminor}.*
-%doc %{_mandir}/man1/gst-xmllaunch-%{majorminor}.*
-
 %files -n gstreamer-tools
 %defattr(-, root, root, -)
 %{_bindir}/gst-feedback
@@ -205,49 +158,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gst-xmlinspect
 %{_bindir}/gst-xmllaunch
 
-%files devel
-%defattr(-, root, root, -)
-%dir %{_includedir}/gstreamer-%{majorminor}
-%dir %{_includedir}/gstreamer-%{majorminor}/gst
-%{_includedir}/gstreamer-%{majorminor}/gst/*.h
-
-%{_includedir}/gstreamer-%{majorminor}/gst/base
-%{_includedir}/gstreamer-%{majorminor}/gst/check
-%{_includedir}/gstreamer-%{majorminor}/gst/controller
-%{_includedir}/gstreamer-%{majorminor}/gst/dataprotocol
-%{_includedir}/gstreamer-%{majorminor}/gst/net
-
-%{_libdir}/libgstreamer-%{majorminor}.so
-%{_libdir}/libgstdataprotocol-%{majorminor}.so
-%{_libdir}/libgstbase-%{majorminor}.so
-%{_libdir}/libgstcheck-%{majorminor}.so*
-%{_libdir}/libgstcontroller-%{majorminor}.so
-%{_libdir}/libgstnet-%{majorminor}.so
-
-%{_datadir}/gir-1.0/Gst-0.10.gir
-%{_datadir}/gir-1.0/GstBase-0.10.gir
-%{_datadir}/gir-1.0/GstCheck-0.10.gir
-%{_datadir}/gir-1.0/GstController-0.10.gir
-%{_datadir}/gir-1.0/GstNet-0.10.gir
-
-%{_datadir}/aclocal/gst-element-check-%{majorminor}.m4
-%{_libdir}/pkgconfig/gstreamer-%{majorminor}.pc
-%{_libdir}/pkgconfig/gstreamer-base-%{majorminor}.pc
-%{_libdir}/pkgconfig/gstreamer-controller-%{majorminor}.pc
-%{_libdir}/pkgconfig/gstreamer-check-%{majorminor}.pc
-%{_libdir}/pkgconfig/gstreamer-dataprotocol-%{majorminor}.pc
-%{_libdir}/pkgconfig/gstreamer-net-%{majorminor}.pc
-
-%{_rpmconfigdir}/gstreamer.prov
-%{_rpmconfigdir}/fileattrs/gstreamer.attr
-
-%files devel-docs
-%defattr(-, root, root, -)
-%doc %{_datadir}/gtk-doc/html/gstreamer-%{majorminor}
-%doc %{_datadir}/gtk-doc/html/gstreamer-libs-%{majorminor}
-%doc %{_datadir}/gtk-doc/html/gstreamer-plugins-%{majorminor}
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_libdir}/pkgconfig
+%exclude %{_libdir}/libgstreamer-%{majorminor}.so
+%exclude %{_libdir}/libgstdataprotocol-%{majorminor}.so
+%exclude %{_libdir}/libgstbase-%{majorminor}.so
+%exclude %{_libdir}/libgstcheck-%{majorminor}.so*
+%exclude %{_libdir}/libgstcontroller-%{majorminor}.so
+%exclude %{_libdir}/libgstnet-%{majorminor}.so
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.10.36-7
 - Mass rebuild 2014-01-24
 

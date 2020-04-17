@@ -246,6 +246,8 @@ gsettings-desktop-schemas.x86_64
                              3.24.1-2.lambda2                            lambda2
 gsm.x86_64                   1.0.13-11.lambda2.0.2                       lambda2
 gsm-tools.x86_64             1.0.13-11.lambda2.0.2                       lambda2
+gstreamer.x86_64             0.10.36-7.lambda2.0.2                       lambda2
+gstreamer-tools.x86_64       0.10.36-7.lambda2.0.2                       lambda2
 gstreamer1.x86_64            1.10.4-2.lambda2.0.2                        lambda2
 guile.x86_64                 5:2.0.14-3.lambda2.0.2                      lambda2
 gzip.x86_64                  1.5-10.lambda2                              lambda2
