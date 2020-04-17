@@ -70,6 +70,8 @@ bzip2-libs.x86_64            1.0.6-13.lambda2.0.2                        lambda2
 c-ares.x86_64                1.10.0-3.lambda2.0.2                        lambda2
 cairo.x86_64                 1.14.8-2.lambda2.0.2                        lambda2
 cairo-tools.x86_64           1.14.8-2.lambda2.0.2                        lambda2
+cdparanoia.x86_64            10.2-17.lambda2.0.2                         lambda2
+cdparanoia-libs.x86_64       10.2-17.lambda2.0.2                         lambda2
 clamav.x86_64                0.102.2-4.lambda2                           lambda2
 clamav-data.noarch           0.102.2-4.lambda2                           lambda2
 clamav-filesystem.noarch     0.102.2-4.lambda2                           lambda2

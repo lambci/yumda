@@ -18,6 +18,7 @@ Patch3: cdparanoia-use-proper-gnu-config-files.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: cdparanoia-libs = %{version}-%{release}
 Obsoletes: cdparanoia-III <= alpha9.8
+Prefix: %{_prefix}
 
 %description 
 Cdparanoia (Paranoia III) reads digital audio directly from a CD, then
@@ -29,34 +30,15 @@ drives prone to misalignment, frame jitter and loss of streaming during
 atomic reads.  Cdparanoia is also good at reading and repairing data from
 damaged CDs.
 
-%package static
-Summary: Development tools for libcdda_paranoia (Paranoia III)
-Group: Development/Libraries
-Requires: cdparanoia-devel = %{version}-%{release}
-License: LGPLv2
-
-%description static
-The cdparanoia-devel package contains the static libraries needed for
-developing applications to read CD Digital Audio disks.
-
 %package libs
 Summary: Libraries for libcdda_paranoia (Paranoia III)
 Group: Applications/Multimedia
 License: LGPLv2
+Prefix: %{_prefix}
 
 %description libs
 The cdparanoia-libs package contains the dynamic libraries needed for
 applications which read CD Digital Audio disks.
-
-%package devel
-Summary: Development tools for libcdda_paranoia (Paranoia III)
-Group: Development/Libraries
-Requires: cdparanoia-libs = %{version}-%{release}
-License: LGPLv2
-
-%description devel
-The cdparanoia-devel package contains the libraries and header files needed
-for developing applications to read CD Digital Audio disks.
 
 %prep
 %setup -q -n cdparanoia-III-%{version}
@@ -83,30 +65,24 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root)
-%doc COPYING* README
+%license COPYING*
 %{_bindir}/cdparanoia
-%{_mandir}/man1/cdparanoia.1*
 
 %files libs
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files devel
-%defattr(-,root,root)
-%{_includedir}/cdda/
-%{_libdir}/*.so
-
-%files static
-%defattr(-,root,root)
-%{_libdir}/*.a
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/*.a
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 10.2-17
 - Mass rebuild 2014-01-24
 
