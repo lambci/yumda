@@ -16,6 +16,8 @@ BuildRequires:  xorg-x11-proto-devel
 Patch0:         libvisual-0.4.0-better-altivec-detection.patch
 Patch1:         libvisual-0.4.0-inlinedefineconflict.patch
 
+Prefix: %{_prefix}
+
 
 %description
 Libvisual is an abstraction library that comes between applications and
@@ -29,17 +31,6 @@ an interface towards plugins and applications, through this easy to use
 interface applications can easily access plugins and since the drawing is
 done by the application it also enables the developer to draw the visual
 anywhere he wants.
-
-%package        devel
-Summary:        Development files for libvisual
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    devel
-Libvisual is an abstraction library that comes between applications and
-audio visualisation plugins.
-
-This package contains the files needed to build an application with libvisual.
 
 %prep
 %setup -q
@@ -81,32 +72,26 @@ cat >%{buildroot}/%{_includedir}/libvisual-0.4/libvisual/lvconfig.h <<EOF
 #endif
 EOF
 
-%find_lang %{name}-%{smallversion}
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
-%files -f %{name}-%{smallversion}.lang
+%files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING ChangeLog NEWS README TODO
+%license COPYING
 %{_libdir}/*.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%doc README NEWS TODO AUTHORS
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
-%{_includedir}/%{name}-%{smallversion}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_includedir}
+%exclude %{_datadir}
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.4.0-16
 - Mass rebuild 2014-01-24
 
