@@ -24,32 +24,13 @@ main v4l-utils package contains cx18-ctl, ir-keytable, ivtv-ctl, v4l2-ctl and
 v4l2-sysfs-path.
 
 
-%package        devel-tools
-Summary:        Utilities for v4l2 / DVB driver development and debugging
-# decode_tm6000 is GPLv2 only
-License:        GPLv2+ and GPLv2
-Requires:       libv4l%{?_isa} = %{version}-%{release}
-
-%description    devel-tools
-Utilities for v4l2 / DVB driver authors: decode_tm6000, v4l2-compliance and
-v4l2-dbg.
-
-
-%package -n     qv4l2
-Summary:        QT v4l2 test control and streaming test application
-License:        GPLv2+
-Requires:       libv4l%{?_isa} = %{version}-%{release}
-
-%description -n qv4l2
-QT v4l2 test control and streaming test application.
-
-
 %package -n     libv4l
 Summary:        Collection of video4linux support libraries 
 Group:          System Environment/Libraries
 # Some of the decompression helpers are GPLv2, the rest is LGPLv2+
 License:        LGPLv2+ and GPLv2
 URL:            http://hansdegoede.livejournal.com/3636.html
+Prefix: %{_prefix}
 
 %description -n libv4l
 libv4l is a collection of libraries which adds a thin abstraction layer on
@@ -67,18 +48,6 @@ v4l2 drivers do not).
 
 libv4l2 offers the v4l2 API on top of v4l2 devices, while adding for the
 application transparent libv4lconvert conversion where necessary.
-
-
-%package -n     libv4l-devel
-Summary:        Development files for libv4l
-Group:          Development/Libraries
-License:        LGPLv2+
-URL:            http://hansdegoede.livejournal.com/3636.html
-Requires:       libv4l%{?_isa} = %{version}-%{release}
-
-%description -n libv4l-devel
-The libv4l-devel package contains libraries and header files for
-developing applications that use libv4l.
 
 
 %prep
@@ -103,70 +72,30 @@ make %{?_smp_mflags}
 %make_install
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 rm $RPM_BUILD_ROOT%{_libdir}/{v4l1compat.so,v4l2convert.so}
-desktop-file-validate $RPM_BUILD_ROOT%{_datadir}/applications/qv4l2.desktop
 
-
-%post -n libv4l -p /sbin/ldconfig
-
-%postun -n libv4l -p /sbin/ldconfig
-
-%post -n qv4l2
-touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-
-%postun -n qv4l2
-if [ $1 -eq 0 ] ; then
-    touch --no-create %{_datadir}/icons/hicolor &>/dev/null
-    gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-fi
-
-%posttrans -n qv4l2
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-
-
-%files
-%doc README
-%dir %{_sysconfdir}/rc_keymaps
-%config(noreplace) %{_sysconfdir}/rc_maps.cfg
-%{_udevrulesdir}/70-infrared.rules
-%{_prefix}/lib/udev/rc_keymaps/*
-%{_bindir}/cx18-ctl
-%{_bindir}/dvb*
-%{_bindir}/ir-keytable
-%{_bindir}/ivtv-ctl
-%{_bindir}/rds-ctl
-%{_bindir}/v4l2-ctl
-%{_bindir}/v4l2-sysfs-path
-%{_mandir}/man1/ir-keytable.1*
-
-%files devel-tools
-%doc README
-%{_bindir}/decode_tm6000
-%{_bindir}/v4l2-compliance
-%{_sbindir}/v4l2-dbg
-
-%files -n qv4l2
-%doc README
-%{_bindir}/qv4l2
-%{_datadir}/applications/qv4l2.desktop
-%{_datadir}/icons/hicolor/*/apps/qv4l2.*
 
 %files -n libv4l
-%doc COPYING.LIB COPYING ChangeLog README.lib TODO
+%license COPYING.LIB COPYING
 %{_libdir}/libdvbv5.so.*
 %{_libdir}/libv4l
 %{_libdir}/libv4l*.so.*
 
-%files -n libv4l-devel
-%doc README.lib-multi-threading
-%{_includedir}/dvb*.h
-%{_includedir}/libv4l*.h
-%{_libdir}/libdvbv5.so
-%{_libdir}/libv4l*.so
-%{_libdir}/pkgconfig/libdvbv5*.pc
-%{_libdir}/pkgconfig/libv4l*.pc
+%exclude %{_bindir}
+%exclude %{_sbindir}
+%exclude %{_datadir}
+%exclude %{_sysconfdir}
+%exclude %{_udevrulesdir}
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude /usr/lib/udev
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.9.5-4
 - Mass rebuild 2014-01-24
 
