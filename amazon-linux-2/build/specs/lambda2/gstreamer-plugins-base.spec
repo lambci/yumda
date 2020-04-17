@@ -50,6 +50,8 @@ Patch3: 0001-typefind-bounds-check-windows-ico-detection.patch
 Patch4: fix-gst-init.patch
 Patch5: fix-docs.patch
 
+Prefix: %{_prefix}
+
 %description
 GStreamer is a streaming media framework, based on graphs of filters which
 operate on media data. Applications using this library can do anything
@@ -74,7 +76,7 @@ This package contains a set of well-maintained base plug-ins.
   --with-package-name='Fedora gstreamer-plugins-base package' \
   --with-package-origin='http://download.fedora.redhat.com/fedora' \
   --enable-experimental \
-  --enable-gtk-doc \
+  --disable-gtk-doc \
   --enable-orc \
   --disable-gnome_vfs \
   --disable-static
@@ -116,14 +118,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_bindir}/gst-visualise*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/gst-visualise*
 
-%find_lang gst-plugins-base-%{majorminor}
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-%files -f gst-plugins-base-%{majorminor}.lang
+%files
 %defattr(-, root, root)
-%doc AUTHORS COPYING README REQUIREMENTS
+%license COPYING
 
 # libraries
 %{_libdir}/libgstinterfaces-%{majorminor}.so.*
@@ -191,6 +188,7 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man1/gst-visualise*
 Summary:        tools for GStreamer streaming media framework base plugins
 Group:          Applications/Multimedia
 Requires:       %{name} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description -n gstreamer-plugins-base-tools
 GStreamer is a streaming media framework, based on graphs of filters which
@@ -209,159 +207,27 @@ These include:
 %defattr(-, root, root, -)
 %{_bindir}/gst-discoverer-%{majorminor}
 
-%package devel
-Summary:        GStreamer Base Plugins Development files
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-Obsoletes:      gstreamer-plugins-devel
-
-%description devel
-GStreamer Base Plugins library development and header files. Documentation
-is provided by the gstreamer-plugins-base-devel-docs package.
-
-%files devel
-%defattr(-, root, root)
-# plugin helper library headers
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/app
-%{_includedir}/gstreamer-%{majorminor}/gst/app/gstappbuffer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/app/gstappsink.h
-%{_includedir}/gstreamer-%{majorminor}/gst/app/gstappsrc.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/audio
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/audio.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/audio-enumtypes.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudioclock.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudiodecoder.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudioencoder.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudiofilter.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudioiec61937.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudiosink.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstaudiosrc.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstbaseaudiosink.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstbaseaudiosrc.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/gstringbuffer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/mixerutils.h
-%{_includedir}/gstreamer-%{majorminor}/gst/audio/multichannel.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/cdda
-%{_includedir}/gstreamer-%{majorminor}/gst/cdda/gstcddabasesrc.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/floatcast
-%{_includedir}/gstreamer-%{majorminor}/gst/floatcast/floatcast.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/fft
-%{_includedir}/gstreamer-%{majorminor}/gst/fft/gstfft*.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/interfaces
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/colorbalance.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/colorbalancechannel.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/interfaces-enumtypes.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/mixer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/mixeroptions.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/mixertrack.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/navigation.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/propertyprobe.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/tuner.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/tunerchannel.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/tunernorm.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/videoorientation.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/streamvolume.h
-%{_includedir}/gstreamer-%{majorminor}/gst/interfaces/xoverlay.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/netbuffer
-%{_includedir}/gstreamer-%{majorminor}/gst/netbuffer/gstnetbuffer.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/pbutils
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/codec-utils.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/descriptions.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/encoding-profile.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/encoding-target.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/gstdiscoverer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/gstpluginsbaseversion.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/install-plugins.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/missing-plugins.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/pbutils.h
-%{_includedir}/gstreamer-%{majorminor}/gst/pbutils/pbutils-enumtypes.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/riff
-%{_includedir}/gstreamer-%{majorminor}/gst/riff/riff-ids.h
-%{_includedir}/gstreamer-%{majorminor}/gst/riff/riff-media.h
-%{_includedir}/gstreamer-%{majorminor}/gst/riff/riff-read.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/rtp
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstbasertpaudiopayload.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstbasertpdepayload.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstbasertppayload.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstrtcpbuffer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstrtpbuffer.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtp/gstrtppayloads.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/rtsp
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtsp-enumtypes.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspbase64.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspconnection.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspdefs.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspextension.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspmessage.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtsprange.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtsptransport.h
-%{_includedir}/gstreamer-%{majorminor}/gst/rtsp/gstrtspurl.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/sdp/
-%{_includedir}/gstreamer-%{majorminor}/gst/sdp/gstsdp.h
-%{_includedir}/gstreamer-%{majorminor}/gst/sdp/gstsdpmessage.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/tag
-%{_includedir}/gstreamer-%{majorminor}/gst/tag/xmpwriter.h
-%{_includedir}/gstreamer-%{majorminor}/gst/tag/gsttagdemux.h
-%{_includedir}/gstreamer-%{majorminor}/gst/tag/gsttagmux.h
-%{_includedir}/gstreamer-%{majorminor}/gst/tag/tag.h
-%dir %{_includedir}/gstreamer-%{majorminor}/gst/video
-%{_includedir}/gstreamer-%{majorminor}/gst/video/gstvideofilter.h
-%{_includedir}/gstreamer-%{majorminor}/gst/video/gstvideosink.h
-%{_includedir}/gstreamer-%{majorminor}/gst/video/video.h
-%{_includedir}/gstreamer-%{majorminor}/gst/video/video-enumtypes.h
-%{_includedir}/gstreamer-%{majorminor}/gst/video/video-overlay-composition.h
-
-%{_libdir}/libgstaudio-%{majorminor}.so
-%{_libdir}/libgstinterfaces-%{majorminor}.so
-%{_libdir}/libgstnetbuffer-%{majorminor}.so
-%{_libdir}/libgstriff-%{majorminor}.so
-%{_libdir}/libgstrtp-%{majorminor}.so
-%{_libdir}/libgsttag-%{majorminor}.so
-%{_libdir}/libgstvideo-%{majorminor}.so
-%{_libdir}/libgstcdda-%{majorminor}.so
-%{_libdir}/libgstpbutils-%{majorminor}.so
-%{_libdir}/libgstrtsp-%{majorminor}.so
-%{_libdir}/libgstsdp-%{majorminor}.so
-%{_libdir}/libgstfft-%{majorminor}.so
-%{_libdir}/libgstapp-%{majorminor}.so
-
-%dir %{_datadir}/gst-plugins-base
-%{_datadir}/gst-plugins-base/license-translations.dict
-
-%{_datadir}/gir-1.0/GstApp-0.10.gir
-%{_datadir}/gir-1.0/GstAudio-0.10.gir
-%{_datadir}/gir-1.0/GstFft-0.10.gir
-%{_datadir}/gir-1.0/GstInterfaces-0.10.gir
-%{_datadir}/gir-1.0/GstNetbuffer-0.10.gir
-%{_datadir}/gir-1.0/GstPbutils-0.10.gir
-%{_datadir}/gir-1.0/GstRiff-0.10.gir
-%{_datadir}/gir-1.0/GstRtp-0.10.gir
-%{_datadir}/gir-1.0/GstRtsp-0.10.gir
-%{_datadir}/gir-1.0/GstSdp-0.10.gir
-%{_datadir}/gir-1.0/GstTag-0.10.gir
-%{_datadir}/gir-1.0/GstVideo-0.10.gir
-
-# pkg-config files
-%{_libdir}/pkgconfig/*.pc
-
-%package devel-docs
-Summary: Developer documentation for GStreamer Base plugins library
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-BuildArch: noarch
-
-%description devel-docs
-This package contains developer documentation for the GStreamer Base Plugins
-library.
-
-%files devel-docs
-%defattr(-, root, root)
-%dir %{_datadir}/gtk-doc
-%dir %{_datadir}/gtk-doc/html
-%doc %{_datadir}/gtk-doc/html/gst-plugins-base-libs-%{majorminor}
-%doc %{_datadir}/gtk-doc/html/gst-plugins-base-plugins-%{majorminor}
+%exclude %{_includedir}
+%exclude %{_datadir}
+%exclude %{_libdir}/pkgconfig/*.pc
+%exclude %{_libdir}/libgstaudio-%{majorminor}.so
+%exclude %{_libdir}/libgstinterfaces-%{majorminor}.so
+%exclude %{_libdir}/libgstnetbuffer-%{majorminor}.so
+%exclude %{_libdir}/libgstriff-%{majorminor}.so
+%exclude %{_libdir}/libgstrtp-%{majorminor}.so
+%exclude %{_libdir}/libgsttag-%{majorminor}.so
+%exclude %{_libdir}/libgstvideo-%{majorminor}.so
+%exclude %{_libdir}/libgstcdda-%{majorminor}.so
+%exclude %{_libdir}/libgstpbutils-%{majorminor}.so
+%exclude %{_libdir}/libgstrtsp-%{majorminor}.so
+%exclude %{_libdir}/libgstsdp-%{majorminor}.so
+%exclude %{_libdir}/libgstfft-%{majorminor}.so
+%exclude %{_libdir}/libgstapp-%{majorminor}.so
 
 %changelog
+* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.10.36-18
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
