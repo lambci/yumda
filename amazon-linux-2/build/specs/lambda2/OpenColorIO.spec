@@ -16,18 +16,42 @@ Summary:        Enables color transforms and image display across graphics apps
 
 License:        BSD
 URL:            http://opencolorio.org/
+# Github archive was generated on the fly using the following URL:
+# https://github.com/imageworks/OpenColorIO/tarball/v1.0.9
+Source0:        %{name}-%{version}.tar.gz
+Patch0:         OpenColorIO-yaml_cpp3.patch
 
-# Sources were downloaded using:
-# yumdownloader OpenColorIO.x86_64
-# And then queried using:
-# rpm -qp --qf 'Name: %{name}\n[Requires: %{requires}\n][Conflicts: %{conflicts}\n][Obsoletes: %{obsoletes}\n][Provides: %{provides}\n]' OpenColorIO*.x86_64.rpm | uniq
-Source0: OpenColorIO-1.0.9-4.el7.x86_64.rpm
+# Utilities
+%if 0%{?rhel} && 0%{?rhel} <= 6
+BuildRequires:  cmake28
+%else
+BuildRequires:  cmake
+%endif
+BuildRequires:  help2man
+BuildRequires:  python-markupsafe
 
-BuildRequires: rpm
-BuildRequires: cpio
+# Libraries
+BuildRequires:  mesa-libGL-devel mesa-libGLU-devel
+BuildRequires:  libX11-devel libXmu-devel libXi-devel
+BuildRequires:  freeglut-devel
+BuildRequires:  glew-devel
+BuildRequires:  zlib-devel
+
+#######################
+# Unbundled libraries #
+#######################
+BuildRequires:  tinyxml-devel
+BuildRequires:  lcms2-devel
+BuildRequires:  yaml-cpp03-devel >= 0.3.0
+
+# The following bundled projects are only used for document generation.
+#BuildRequires:  python-docutils
+#BuildRequires:  python-jinja2
+#BuildRequires:  python-pygments
+#BuildRequires:  python-setuptools
+#BuildRequires:  python-sphinx
 
 Prefix: %{_prefix}
-
 
 %description
 OCIO enables color transforms and image display to be handled in a consistent
@@ -36,29 +60,49 @@ solutions, OCIO is geared towards motion-picture post production, with an
 emphasis on visual effects and animation color pipelines.
 
 
+%prep
+%setup -q
+%patch0 -p1 -b .yaml3
+
+# Remove what bundled libraries
+rm -f ext/lcms*
+rm -f ext/tinyxml*
+rm -f ext/yaml*
+
+
+%build
+rm -rf build && mkdir build && pushd build
+%cmake -DOCIO_BUILD_STATIC=OFF \
+       -DOCIO_BUILD_DOCS=OFF \
+       -DOCIO_BUILD_TESTS=OFF \
+       -DOCIO_PYGLUE_SONAME=OFF \
+       -DUSE_EXTERNAL_YAML=TRUE \
+       -DUSE_EXTERNAL_TINYXML=TRUE \
+       -DUSE_EXTERNAL_LCMS=TRUE \
+       -DOCIO_BUILD_PYGLUE=OFF \
+       -DOCIO_BUILD_APPS=OFF \
+       ../
+
+make %{?_smp_mflags}
+
+
 %install
-rm -rf %{buildroot} && mkdir -p %{buildroot}
-
-pushd %{buildroot}
-  rpm2cpio %{SOURCE0} | cpio -idm
-popd
-
-mv %{buildroot}/usr %{buildroot}%{_prefix}
-mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
-
+pushd build
+%make_install
 
 %files
-%license %{_datadir}/doc/OpenColorIO-%{version}/LICENSE
+%license LICENSE
 %{_libdir}/*.so.*
 %dir %{_datadir}/ocio
 %{_datadir}/ocio/setup_ocio.sh
 
-%exclude %{_datadir}
-%exclude %{_libdir}/python2.7
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
-* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+* Wed Apr 22 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Tue Oct 04 2016 Richard Shaw <hobbes1069@gmail.com> - 1.0.9-4.1
