@@ -9,15 +9,36 @@ Group:          Development/Libraries
 License:        BSD
 URL:            https://sites.google.com/site/openimageio/home
 
-# Sources were downloaded using:
-# yumdownloader OpenImageIO.x86_64 OpenImageIO-utils.x86_64
-# And then queried using:
-# rpm -qp --qf 'Name: %{name}\n[Requires: %{requires}\n][Conflicts: %{conflicts}\n][Obsoletes: %{obsoletes}\n][Provides: %{provides}\n]' OpenImageIO*.x86_64.rpm | uniq
-Source0: OpenImageIO-1.5.24-3.el7.1.x86_64.rpm
-Source1: OpenImageIO-utils-1.5.24-3.el7.1.x86_64.rpm
+Source0:        https://github.com/%{name}/%{subname}/archive/Release-%{version}.tar.gz#/%{name}-%{version}.tar.gz
 
-BuildRequires: rpm
-BuildRequires: cpio
+BuildRequires:  cmake
+BuildRequires:  txt2man
+BuildRequires:  boost-devel
+BuildRequires:  glew-devel
+BuildRequires:  OpenEXR-devel ilmbase-devel
+BuildRequires:  python2-devel
+BuildRequires:  libpng-devel libtiff-devel openjpeg-devel giflib-devel
+%if ! 0%{?rhel}
+BuildRequires:  libwebp-devel
+BuildRequires:  Field3D-devel
+BuildRequires:  LibRaw-devel
+%endif
+BuildRequires:  hdf5-devel
+BuildRequires:  zlib-devel
+BuildRequires:  jasper-devel
+BuildRequires:  pugixml-devel
+BuildRequires:  opencv-devel
+
+# WARNING: OpenColorIO and OpenImageIO are cross dependent.
+# If an ABI incompatible update is done in one, the other also needs to be
+# rebuilt.
+BuildRequires:  OpenColorIO-devel
+
+# We don't want to provide private python extension libs
+%{?filter_setup:
+%filter_provides_in %{python_sitearch}/.*\.so$ 
+%filter_setup
+}
 
 Prefix: %{_prefix}
 
@@ -44,32 +65,56 @@ Command-line tools to manipulate and get information on images using the
 %{name} library.
 
 
+%prep
+%setup -q -n oiio-Release-%{version}
+
+# Remove bundled pugixml
+rm -f src/include/pugixml.hpp \
+      src/include/pugiconfig.hpp \
+      src/libutil/pugixml.cpp 
+
+# Remove bundled tbb
+rm -rf src/include/tbb
+
+%build
+rm -rf build/linux && mkdir -p build/linux && pushd build/linux
+# Needed to compile on GCC 7+
+export CXXFLAGS="-faligned-new -Wno-error=misleading-indentation -Wno-error=format-truncation $CXXFLAGS"
+# CMAKE_SKIP_RPATH is OK here because it is set to FALSE internally and causes
+# CMAKE_INSTALL_RPATH to be cleared, which is the desiered result.
+%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+       -DCMAKE_SKIP_RPATH:BOOL=TRUE \
+       -DINCLUDE_INSTALL_DIR:PATH=%{_includedir}/%{name} \
+       -DINSTALL_DOCS:BOOL=FALSE \
+       -DUSE_EXTERNAL_PUGIXML:BOOL=TRUE \
+       -DVERBOSE=TRUE \
+       -DUSE_QT=0 \
+       -DUSE_PYTHON=0 \
+       -DOIIO_BUILD_TESTS=0 \
+       ../../
+
+make %{?_smp_mflags}
+
+
 %install
-rm -rf %{buildroot} && mkdir -p %{buildroot}
-
-pushd %{buildroot}
-  rpm2cpio %{SOURCE0} | cpio -idm
-  rpm2cpio %{SOURCE1} | cpio -idm
-popd
-
-mv %{buildroot}/usr %{buildroot}%{_prefix}
-mv %{buildroot}%{_prefix}/lib64 %{buildroot}%{_libdir}
+pushd build/linux
+make DESTDIR=%{buildroot} install
 
 
 %files
-%{_datadir}/licenses/*
+%license LICENSE
 %{_libdir}/libOpenImageIO.so.*
 %{_libdir}/libOpenImageIO_Util.so.*
 
 %files utils
 %{_bindir}/*
 
-%exclude %{_datadir}
-%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
 
 
 %changelog
-* Thu Apr 16 2020 Michael Hart <michael@lambci.org>
+* Wed Apr 22 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Oct 03 2016 Richard Shaw <hobbes1069@gmail.com> - 1.5.24-3
