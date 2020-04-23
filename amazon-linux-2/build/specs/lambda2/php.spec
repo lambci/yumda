@@ -46,8 +46,8 @@
 %global  with_libgd 1
 %endif
 
-%global with_zip     0
-%global with_libzip  0
+%global with_zip     1
+%global with_libzip  1
 # Not yet compatible with firebird 3
 # https://bugs.php.net/bug.php?id=73512
 %global with_firebird 0
@@ -74,7 +74,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.15
+%global upver        7.3.16
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -1560,8 +1560,12 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Mar 25 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.16-1
+- Package updated to 7.3.16
+- Enable zip extension
 
 * Wed Feb 26 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.15-1
 - Package updated to 7.3.15
