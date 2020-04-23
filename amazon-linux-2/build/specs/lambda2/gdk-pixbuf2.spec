@@ -1,8 +1,8 @@
 %global glib2_version 2.48.0
 
 Name:           gdk-pixbuf2
-Version:        2.36.5
-Release: 1%{?dist}.0.2
+Version:        2.36.12
+Release:        3%{?dist}
 Summary:        An image loading library
 
 License:        LGPLv2+
@@ -18,9 +18,10 @@ BuildRequires:  jasper-devel
 # gdk-pixbuf does a configure time check which uses the GIO mime
 # layer; we need to actually have the mime type database.
 BuildRequires:  shared-mime-info
-# Bootstrap requirements
-BuildRequires: autoconf automake libtool gtk-doc
-BuildRequires: gettext-autopoint
+
+# needed for man page generation
+BuildRequires:  docbook-style-xsl
+BuildRequires:  libxslt
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 
@@ -38,17 +39,22 @@ modules for new image formats. It is used by toolkits such as GTK+ or
 clutter.
 
 %prep
-%setup -q -n gdk-pixbuf-%{version}
+%autosetup -n gdk-pixbuf-%{version} -p1
 
 %build
-%configure $CONFIGFLAGS             \
-      --without-x11                   \
+%configure                         \
+      --without-x11                \
       --with-libjasper             \
       --with-included-loaders=png  \
-      --disable-installed-tests     \
-      --disable-silent-rules \
-      --disable-introspection \
+      --disable-installed-tests    \
+      --disable-man                \
+      --disable-silent-rules       \
+      --disable-introspection      \
       --disable-static
+      
+# needed to work around bug in makefile goo
+rm -f docs/reference/gdk-pixbuf/*.1
+      
 make %{?_smp_mflags}
 
 
@@ -88,8 +94,20 @@ touch $RPM_BUILD_ROOT%{_libdir}/gdk-pixbuf-2.0/2.10.0/loaders.cache
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Jul 26 2018 Ray Strode <rstrode@redhat.com> - 2.36.12-3
+- One more crack at generating man pages
+  Related: #1569815
+
+* Thu Jul 26 2018 Ray Strode <rstrode@redhat.com> - 2.36.12-2
+- Generate man page
+  Related: #1569815
+
+* Sun Apr 08 2018 Kalev Lember <klember@redhat.com> - 2.36.12-1
+- Update to 2.36.12
+- Resolves: #1569815
 
 * Mon Feb 13 2017 Kalev Lember <klember@redhat.com> - 2.36.5-1
 - Update to 2.36.5
