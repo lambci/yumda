@@ -1,20 +1,30 @@
-%define glib2_version 2.46.0
+%define glib2_version 2.55.1
+
+%global _vpath_srcdir .
+%global _vpath_builddir %{_target_platform}
 
 Name:           glib-networking
-Version:        2.50.0
-Release: 1%{?dist}.0.2
+Version:        2.56.1
+Release:        1%{?dist}
 Summary:        Networking support for GLib
 
 License:        LGPLv2+
 URL:            http://www.gnome.org
-Source0:        http://download.gnome.org/sources/glib-networking/2.50/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/glib-networking/2.56/%{name}-%{version}.tar.xz
 
+# Downstream RHEL patches:
+Patch0:         glib-networking-python2.patch
+
+BuildRequires:  gettext
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  libproxy-devel
 BuildRequires:  gnutls-devel
-BuildRequires:  intltool
 BuildRequires:  ca-certificates
 BuildRequires:  gsettings-desktop-schemas-devel
+# Requires python3.6, might need to manually install, then:
+# sudo yum install -y ninja-build
+# sudo rpm -Uvh --nodeps $(repoquery --location meson)
+BuildRequires:  meson
 BuildRequires:  systemd
 
 Requires:       ca-certificates
@@ -33,19 +43,11 @@ implementation.
 %autosetup -p1
 
 %build
-%configure --disable-static --with-libproxy --disable-installed-tests
-
-make %{?_smp_mflags} V=1
+%meson -Dinstalled_tests=false
+%meson_build
 
 %install
-%make_install
-
-%if "%{_prefix}" != "/usr"
-  if [ -d $RPM_BUILD_ROOT/usr/lib64 ]; then mv $RPM_BUILD_ROOT/usr/lib64/* $RPM_BUILD_ROOT%{_libdir}/; fi
-  if [ -d $RPM_BUILD_ROOT/usr ]; then mv $RPM_BUILD_ROOT/usr/* $RPM_BUILD_ROOT%{_prefix}/; fi
-%endif
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/gio/modules/*.la
+%meson_install
 
 %files
 %license COPYING
@@ -58,8 +60,12 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/gio/modules/*.la
 %exclude %{_libdir}/systemd
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue May 22 2018 Kalev Lember <klember@redhat.com> - 2.56.1-1
+- Update to 2.56.1
+- Resolves: #1567374
 
 * Mon Sep 19 2016 Kalev Lember <klember@redhat.com> - 2.50.0-1
 - Update to 2.50.0
