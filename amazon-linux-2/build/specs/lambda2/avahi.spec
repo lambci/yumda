@@ -3,7 +3,7 @@
 
 Name:             avahi
 Version:          0.6.31
-Release:          19%{?dist}
+Release: 19%{?dist}.0.1
 Summary:          Local network service discovery
 License:          LGPLv2+
 URL:              http://avahi.org
@@ -257,7 +257,7 @@ rm -f %{buildroot}%{_sysconfdir}/rc.d/init.d/avahi-dnsconfd
 %exclude %{_unitdir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Thu Nov 09 2017 Michal Sekletar <msekleta@redhat.com> - 0.6.31-19
