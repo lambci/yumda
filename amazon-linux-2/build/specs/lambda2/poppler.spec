@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 38%{?dist}
+Release: 38%{?dist}.0.1
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -279,7 +279,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Fri Mar 29 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-38
