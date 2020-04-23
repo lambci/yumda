@@ -245,7 +245,7 @@ groff.x86_64                 1.22.2-8.lambda2.0.2                        lambda2
 groff-base.x86_64            1.22.2-8.lambda2.0.2                        lambda2
 groff-perl.x86_64            1.22.2-8.lambda2.0.2                        lambda2
 gsettings-desktop-schemas.x86_64
-                             3.24.1-2.lambda2                            lambda2
+                             3.28.0-2.lambda2                            lambda2
 gsm.x86_64                   1.0.13-11.lambda2.0.2                       lambda2
 gsm-tools.x86_64             1.0.13-11.lambda2.0.2                       lambda2
 gstreamer.x86_64             0.10.36-7.lambda2.0.2                       lambda2
