@@ -15,7 +15,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release: 3%{?snap:.%{snap}git%{shortcommit}}%{?dist}.0.2
+Release: 3%{?snap:.%{snap}git%{shortcommit}}%{?dist}.0.3
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -214,7 +214,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Thu Mar 09 2017 Wim Taymans <wtaymans@redhat.com> - 10.0-3
