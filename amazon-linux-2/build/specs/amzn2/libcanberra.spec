@@ -1,6 +1,6 @@
 Name: libcanberra
 Version: 0.30
-Release: 5%{?dist}.0.2
+Release: 5%{?dist}.0.3
 Summary: Portable Sound Event Library
 Group: System Environment/Libraries
 Source0: http://0pointer.de/lennart/projects/libcanberra/libcanberra-%{version}.tar.xz

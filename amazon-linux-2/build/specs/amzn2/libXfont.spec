@@ -1,12 +1,12 @@
 Summary: X.Org X11 libXfont runtime library
 Name: libXfont
-Version: 1.5.2
-Release: 1%{?dist}.0.2
+Version: 1.5.4
+Release: 1%{?dist}
 License: MIT
 Group: System Environment/Libraries
-URL: http://www.x.org
+URL: https://www.x.org
 
-Source0: http://www.x.org/pub/individual/lib/%{name}-%{version}.tar.bz2
+Source0: https://www.x.org/pub/individual/lib/%{name}-%{version}.tar.bz2
 
 BuildRequires: autoconf automake libtool
 BuildRequires: pkgconfig(fontsproto)
@@ -70,6 +70,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %{_libdir}/pkgconfig/xfont.pc
 
 %changelog
+* Tue Apr 24 2018 Adam Jackson <ajax@redhat.com> - 1.5.4-1
+- libXfont 1.5.4.
+
 * Mon Jan 23 2017 Benjamin Tissoires <benjamin.tissoires@redhat.com> 1.5.2-1
 - libXfont 1.5.2
 

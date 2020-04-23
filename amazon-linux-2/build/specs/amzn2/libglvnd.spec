@@ -1,27 +1,23 @@
 %global _trivial .0
 %global _buildid .1
-#global commit0 8d4d03f77d6e7684ff32180b8ef78aa87d945b49
-#global date 20170818
-#global shortcommit0 %%(c=%%{commit0}; echo ${c:0:7})
+%global commit0 5baa1e5cfc422eb53e66f12ffb80c93d4a693cd9
+%global shortcommit0 %%(c=%%{commit0}; echo ${c:0:7})
 
 %if 0%{?rhel} && 0%{?rhel} < 7
 %global _without_mesa_glvnd_default 1
 %endif
 
-# Set to 0 to skip testsuite.
-%global with_tests 1
-
 Name:           libglvnd
-Version:        1.0.0
-Release: 1%{?commit0:.%{date}git%{shortcommit0}}%{?dist}.0.2
+Version:        1.0.1
+Release:        0.1%{?commit0:.git%{shortcommit0}}%{?dist}%{?_trivial}%{?_buildid}
 # Provide an upgrade path from the negativo17.org pkgs which have Epoch 1
 Epoch:          1
 Summary:        The GL Vendor-Neutral Dispatch library
 
 License:        MIT
 URL:            https://github.com/NVIDIA/libglvnd
-Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
-#Source0:        %%{url}/archive/%%{commit0}.tar.gz#/%%{name}-%%{shortcommit0}.tar.gz
+#Source0:        %%{url}/archive/v%%{version}/%%{name}-%%{version}.tar.gz
+Source0:        %{url}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
 
 BuildRequires:  libtool
 BuildRequires:  gcc
@@ -30,14 +26,7 @@ BuildRequires:  libxml2-python
 BuildRequires:  pkgconfig(glproto)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xext)
-
-# X11 tests:
-#Xvfb is unlikely to reproduce a full Xorg environnement
-#So some tests are failing
-#https://github.com/NVIDIA/libglvnd/issues/93
-%if 0%{?with_tests}
 BuildRequires:  xorg-x11-server-Xvfb
-%endif
 
 %if (0%{?rhel} && 0%{?rhel} <= 6)
 BuildRequires:  autoconf268
@@ -140,7 +129,7 @@ libGL and libGLX are the common dispatch interface for the GLX API.
 
 
 %prep
-%setup -q -n %{name}-%{?commit0}%{?!commit0:%{version}}
+%autosetup -p1 -n %{name}-%{?commit0}%{?!commit0:%{version}}
 %if 0%{?rhel} == 6
 autoreconf268 -vif
 %else
@@ -166,44 +155,42 @@ find %{buildroot} -name '*.la' -delete
 
 %{?_without_mesa_glvnd_default:
 # Avoid conflict with mesa-libGL
-mkdir -p %{buildroot}%{_libdir}/%{name}
+mkdir -p %{buildroot}%{_libdir}/%{name}/
 for l in libEGL libGL libGLESv1_CM libGLESv2 libGLX; do
   mv %{buildroot}%{_libdir}/${l}.so* \
-    %{buildroot}%{_libdir}/%{name}
+    %{buildroot}%{_libdir}/%{name}/
 done
 }
 
 # Create directory layout
-mkdir -p %{buildroot}%{_sysconfdir}/glvnd/egl_vendor.d
-mkdir -p %{buildroot}%{_datadir}/glvnd/egl_vendor.d
-mkdir -p %{buildroot}%{_sysconfdir}/egl/egl_external_platform.d
-mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d
+mkdir -p %{buildroot}%{_sysconfdir}/glvnd/egl_vendor.d/
+mkdir -p %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+mkdir -p %{buildroot}%{_sysconfdir}/egl/egl_external_platform.d/
+mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 
-%if 0%{?with_tests}
 %check
 export DO_X11_TESTS=1
-# these tests are skipped in mock (server does not support the GLX extension)
-# SKIP: testglxqueryversion.sh
-xvfb-run -a  make check V=1 || cat `find . -name test-suite.log`
+xvfb-run -s '-screen 0 640x480x24' -d make check V=1 || \
+%ifarch s390x ppc64
+    :
+%else
+    (cat `find . -name test-suite.log` ; exit 1)
 %endif
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%ldconfig_scriptlets
 %files
 %doc README.md
-%dir %{_sysconfdir}/glvnd
-%dir %{_datadir}/glvnd
+%dir %{_sysconfdir}/glvnd/
+%dir %{_datadir}/glvnd/
 %{_libdir}/libGLdispatch.so.0*
 
-%post opengl -p /sbin/ldconfig
-%postun opengl -p /sbin/ldconfig
+%ldconfig_scriptlets opengl
 %files opengl
 %{_libdir}/libOpenGL.so.0*
 
-%post gles -p /sbin/ldconfig
-%postun gles -p /sbin/ldconfig
+%ldconfig_scriptlets gles
 %files gles
 %if 0%{?_without_mesa_glvnd_default}
 %{_libdir}/%{name}/libGLES*.so.*
@@ -211,8 +198,7 @@ xvfb-run -a  make check V=1 || cat `find . -name test-suite.log`
 %{_libdir}/libGLES*.so.*
 %endif
 
-%post glx -p /sbin/ldconfig
-%postun glx -p /sbin/ldconfig
+%ldconfig_scriptlets glx
 %files glx
 %if 0%{?_without_mesa_glvnd_default}
 %{_libdir}/%{name}/libGL.so.*
@@ -222,11 +208,10 @@ xvfb-run -a  make check V=1 || cat `find . -name test-suite.log`
 %{_libdir}/libGLX.so.*
 %endif
 
-%post egl -p /sbin/ldconfig
-%postun egl -p /sbin/ldconfig
+%ldconfig_scriptlets egl
 %files egl
-%dir %{_sysconfdir}/glvnd/egl_vendor.d
-%dir %{_datadir}/glvnd/egl_vendor.d
+%dir %{_sysconfdir}/glvnd/egl_vendor.d/
+%dir %{_datadir}/glvnd/egl_vendor.d/
 %dir %{_sysconfdir}/egl/
 %dir %{_sysconfdir}/egl/egl_external_platform.d/
 %dir %{_datadir}/egl/
@@ -238,7 +223,7 @@ xvfb-run -a  make check V=1 || cat `find . -name test-suite.log`
 %endif
 
 %files core-devel
-%dir %{_includedir}/glvnd
+%dir %{_includedir}/glvnd/
 %{_includedir}/glvnd/*.h
 %{_libdir}/pkgconfig/*.pc
 
@@ -250,6 +235,9 @@ xvfb-run -a  make check V=1 || cat `find . -name test-suite.log`
 
 
 %changelog
+* Sat Jun 02 2018 Simone Caronni <negativo17@gmail.com> - 1:1.0.1-0.1.20180327git5baa1e5
+- Merge updates from master.
+
 * Thu Nov 09 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:1.0.0-1
 - Update to 1.0.0 release
 

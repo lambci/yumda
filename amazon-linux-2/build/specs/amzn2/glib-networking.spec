@@ -1,20 +1,24 @@
-%define glib2_version 2.46.0
+%define glib2_version 2.55.1
 
 Name:           glib-networking
-Version:        2.50.0
-Release: 1%{?dist}.0.2
+Version:        2.56.1
+Release:        1%{?dist}
 Summary:        Networking support for GLib
 
 License:        LGPLv2+
 URL:            http://www.gnome.org
-Source0:        http://download.gnome.org/sources/glib-networking/2.50/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/glib-networking/2.56/%{name}-%{version}.tar.xz
 
+# Downstream RHEL patches:
+Patch0:         glib-networking-python2.patch
+
+BuildRequires:  gettext
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  libproxy-devel
 BuildRequires:  gnutls-devel
-BuildRequires:  intltool
 BuildRequires:  ca-certificates
 BuildRequires:  gsettings-desktop-schemas-devel
+BuildRequires:  meson
 BuildRequires:  systemd
 
 Requires:       ca-certificates
@@ -39,14 +43,11 @@ the functionality of the installed glib-networking package.
 %autosetup -p1
 
 %build
-%configure --disable-static --with-libproxy --enable-installed-tests
-
-make %{?_smp_mflags} V=1
+%meson -Dinstalled_tests=true
+%meson_build
 
 %install
-%make_install
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/gio/modules/*.la
+%meson_install
 
 %find_lang %{name}
 
@@ -71,6 +72,10 @@ gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 %{_datadir}/installed-tests
 
 %changelog
+* Tue May 22 2018 Kalev Lember <klember@redhat.com> - 2.56.1-1
+- Update to 2.56.1
+- Resolves: #1567374
+
 * Mon Sep 19 2016 Kalev Lember <klember@redhat.com> - 2.50.0-1
 - Update to 2.50.0
 - Resolves: #1386876

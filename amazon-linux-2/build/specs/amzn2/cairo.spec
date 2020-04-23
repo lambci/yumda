@@ -2,14 +2,25 @@
 %define freetype_version 2.1.9
 %define fontconfig_version 2.2.95
 
+%if 0%{?fedora} > 26 || 0%{?rhel} > 7
+%global cairogl --disable-gl
+%else
+%global cairogl --enable-gl
+%global with_gl 1
+%endif
+
 Name:		cairo
-Version:	1.14.8
-Release: 2%{?dist}.0.2
+Version:	1.15.12
+Release:	4%{?dist}
 Summary:	A 2D graphics library
 
 License:	LGPLv2 or MPLv1.1
 URL:		http://cairographics.org
-Source0:	http://cairographics.org/releases/%{name}-%{version}.tar.xz
+Source0:	http://cairographics.org/snapshots/%{name}-%{version}.tar.xz
+
+# Backported from upstream
+Patch0:         0001-Fix-assertion-failure-in-the-freetype-backend.patch
+Patch1:         0001-Revert-Correctly-decode-Adobe-CMYK-JPEGs-in-PDF-expo.patch
 
 Patch3:         cairo-multilib.patch
 
@@ -23,18 +34,18 @@ BuildRequires: freetype-devel >= %{freetype_version}
 BuildRequires: fontconfig-devel >= %{fontconfig_version}
 BuildRequires: glib2-devel
 BuildRequires: librsvg2-devel
+%if 0%{?with_gl}
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libEGL-devel
+%endif
 
 %description
 Cairo is a 2D graphics library designed to provide high-quality display
 and print output. Currently supported output targets include the X Window
-System, OpenGL (via glitz), in-memory image buffers, and image files (PDF,
-PostScript, and SVG).
+System, in-memory image buffers, and image files (PDF, PostScript, and SVG).
 
 Cairo is designed to produce consistent output on all output media while
-taking advantage of display hardware acceleration when available (e.g.
-through the X Render Extension or OpenGL).
+taking advantage of display hardware acceleration when available.
 
 %package devel
 Summary: Development files for cairo
@@ -81,8 +92,7 @@ This package contains tools for working with the cairo graphics library.
  * cairo-trace: Record cairo library calls for later playback
 
 %prep
-%setup -q
-%patch3 -p1 -b .multilib
+%autosetup -p1
 
 %build
 %configure --disable-static	\
@@ -92,8 +102,8 @@ This package contains tools for working with the cairo graphics library.
 	--enable-pdf		\
 	--enable-svg		\
 	--enable-tee		\
-	--enable-gl		\
 	--enable-gobject	\
+	%{cairogl}		\
 	--disable-gtk-doc
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
@@ -131,7 +141,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_includedir}/cairo/cairo-version.h
 %{_includedir}/cairo/cairo-xlib-xrender.h
 %{_includedir}/cairo/cairo-xlib.h
-%{_includedir}/cairo/cairo-gl.h
 %{_includedir}/cairo/cairo-script.h
 %{_includedir}/cairo/cairo-xcb.h
 %{_libdir}/libcairo.so
@@ -146,13 +155,16 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_libdir}/pkgconfig/cairo-tee.pc
 %{_libdir}/pkgconfig/cairo-xlib.pc
 %{_libdir}/pkgconfig/cairo-xlib-xrender.pc
-%{_libdir}/pkgconfig/cairo-egl.pc
-%{_libdir}/pkgconfig/cairo-gl.pc
-%{_libdir}/pkgconfig/cairo-glx.pc
 %{_libdir}/pkgconfig/cairo-script.pc
 %{_libdir}/pkgconfig/cairo-xcb-shm.pc
 %{_libdir}/pkgconfig/cairo-xcb.pc
 %{_datadir}/gtk-doc/html/cairo
+%if 0%{?with_gl}
+%{_includedir}/cairo/cairo-gl.h
+%{_libdir}/pkgconfig/cairo-egl.pc
+%{_libdir}/pkgconfig/cairo-gl.pc
+%{_libdir}/pkgconfig/cairo-glx.pc
+%endif
 
 %files gobject
 %{_libdir}/libcairo-gobject.so.*
@@ -167,6 +179,18 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_libdir}/cairo/
 
 %changelog
+* Mon Mar 18 2019 Marek Kasik <mkasik@redhat.com> - 1.15.12-4
+- Do not inverse colors of Adobe CMYK JPEGs in PDF export
+- Resolves: #1688396
+
+* Mon Sep 10 2018 Kalev Lember <klember@redhat.com> - 1.15.12-3
+- Rebuild against new freetype
+- Resolves: #1625906
+
+* Fri Jun 01 2018 Richard Hughes <rhughes@redhat.com> - 1.15.12-1
+- Update to 1.15.12
+- Resolves: #1576535
+
 * Wed Apr 19 2017 Kalev Lember <klember@redhat.com> - 1.14.8-2
 - Remove all libtool .la files from cairo private directories as well
 - Resolves: #1386819

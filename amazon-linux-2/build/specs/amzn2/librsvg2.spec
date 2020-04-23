@@ -1,14 +1,13 @@
 Name:           librsvg2
 Summary:        An SVG library based on cairo
-Version:        2.40.16
-Release: 1%{?dist}.0.2
+Version:        2.40.20
+Release:        1%{?dist}
 
 License:        LGPLv2+
-Group:          System Environment/Libraries
 URL:            https://wiki.gnome.org/Projects/LibRsvg
-#VCS:           git:git://git.gnome.org/librsvg
 Source:         http://download.gnome.org/sources/librsvg/2.40/librsvg-%{version}.tar.xz
 
+BuildRequires:  chrpath
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(cairo-png)
 BuildRequires:  pkgconfig(gdk-pixbuf-2.0)
@@ -30,7 +29,6 @@ An SVG library based on cairo.
 
 %package devel
 Summary:        Libraries and include files for developing with librsvg
-Group:          Development/Libraries
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
@@ -70,6 +68,12 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/mozilla/
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/gtk-2.0/gdk-pixbuf.loaders
 rm -f $RPM_BUILD_ROOT%{_datadir}/pixmaps/svg-viewer.svg
 
+# Remove lib64 rpaths
+chrpath --delete $RPM_BUILD_ROOT%{_bindir}/rsvg-convert
+chrpath --delete $RPM_BUILD_ROOT%{_bindir}/rsvg-view-3
+chrpath --delete $RPM_BUILD_ROOT%{_libdir}/gdk-pixbuf-2.0/*/loaders/libpixbufloader-svg.so
+
+
 %post
 /sbin/ldconfig
 gdk-pixbuf-query-loaders-%{__isa_bits} --update-cache || :
@@ -85,6 +89,8 @@ gdk-pixbuf-query-loaders-%{__isa_bits} --update-cache || :
 %{_libdir}/librsvg-2.so.*
 %{_libdir}/gdk-pixbuf-2.0/*/loaders/libpixbufloader-svg.so
 %{_libdir}/girepository-1.0/*
+%dir %{_datadir}/thumbnailers
+%{_datadir}/thumbnailers/librsvg.thumbnailer
 
 %files devel
 %{_libdir}/librsvg-2.so
@@ -103,6 +109,10 @@ gdk-pixbuf-query-loaders-%{__isa_bits} --update-cache || :
 
 
 %changelog
+* Sat Dec 16 2017 Kalev Lember <klember@redhat.com> - 2.40.20-1
+- Update to 2.40.20
+- Resolves: #1569733
+
 * Thu Jun 09 2016 Kalev Lember <klember@redhat.com> - 2.40.16-1
 - Update to 2.40.16
 - Resolves: #1387017

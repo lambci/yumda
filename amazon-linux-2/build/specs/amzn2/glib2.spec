@@ -2,7 +2,7 @@
 
 Name: glib2
 Version: 2.56.1
-Release: 4%{?dist}
+Release: 5%{?dist}.0.1
 Summary: A library of handy utility functions
 
 License: LGPLv2+
@@ -229,10 +229,14 @@ gio-querymodules-%{__isa_bits} %{_libdir}/gio/modules
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Jun 20 2019 Ray Strode <rstrode@redhat.com> - 2.56.1-5
+- Bump release
+  Resolves: #1722245
+
 * Fri May 10 2019 Ray Strode <rstrode@redhat.com> - 2.56.1-4
 - Backport glib2 change needed for accountsservice dbus
   codegen fix
-  Related: #1709190
+  Related: #1708741
 
 * Mon Aug 27 2018 Colin Walters <walters@verbum.org> - 2.56.1-2
 - Add --disable-silent-rules

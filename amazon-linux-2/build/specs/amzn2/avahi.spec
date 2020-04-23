@@ -12,7 +12,7 @@
 
 Name:             avahi
 Version:          0.6.31
-Release:          19%{?dist}
+Release: 19%{?dist}.0.1
 Summary:          Local network service discovery
 License:          LGPLv2+
 URL:              http://avahi.org

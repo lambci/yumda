@@ -2,7 +2,7 @@
 
 Name:           libxkbcommon
 Version:        0.7.1
-Release: 1%{?gitdate:.%{gitdate}}%{?dist}.0.2
+Release:        3%{?gitdate:.%{gitdate}}%{?dist}
 Summary:        X.Org X11 XKB parsing library
 License:        MIT
 URL:            http://www.x.org
@@ -13,6 +13,27 @@ Source0:       %{name}-%{gitdate}.tar.bz2
 Source0:        http://xkbcommon.org/download/%{name}-%{version}.tar.xz
 %endif
 Source1:        make-git-snapshot.sh
+
+# Bug 1623033 - CVE-2018-15864
+Patch01:        0001-parser-Don-t-set-more-maps-when-we-don-t-have-any.patch
+# Bug 1643488 - CVE-2018-15863
+Patch02:        0002-xkbcomp-Don-t-crash-on-no-op-modmask-expressions.patch
+# Bug 1623029 - CVE-2018-15862
+Patch03:        0003-xkbcomp-Don-t-explode-on-invalid-virtual-modifiers.patch
+# Bug 1643480 - CVE-2018-15861
+Patch04:        0004-xkbcomp-Don-t-falsely-promise-from-ExprResolveLhs.patch
+# Bug 1643153 - CVE-2018-15857
+Patch05:        0005-xkbcomp-fix-pointer-value-for-FreeStmt.patch
+# Bug 1643141 - CVE-2018-15856
+Patch06:        0006-compose-fix-infinite-loop-in-parser-on-some-inputs.patch
+# Bug 1643073 - CVE-2018-15855
+Patch07:        0007-xkbcomp-fix-crash-when-parsing-an-xkb_geometry-secti.patch
+# Bug 1642880 - CVE-2018-15854
+Patch08:        0008-xkbcomp-fix-crashes-in-the-parser-when-geometry-toke.patch
+# Bug 1642853 - CVE-2018-15853
+Patch09:        0009-xkbcomp-fix-stack-overflow-when-evaluating-boolean-n.patch
+# Bug 1643477 - CVE-2018-15859
+Patch10:        0010-Fail-expression-lookup-on-invalid-atoms.patch
 
 BuildRequires:  autoconf automake libtool
 BuildRequires:  xorg-x11-util-macros byacc flex bison
@@ -52,6 +73,16 @@ X.Org X11 XKB keymap creation library development package
 %setup -q -n %{name}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
 autoreconf -v --install || exit 1
+%patch01 -p1
+%patch02 -p1
+%patch03 -p1
+%patch04 -p1
+%patch05 -p1
+%patch06 -p1
+%patch07 -p1
+%patch08 -p1
+%patch09 -p1
+%patch10 -p1
 
 %build
 %configure \
@@ -98,6 +129,15 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -fv {} ';'
 %{_libdir}/pkgconfig/xkbcommon-x11.pc
 
 %changelog
+* Wed Mar 06 2019 Peter Hutterer <peter.hutterer@redhat.com> 0.7.1-3
+- Actually apply the patch files
+
+* Mon Feb 11 2019 Peter Hutterer <peter.hutterer@redhat.com> 0.7.1-2
+- Fixes for
+  CVE-2018-15864, CVE-2018-15863, CVE-2018-15862, CVE-2018-15861,
+  CVE-2018-15859  CVE-2018-15857, CVE-2018-15856, CVE-2018-15855,
+  CVE-2018-15854, CVE-2018-15853
+
 * Thu Jan 19 2017 Peter Hutterer <peter.hutterer@redhat.com> 0.7.1-1
 - xkbcommon 0.7.1
 

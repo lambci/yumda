@@ -1,22 +1,23 @@
-%global glib2_version 2.33.12
-%global pkgconfig_version 0.12
+%global glib2_version 2.56.1
 %global freetype_version 2.1.5
-%global fontconfig_version 2.10.91
+%global fontconfig_version 2.11.91
 %global cairo_version 1.12.10
 %global libthai_version 0.1.9
-%global harfbuzz_version 1.0.3
+%global harfbuzz_version 1.4.2
 %global libXft_version 2.0.0
+%global fribidi_version 1.0
 
 Name: pango
-Version: 1.40.4
-Release: 1%{?dist}.0.2
+Version: 1.42.4
+Release: 4%{?dist}
 Summary: System for layout and rendering of internationalized text
 
 License: LGPLv2+
 URL: http://www.pango.org
-Source0: http://download.gnome.org/sources/%{name}/1.40/%{name}-%{version}.tar.xz
+Source0: http://download.gnome.org/sources/%{name}/1.42/%{name}-%{version}.tar.xz
+Patch0: pango-fixes-get-variations-crash.patch
+Patch1: pango-fixes-bidi-crash.patch
 
-BuildRequires: pkgconfig >= %{pkgconfig_version}
 BuildRequires: pkgconfig(cairo) >= %{cairo_version}
 BuildRequires: pkgconfig(freetype2) >= %{freetype_version}
 BuildRequires: pkgconfig(glib-2.0) >= %{glib2_version}
@@ -24,11 +25,13 @@ BuildRequires: pkgconfig(fontconfig) >= %{fontconfig_version}
 BuildRequires: pkgconfig(harfbuzz) >= %{harfbuzz_version}
 BuildRequires: pkgconfig(libthai) >= %{libthai_version}
 BuildRequires: pkgconfig(xft) >= %{libXft_version}
+BuildRequires: pkgconfig(fribidi) >= %{fribidi_version}
 BuildRequires: pkgconfig(gobject-introspection-1.0)
 BuildRequires: cairo-gobject-devel
-# Bootstrap requirements
-BuildRequires: gnome-common intltool gtk-doc
+BuildRequires: gtk-doc
 BuildRequires: help2man
+BuildRequires: meson
+BuildRequires: gcc
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: freetype%{?_isa} >= %{freetype_version}
@@ -37,6 +40,7 @@ Requires: cairo%{?_isa} >= %{cairo_version}
 Requires: harfbuzz%{?_isa} >= %{harfbuzz_version}
 Requires: libthai%{?_isa} >= %{libthai_version}
 Requires: libXft%{?_isa} >= %{libXft_version}
+Requires: fribidi%{?_isa} >= %{fribidi_version}
 
 %description
 Pango is a library for laying out and rendering of text, with an emphasis
@@ -73,26 +77,19 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q -n pango-%{version}
+%patch0 -p1 -b .crash
+%patch1 -p1 -b .bidi
+
 
 %build
-
-# Force regeneration of the man page
-rm pango-view/pango-view.1.in
-
-# We try hard to not link to libstdc++
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; CONFIGFLAGS=--enable-gtk-doc; fi;
- %configure $CONFIGFLAGS \
-          --enable-doc-cross-references \
-          --enable-installed-tests
-)
-make %{?_smp_mflags} V=1
+%meson -Denable_docs=true
+%meson_build
 
 
 %install
-%make_install
+%meson_install
 
-# Remove files that should not be packaged
-rm $RPM_BUILD_ROOT%{_libdir}/*.la
+ln -s %{_bindir}/true $RPM_BUILD_ROOT%{_bindir}/pango-querymodules-%{__isa_bits}
 
 PANGOXFT_SO=$RPM_BUILD_ROOT%{_libdir}/libpangoxft-1.0.so
 if ! test -e $PANGOXFT_SO; then
@@ -110,9 +107,10 @@ fi
 %files
 %license COPYING
 %doc README AUTHORS NEWS
-%doc pango-view/HELLO.txt
 %{_libdir}/libpango*-*.so.*
+%{_bindir}/pango-list
 %{_bindir}/pango-view
+%{_bindir}/pango-querymodules-%{__isa_bits}
 %{_mandir}/man1/pango-view.1*
 %{_libdir}/girepository-1.0/Pango-1.0.typelib
 %{_libdir}/girepository-1.0/PangoCairo-1.0.typelib
@@ -137,6 +135,36 @@ fi
 
 
 %changelog
+* Thu Aug 22 2019 Peng Wu <pwu@redhat.com> - 1.42.4-4
+- Fixes bidi crash
+- Security fix for CVE-2019-1010238
+- Resolves: #1738459
+
+* Sun Feb 10 2019 Peng Wu <pwu@redhat.com> - 1.42.4-3
+- Fixes crash in pango_fc_font_key_get_variations when key is null
+- Resolves: #1667239
+
+* Tue Dec 18 2018 Peng Wu <pwu@redhat.com> - 1.42.4-2
+- Requires glib2 2.56.1
+- Resolves: #1655751
+
+* Thu Aug 30 2018 Peng Wu <pwu@redhat.com> - 1.42.4-1
+- Update to 1.42.4
+- Security fix for CVE-2018-15120
+- Resolves: #1624192
+
+* Mon Jul 30 2018 Kalev Lember <klember@redhat.com> - 1.42.3-1
+- Update to 1.42.3
+- Resolves: #1569748
+
+* Tue Jun  5 2018 Peng Wu <pwu@redhat.com> - 1.42.1-2
+- Provide empty pango-querymodules link to /usr/bin/true
+- Resolves: #1443937
+
+* Sun Apr 08 2018 Kalev Lember <klember@redhat.com> - 1.42.1-1
+- Update to 1.42.1
+- Resolves: #1569748
+
 * Mon Feb 27 2017 Kalev Lember <klember@redhat.com> - 1.40.4-1
 - Update to 1.40.4
 - Resolves: #1387032

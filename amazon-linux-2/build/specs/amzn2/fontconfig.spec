@@ -1,9 +1,9 @@
-%global freetype_version 2.1.4
+%global freetype_version 2.8-7
 
 Summary:	Font configuration and customization library
 Name:		fontconfig
-Version:	2.10.95
-Release: 11%{?dist}.0.2
+Version:	2.13.0
+Release:	4.3%{?dist}
 # src/ftglue.[ch] is in Public Domain
 # src/fccache.c contains Public Domain code
 # fc-case/CaseFolding.txt is in the UCD
@@ -13,30 +13,33 @@ Group:		System Environment/Libraries
 Source:		http://fontconfig.org/release/%{name}-%{version}.tar.bz2
 URL:		http://fontconfig.org
 Source1:	25-no-bitmap-fedora.conf
-Source2:	FcStrListFirst.3
+Source2:	fc-cache
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=140335
-Patch0:		fontconfig-2.8.0-sleep-less.patch
-Patch1:		fontconfig-no-dir-when-no-conf.patch
-Patch2:		fontconfig-fix-memleak.patch
-Patch3:		fontconfig-copy-all-value.patch
-Patch4:		fontconfig-fix-crash-on-fcfontsort.patch
-Patch5:		fontconfig-fix-race-condition.patch
-Patch6:		fontconfig-update-45-latin.patch
-Patch7:		fontconfig-validate-offset-in-cache.patch
-Patch8:		fontconfig-offset-in-elts.patch
-
-# Amazon Patches
-Patch100:	0001-Avoid-conflicts-with-integer-width-macros-from-TS-18.patch
+Patch0:		%{name}-sleep-less.patch
+Patch1:		%{name}-required-freetype-version.patch
+Patch2:		%{name}-const-name-in-range.patch
+Patch3:		%{name}-implicit-object-for-const-name.patch
+Patch4:		%{name}-locale.patch
+Patch5:		%{name}-fix-embolden-logic.patch
+Patch6:		%{name}-fix-memleaks.patch
+Patch7:		%{name}-fix-flatpak.patch
+Patch8:		%{name}-fix-doublefree.patch
+Patch9:		%{name}-revert-urw-alias.patch
+Patch10:	%{name}-drop-incompatible-conf.patch
+Patch11:	%{name}-freetype-compat.patch
 
 BuildRequires:	expat-devel
 BuildRequires:	freetype-devel >= %{freetype_version}
 BuildRequires:	fontpackages-devel
+BuildRequires:	libuuid-devel
+BuildRequires:	autoconf automake libtool gettext itstool
+BuildRequires:	gperf
 
-Requires:	fontpackages-filesystem
-Requires(pre):	freetype
+Requires:	fontpackages-filesystem freetype
+Requires(pre):	freetype >= 2.8-7
 Requires(post):	grep coreutils
-Requires:	font(:lang=en)
+Requires:	dejavu-sans-fonts
 
 %description
 Fontconfig is designed to locate fonts within the
@@ -49,6 +52,7 @@ Group:		Development/Libraries
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	freetype-devel >= %{freetype_version}
 Requires:	pkgconfig
+Requires:	gettext
 
 %description	devel
 The fontconfig-devel package includes the header files,
@@ -70,23 +74,25 @@ which is useful for developing applications that uses fontconfig.
 %prep
 %setup -q
 %patch0 -p1 -b .sleep-less
-%patch1 -p1 -b .nodir
-%patch2 -p1 -b .memleak
-%patch3 -p1 -b .copy-all
-%patch4 -p1 -b .fix-crash
-%patch5 -p1 -b .fix-race
-%patch6 -p1 -b .update-45-latin
-%patch7 -p1 -b .validate-offset
-%patch8 -p1 -b .offset-elts
-%patch100 -p1
-cp %{SOURCE2} doc/
+%patch1 -p1 -b .freetype
+%patch2 -p1 -b .const-range
+%patch3 -p1 -b .const
+%patch4 -p1 -b .locale
+%patch5 -p1 -b .embolden
+%patch6 -p1 -b .memleaks
+%patch7 -p1 -b .flatpak
+%patch8 -p1 -b .doublefree
+%patch9 -p1 -b .urw -R
+%patch10 -p1 -b .incompat
+%patch11 -p1 -b .freetype-compat
 
 %build
 # We don't want to rebuild the docs, but we want to install the included ones.
 export HASDOCBOOK=no
 
+autoreconf
 %configure	--with-add-fonts=/usr/share/X11/fonts/Type1,/usr/share/X11/fonts/TTF,/usr/local/share/fonts \
-		--disable-static
+		--disable-static --with-cache-dir=/usr/lib/fontconfig/cache
 
 make %{?_smp_mflags} V=1
 
@@ -98,10 +104,19 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 install -p -m 0644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/fonts/conf.d
 ln -s %{_fontconfig_templatedir}/25-unhint-nonlatin.conf $RPM_BUILD_ROOT%{_fontconfig_confdir}/
 
-# move installed doc files back to build directory to package themm
+# move installed doc files back to build directory to package them
 # in the right place
 mv $RPM_BUILD_ROOT%{_docdir}/fontconfig/* .
 rmdir $RPM_BUILD_ROOT%{_docdir}/fontconfig/
+
+# rename fc-cache binary
+mv $RPM_BUILD_ROOT%{_bindir}/fc-cache $RPM_BUILD_ROOT%{_bindir}/fc-cache-%{__isa_bits}
+
+install -p -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/fc-cache
+
+%find_lang %{name}
+%find_lang %{name}-conf
+cat %{name}-conf.lang >> %{name}.lang
 
 %check
 make check V=1
@@ -111,7 +126,9 @@ make check V=1
 
 umask 0022
 
-mkdir -p %{_localstatedir}/cache/fontconfig
+mkdir -p /usr/lib/fontconfig/cache
+
+[[ -d %{_localstatedir}/cache/fontconfig ]] && rm -rf %{_localstatedir}/cache/fontconfig/* 2> /dev/null || :
 
 # Force regeneration of all fontconfig cache files
 # The check for existance is needed on dual-arch installs (the second
@@ -123,13 +140,14 @@ fi
 
 %postun -p /sbin/ldconfig
 
-%files
+%files -f %{name}.lang
 %doc README AUTHORS COPYING
 %doc fontconfig-user.txt fontconfig-user.html
 %doc %{_fontconfig_confdir}/README
 %{_libdir}/libfontconfig.so.*
-%{_bindir}/fc-cache
+%{_bindir}/fc-cache*
 %{_bindir}/fc-cat
+%{_bindir}/fc-conflist
 %{_bindir}/fc-list
 %{_bindir}/fc-match
 %{_bindir}/fc-pattern
@@ -142,7 +160,7 @@ fi
 # If you want to do so, you should use local.conf instead.
 %config %{_fontconfig_masterdir}/fonts.conf
 %config(noreplace) %{_fontconfig_confdir}/*.conf
-%dir %{_localstatedir}/cache/fontconfig
+%dir /usr/lib/fontconfig/cache
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
@@ -151,11 +169,26 @@ fi
 %{_libdir}/pkgconfig/*
 %{_includedir}/fontconfig
 %{_mandir}/man3/*
+%{_datadir}/gettext/its/fontconfig.its
+%{_datadir}/gettext/its/fontconfig.loc
 
 %files devel-doc
 %doc fontconfig-devel.txt fontconfig-devel
 
 %changelog
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.3
+- Add 30-urw-aliases.conf back.
+
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.2
+- Drop more new syntax in config.
+
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.1
+- Rebase to 2.13.0 (#1576501)
+- Rename fc-cache binary to fc-cache-{32,64} for multilib. (#1568968)
+- backport some fixes related to Flatpak.
+- Drop new syntax in config for compatibility.
+- Requires dejavu-sans-fonts instead of font(:lang=en) (#1484094)
+
 * Fri Feb 24 2017 Akira TAGOH <tagoh@redhat.com> - 2.10.95-11
 - Add Requires: font(:lang=en) (#1403957)
 

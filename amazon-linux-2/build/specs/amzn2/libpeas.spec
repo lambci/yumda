@@ -8,7 +8,7 @@
 
 Name:           libpeas
 Version:        1.20.0
-Release: 1%{?dist}.0.2
+Release: 1%{?dist}.0.3
 Summary:        Plug-ins implementation convenience library
 
 License:        LGPLv2+
