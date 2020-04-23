@@ -1,6 +1,6 @@
 Name: libcanberra
 Version: 0.30
-Release: 5%{?dist}.0.2
+Release: 5%{?dist}.0.3
 Summary: Portable Sound Event Library
 Group: System Environment/Libraries
 Source0: http://0pointer.de/lennart/projects/libcanberra/libcanberra-%{version}.tar.xz
@@ -63,7 +63,7 @@ rm $RPM_BUILD_ROOT%{_docdir}/libcanberra/README
 %exclude %{_libdir}/libcanberra-gtk*
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.30-5
