@@ -227,7 +227,7 @@ giflib-utils.x86_64          4.1.6-9.lambda2.0.2                         lambda2
 git.x86_64                   2.26.2-1.lambda2                            lambda2
 git-core.x86_64              2.26.2-1.lambda2                            lambda2
 glib-networking.x86_64       2.50.0-1.lambda2.0.2                        lambda2
-glib2.x86_64                 2.56.1-4.lambda2                            lambda2
+glib2.x86_64                 2.56.1-5.lambda2.0.1                        lambda2
 glibc-devel.x86_64           2.26-34.lambda2                             lambda2
 glibc-headers.x86_64         2.26-34.lambda2                             lambda2
 glibc-nss-devel.x86_64       2.26-34.lambda2                             lambda2
