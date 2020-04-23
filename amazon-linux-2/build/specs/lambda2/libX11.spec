@@ -1,11 +1,11 @@
 %global tarball libX11
-%define _trivial .0
-%define _buildid .2
+#global gitdate 20130524
+%global gitversion a3bdd2b09
 
 Summary: Core X11 protocol client library
 Name: libX11
-Version: 1.6.5
-Release: 2%{?dist}%{?_trivial}%{?_buildid}
+Version: 1.6.7
+Release: 2%{?gitdate:.%{gitdate}git%{gitversion}}%{?dist}
 License: MIT
 Group: System Environment/Libraries
 URL: http://www.x.org
@@ -19,10 +19,8 @@ Source0: https://xorg.freedesktop.org/archive/individual/lib/%{name}-%{version}.
 %endif
 
 Patch2: dont-forward-keycode-0.patch
-
-# Amazon's patches
-Patch1001: 1001-off-by-one-writes-CVE-2018-14599.patch
-Patch1002: 1002-crash-on-invalid-reply-CVE-2018-14598.patch
+Patch3: 0001-_XDefaultIOError-Reformat-to-be-less-ugly.patch
+Patch4: 0002-_XDefaultIOError-Do-better-at-detecting-explicit-shu.patch
 
 BuildRequires: xorg-x11-util-macros >= 1.11
 BuildRequires: pkgconfig(xproto) >= 7.0.15
@@ -51,8 +49,8 @@ libX11 common data
 %prep
 %setup -q -n %{tarball}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 %patch2 -p1 -b .dont-forward-keycode-0
-%patch1001 -p1
-%patch1002 -p1
+%patch3 -p1 -b .reformat
+%patch4 -p1 -b .shutdown
 
 %build
 autoreconf -v --install --force
@@ -89,8 +87,17 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}
 %exclude %{_mandir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue May 28 2019 Adam Jackson <ajax@redhat.com> - 1.6.7-2
+- Restore the less-alarming server-disconnect message
+
+* Mon Apr 15 2019 Adam Jackson <ajax@redhat.com> - 1.6.7-1
+- libX11 1.6.7
+
+* Fri Mar 01 2019 Adam Jackson <ajax@redhat.com> - 1.6.5-3
+- Make the server-disconnect message less alarming
 
 * Thu Jul 12 2018 Peter Hutterer <peter.hutterer@redhat.com> 1.6.5-2
 - Rebuild to pick up new xproto keysyms (#1600147)
