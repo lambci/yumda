@@ -2,7 +2,7 @@
 
 Name:           libpeas
 Version:        1.20.0
-Release: 1%{?dist}.0.2
+Release: 1%{?dist}.0.3
 Summary:        Plug-ins implementation convenience library
 
 License:        LGPLv2+
@@ -71,7 +71,7 @@ chrpath --delete $RPM_BUILD_ROOT%{_libdir}/peas-demo/plugins/secondtime/libsecon
 %exclude %{_libdir}/libpeas-%{apiver}/loaders/libpython3loader.so
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Mon Sep 19 2016 Kalev Lember <klember@redhat.com> - 1.20.0-1
