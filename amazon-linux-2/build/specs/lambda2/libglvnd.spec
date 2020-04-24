@@ -1,23 +1,19 @@
 %global _trivial .0
 %global _buildid .1
-#global commit0 8d4d03f77d6e7684ff32180b8ef78aa87d945b49
-#global date 20170818
-#global shortcommit0 %%(c=%%{commit0}; echo ${c:0:7})
-
-# Set to 0 to skip testsuite.
-%global with_tests 0
+%global commit0 5baa1e5cfc422eb53e66f12ffb80c93d4a693cd9
+%global shortcommit0 %%(c=%%{commit0}; echo ${c:0:7})
 
 Name:           libglvnd
-Version:        1.0.0
-Release: 1%{?commit0:.%{date}git%{shortcommit0}}%{?dist}.0.2
+Version:        1.0.1
+Release:        0.1%{?commit0:.git%{shortcommit0}}%{?dist}%{?_trivial}%{?_buildid}
 # Provide an upgrade path from the negativo17.org pkgs which have Epoch 1
 Epoch:          1
 Summary:        The GL Vendor-Neutral Dispatch library
 
 License:        MIT
 URL:            https://github.com/NVIDIA/libglvnd
-Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
-#Source0:        %%{url}/archive/%%{commit0}.tar.gz#/%%{name}-%%{shortcommit0}.tar.gz
+#Source0:        %%{url}/archive/v%%{version}/%%{name}-%%{version}.tar.gz
+Source0:        %{url}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
 
 BuildRequires:  libtool
 BuildRequires:  gcc
@@ -26,14 +22,7 @@ BuildRequires:  libxml2-python
 BuildRequires:  pkgconfig(glproto)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xext)
-
-# X11 tests:
-#Xvfb is unlikely to reproduce a full Xorg environnement
-#So some tests are failing
-#https://github.com/NVIDIA/libglvnd/issues/93
-%if 0%{?with_tests}
 BuildRequires:  xorg-x11-server-Xvfb
-%endif
 
 %if (0%{?rhel} && 0%{?rhel} <= 6)
 BuildRequires:  autoconf268
@@ -83,7 +72,7 @@ libGL and libGLX are the common dispatch interface for the GLX API.
 
 
 %prep
-%setup -q -n %{name}-%{?commit0}%{?!commit0:%{version}}
+%autosetup -p1 -n %{name}-%{?commit0}%{?!commit0:%{version}}
 %if 0%{?rhel} == 6
 autoreconf268 -vif
 %else
@@ -108,16 +97,16 @@ autoreconf -vif
 find %{buildroot} -name '*.la' -delete
 
 # Create directory layout
-mkdir -p %{buildroot}%{_sysconfdir}/glvnd/egl_vendor.d
-mkdir -p %{buildroot}%{_datadir}/glvnd/egl_vendor.d
-mkdir -p %{buildroot}%{_sysconfdir}/egl/egl_external_platform.d
-mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d
+mkdir -p %{buildroot}%{_sysconfdir}/glvnd/egl_vendor.d/
+mkdir -p %{buildroot}%{_datadir}/glvnd/egl_vendor.d/
+mkdir -p %{buildroot}%{_sysconfdir}/egl/egl_external_platform.d/
+mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d/
 
 
 %files
 %license README.md
-%dir %{_sysconfdir}/glvnd
-%dir %{_datadir}/glvnd
+%dir %{_sysconfdir}/glvnd/
+%dir %{_datadir}/glvnd/
 %{_libdir}/libGLdispatch.so.0*
 
 %files opengl
@@ -127,8 +116,8 @@ mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d
 %{_libdir}/libGLES*.so.*
 
 %files egl
-%dir %{_sysconfdir}/glvnd/egl_vendor.d
-%dir %{_datadir}/glvnd/egl_vendor.d
+%dir %{_sysconfdir}/glvnd/egl_vendor.d/
+%dir %{_datadir}/glvnd/egl_vendor.d/
 %dir %{_sysconfdir}/egl/
 %dir %{_sysconfdir}/egl/egl_external_platform.d/
 %dir %{_datadir}/egl/
@@ -145,8 +134,11 @@ mkdir -p %{buildroot}%{_datadir}/egl/egl_external_platform.d
 
 
 %changelog
-* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Sat Jun 02 2018 Simone Caronni <negativo17@gmail.com> - 1:1.0.1-0.1.20180327git5baa1e5
+- Merge updates from master.
 
 * Thu Nov 09 2017 Leigh Scott <leigh123linux@googlemail.com> - 1:1.0.0-1
 - Update to 1.0.0 release
