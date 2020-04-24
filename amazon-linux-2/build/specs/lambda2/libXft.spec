@@ -16,16 +16,10 @@ BuildRequires: fontconfig-devel >= 2.2-1
 
 Requires: fontconfig >= 2.2-1
 
+Prefix: %{_prefix}
+
 %description
 X.Org X11 libXft runtime library
-
-%package devel
-Summary: X.Org X11 libXft development package
-Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-
-%description devel
-X.Org X11 libXft development package
 
 %prep
 %setup -q
@@ -52,27 +46,20 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING README ChangeLog
+%license COPYING
 %{_libdir}/libXft.so.2*
 
-%files devel
-%defattr(-,root,root,-)
-#%{_bindir}/xft-config
-%dir %{_includedir}/X11/Xft
-%{_includedir}/X11/Xft/Xft.h
-%{_includedir}/X11/Xft/XftCompat.h
-%{_libdir}/libXft.so
-%{_libdir}/pkgconfig/xft.pc
-#%{_mandir}/man1/xft-config.1.gz
-#%dir %{_mandir}/man3x
-%{_mandir}/man3/Xft.3*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 %changelog
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.3.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
