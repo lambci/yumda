@@ -8,19 +8,12 @@ License: LGPLv2+ and UCD
 Group: System Environment/Libraries
 Patch1: %{name}-CVE-2019-18397.patch
 
+Prefix: %{_prefix}
+
 %description
 A library to handle bidirectional scripts (for example Hebrew, Arabic),
 so that the display is done in the proper way; while the text data itself
 is always written in logical order.
-
-%package devel
-Summary: Libraries and include files for FriBidi
-Group: System Environment/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-Include files and libraries needed for developing applications which use
-FriBidi.
 
 %prep
 %setup -q
@@ -42,28 +35,23 @@ export CFLAGS="$RPM_OPT_FLAGS -DPAGE_SIZE=4096"
 %configure --disable-static --disable-docs
 make %{?_smp_mflags}
 
-%check
-make check
-
 %install
 make DESTDIR=$RPM_BUILD_ROOT install INSTALL="install -p"
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
 %files
-%doc README AUTHORS COPYING ChangeLog THANKS NEWS TODO
+%license COPYING
 %{_bindir}/fribidi
 %{_libdir}/libfribidi.so.*
 
-%files devel
-%{_includedir}/fribidi
-%{_libdir}/libfribidi.so
-%{_libdir}/pkgconfig/*.pc
+%exclude %{_includedir}/fribidi
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 %changelog
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Dec 17 2019 Akira TAGOH <tagoh@redhat.com> - 1.0.2-1.1
 - Security fix for CVE-2019-18397
   Resolves: rhbz#1781224
