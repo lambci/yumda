@@ -2,17 +2,18 @@
 
 Summary: Direct Rendering Manager runtime library
 Name: libdrm
-Version: 2.4.83
-Release: 2%{?dist}.0.2
+Version: 2.4.97
+Release: 2%{?dist}
 License: MIT
 Group: System Environment/Libraries
 URL: http://dri.sourceforge.net
 %if 0%{?gitdate}
 Source0: %{name}-%{gitdate}.tar.bz2
 %else
-Source0: http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
+Source0: https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 %endif
 Source1: make-git-snapshot.sh
+Source2: README.rst
 
 BuildRequires: pkgconfig automake autoconf libtool
 BuildRequires: kernel-headers
@@ -30,8 +31,6 @@ BuildRequires: valgrind-devel
 %endif
 BuildRequires: xorg-x11-util-macros
 
-# backport from upstream master seems like it should be in here.
-Patch1: 0001-intel-Change-a-KBL-pci-id-to-GT2-from-GT1.5.patch
 # hardcode the 666 instead of 660 for device nodes
 Patch3: libdrm-make-dri-perms-okay.patch
 # remove backwards compat not needed on Fedora
@@ -39,8 +38,10 @@ Patch4: libdrm-2.4.0-no-bc.patch
 # make rule to print the list of test programs
 Patch5: libdrm-2.4.25-check-programs.patch
 
-#Backport some intel pci ids.
-Patch10: 0002-intel-Add-more-Coffeelake-PCI-IDs.patch
+# amdgpu names update
+Patch10: 0001-amdgpu-add-some-raven-marketing-names.patch
+# intel pciids update
+Patch11: 0001-intel-sync-i915_pciids.h-with-kernel.patch
 
 Prefix: %{_prefix}
 
@@ -49,28 +50,11 @@ Direct Rendering Manager runtime library
 
 %prep
 %setup -q %{?gitdate:-n %{name}-%{gitdate}}
-%patch1 -p1 -b .intelfix
 %patch3 -p1 -b .forceperms
 %patch4 -p1 -b .no-bc
 %patch5 -p1 -b .check
-
-%patch10 -p1 -b .cfl
-
-patch tests/amdgpu/Makefile.am <<\EOF
-diff --git a/tests/amdgpu/Makefile.am b/tests/amdgpu/Makefile.am
-index 13b3dc8e6ced5d686e009307e761a5d6fcf84fc8..9c02fd60a942cc8aacd5e0cdf99d0781dbbbaf4a 100644
---- a/tests/amdgpu/Makefile.am
-+++ b/tests/amdgpu/Makefile.am
-@@ -28,4 +28,5 @@ amdgpu_test_SOURCES = \
- 	vce_ib.h \
- 	frame.h \
- 	uvd_enc_tests.c \
--	vcn_tests.c
-+	vcn_tests.c \
-+	uve_ib.h
-EOF
-
-curl -sSL https://gitlab.freedesktop.org/mesa/drm/raw/2ecafcae8a215d9994fb26a122d97bcb5437c5e8/tests/amdgpu/uve_ib.h?inline=false > tests/amdgpu/uve_ib.h
+%patch10 -p1 -b .amdnames
+%patch11 -p1 -b .intelid
 
 %build
 autoreconf -v --install || exit 1
@@ -79,6 +63,7 @@ autoreconf -v --install || exit 1
   --disable-cairo-tests \
 	--disable-udev
 make %{?_smp_mflags}
+cp %{SOURCE2} .
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -88,7 +73,7 @@ find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
 %files
 %defattr(-,root,root,-)
-%license README
+%license README.rst
 %{_libdir}/libdrm.so.2
 %{_libdir}/libdrm.so.2.4.0
 %{_libdir}/libdrm_intel.so.1
@@ -110,8 +95,20 @@ find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 %exclude %{_mandir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Feb 20 2019 Dave Airlie <airlied@redhat.com> - 2.4.97-2
+- Add some new i915 pci ids, and amd marketing names
+
+* Thu Jan 31 2019 Dave Airlie <airlied@redhat.com> - 2.4.97-1
+- libdrm 2.4.97 (readd README)
+
+* Wed Aug 22 2018 Rob Clark <rclark@redhat.com> - 2.4.91-3
+- Add WHL, AML, etc PCI IDs
+
+* Tue Apr 24 2018 Adam Jackson <ajax@redhat.com> - 2.4.91-2
+- libdrm 2.4.91
 
 * Fri Jan 12 2018 Dave Airlie <airlied@redhat.com> - 2.4.83-2
 - Add some Coffeelake PCI IDs
