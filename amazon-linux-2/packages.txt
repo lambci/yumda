@@ -68,8 +68,8 @@ bsdtar.x86_64                3.1.2-14.lambda2                            lambda2
 bzip2.x86_64                 1.0.6-13.lambda2.0.2                        lambda2
 bzip2-libs.x86_64            1.0.6-13.lambda2.0.2                        lambda2
 c-ares.x86_64                1.10.0-3.lambda2.0.2                        lambda2
-cairo.x86_64                 1.14.8-2.lambda2.0.2                        lambda2
-cairo-tools.x86_64           1.14.8-2.lambda2.0.2                        lambda2
+cairo.x86_64                 1.15.12-4.lambda2                           lambda2
+cairo-tools.x86_64           1.15.12-4.lambda2                           lambda2
 cdparanoia.x86_64            10.2-17.lambda2.0.2                         lambda2
 cdparanoia-libs.x86_64       10.2-17.lambda2.0.2                         lambda2
 clamav.x86_64                0.102.2-4.lambda2                           lambda2
