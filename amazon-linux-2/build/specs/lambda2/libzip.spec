@@ -29,6 +29,7 @@ BuildRequires:  perl(UNIVERSAL)
 BuildRequires:  perl(strict)
 BuildRequires:  perl(warnings)
 
+Prefix: %{_prefix}
 
 %description
 libzip is a C library for reading, creating, and modifying zip archives. Files
@@ -37,18 +38,10 @@ other zip archives. Changes made without closing the archive can be reverted.
 The API is documented by man pages.
 
 
-%package devel
-Summary:  Development files for %{name}
-Requires: %{name}%{?_isa} = %{version}-%{release}
-
-%description devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
-
-
 %package tools
 Summary:  Command line tools from %{name}
 Requires: %{name}%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
 
 %description tools
 The %{name}-tools package provides command line tools split off %{name}:
@@ -81,18 +74,6 @@ make install DESTDIR=%{buildroot} INSTALL='install -p'
 rm -fv %{buildroot}%{_libdir}/lib*.la
 
 
-%check
-%if %{with_tests}
-make check
-%else
-: Test suite disabled
-%endif
-
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
-
 %files
 %license LICENSE
 %{_libdir}/libzip.so.5*
@@ -101,20 +82,17 @@ make check
 %{_bindir}/zipcmp
 %{_bindir}/zipmerge
 %{_bindir}/ziptool
-%{_mandir}/man1/zip*
 
-%files devel
-%doc API-CHANGES AUTHORS THANKS *.md
-%{_includedir}/zip.h
-%{_includedir}/zipconf*.h
-%{_libdir}/libzip.so
-%{_libdir}/pkgconfig/libzip.pc
-%{_mandir}/man3/libzip*
-%{_mandir}/man3/zip*
-%{_mandir}/man3/ZIP*
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_mandir}
 
 
 %changelog
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Nov 20 2017 Remi Collet <remi@remirepo.net> - 1.3.2-1
 - update to 1.3.2
 - drop multilib header hack
