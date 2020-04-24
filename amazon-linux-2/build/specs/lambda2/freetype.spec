@@ -1,7 +1,7 @@
 Summary: A free and portable font rendering engine
 Name: freetype
-Version: 2.4.11
-Release: 15%{?dist}.0.2
+Version: 2.8
+Release: 14%{?dist}
 License: (FTL or GPLv2+) and BSD and MIT and Public Domain and zlib with acknowledgement
 Group: System Environment/Libraries
 URL: http://www.freetype.org
@@ -10,54 +10,44 @@ Source1: http://download.savannah.gnu.org/releases/freetype/freetype-doc-%{versi
 Source2: http://download.savannah.gnu.org/releases/freetype/ft2demos-%{version}.tar.bz2
 Source3: ftconfig.h
 
-Patch21:  freetype-2.3.0-enable-spr.patch
+Patch0:  freetype-2.3.0-enable-spr.patch
 
 # Enable otvalid and gxvalid modules
-Patch46:  freetype-2.2.1-enable-valid.patch
-# Enable additional demos
-Patch47:  freetype-2.3.11-more-demos.patch
-
-# Fix multilib conflicts
-Patch88:  freetype-multilib.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=891457
-Patch89:  freetype-2.4.11-fix-emboldening.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1010341
-Patch90:  0001-Fix-vertical-size-of-emboldened-glyphs.patch
+Patch1:  freetype-2.2.1-enable-valid.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1197740
-Patch91:  freetype-2.4.11-CVE-2014-9657.patch
-Patch92:  freetype-2.4.11-CVE-2014-9658.patch
-Patch93:  freetype-2.4.11-ft-strncmp.patch
-Patch94:  freetype-2.4.11-CVE-2014-9675.patch
-Patch95:  freetype-2.4.11-CVE-2014-9660.patch
-Patch96:  freetype-2.4.11-CVE-2014-9661a.patch
-Patch97:  freetype-2.4.11-CVE-2014-9661b.patch
-Patch98:  freetype-2.4.11-CVE-2014-9663.patch
-Patch99:  freetype-2.4.11-CVE-2014-9664a.patch
-Patch100:  freetype-2.4.11-CVE-2014-9664b.patch
-Patch101:  freetype-2.4.11-CVE-2014-9667.patch
-Patch102:  freetype-2.4.11-CVE-2014-9669.patch
-Patch103:  freetype-2.4.11-CVE-2014-9670.patch
-Patch104:  freetype-2.4.11-CVE-2014-9671.patch
-Patch105:  freetype-2.4.11-CVE-2014-9673.patch
-Patch106:  freetype-2.4.11-CVE-2014-9674a.patch
-Patch107:  freetype-2.4.11-unsigned-long.patch
-Patch108:  freetype-2.4.11-CVE-2014-9674b.patch
-Patch109:  freetype-2.4.11-pcf-read-a.patch
-Patch110:  freetype-2.4.11-pcf-read-b.patch
-Patch111:  freetype-2.4.11-inode-overflow.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1368141
-Patch112:  freetype-2.4.11-libtool.patch
+Patch2:  freetype-2.4.11-inode-overflow.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1381678
-Patch113:  freetype-2.4.11-signed.patch
+Patch3:  freetype-2.4.11-signed.patch
 
-Buildroot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
+# Enable additional demos
+Patch4:  freetype-2.3.11-more-demos.patch
+
+Patch5:  freetype-2.4.11-libtool.patch
+
+Patch6:  freetype-2.8-pcf-encoding.patch
+
+Patch7:  freetype-2.8-loop-counter.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1497443
+Patch8:  freetype-multilib.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1544775
+Patch9:  freetype-2.8-getvariation.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1576504
+Patch10:  freetype-2.8-2.4.11-API.patch
+Patch11:  freetype-2.8-avar-table-load.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1657479
+Patch12:  freetype-2.8-bw-rendering.patch
+Patch13:  freetype-2.8-bw-hinting.patch
 
 BuildRequires: libX11-devel
+BuildRequires: libpng-devel
+BuildRequires: zlib-devel
+BuildRequires: bzip2-devel
 
 Provides: %{name}-bytecode
 Provides: %{name}-subpixel
@@ -76,55 +66,44 @@ text-rendering library.
 %prep
 %setup -q -b 1 -a 2
 
-%patch21  -p1 -b .enable-spr
+%patch0  -p1 -b .enable-spr
 
-%patch46  -p1 -b .enable-valid
+%patch1  -p1 -b .enable-valid
+%patch2  -p1 -b .inode-overflow
+%patch3  -p1 -b .signed
 
 pushd ft2demos-%{version}
-%patch47  -p1 -b .more-demos
+%patch4  -p1 -b .more-demos
 popd
 
-%patch88 -p1 -b .multilib
-%patch89 -p1 -b .emboldening
-%patch90 -p1 -b .emboldened-glyphs
-
-%patch91 -p1 -b .CVE-2014-9657
-%patch92 -p1 -b .CVE-2014-9658
-%patch93 -p1 -b .ft-strncmp
-%patch94 -p1 -b .CVE-2014-9675
-%patch95 -p1 -b .CVE-2014-9660
-%patch96 -p1 -b .CVE-2014-9661a
-%patch97 -p1 -b .CVE-2014-9661b
-%patch98 -p1 -b .CVE-2014-9663
-%patch99 -p1 -b .CVE-2014-9664a
-%patch100 -p1 -b .CVE-2014-9664b
-%patch101 -p1 -b .CVE-2014-9667
-%patch102 -p1 -b .CVE-2014-9669
-%patch103 -p1 -b .CVE-2014-9670
-%patch104 -p1 -b .CVE-2014-9671
-%patch105 -p1 -b .CVE-2014-9673
-%patch106 -p1 -b .CVE-2014-9674a
-%patch107 -p1 -b .unsigned-long
-%patch108 -p1 -b .CVE-2014-9674b
-%patch109 -p1 -b .pcf-read-a
-%patch110 -p1 -b .pcf-read-b
-%patch111 -p1 -b .inode-overflow
-%patch112 -p1 -b .libtool
-%patch113 -p1 -b .signed
+%patch5 -p1 -b .libtool
+%patch6 -p1 -b .pcf-encoding
+%patch7 -p1 -b .loop-counter
+%patch8 -p1 -b .multilib
+%patch9 -p1 -b .getvariation
+%patch10 -p1 -b .2.4.11-api
+%patch11 -p1 -b .avar-table-load
+%patch12 -p1 -b .bw-rendering
+%patch13 -p1 -b .bw-hinting
 
 %build
 
-%configure --disable-static CFLAGS="%optflags -D_FILE_OFFSET_BITS=64"
+%configure --disable-static \
+           --with-zlib=yes \
+           --with-bzip2=yes \
+           --with-png=yes \
+           --with-harfbuzz=no \
+           CFLAGS="%optflags -D_FILE_OFFSET_BITS=64"
+
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' builds/unix/libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' builds/unix/libtool
 make %{?_smp_mflags}
 
 
 %install
-%makeinstall
+%make_install
 
 %files
-%defattr(-,root,root)
 %license docs/LICENSE.TXT docs/FTL.TXT docs/GPLv2.TXT
 %{_libdir}/libfreetype.so.*
 
@@ -138,8 +117,28 @@ make %{?_smp_mflags}
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Mar 11 2019 Marek Kasik <mkasik@redhat.com> - 2.8-14
+- Fix rendering in monochrome mode
+- Resolves: #1657479
+
+* Tue Nov 13 2018 Marek Kasik <mkasik@redhat.com> - 2.8-13
+- Fix definition of constant ft_encoding_gb2312 in freetype.h
+- Resolves: #1645218
+
+* Fri Jun 08 2018 Marek Kasik <mkasik@redhat.com> - 2.8-12
+- Fix loading of avar tables
+- Resolves: #1576504
+
+* Thu Jun 07 2018 Marek Kasik <mkasik@redhat.com> - 2.8-11
+- Preserve API/ABI compatibility for public symbols
+- Resolves: #1576504
+
+* Wed Jun 06 2018 Richard Hughes <rhughes@redhat.com> - 2.8-10
+- Update to 2.8
+- Resolves: #1576504
 
 * Mon Feb 20 2017 Marek Kasik <mkasik@redhat.com> - 2.4.11-15
 - Fix shellcheck warning (coverity)
