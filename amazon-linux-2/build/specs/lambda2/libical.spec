@@ -1,15 +1,34 @@
+%define _trivial .0
+%define _buildid .1
+%define compat_build_dir libical-1.0.1
+
 Summary:	Reference implementation of the iCalendar data type and serialization format
 Name:		libical
-Version:	1.0.1
-Release: 1%{?dist}.0.2
-License:	LGPLv2 or MPLv1.1
-Group:		System Environment/Libraries
-URL:		http://freeassociation.sourceforge.net/
+Version:	3.0.3
+Release:	2%{?dist}%{?_trivial}%{?_buildid}
+License:	LGPLv2 or MPLv2.0
+URL:		https://libical.github.io/libical/
 Source:		https://github.com/%{name}/%{name}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source1:	https://github.com/%{name}/%{name}/archive/v1.0.1/%{name}-1.0.1.tar.gz
 Patch0:		libical-1.0-avoid-putenv.patch
+Patch1:		libical-3.0.3-cmake-version.patch
 
-BuildRequires:	bison, byacc, flex
+# because 'Version:' in compat-libical subpackage overrides %%{version} value
+%global gir_version %{version}
+
+BuildRequires:	gcc
+BuildRequires:	gcc-c++
 BuildRequires:	cmake
+BuildRequires:	gtk-doc
+BuildRequires:	pkgconfig(gobject-2.0)
+BuildRequires:	pkgconfig(gobject-introspection-1.0)
+BuildRequires:	pkgconfig(libxml-2.0)
+BuildRequires:	pkgconfig(icu-i18n)
+BuildRequires:	pkgconfig(icu-uc)
+BuildRequires:	perl
+#BuildRequires:	python
+#BuildRequires:	python-gobject
+BuildRequires:	vala
 Requires:	tzdata
 
 Prefix: %{_prefix}
@@ -18,26 +37,101 @@ Prefix: %{_prefix}
 Reference implementation of the iCalendar data type and serialization format
 used in dozens of calendaring and scheduling products.
 
+%package glib
+Summary:	GObject wrapper for libical library
+Provides:	libical-glib%{?_isa} = %{version}-%{release}
+Obsoletes:	libical-glib < 3.0.0
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Prefix: %{_prefix}
+
+%description glib
+This package provides a GObject wrapper for libical library with support
+of GObject Introspection.
+
+%package -n compat-libical1
+Summary:	Compat package with libical 1.0.1 libraries
+Version:	1.0.1
+License:	LGPLv2 or MPLv1.1
+# Explicitly conflict with older libical packages that ship libraries
+# with the same soname as this compat package
+Conflicts:	libical < 3.0.0
+Prefix: %{_prefix}
+
+%description -n compat-libical1
+Compatibility package with libical libraries ABI version 1.
+
 %prep
 %setup -q
+%patch1 -p1 -b .cmake-version
+
+%setup -T -D -a 1
+
+pushd %{compat_build_dir}
 %patch0 -p1 -b .avoid-putenv
+popd
 
 %build
+
+# the compat package first
+pushd %{compat_build_dir}
 mkdir -p %{_target_platform}
 pushd %{_target_platform}
 %{cmake} ..
 popd
-
 make %{?_smp_mflags} -C %{_target_platform}
+popd
+
+mkdir -p %{_target_platform}
+pushd %{_target_platform}
+%{cmake} .. \
+  -DUSE_INTEROPERABLE_VTIMEZONES:BOOL=true \
+  -DICAL_ALLOW_EMPTY_PROPERTIES:BOOL=true \
+  -DGOBJECT_INTROSPECTION:BOOL=true \
+  -DICAL_GLIB:BOOL=true \
+  -DICAL_GLIB_VAPI:BOOL=true \
+  -DSHARED_ONLY:BOOL=true
+popd
+
+make %{?_smp_mflags} -C %{_target_platform} -j1
 
 %install
-make install/fast DESTDIR=%{buildroot} -C %{_target_platform}
 
+# the compat package first
+pushd %{compat_build_dir}
+make install/fast DESTDIR=%{buildroot} -C %{_target_platform}
 # omit static libs
 rm -fv %{buildroot}%{_libdir}/lib*.a
+# Remove files that aren't needed for the compat package
+rm -rf %{buildroot}%{_includedir}
+rm -rf %{buildroot}%{_libdir}/*.so
+rm -rf %{buildroot}%{_libdir}/cmake/
+rm -rf %{buildroot}%{_libdir}/pkgconfig/
+popd
+
+make install/fast DESTDIR=%{buildroot} -C %{_target_platform}
+
+if [ -d "%{buildroot}%{_prefix}/lib64" ] && [ "%{_libdir}" != "%{_prefix}/lib64" ]; then
+  mv %{buildroot}%{_prefix}/lib64/* %{buildroot}%{_libdir}/
+  rm -rf %{buildroot}%{_prefix}/lib64
+fi
 
 %files
 %license LICENSE
+%{_libdir}/libical.so.3*
+%{_libdir}/libical_cxx.so.3*
+%{_libdir}/libicalss.so.3*
+%{_libdir}/libicalss_cxx.so.3*
+%{_libdir}/libicalvcal.so.3*
+%{_libdir}/girepository-1.0/libical-%{gir_version}.typelib
+%{_datadir}/gir-1.0/libical-%{gir_version}.gir
+
+%files glib
+%{_libdir}/libical-glib.so.3*
+%{_libdir}/girepository-1.0/ICalGLib-3.0.typelib
+%{_datadir}/gir-1.0/ICalGLib-3.0.gir
+
+%files -n compat-libical1
+%license %{compat_build_dir}/LICENSE
 %{_libdir}/libical.so.1*
 %{_libdir}/libicalss.so.1*
 %{_libdir}/libicalvcal.so.1*
@@ -46,9 +140,11 @@ rm -fv %{buildroot}%{_libdir}/lib*.a
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
 %exclude %{_libdir}/cmake
+%exclude %{_datadir}/vala
+%exclude %{_datadir}/gtk-doc
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
 * Wed Jul 08 2015 Milan Crha <mcrha@redhat.com> - 1.0.1-1
@@ -122,7 +218,7 @@ rm -fv %{buildroot}%{_libdir}/lib*.a
 - Update makefile patch, remove the test part (already applied).
 - Package libical.pc, add Requires: pkgconfig to -devel.
 
-* Tue Sep 03 2008 Debarshi Ray <rishi@fedoraproject.org> - 0.32-1
+* Tue Sep 02 2008 Debarshi Ray <rishi@fedoraproject.org> - 0.32-1
 - Version bump to 0.32.
 - Parallel build problems fixed.
 
