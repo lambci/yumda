@@ -1,9 +1,9 @@
-%global freetype_version 2.1.4
+%global freetype_version 2.8-7
 
 Summary:	Font configuration and customization library
 Name:		fontconfig
-Version:	2.10.95
-Release: 11%{?dist}.0.2
+Version:	2.13.0
+Release:	4.3%{?dist}
 # src/ftglue.[ch] is in Public Domain
 # src/fccache.c contains Public Domain code
 # fc-case/CaseFolding.txt is in the UCD
@@ -13,29 +13,32 @@ Group:		System Environment/Libraries
 Source:		http://fontconfig.org/release/%{name}-%{version}.tar.bz2
 URL:		http://fontconfig.org
 Source1:	25-no-bitmap-fedora.conf
-Source2:	FcStrListFirst.3
+Source2:	fc-cache
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=140335
-Patch0:		fontconfig-2.8.0-sleep-less.patch
-Patch1:		fontconfig-no-dir-when-no-conf.patch
-Patch2:		fontconfig-fix-memleak.patch
-Patch3:		fontconfig-copy-all-value.patch
-Patch4:		fontconfig-fix-crash-on-fcfontsort.patch
-Patch5:		fontconfig-fix-race-condition.patch
-Patch6:		fontconfig-update-45-latin.patch
-Patch7:		fontconfig-validate-offset-in-cache.patch
-Patch8:		fontconfig-offset-in-elts.patch
-
-# Amazon Patches
-Patch100:	0001-Avoid-conflicts-with-integer-width-macros-from-TS-18.patch
+Patch0:		%{name}-sleep-less.patch
+Patch1:		%{name}-required-freetype-version.patch
+Patch2:		%{name}-const-name-in-range.patch
+Patch3:		%{name}-implicit-object-for-const-name.patch
+Patch4:		%{name}-locale.patch
+Patch5:		%{name}-fix-embolden-logic.patch
+Patch6:		%{name}-fix-memleaks.patch
+Patch7:		%{name}-fix-flatpak.patch
+Patch8:		%{name}-fix-doublefree.patch
+Patch9:		%{name}-revert-urw-alias.patch
+Patch10:	%{name}-drop-incompatible-conf.patch
+Patch11:	%{name}-freetype-compat.patch
 
 BuildRequires:	expat-devel
 BuildRequires:	freetype-devel >= %{freetype_version}
 BuildRequires:	fontpackages-devel
+BuildRequires:	libuuid-devel
+BuildRequires:	autoconf automake libtool gettext itstool
+BuildRequires:	gperf
 
-Requires:	fontpackages-filesystem
+Requires:	fontpackages-filesystem freetype
 Requires(post):	grep coreutils
-Requires:	font(:lang=en)
+Requires:	dejavu-sans-fonts
 
 Prefix: %{_prefix}
 
@@ -47,25 +50,28 @@ applications.
 %prep
 %setup -q
 %patch0 -p1 -b .sleep-less
-%patch1 -p1 -b .nodir
-%patch2 -p1 -b .memleak
-%patch3 -p1 -b .copy-all
-%patch4 -p1 -b .fix-crash
-%patch5 -p1 -b .fix-race
-%patch6 -p1 -b .update-45-latin
-%patch7 -p1 -b .validate-offset
-%patch8 -p1 -b .offset-elts
-%patch100 -p1
-cp %{SOURCE2} doc/
+%patch1 -p1 -b .freetype
+%patch2 -p1 -b .const-range
+%patch3 -p1 -b .const
+%patch4 -p1 -b .locale
+%patch5 -p1 -b .embolden
+%patch6 -p1 -b .memleaks
+%patch7 -p1 -b .flatpak
+%patch8 -p1 -b .doublefree
+%patch9 -p1 -b .urw -R
+%patch10 -p1 -b .incompat
+%patch11 -p1 -b .freetype-compat
 
 %build
 # We don't want to rebuild the docs, but we want to install the included ones.
 export HASDOCBOOK=no
 
+autoreconf
 %configure \
   --with-default-fonts=%{_datadir}/fonts \
   --with-add-fonts=%{_prefix}/local/share/fonts \
   --disable-static \
+  --with-cache-dir=%{_localstatedir}/cache/fontconfig \
   --disable-docs
 
 make %{?_smp_mflags} V=1
@@ -89,11 +95,17 @@ if fc-cache --version 2>&1 | grep -q %{version} ; then
   HOME=/root fc-cache -f
 fi
 
+# rename fc-cache binary
+mv $RPM_BUILD_ROOT%{_bindir}/fc-cache $RPM_BUILD_ROOT%{_bindir}/fc-cache-%{__isa_bits}
+
+install -p -m 0755 %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/fc-cache
+
 %files
 %license COPYING
 %{_libdir}/libfontconfig.so.*
-%{_bindir}/fc-cache
+%{_bindir}/fc-cache*
 %{_bindir}/fc-cat
+%{_bindir}/fc-conflist
 %{_bindir}/fc-list
 %{_bindir}/fc-match
 %{_bindir}/fc-pattern
@@ -113,10 +125,25 @@ fi
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
 %exclude %{_fontconfig_confdir}/README
+%exclude %{_datadir}/gettext
+%exclude %{_localedir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.3
+- Add 30-urw-aliases.conf back.
+
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.2
+- Drop more new syntax in config.
+
+* Fri Jun 08 2018 Akira TAGOH <tagoh@redhat.com> - 2.13.0-4.1
+- Rebase to 2.13.0 (#1576501)
+- Rename fc-cache binary to fc-cache-{32,64} for multilib. (#1568968)
+- backport some fixes related to Flatpak.
+- Drop new syntax in config for compatibility.
+- Requires dejavu-sans-fonts instead of font(:lang=en) (#1484094)
 
 * Fri Feb 24 2017 Akira TAGOH <tagoh@redhat.com> - 2.10.95-11
 - Add Requires: font(:lang=en) (#1403957)
