@@ -517,7 +517,7 @@ orc.x86_64                   0.4.26-1.lambda2.0.2                        lambda2
 pam.x86_64                   1.1.8-22.lambda2                            lambda2
 pandoc.x86_64                1.12.3.1-2.lambda2                          lambda2
 pandoc-pdf.x86_64            1.12.3.1-2.lambda2                          lambda2
-pango.x86_64                 1.40.4-1.lambda2.0.2                        lambda2
+pango.x86_64                 1.42.4-4.lambda2                            lambda2
 patch.x86_64                 2.7.1-12.lambda2                            lambda2
 pciutils.x86_64              3.5.1-3.lambda2                             lambda2
 pciutils-libs.x86_64         3.5.1-3.lambda2                             lambda2
