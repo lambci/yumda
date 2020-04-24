@@ -395,8 +395,8 @@ libpsl.x86_64                0.7.0-1.lambda2                             lambda2
 libpwquality.x86_64          1.2.3-5.lambda2                             lambda2
 libquadmath.x86_64           7.3.1-6.lambda2.0.4                         lambda2
 librevenge.x86_64            0.0.2-2.lambda2.0.2                         lambda2
-librsvg2.x86_64              2.40.16-1.lambda2.0.2                       lambda2
-librsvg2-tools.x86_64        2.40.16-1.lambda2.0.2                       lambda2
+librsvg2.x86_64              2.40.20-1.lambda2                           lambda2
+librsvg2-tools.x86_64        2.40.20-1.lambda2                           lambda2
 libsanitizer.x86_64          7.3.1-6.lambda2.0.4                         lambda2
 libseccomp.x86_64            2.4.1-1.lambda2                             lambda2
 libsecret.x86_64             0.18.5-2.lambda2.0.2                        lambda2

@@ -1,14 +1,13 @@
 Name:           librsvg2
 Summary:        An SVG library based on cairo
-Version:        2.40.16
-Release: 1%{?dist}.0.2
+Version:        2.40.20
+Release:        1%{?dist}
 
 License:        LGPLv2+
-Group:          System Environment/Libraries
 URL:            https://wiki.gnome.org/Projects/LibRsvg
-#VCS:           git:git://git.gnome.org/librsvg
 Source:         http://download.gnome.org/sources/librsvg/2.40/librsvg-%{version}.tar.xz
 
+BuildRequires:  chrpath
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(cairo-png)
 # BuildRequires:  pkgconfig(gio-2.0)
@@ -62,13 +61,16 @@ make %{?_smp_mflags}
 %exclude %{_libdir}/*.la
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
-%exclude %{_libdir}/mozilla
 %exclude %{_datadir}
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Sat Dec 16 2017 Kalev Lember <klember@redhat.com> - 2.40.20-1
+- Update to 2.40.20
+- Resolves: #1569733
 
 * Thu Jun 09 2016 Kalev Lember <klember@redhat.com> - 2.40.16-1
 - Update to 2.40.16
