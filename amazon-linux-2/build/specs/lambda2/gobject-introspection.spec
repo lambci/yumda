@@ -1,31 +1,30 @@
-%global glib2_version 2.50.0
+%global glib2_version 2.56.1
 
 Name:           gobject-introspection
-Version:        1.50.0
-Release: 1%{?dist}.0.2
+Version:        1.56.1
+Release:        1%{?dist}
 Summary:        Introspection system for GObject-based libraries
 
 License:        GPLv2+, LGPLv2+, MIT
 URL:            https://wiki.gnome.org/Projects/GObjectIntrospection
-Source0:        https://download.gnome.org/sources/gobject-introspection/1.50/%{name}-%{version}.tar.xz
+Source0:        https://download.gnome.org/sources/gobject-introspection/1.56/%{name}-%{version}.tar.xz
 
-BuildRequires:  glib2-devel >= %{glib2_version}
-BuildRequires:  python-devel >= 2.5
-BuildRequires:  gettext
-BuildRequires:  flex
 BuildRequires:  bison
-BuildRequires:  git
-BuildRequires:  libffi-devel
-BuildRequires:  mesa-libGL-devel
 BuildRequires:  cairo-gobject-devel
-BuildRequires:  libxml2-devel
-BuildRequires:  libXfixes-devel
-BuildRequires:  libX11-devel
+BuildRequires:  chrpath
+BuildRequires:  flex
 BuildRequires:  fontconfig-devel
-BuildRequires:  libXft-devel
 BuildRequires:  freetype-devel
+BuildRequires:  gettext
+BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gtk-doc
-# For doctool
+BuildRequires:  libffi-devel
+BuildRequires:  libX11-devel
+BuildRequires:  libXfixes-devel
+BuildRequires:  libXft-devel
+BuildRequires:  libxml2-devel
+BuildRequires:  mesa-libGL-devel
+BuildRequires:  python-devel
 BuildRequires:  python-mako
 
 Requires:       glib2%{?_isa} >= %{glib2_version}
@@ -39,19 +38,23 @@ typelib files, useful for creating language bindings among other
 things.
 
 %prep
-%autosetup -Sgit
+%autosetup -p1
 
 %build
 %configure --enable-gtk-doc --enable-doctool
-
-make %{?_smp_mflags} V=1
+%make_build
 
 %install
 %make_install
 
+# Remove lib64 rpaths
+chrpath --delete $RPM_BUILD_ROOT%{_bindir}/g-ir-compiler
+chrpath --delete $RPM_BUILD_ROOT%{_bindir}/g-ir-generate
+chrpath --delete $RPM_BUILD_ROOT%{_bindir}/g-ir-inspect
+
 # Die libtool, die.
-find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
-find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
+find $RPM_BUILD_ROOT -type f -name "*.la" -print -delete
+find $RPM_BUILD_ROOT -type f -name "*.a" -print -delete
 
 %files
 %license COPYING
@@ -69,8 +72,12 @@ find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
 %exclude %{_datadir}
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Apr 09 2018 Kalev Lember <klember@redhat.com> - 1.56.1-1
+- Update to 1.56.1
+- Resolves: #1569272
 
 * Wed Sep 28 2016 Kalev Lember <klember@redhat.com> - 1.50.0-1
 - Update to 1.50.0
