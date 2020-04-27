@@ -56,7 +56,7 @@ libmudflap.x86_64                     4.8.5-28.142.lambda1               lambda1
 libogg.x86_64                         2:1.1.4-2.1.5.lambda1              lambda1
 libquadmath.x86_64                    4.8.5-28.142.lambda1               lambda1
 libstdc++48.x86_64                    4.8.5-28.142.lambda1               lambda1
-libtirpc.x86_64                       0.2.4-0.8.14.lambda1               lambda1
+libtirpc.x86_64                       0.2.4-0.16.15.lambda1              lambda1
 libtsan.x86_64                        4.8.5-28.142.lambda1               lambda1
 libvorbis.x86_64                      1:1.3.3-8.7.lambda1                lambda1
 libwebp.x86_64                        0.3.0-3.5.lambda1                  lambda1

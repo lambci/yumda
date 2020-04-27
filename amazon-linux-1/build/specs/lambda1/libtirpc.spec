@@ -1,14 +1,14 @@
-%define _buildid .14
+%define _buildid .15
 
 %define _root_libdir    /%{_lib}
 
 Name:		   libtirpc
 Version:		0.2.4
-Release: 0.8%{?_buildid}%{?dist}
+Release: 0.16%{?_buildid}%{?dist}
 Summary:		Transport Independent RPC Library
 Group:		  	System Environment/Libraries
 License:		SISSL and BSD
-URL:  			http://nfsv4.bullopensource.org/
+URL:  			http://git.linux-nfs.org/?p=steved/libtirpc.git;a=summary
 
 Source0:	http://downloads.sourceforge.net/libtirpc/libtirpc-%{version}.tar.bz2
 
@@ -35,9 +35,22 @@ Patch006: libtirpc-0.2.4-svc-gss-memleaks.patch
 Patch007: libtirpc-0.2.4-clnt-mthr-create.patch
 
 #
-# RHEL7.3-Z
+# RHEL7.4
 #
-Patch008: libtirpc-0.2.4-CVE-2017-8779.patch
+Patch008: libtirpc-0.2.4-makefd_xprt-fd.patch
+Patch009: libtirpc-0.2.4-CVE-2017-8779.patch
+
+#
+# RHEL7.6
+#
+Patch010: libtirpc-0.2.4-xdrstdio.patch
+Patch011: libtirpc-0.2.4-covscan.patch
+
+#
+# RHEL7.7
+#
+Patch012: libtirpc-0.2.4-badfree.patch
+Patch013: libtirpc-0.2.4-eof.patch
 
 Prefix: %{_prefix}
 
@@ -70,8 +83,18 @@ by almost 70 vendors on all major operating systems.  TS-RPC source code
 %patch006 -p1
 # 1342545 - Threads specifically interacting with libtirpc library...
 %patch007 -p1
-# 1449462 - CVE-2017-8779 rpcbind: libtirpc, libntirpc: Memory leak...
+# 1410617 - makefd_xprt: remove obsolete check for fd number 
 %patch008 -p1
+#  CVE-2017-8779 libtirpc: libtirpc, libntirpc: Memory leak....
+%patch009 -p1
+# 1261738 - xdrstdio_create buffers do not output encoded values on ppc
+%patch010 -p1
+# 1627856 - Backport important issues found by covscan in...
+%patch011 -p1
+# 1631609 - BAD_FREE: "free" frees incorrect pointer "tmp" found by covscan
+%patch012 -p1
+# 1331554 - rpcbind closes connection when rpc fragment sent...
+%patch013 -p1
 
 # Remove .orig files
 find . -name "*.orig" | xargs rm -f
@@ -107,14 +130,45 @@ rm -rf %{buildroot}
 %exclude %{_mandir}
 
 %changelog
-* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+* Mon Apr 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Wed Aug 21 2019 kaos-source-imports <nobody@amazon.com>
+- import source package EL7/libtirpc-0.2.4-0.16.el7
+
+* Mon Dec 17 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.16
+- getnetconfig.c: fix a BAD_FREE (CWE-763) (bz 1631609)
+- Fix EOF detection on non-blocking socket (bz 1331554)
+
+* Tue Nov 27 2018 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/libtirpc-0.2.4-0.15.el7
+
+* Wed Sep 19 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.15
+- Fixed typo in spec file (bz 1627856)
+
+* Fri Sep 14 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.14
+- Removed a false positive from the covscan (bz 1627856)
+
+* Tue Sep 11 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.13
+- Fix issues found from covscan (bz 1627856)
+
+* Fri Jul 20 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.12
+- xdrstdio_create buffers do not output encoded values on ppc (bz 1261738)
+
+* Tue Jul 10 2018 Steve Dickson <steved@redhat.com> 0.2.4-0.11
+- Updated the URL (bz 1583922)
+
+* Wed Aug 2 2017 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/libtirpc-0.2.4-0.10.el7
 
 * Tue May 23 2017 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/libtirpc-0.2.4-0.8.el7_3
 
-* Wed May 17 2017 Steve Dickson <steved@redhat.com> 0.2.4-0.8_3
-- Fixed for CVE-2017-8779 (bz 1449462)
+* Wed May 17 2017 Steve Dickson <steved@redhat.com> 0.2.4-0.10
+- Fix for CVE-2017-8779 (bz 1449463)
+
+* Sat Feb 25 2017 Steve Dickson <steved@redhat.com> 0.2.4-0.9
+-  makefd_xprt: remove obsolete check for fd number (bz 1410617)
 
 * Thu Nov 3 2016 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/libtirpc-0.2.4-0.8.el7
