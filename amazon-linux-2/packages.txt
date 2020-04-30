@@ -1045,6 +1045,8 @@ uuid.x86_64                  1.6.2-26.lambda2.0.1                        lambda2
 uuid-c++.x86_64              1.6.2-26.lambda2.0.1                        lambda2
 uuid-dce.x86_64              1.6.2-26.lambda2.0.1                        lambda2
 uuidd.x86_64                 2.30.2-2.lambda2.0.4                        lambda2
+vips.x86_64                  8.9.2-1.lambda2                             lambda2
+vips-tools.x86_64            8.9.2-1.lambda2                             lambda2
 voikko-tools.x86_64          4.1.1-1.lambda2                             lambda2
 vulkan.x86_64                1.0.61.1-2.lambda2                          lambda2
 vulkan-filesystem.noarch     1.0.61.1-2.lambda2                          lambda2
