@@ -367,6 +367,7 @@ libgnat.x86_64               7.3.1-6.lambda2.0.4                         lambda2
 libgo.x86_64                 7.3.1-6.lambda2.0.4                         lambda2
 libgomp.x86_64               7.3.1-6.lambda2.0.4                         lambda2
 libgpg-error.x86_64          1.12-3.lambda2.0.3                          lambda2
+libgsf.x86_64                1.14.26-7.lambda2.0.2                       lambda2
 libgudev1.x86_64             219-57.lambda2.0.12                         lambda2
 libical.x86_64               3.0.3-2.lambda2.0.1                         lambda2
 libical-glib.x86_64          3.0.3-2.lambda2.0.1                         lambda2
