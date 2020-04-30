@@ -449,7 +449,7 @@ libyaml.x86_64               0.1.4-11.lambda2.0.2                        lambda2
 libzip.x86_64                1.3.2-1.lambda2.0.1                         lambda2
 libzip-tools.x86_64          1.3.2-1.lambda2.0.1                         lambda2
 lksctp-tools.x86_64          1.0.17-2.lambda2.0.2                        lambda2
-llvm-private.x86_64          5.0.0-3.lambda2.0.2                         lambda2
+llvm-private.x86_64          6.0.1-2.lambda2                             lambda2
 lm_sensors.x86_64            3.4.0-8.20160601gitf9185e5.lambda2          lambda2
 lm_sensors-libs.x86_64       3.4.0-8.20160601gitf9185e5.lambda2          lambda2
 lua.x86_64                   5.1.4-15.lambda2.0.2                        lambda2

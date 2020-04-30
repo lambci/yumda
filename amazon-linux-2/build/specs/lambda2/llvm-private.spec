@@ -1,6 +1,6 @@
-%global maj_ver 5
+%global maj_ver 6
 %global min_ver 0
-%global patch_ver 0
+%global patch_ver 1
 
 # Components enabled if supported by target architecture:
 %ifarch %ix86 x86_64
@@ -22,6 +22,8 @@ ExcludeArch: ppc s390 %{?rhel6:s390x}
 %endif
 %ifarch ppc64 ppc64le
 %global host_target PowerPC
+# Limit build jobs on ppc64 systems to avoid running out of memory.
+%global _smp_mflags -j8
 %endif
 %ifarch %ix86 x86_64
 %global host_target X86
@@ -41,27 +43,27 @@ ExcludeArch: ppc s390 %{?rhel6:s390x}
 
 Name:		llvm-private
 Version:	%{maj_ver}.%{min_ver}.%{patch_ver}
-Release: 3%{?dist}.0.2
+Release:	2%{?dist}
 Summary:	llvm engine for Mesa
 
 Group:          System Environment/Libraries
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/llvm-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/llvm-%{version}%{?rc_ver:rc%{rc_ver}}.src.tar.xz
 Source1:        cmake-3.4.3.tar.gz
-Source2:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source2:	http://llvm.org/releases/%{version}/cfe-%{version}%{?rc_ver:rc%{rc_ver}}.src.tar.xz
 Source100:	llvm-config.h
 Source101:	clang-config.h
 
 Patch1: 0001-Fix-CMake-include-patch.patch
-Patch2: 0001-PowerPC-Don-t-use-xscvdpspn-on-the-P7.patch
+Patch5: 0001-Export-LLVM_DYLIB_COMPONENTS-in-LLVMConfig.cmake.patch
+Patch6: 0001-Don-t-run-BV-DAG-Combine-before-legalization-if-it-a.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
 %if %{with gold}
 BuildRequires:  binutils-devel
 %endif
-BuildRequires:  libstdc++-static
 BuildRequires:  python
 
 Prefix: %{_prefix}
@@ -72,14 +74,15 @@ fully-featured build of LLVM, and use by any package other than Mesa is not
 supported.
 
 %prep
-%setup -T -q -b 2 -n cfe-%{version}.src
+%setup -T -q -b 2 -n cfe-%{version}%{?rc_ver:rc%{rc_ver}}.src
 
-%setup -q -n llvm-%{version}.src
+%setup -q -n llvm-%{version}%{?rc_ver:rc%{rc_ver}}.src
 
 tar xf %{SOURCE1}
 
 %patch1 -p1 -b .fixinc
-%patch2 -p1 -b .xscvdpsp
+%patch5 -p1 -b .cmake-fix
+%patch6 -p1 -b .p9-fix
 
 %build
 
@@ -104,7 +107,6 @@ export PATH=$BUILD_DIR/bin:$PATH
 	-DLLVM_VERSION_SUFFIX="-%{llvm_lib_suffix}" \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic -static-libstdc++" \
 %if 0%{?__isa_bits} == 64
 	-DLLVM_LIBDIR_SUFFIX=64 \
 %else
@@ -145,23 +147,23 @@ export PATH=$BUILD_DIR/bin:$PATH
 	-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
 	-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF
 
-make %{?_smp_mflags} VERBOSE=1
+make %{?_smp_mflags} VERBOSE=1 LLVM llvm-config FileCheck not count gtest gtest_main
 
 # Build clang separately, because we need to build with
 # -DBUILD_SHARED_LIBS:BOOL=ON for clang, but we don't want
 # this for LLVM.
 
-cd ../../cfe-%{version}.src
+cd ../../cfe-%{version}%{?rc_ver:rc%{rc_ver}}.src
 mkdir -p _build
 cd _build
-%cmake .. \
+%cmake ..  \
         -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DLLVM_CONFIG:FILEPATH=%{_builddir}/llvm-%{version}.src/_build/bin/llvm-config \
+        -DLLVM_CONFIG:FILEPATH=%{_builddir}/llvm-%{version}%{?rc_ver:rc%{rc_ver}}.src/_build/bin/llvm-config \
         \
         -DCLANG_ENABLE_ARCMT:BOOL=ON \
         -DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
-        -DCLANG_INCLUDE_DOCS:BOOL=ON \
+        -DCLANG_INCLUDE_DOCS:BOOL=OFF \
         -DCLANG_INCLUDE_TESTS:BOOL=ON \
         -DCLANG_PLUGIN_SUPPORT:BOOL=ON \
         -DENABLE_LINKER_BUILD_ID:BOOL=ON \
@@ -180,9 +182,9 @@ make %{?_smp_mflags}
 
 # Install LLVM
 cd _build
-make install DESTDIR=%{buildroot}
+make install-LLVM install-llvm-config install-llvm-headers install-cmake-exports DESTDIR=%{buildroot}
 
-cd ../../cfe-%{version}.src/_build
+cd ../../cfe-%{version}%{?rc_ver:rc%{rc_ver}}.src/_build
 make install DESTDIR=%{buildroot}
 
 %if "%{_lib}" != "lib64"
@@ -200,9 +202,6 @@ rm -f %{buildroot}%{_libdir}/libLLVM.so
 # they require the build directory to work
 find examples -name 'Makefile' | xargs -0r rm -f
 
-# Rename tools needed by rust.
-for t in mc ar as; do  mv -v %{buildroot}/%{_bindir}/llvm-$t %{buildroot}/%{_bindir}/llvm-private-$t-%{__isa_bits}; done;
-
 # RHEL: strip out most binaries, most libs, and man pages
 ls %{buildroot}%{_bindir}/* | grep -v bin/llvm-private | xargs rm -f
 ls %{buildroot}%{_libdir}/* | grep -v libLLVM | grep -v libclang | xargs rm -f
@@ -210,18 +209,13 @@ rm -rf %{buildroot}%{_mandir}/man1
 
 # RHEL: Strip out some headers Mesa doesn't need
 rm -rf %{buildroot}%{_includedir}/llvm-private/llvm/{Assembly}
-rm -rf %{buildroot}%{_includedir}/llvm-private/llvm/Option
 rm -rf %{buildroot}%{_includedir}/llvm-private/llvm/TableGen
 rm -rf %{buildroot}%{_includedir}/llvm-c/lto.h
 
 # RHEL: Strip out cmake build foo
 rm -rf %{buildroot}%{_datadir}/llvm/cmake
+rm -rf %{buildroot}%{_libdir}/cmake/llvm/LLVMExports-*
 rm -rf %{buildroot}%{_libdir}/cmake/clang
-
-# RHEL: bcc uses find_package(LLVM) in its cmake file, which requires
-# LLVMConfig.cmake to be installed.
-find %{buildroot}%{_libdir}/cmake/llvm/ ! -name 'LLVMConfig.cmake' -type f -exec rm -rf {} +
-
 
 # RHEL: Strip out eveything in _datadir and _libexedir
 rm -rf %{buildroot}%{_datadir}/*
@@ -246,8 +240,27 @@ for f in `find %{buildroot}%{_libdir} -iname 'libclang*' `; do mv $f %{buildroot
 %exclude %{_libdir}/clang
 
 %changelog
-* Fri Nov 1 2019 Michael Hart <michael@lambci.org>
+* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Jul 19 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-2
+- Fix crash on power9
+- Resolves: rhbz#1595996
+
+* Mon Jul 09 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-1
+- 6.0.1 Release
+
+* Thu Jun 07 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-0.4.rc2
+- 6.0.1-rc2 Release
+
+* Wed Jun 06 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-0.3.rc1
+- Fixup cmake files so bcc can use them
+
+* Thu May 31 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-0.2.rc1
+- Keep cmake files in package, because bcc needs them
+
+* Wed Apr 04 2018 Tom Stellard <tstellar@redhat.com> - 6.0.1-0.1.rc1
+- Rebase to LLVM 6.0.1-rc1
 
 * Thu Dec 14 2017 Tom Stellard <tstellar@redhat.com> - 5.0.0-3
 - Backport r312612 from upstream llvm: [PowerPC] Don't use xscvdpspn on the P7
