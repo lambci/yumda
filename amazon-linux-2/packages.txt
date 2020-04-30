@@ -515,6 +515,8 @@ openldap.x86_64              2.4.44-15.lambda2                           lambda2
 openldap-clients.x86_64      2.4.44-15.lambda2                           lambda2
 openldap-servers.x86_64      2.4.44-15.lambda2                           lambda2
 openldap-servers-sql.x86_64  2.4.44-15.lambda2                           lambda2
+openslide.x86_64             3.4.1-1.lambda2                             lambda2
+openslide-tools.x86_64       3.4.1-1.lambda2                             lambda2
 openssh.x86_64               7.4p1-21.lambda2.0.1                        lambda2
 openssh-cavs.x86_64          7.4p1-21.lambda2.0.1                        lambda2
 openssh-clients.x86_64       7.4p1-21.lambda2.0.1                        lambda2
