@@ -373,6 +373,7 @@ libical.x86_64               3.0.3-2.lambda2.0.1                         lambda2
 libical-glib.x86_64          3.0.3-2.lambda2.0.1                         lambda2
 libidn.x86_64                1.28-4.lambda2.0.2                          lambda2
 libidn2.x86_64               2.0.4-1.lambda2.0.2                         lambda2
+libimagequant.x86_64         1:2.7.2-3.lambda2                           lambda2
 libiscsi.x86_64              1.9.0-7.lambda2.0.1                         lambda2
 libiscsi-utils.x86_64        1.9.0-7.lambda2.0.1                         lambda2
 libitm.x86_64                7.3.1-6.lambda2.0.4                         lambda2
@@ -640,6 +641,7 @@ php-xmlrpc.x86_64            7.3.16-1.lambda2                            lambda2
 pinentry.x86_64              0.8.1-17.lambda2.0.2                        lambda2
 pixman.x86_64                0.34.0-1.lambda2.0.2                        lambda2
 pkgconfig.x86_64             1:0.27.1-4.lambda2.0.2                      lambda2
+pngquant.x86_64              1:2.7.2-3.lambda2                           lambda2
 poppler.x86_64               0.26.5-38.lambda2.0.1                       lambda2
 poppler-cpp.x86_64           0.26.5-38.lambda2.0.1                       lambda2
 poppler-data.noarch          0.4.6-3.lambda2.0.1                         lambda2
