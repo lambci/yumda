@@ -12,18 +12,11 @@ Patch0:         libimagequant_solibperm.patch
 
 BuildRequires:  gcc
 
+Prefix: %{_prefix}
+
 %description
 Small, portable C library for high-quality conversion of RGBA images to 8-bit
 indexed-color (palette) images.
-
-
-%package        devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 
 %prep
@@ -42,21 +35,19 @@ developing applications that use %{name}.
 rm -f %{buildroot}%{_libdir}/%{name}.a
 
 
-%ldconfig_scriptlets
-
-
 %files
 %license COPYRIGHT
-%doc README.md CHANGELOG
 %{_libdir}/%{name}.so.0
 
-%files devel
-%{_includedir}/%{name}.h
-%{_libdir}/%{name}.so
-%{_libdir}/pkgconfig/imagequant.pc
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
 
 
 %changelog
+* Thu Apr 30 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jul 29 2019 Sandro Mani <manisandro@gmail.com> - 2.12.5-1
 - Update to 2.12.5
 
