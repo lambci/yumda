@@ -13,12 +13,6 @@
 #global vips_prever rc4
 %global vips_tarver %{vips_version}%{?vips_prever:-%{vips_prever}}
 
-%if 0%{?fedora} || 0%{?rhel} >= 8
-%global with_libimagequant 1
-%else
-%global with_libimagequant 0
-%endif
-
 # from mock config, when rpmfusion enabled
 %global with_libheif       0%{?_with_rpmfusion:1}
 
@@ -65,10 +59,9 @@ BuildRequires:	pkgconfig(libjpeg)
 %if %{with_libheif}
 BuildRequires:	pkgconfig(libheif)
 %endif
-%if %{with_libimagequant}
 #BuildRequires:	pkgconfig(imagequant) TODO only in 2.12+
+# Get from http://dl.marmotte.net/rpms/redhat/el7/x86_64/libimagequant-2.12.5-1.el7/
 BuildRequires:	libimagequant-devel
-%endif
 BuildRequires:	giflib-devel
 BuildRequires:	pkgconfig(gthread-2.0)
 
