@@ -38,8 +38,8 @@ Amazon Linux 2:
 ```console
 docker run --rm -v $PWD:/tmp/fs lambci/yumda:build-2 bash -c "
   diff <(ls -1 /tmp/fs/specs/lambda2 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | \
-    grep -v -e git-2.23.1-1.amzn2 -e libvoikko-3.6-5.amzn2 -e lzo-2.06-8.amzn2 \
-      -e libidn2-2.3.0-1.el7 -e libmetalink-0.1.3-1.el7 | \
+    grep -v -e git-2.23.3-1.amzn2 -e libvoikko-3.6-5.amzn2 -e lzo-2.06-8.amzn2 \
+      -e libidn2-2.3.0-1.el7 -e libmetalink-0.1.3-1.el7 -e pngquant-2.7.2-3.el7 | \
     sed -e 's/amzn2/lambda2/' -e 's/el7/lambda2/' | sort | uniq) \
     <(ls -1 /tmp/fs/lambda2/SRPMS/Packages | sort) | \
     grep '^<'"
