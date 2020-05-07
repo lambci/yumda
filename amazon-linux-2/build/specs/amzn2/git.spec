@@ -87,12 +87,12 @@
 #global rcrev   .rc0
 
 %global _trivial .0
-%global _buildid .2
-%global tarball_version 2.23.0
+%global _buildid .1
+%global tarball_version 2.23.3
 
 Name:           git
-Version:        2.23.1
-Release:        0%{?rcrev}%{?dist}%{?_trivial}%{?_buildid}
+Version:        2.23.3
+Release:        1%{?rcrev}%{?dist}%{?_trivial}%{?_buildid}
 Summary:        Fast Version Control System
 License:        GPLv2
 URL:            https://git-scm.com/
@@ -123,9 +123,6 @@ Source99:       print-failed-test-output
 
 # https://bugzilla.redhat.com/490602
 Patch0:         git-cvsimport-Ignore-cvsps-2.2b1-Branches-output.patch
-
-# Amazon patches
-Patch10001:     v2.23.0-to-v2.23.1.patch
 
 %if %{with docs}
 # pod2man is needed to build Git.3pm
@@ -179,6 +176,7 @@ BuildRequires:  systemd
 BuildRequires:  tcl
 BuildRequires:  tk
 BuildRequires:  zlib-devel >= 1.2
+BuildRequires:  libcurl-devel >= 7.61
 
 %if %{with tests}
 # Test suite requirements
@@ -327,6 +325,7 @@ Summary:        Core package of git with minimal functionality
 Requires:       less
 Requires:       openssh-clients
 Requires:       zlib >= 1.2
+Requires:       libcurl >= 7.61
 %description core
 Git is a fast, scalable, distributed revision control system with an
 unusually rich command set that provides both high-level operations
@@ -1019,6 +1018,15 @@ rmdir --ignore-fail-on-non-empty "$testdir"
 %{?with_docs:%{_pkgdocdir}/git-svn.html}
 
 %changelog
+* Thu Apr 30 2020 Emmanuel Lepage <emmlep@amazon.com> - 2.23.3
+- Update to 2.23.3 to fix CVE-2020-11008
+
+* Wed Apr  8 2020 Emmanuel Lepage <emmlep@amazon.com> - 2.23.1-1.amzn2.0.2
+- Fix CVE-2020-5260
+
+* Tue Dec 17 2019 Frederick Lefebvre <fredlef@amazon.com> - 2.23.1-1.amzn2.0.1
+- Add runtime dependency on libcurl >= 7.61
+
 * Fri Dec 13 2019 Trinity Quirk <tquirk@amazon.com> - 2.23.1-0.amzn2.0.2
 - Remove git-instaweb dependency on lighttpd
 

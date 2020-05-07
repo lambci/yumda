@@ -1,11 +1,11 @@
 Name:      icu
-Version:   50.1.2
-Release:   17%{?dist}
+Version:   50.2
+Release:   4%{?dist}
 Summary:   International Components for Unicode
 Group:     Development/Tools
 License:   MIT and UCD and Public Domain
 URL:       http://www.icu-project.org/
-Source0:   http://download.icu-project.org/files/icu4c/50.1.2/icu4c-50_1_2-src.tgz
+Source0:   https://github.com/unicode-org/icu/releases/download/release-50-2/icu4c-50_2-src.tgz
 # According to ICU the layout "patch" should be applied to all versions earlier than 51.2
 # See also http://site.icu-project.org/download/51#TOC-Known-Issues
 Source1:   http://download.icu-project.org/files/icu4c/51.1/icu-51-layout-fix-10107.tgz
@@ -26,8 +26,8 @@ Patch6: icuinfo-man.patch
 Patch7: icu.10143.memory.leak.crash.patch
 Patch8: icu.10318.CVE-2013-2924_changeset_34076.patch
 Patch9: icu.rhbz1074549.CVE-2013-5907.patch
-Patch10: icu-testtwodigityear.patch
-Patch11: do-not-fail-intltest-because-of-changed-data.patch
+Patch200: ICU-13634-Adding-integer-overflow-logic-to-ICU4C-num.patch
+Patch201: ICU-20958-Prevent-SEGV_MAPERR-in-append.patch
 
 %description
 Tools and utilities for developing with icu.
@@ -80,8 +80,8 @@ BuildArch: noarch
 %patch7 -p1 -b .icu10143.memory.leak.crash.patch
 %patch8 -p1 -b .icu10318.CVE-2013-2924_changeset_34076.patch
 %patch9 -p1 -b .icurhbz1074549.CVE-2013-5907.patch
-%patch10 -p1 -b .icu-testtwodigityear.patch
-%patch11 -p1 -b .do-not-fail-intltest-because-of-changed-data.patch
+%patch200 -p2 -b .ICU-13634
+%patch201 -p1 -b .ICU-20958
 
 # http://userguide.icu-project.org/datetime/timezone#TOC-Updating-the-Time-Zone-Data
 # says:
@@ -95,6 +95,8 @@ cp %{SOURCE10} source/data/misc/
 cp %{SOURCE11} source/data/misc/
 cp %{SOURCE12} source/data/misc/
 cp %{SOURCE13} source/data/misc/
+
+chmod 644 source/i18n/unicode/selfmt.h
 
 %build
 cd source
@@ -216,6 +218,24 @@ make %{?_smp_mflags} -C source check CINTLTST_OPTS=-w INTLTEST_OPTS=-w
 %doc source/__docs/%{name}/html/*
 
 %changelog
+* Wed Mar 04 2020 Mike FABIAN <mfabian@redhat.com> - 50.2-4
+- Apply ICU-13634-Adding-integer-overflow-logic-to-ICU4C-num.patch
+- Apply ICU-20958-Prevent-SEGV_MAPERR-in-append.patch
+- Resolves: rhbz#1808235
+
+* Fri May 17 2019 Mike FABIAN <mfabian@redhat.com> - 50.2-3
+- Bump release number
+- Related: rhbz#1677092
+
+* Fri May 17 2019 Mike FABIAN <mfabian@redhat.com> - 50.2-2
+- Fix rpmdiff failure: File /usr/src/debug/icu/source/i18n/unicode/selfmt.h
+  relaxed permissions from 0644 to 0755 on all architectures
+- Related: rhbz#1677092
+
+* Tue May 07 2019 Mike FABIAN <mfabian@redhat.com> - 50.2-1
+- Update to 50.2 maintenance release including support for new Japanese era Reiwa (令和).
+- Resolves: rhbz#1677092
+
 * Thu Jun 07 2018 Mike FABIAN <mfabian@redhat.com> - 50.1.2-17
 - Resolves: rhbz#1169339 Update timezone data to tz 2018e
 
