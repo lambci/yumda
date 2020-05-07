@@ -279,9 +279,9 @@ jansson.x86_64               2.10-1.lambda2.0.2                          lambda2
 jasper.x86_64                1.900.1-33.lambda2                          lambda2
 jasper-libs.x86_64           1.900.1-33.lambda2                          lambda2
 java-1.8.0-openjdk-devel.x86_64
-                             1:1.8.0.242.b08-0.lambda2.0.1               lambda2
+                             1:1.8.0.252.b09-2.lambda2.0.1               lambda2
 java-1.8.0-openjdk-headless.x86_64
-                             1:1.8.0.242.b08-0.lambda2.0.1               lambda2
+                             1:1.8.0.252.b09-2.lambda2.0.1               lambda2
 jbigkit.x86_64               2.0-11.lambda2.0.2                          lambda2
 jbigkit-libs.x86_64          2.0-11.lambda2.0.2                          lambda2
 jemalloc.x86_64              3.6.0-1.lambda2                             lambda2
