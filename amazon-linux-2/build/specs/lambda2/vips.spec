@@ -30,6 +30,9 @@ Summary:	C/C++ library for processing large images
 License:	LGPLv2+
 URL:		https://libvips.github.io/libvips/
 Source0:	https://github.com/libvips/libvips/releases/download/v%{vips_version}%{?vips_prever:-%{vips_prever}}/vips-%{vips_tarver}.tar.gz
+# Custom libimagequant-devel install
+Source1:	http://dl.marmotte.net/rpms/redhat/el7/x86_64/libimagequant-2.12.5-1.el7/libimagequant-2.12.5-1.el7.x86_64.rpm
+Source2:	http://dl.marmotte.net/rpms/redhat/el7/x86_64/libimagequant-2.12.5-1.el7/libimagequant-devel-2.12.5-1.el7.x86_64.rpm
 
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(expat)
@@ -59,9 +62,10 @@ BuildRequires:	pkgconfig(libjpeg)
 %if %{with_libheif}
 BuildRequires:	pkgconfig(libheif)
 %endif
-#BuildRequires:	pkgconfig(imagequant) TODO only in 2.12+
-# Get from http://dl.marmotte.net/rpms/redhat/el7/x86_64/libimagequant-2.12.5-1.el7/
-BuildRequires:	libimagequant-devel
+# Must install custom libimagequant-devel
+# rpm -i %{SOURCE1} %{SOURCE2}
+# rpm -i /home/mockbuild/rpmbuild/SOURCES/libimagequant-2.12.5-1.el7.x86_64.rpm /home/mockbuild/rpmbuild/SOURCES/libimagequant-devel-2.12.5-1.el7.x86_64.rpm
+BuildRequires:	pkgconfig(imagequant) >= 2.12
 BuildRequires:	giflib-devel
 BuildRequires:	pkgconfig(gthread-2.0)
 
