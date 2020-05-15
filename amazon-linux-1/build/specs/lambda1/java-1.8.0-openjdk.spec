@@ -1,4 +1,4 @@
-%define _buildid .50
+%define _buildid .51
 
 # The -g flag says to use strip -g instead of full strip on DSOs or EXEs.
 # This fixes detailed NMT and other tools which need minimal debug info.
@@ -31,7 +31,7 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u242-b08
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u252-b09
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
@@ -45,7 +45,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      0
+%global rpmrelease      2
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
 # Release will be (where N is usually a number starting at 1):
 # - 0.N%%{?extraver}%%{?dist} for EA releases,
@@ -174,7 +174,7 @@ popd
 
 mv %{buildroot}/usr %{buildroot}%{_prefix}
 
-mv %{buildroot}%{_prefix}/share/doc/*/* ./
+mv %{buildroot}%{_prefix}/share/licenses/*/* ./
 for file in ASSEMBLY_EXCEPTION LICENSE THIRD_PARTY_README; do chmod 644 $file; done
 
 for dir in %{_jvmdir} %{_jvmjardir}; do
@@ -327,29 +327,82 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 %exclude %{_jvmdir}/%{sdkdir}/tapset
 
 %changelog
-* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
+* Fri May 15 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Mon Apr 27 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.252.b09-2.el7_8
+
+* Tue Apr 14 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b09-2
+- Add release notes.
+- Mark license files with appropriate macro.
+- Resolves: rhbz#1810557
+
+* Sun Apr 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b09-1
+- Make use of --with-extra-asflags introduced in jdk8u252-b01.
+- Resolves: rhbz#1810557
+
+* Mon Apr 06 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b09-0
+- Update to aarch64-shenandoah-jdk8u242-b09.
+- Switch to GA mode for final release.
+- Resolves: rhbz#1810557
+
+* Wed Apr 1 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/java-1.8.0-openjdk-1.8.0.242.b08-1.el7
+
+* Fri Mar 27 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b08-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b08.
+- Resolves: rhbz#1810557
+
+* Tue Mar 24 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b07-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b07.
+- Resolves: rhbz#1810557
+
+* Mon Mar 16 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b06.
+- Resolves: rhbz#1810557
+
+* Fri Feb 28 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b05-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b05.
+- Resolves: rhbz#1810557
+
+* Mon Feb 24 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b04-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b04.
+- Resolves: rhbz#1810557
+
+* Wed Feb 19 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b03-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b03.
+- Adjust PR2974/RH1337583 & PR3083/RH1346460 following context changes in JDK-8230978
+- Resolves: rhbz#1810557
+
+* Tue Feb 04 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u252-b02.
+- Resolves: rhbz#1810557
+
+* Mon Jan 27 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b01-0.1.ea
+- Update to aarch64-shenandoah-jdk8u252-b01.
+- Switch to EA mode.
+- Adjust JDK-8199936/PR3533 patch following JDK-8227397 configure change
+- Remove local copies of JDK-8231991 & JDK-8234107 as replaced by upstream versions.
+- Resolves: rhbz#1810557
 
 * Wed Jan 22 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.242.b08-0.el7_7
 
-* Wed Jan 15 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b08-0
+* Wed Jan 15 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b08-1
 - Update to aarch64-shenandoah-jdk8u242-b08.
 - Remove local copies of JDK-8031111 & JDK-8132111 as replaced by upstream versions.
+- Fix paths in jdk8231991-mouse_wheel_focus.patch after git apply --stat complaints.
 - Resolves: rhbz#1785753
 
-* Wed Jan 15 2020 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-1
+* Wed Jan 15 2020 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-2
 - Add backports of JDK-8031111 & JDK-8132111 to fix TCK issue.
 - Resolves: rhbz#1785753
 
-* Mon Jan 13 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-0
+* Mon Jan 13 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b07-1
 - Update to aarch64-shenandoah-jdk8u242-b07.
 - Switch to GA mode for final release.
 - Remove Shenandoah S390 patch which is now included upstream as JDK-8236829.
-- Resolves: rhbz#1785753
-
-* Tue Jan 07 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b06-0.0.ea
-- Update to aarch64-shenandoah-jdk8u242-b06 (EA)
 - Resolves: rhbz#1785753
 
 * Sun Jan 05 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b05-0.1.ea
@@ -359,48 +412,59 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 - Add additional Shenandoah formatting fixes revealed by successful -Wno-error=format run
 - Resolves: rhbz#1785753
 
-* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b02-0.0.ea
-- Update to aarch64-shenandoah-jdk8u242-b02.
-- Resolves: rhbz#1785753
-
-* Thu Jan 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.1.ea
-- Revert SSBD removal for now, until appropriate messaging has been decided.
-- Resolves: rhbz#1785753
-
-* Thu Dec 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.0.ea
+* Thu Dec 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.242.b01-0.1.ea
 - Update to aarch64-shenandoah-jdk8u242-b01.
 - Switch to EA mode.
 - Resolves: rhbz#1785753
 
-* Tue Dec 24 2019 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-1
-- Remove CVE-2018-3639 mitigation due to performance regression and
-    OpenJDK position on speculative execution vulnerabilities.
-    https://mail.openjdk.java.net/pipermail/vuln-announce/2019-July/000002.html
+* Sun Dec 22 2019 Andrew John Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-5
+- Replace JDK-8231991 backport with upstream version and include JDK-8234107 fixup.
 - Resolves: rhbz#1785753
+
+* Wed Nov 27 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-4
+- Update generate_source_tarball.sh script to use the PR3756 patch and retain the secp256k1 curve.
+- Regenerate source tarball using the updated script and add the -'4curve' suffix.
+- Resolves: rhbz#1746874
+
+* Mon Nov 25 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-3
+- Mark net.properties as a config file (based on Fedora patch by James Cassell)
+- Resolves: rhbz#1710928
+
+* Wed Nov 06 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-2
+- Add backport of JDK-8231991 (mouse wheel focus issue)
+- Resolves: rhbz#1741676
 
 * Thu Oct 17 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7
 
-* Fri Oct 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-0
+* Fri Oct 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b09-1
 - Update to aarch64-shenandoah-jdk8u232-b09.
 - Switch to GA mode for final release.
 - Remove PR1834/RH1022017 which is now handled by JDK-8228825 upstream.
 - Resolves: rhbz#1753423
 
-* Tue Oct 01 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b08-0.0.ea
+* Tue Oct 01 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b08-0.1.ea
 - Update to aarch64-shenandoah-jdk8u232-b08.
-- Resolves: rhbz#1753423
+- Resolves: rhbz#1737109
 
-* Tue Sep 17 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.1.ea
+* Tue Sep 24 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b07-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b07.
+- Resolves: rhbz#1737109
+
+* Wed Sep 18 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b06-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b06.
+- Resolves: rhbz#1737109
+
+* Tue Sep 17 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.2.ea
 - Update to aarch64-shenandoah-jdk8u232-b05-shenandoah-merge-2019-09-09.
 - Update version logic to handle -shenandoah* tag suffix.
-- Resolves: rhbz#1753423
+- Resolves: rhbz#1737109
 
-* Thu Sep 05 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.0.ea
+* Thu Sep 05 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b05-0.1.ea
 - Update to aarch64-shenandoah-jdk8u232-b05.
 - Drop upstreamed patch JDK-8141570/PR3548.
 - Adjust context of JDK-8143245/PR3548 to apply against upstream JDK-8141570.
-- Resolves: rhbz#1753423
+- Resolves: rhbz#1737109
 
 * Wed Sep 4 2019 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.222.b10-1.el7_7
@@ -411,17 +475,29 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 * Wed Aug 21 2019 Paul Ezvan <paulezva@amazon.com>
 - Revert priority to 1800 to keep java-1.7.0-openjdk the default.
 
+* Tue Aug 20 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b04-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b04.
+- Resolves: rhbz#1737109
+
+* Sat Aug 10 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b03-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b03.
+- Resolves: rhbz#1737109
+
+* Fri Aug 02 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b02-0.1.ea
+- Update to aarch64-shenandoah-jdk8u232-b02.
+- Resolves: rhbz#1737109
+
 * Thu Aug 1 2019 kaos-source-imports <nobody@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.222.b10-0.el7_6
 
 * Tue Jul 30 2019 Chuanhao jin <haroldji@amazon.com>
 - Fix spec file build and install error after merge
 
-* Fri Jul 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b01-0.0.ea
+* Fri Jul 26 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.232.b01-0.1.ea
 - Update to aarch64-shenandoah-jdk8u232-b01.
 - Switch to EA mode.
 - Drop JDK-8210761/RH1632174 as now upstream.
-- Resolves: rhbz#1753423
+- Resolves: rhbz#1498932
 
 * Thu Jul 11 2019 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.222.b10-1
 - Update to aarch64-shenandoah-jdk8u222-b10.
