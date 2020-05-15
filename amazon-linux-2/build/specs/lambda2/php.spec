@@ -74,12 +74,12 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.16
+%global upver        7.3.17
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
 Version: %{upver}%{?rcver:~%{rcver}}
-Release: 1%{?dist}
+Release: 2%{?dist}
 # All files licensed under PHP version 3.01, except
 # Zend is licensed under Zend
 # TSRM is licensed under BSD
@@ -270,7 +270,7 @@ Provides: php-tokenizer, php-tokenizer%{?_isa}
 Requires: php-json%{?_isa} = %{version}-%{release}
 %if %{with_zip}
 Provides: php-zip, php-zip%{?_isa}
-Obsoletes: php-pecl-zip < 1.11
+Obsoletes: php-pecl-zip <= 1.15.4
 %endif
 Provides: php-zlib, php-zlib%{?_isa}
 Prefix: %{_prefix}
@@ -1560,8 +1560,14 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Thu Apr 23 2020 Michael Hart <michael@lambci.org>
+* Fri May 15 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Apr 27 2020 Trinity Quirk <tquirk@amazon.com> - 3.5.17-2
+- Obsolete correct version of php-pecl-zip
+
+* Thu Apr 16 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.17-1
+- Package updated to 7.3.17
 
 * Wed Mar 25 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.16-1
 - Package updated to 7.3.16
