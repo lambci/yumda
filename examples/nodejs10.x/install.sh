@@ -12,3 +12,9 @@ docker run --rm -v "$PWD"/dependencies:/lambda/opt lambci/yumda:2 yum install -y
 # OR
 
 # sls invoke local --docker -f hello-world
+
+# To prepare to deploy:
+
+# cd dependencies
+# zip -yr ../dependencies.zip .
+# cd ..
