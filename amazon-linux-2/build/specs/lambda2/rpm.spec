@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .3
+%define _buildid .4
 # build against xz?
 %bcond_without xz
 # just for giggles, option to build with internal Berkeley DB
@@ -153,6 +153,7 @@ Patch505: rpm-4.11.3-brp-python-bytecompile-Fix-when-default-python-is-no.patch
 # Amazon patches
 Patch1000: rpm-4.11.1-hostnamemacro.patch
 Patch1001: rpm-4.14.0-add-nocap-option.patch
+Patch1002: rpm-4.14.0-no-recompute-buildid.patch
 
 # Partially GPL/LGPL dual-licensed and some bits with BSD
 # SourceLicense: (GPLv2+ and LGPLv2+ with exceptions) and BSD 
@@ -331,6 +332,7 @@ This package contains the RPM shared libraries.
 
 %patch1000 -p1 -b .hostnamemacro
 %patch1001 -p1
+%patch1002 -p1
 
 %if %{with int_bdb}
 ln -s db-%{bdbver} db
@@ -432,8 +434,11 @@ popd
 %exclude %{_sysconfdir}
 
 %changelog
-* Thu Nov 28 2019 Michael Hart <michael@lambci.org>
+* Mon May 25 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon May 04 2020 Frank van der Linden <fllinden@amazon.com>
+- Add --no-recompute-buildid option to debugedit
 
 * Sun Nov 10 2019 Frederick Lefebvre <fredlef@amazon.com> - 4.11.3-40.amzn2.0.3
 - Rename python2 subpackage from rpm-python to python2-rpm
