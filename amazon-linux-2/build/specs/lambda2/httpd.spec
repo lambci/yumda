@@ -6,15 +6,10 @@
 %define vstring %(source /etc/os-release; echo ${REDHAT_SUPPORT_PRODUCT})
 %global mpm prefork
 
-%define _trivial .0
-%define _buildid .1
-
-
-
 Summary: Apache HTTP Server
 Name: httpd
-Version: 2.4.41
-Release: 1%{?dist}%{?_trivial}%{?_buildid}
+Version: 2.4.43
+Release: 1%{?dist}
 URL: https://httpd.apache.org/
 Source0: https://www.apache.org/dist/httpd/httpd-%{version}.tar.bz2
 Source1: index.html
@@ -54,26 +49,17 @@ Source42: httpd-init.service
 Source43: httpd-ssl-gencerts
 # build/scripts patches
 Patch1: httpd-2.4.1-apctl.patch
-Patch2: httpd-2.4.9-apxs.patch
+Patch2: httpd-2.4.43-apxs.patch
 Patch3: httpd-2.4.1-deplibs.patch
-Patch5: httpd-2.4.3-layout.patch
-Patch6: httpd-2.4.3-apctl-systemd.patch
-# Needed for socket activation and mod_systemd patch
-Patch19: httpd-2.4.25-detect-systemd.patch
 # Features/functional changes
 Patch23: httpd-2.4.33-export.patch
 Patch24: httpd-2.4.1-corelimit.patch
-Patch25: httpd-2.4.25-selinux.patch
+Patch25: httpd-2.4.43-selinux.patch
 Patch27: httpd-2.4.2-icons.patch
-Patch29: httpd-2.4.27-systemd.patch
 Patch30: httpd-2.4.4-cachehardmax.patch
-Patch31: httpd-2.4.18-sslmultiproxy.patch
-Patch34: httpd-2.4.17-socket-activation.patch
 Patch35: httpd-2.4.37-sslciphdefault.patch
 
 # Bug fixes
-# https://bugzilla.redhat.com/show_bug.cgi?id=1397243
-Patch58: httpd-2.4.34-r1738878.patch
 
 # Security fixes
 
@@ -190,21 +176,13 @@ interface for storing and accessing per-user session data.
 %patch1 -p1 -b .apctl
 %patch2 -p1 -b .apxs
 %patch3 -p1 -b .deplibs
-%patch5 -p1 -b .layout
-%patch6 -p1 -b .apctlsystemd
-
-%patch19 -p1 -b .detectsystemd
 
 %patch23 -p1 -b .export
 %patch24 -p1 -b .corelimit
 %patch25 -p1 -b .selinux
 %patch27 -p1 -b .icons
-%patch29 -p1 -b .systemd
 %patch30 -p1 -b .cachehardmax
-#patch31 -p1 -b .sslmultiproxy
-%patch34 -p1 -b .socketactivation
 %patch35 -p1 -b .sslciphdefault
-%patch58 -p1 -b .r1738878
 
 # Patch in the vendor string
 sed -i '/^#define PLATFORM/s/Unix/%{vstring}/' os/unix/os.h
@@ -247,50 +225,50 @@ export LYNX_PATH=%{_bindir}/links
 
 # Build the daemon
 ./configure \
-  --prefix=%{_sysconfdir}/httpd \
-  --exec-prefix=%{_prefix} \
-  --bindir=%{_bindir} \
-  --sbindir=%{_sbindir} \
-  --mandir=%{_mandir} \
-  --libdir=%{_libdir} \
-  --sysconfdir=%{_sysconfdir}/httpd/conf \
-  --includedir=%{_includedir}/httpd \
-  --libexecdir=%{_libdir}/httpd/modules \
-  --datadir=%{contentdir} \
-  --localstatedir=%{_localstatedir} \
-  --with-errordir=%{contentdir}/error \
-  --with-iconsdir=%{contentdir}/icons \
-  --with-htdocsdir=%{_localstatedir}/www/html \
-  --with-manualdir=%{contentdir}/manual \
-  --with-cgidir=%{_localstatedir}/www/cgi-bin \
-  --with-runtimedir=%{_localstatedir}/run/httpd \
-  --with-logfiledir=%{_localstatedir}/log/httpd \
-  --with-proxycachedir=%{_localstatedir}/cache/httpd/proxy \
-  --with-installbuilddir=%{_libdir}/httpd/build \
-  --enable-mpms-shared=all \
-  --with-apr=%{_prefix} --with-apr-util=%{_prefix} \
-  --enable-suexec --with-suexec \
-  --enable-suexec-capabilities \
-  --with-suexec-caller=%{suexec_caller} \
-  --with-suexec-docroot=%{docroot} \
-  --without-suexec-logfile \
-  --with-suexec-syslog \
-  --with-suexec-bin=%{_sbindir}/suexec \
-  --with-suexec-uidmin=1000 --with-suexec-gidmin=1000 \
-  --enable-pie \
-  --with-pcre \
-  --enable-mods-shared=all \
-  --enable-ssl --with-ssl --disable-distcache \
-  --enable-proxy --enable-proxy-fdpass \
-  --enable-cache \
-  --enable-disk-cache \
-  --enable-ldap --enable-authnz-ldap \
-  --enable-cgid --enable-cgi \
-  --enable-authn-anon --enable-authn-alias \
-  --disable-imagemap --disable-file-cache \
-  --disable-socache-redis \
-  --disable-http2 \
-  --disable-systemd
+        --prefix=%{_sysconfdir}/httpd \
+        --exec-prefix=%{_prefix} \
+        --bindir=%{_bindir} \
+        --sbindir=%{_sbindir} \
+        --mandir=%{_mandir} \
+        --libdir=%{_libdir} \
+        --sysconfdir=%{_sysconfdir}/httpd/conf \
+        --includedir=%{_includedir}/httpd \
+        --libexecdir=%{_libdir}/httpd/modules \
+        --datadir=%{contentdir} \
+        --localstatedir=%{_localstatedir} \
+        --with-errordir=%{contentdir}/error \
+        --with-iconsdir=%{contentdir}/icons \
+        --with-htdocsdir=%{_localstatedir}/www/html \
+        --with-manualdir=%{contentdir}/manual \
+        --with-cgidir=%{_localstatedir}/www/cgi-bin \
+        --with-runtimedir=%{_localstatedir}/run/httpd \
+        --with-logfiledir=%{_localstatedir}/log/httpd \
+        --with-proxycachedir=%{_localstatedir}/cache/httpd/proxy \
+        --with-installbuilddir=%{_libdir}/httpd/build \
+        --enable-mpms-shared=all \
+        --with-apr=%{_prefix} --with-apr-util=%{_prefix} \
+        --enable-suexec --with-suexec \
+        --enable-suexec-capabilities \
+        --with-suexec-caller=%{suexec_caller} \
+        --with-suexec-docroot=%{docroot} \
+        --without-suexec-logfile \
+        --with-suexec-syslog \
+        --with-suexec-bin=%{_sbindir}/suexec \
+        --with-suexec-uidmin=1000 --with-suexec-gidmin=1000 \
+        --enable-pie \
+        --with-pcre \
+        --enable-mods-shared=all \
+        --enable-ssl --with-ssl --disable-distcache \
+        --enable-proxy --enable-proxy-fdpass \
+        --enable-cache \
+        --enable-disk-cache \
+        --enable-ldap --enable-authnz-ldap \
+        --enable-cgid --enable-cgi \
+        --enable-authn-anon --enable-authn-alias \
+        --disable-systemd \
+        --disable-imagemap --disable-file-cache \
+        --disable-socache-redis \
+        --disable-http2 \
 	$*
 make %{?_smp_mflags}
 
@@ -542,8 +520,11 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf/{original,extra}
 %exclude %{contentdir}/build
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Mon May 25 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon May 04 2020 Trinity Quirk <tquirk@amazon.com> - 2.4.43-1
+- Package updated to 2.4.43
 
 * Tue Oct 22 2019 Trinity Quirk <tquirk@amazon.com> - 2.4.41-1
 - Package updated to 2.4.41
