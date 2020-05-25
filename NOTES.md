@@ -61,15 +61,17 @@ From outside docker, assuming amzn updates have been committed
 Amazon Linux 1:
 
 ```console
-export CURSPEC=openssh && \
-  git diff origin/master -- specs/amzn1/${CURSPEC}.spec | patch specs/lambda1/${CURSPEC}.spec
+for CURSPEC in openssh; do
+  git diff origin/master -- specs/amzn1/${CURSPEC}.spec | patch specs/lambda1/${CURSPEC}.spec;
+done
 ```
 
 Amazon Linux 2:
 
 ```console
-export CURSPEC=openssh && \
-  git diff origin/master -- specs/amzn2/${CURSPEC}.spec | patch specs/lambda2/${CURSPEC}.spec
+for CURSPEC in openssh; do
+  git diff origin/master -- specs/amzn2/${CURSPEC}.spec | patch specs/lambda2/${CURSPEC}.spec;
+done
 ```
 
 ## Building specs
