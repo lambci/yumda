@@ -13,11 +13,11 @@
 %global _hardened_build 1
 
 %define _trivial .0
-%define _buildid .1
+%define _buildid .3
 Summary: Validating, recursive, and caching DNS(SEC) resolver
 Name: unbound
 Version: 1.6.6
-Release: 1%{?dist}.0.2
+Release: 1%{?dist}%{?_trivial}%{?_buildid}
 License: BSD
 Url: https://unbound.net/
 Source: https://www.unbound.net/downloads/%{name}-%{version}.tar.gz
@@ -44,6 +44,9 @@ Patch3: unbound-1.6.3-print-test-fails.patch
 Patch4: unbound-1.6.3-coverity.patch
 # Randomize outgoing port too, do not fail on two running builds on one host
 Patch5: unbound-1.6.6-test-fwd_oneport.patch
+
+Patch1000: cve_2020-12662_2020-12663.patch
+
 Group: System Environment/Daemons
 BuildRequires: openssl-devel
 %if %{with_test}
@@ -142,6 +145,8 @@ Python modules and extensions for unbound
 %patch3 -p1 -b .testlog
 %patch4 -p1 -b .coverity
 %patch5 -p1 -b .test-fwd_oneport
+
+%patch1000 -p1 -b CVE-2020-12662
 
 # regrnerate config parser due to new options added
 echo "#include \"config.h\"" > util/configlexer.c || echo "Failed to create configlexer"
@@ -353,6 +358,9 @@ fi
 %endif
 
 %changelog
+* Wed May 13 2020 Trinity Quirk <tquirk@amazon.com> - 1.6.6-1.amzn2.0.3
+- Add patches for CVE-2020-12662 and CVE-2020-12663
+
 * Wed Oct 11 2017 Petr Menšík <pemensik@redhat.com> - 1.6.6-1
 - Rebase to 1.6.6
 - Enable RFC 8145 Trust Anchor Signaling to help the root zone get keytag statistics
