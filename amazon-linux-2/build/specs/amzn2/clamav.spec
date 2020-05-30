@@ -2,13 +2,8 @@
 
 %global _hardened_build 1
 
-## Fedora Extras specific customization below...
-# EL7's curl is too old
-%if 0%{?fedora} || 0%{?rhel} >= 8
+## Fedora specific customization below...
 %bcond_without  clamonacc
-%else
-%bcond_with     clamonacc
-%endif
 %bcond_without  tmpfiles
 %bcond_with     unrar
 %ifnarch ppc64
@@ -45,8 +40,8 @@
 
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
-Version:    0.102.2
-Release:    4%{?dist}
+Version:    0.102.3
+Release:    1%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
 %if %{with unrar}
@@ -69,9 +64,11 @@ Source5:    clamd-README
 #http://database.clamav.net/main.cvd
 Source10:   main-59.cvd
 #http://database.clamav.net/daily.cvd
-Source11:   daily-25719.cvd
+Source11:   daily-25811.cvd
 #http://database.clamav.net/bytecode.cvd
 Source12:   bytecode-331.cvd
+#for clamonacc
+Source100:  clamonacc.service
 #for update
 Source200:  freshclam-sleep
 Source201:  freshclam.sysconfig
@@ -92,6 +89,8 @@ Patch0:     clamav-stats-deprecation.patch
 Patch1:     clamav-default_confs.patch
 # Fix pkg-config flags for static linking, multilib
 Patch2:     clamav-0.99-private.patch
+# Patch to use EL7 libcurl
+Patch3:     clamav-curl.patch
 
 BuildRequires:  autoconf automake gettext-devel libtool libtool-ltdl-devel
 BuildRequires:  gcc-c++
@@ -99,6 +98,10 @@ BuildRequires:  bzip2-devel
 BuildRequires:  curl-devel
 BuildRequires:  gmp-devel
 BuildRequires:  json-c-devel
+BuildRequires:  libprelude-devel
+# libprelude-config --libs brings in gnutls
+# https://bugzilla.redhat.com/show_bug.cgi?id=1830473
+BuildRequires:  gnutls-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  ncurses-devel
 BuildRequires:  openssl-devel
@@ -117,6 +120,7 @@ BuildRequires:  systemd-devel
 #for milter
 BuildRequires:  sendmail-devel
 
+Requires:   clamav-filesystem = %version-%release
 Requires:   clamav-lib = %version-%release
 Requires:   data(clamav)
 
@@ -247,6 +251,8 @@ This package contains files which are needed to run the clamav-milter.
 %endif
 %patch1 -p1 -b .default_confs
 %patch2 -p1 -b .private
+# Patch to use older libcurl
+%{?el7:%patch3 -p1 -b .curl}
 
 install -p -m0644 %SOURCE300 clamav-milter/
 
@@ -277,6 +283,7 @@ autoreconf -i
     --disable-rpath \
     --disable-silent-rules \
     --enable-clamdtop \
+    --enable-prelude \
     %{!?with_clamonacc:--disable-clamonacc} \
     %{!?with_llvm:--disable-llvm}
 
@@ -316,6 +323,8 @@ install -D -m 0644 -p %SOURCE12     $RPM_BUILD_ROOT%homedir/bytecode.cvd
 install -D -m 0644 -p %SOURCE3      _doc_server/clamd.logrotate
 install -D -m 0644 -p %SOURCE5      _doc_server/README
 
+install -D -p -m 0644 %SOURCE100        $RPM_BUILD_ROOT%_unitdir/clamonacc.service
+
 install -D -p -m 0644 %SOURCE530        $RPM_BUILD_ROOT%_unitdir/clamd@.service
 
 ## prepare the update-files
@@ -332,7 +341,6 @@ install -D -p -m 0600 %SOURCE202    $RPM_BUILD_ROOT%_sysconfdir/cron.d/clamav-up
 sed -ri \
     -e 's!^Example!#Example!' \
     -e 's!^#?(UpdateLogFile )!#\1!g;' \
-    -e 's!^#?(LogSyslog).*!\1 yes!g' \
     -e 's!(DatabaseOwner *)clamav$!\1%updateuser!g' $RPM_BUILD_ROOT%_sysconfdir/freshclam.conf.sample
 
 mv $RPM_BUILD_ROOT%_sysconfdir/freshclam.conf{.sample,}
@@ -406,6 +414,16 @@ rm $RPM_BUILD_ROOT%_unitdir/clamav-daemon.*
 
 %check
 make check
+
+
+%post
+%systemd_post clamonacc.service
+
+%preun
+%systemd_preun clamonacc.service
+
+%postun
+%systemd_postun_with_restart clamonacc.service
 
 
 %pre filesystem
@@ -512,6 +530,7 @@ fi
 %_mandir/man[15]/*
 %exclude %_mandir/*/freshclam*
 %exclude %_mandir/man5/clamd.conf.5*
+%_unitdir/clamonacc.service
 
 
 %files lib
@@ -532,6 +551,8 @@ fi
 %files filesystem
 %attr(-,%updateuser,%updateuser) %dir %homedir
 %dir %_sysconfdir/clamd.d
+# Used by both clamd, clamdscan, and clamonacc
+%config(noreplace) %_sysconfdir/clamd.d/scan.conf
 
 
 %files data
@@ -566,7 +587,6 @@ fi
 %_sbindir/clamd
 %_unitdir/clamd@.service
 
-%config(noreplace) %_sysconfdir/clamd.d/scan.conf
 %ghost %scanstatedir/clamd.sock
 %if %{with tmpfiles}
   %_tmpfilesdir/clamd.scan.conf
@@ -595,7 +615,32 @@ fi
 
 
 %changelog
-* Mon Mar 16 2020 Orion Poplawski <orion@cora.nwra.com> - 0.102.2-4
+* Thu May 14 2020 Orion Poplawski <orion@nwra.com> - 0.102.3-1
+- Update to 0.102.3 (bz#1834910)
+- Security fixes CVE-2020-3341
+
+* Sat May 02 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-9
+- Add upstream patch to fix "Attempt to allocate 0 bytes" errors while scanning
+  certain PDFs
+
+* Thu Apr 30 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-8
+- Enable prelude support (bz#1829726)
+
+* Wed Apr 29 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-7
+- Move /etc/clamd.d/scan.conf to clamav-filesystem
+- Add patch to build with EL7 libcurl - re-enable on-access scanning
+  (bz#1820395)
+- Add clamonacc.service
+
+* Tue Apr 21 2020 Björn Esser <besser82@fedoraproject.org> - 0.102.2-6
+- Rebuild (json-c)
+
+* Wed Apr  8 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-5
+- Do not log freshclam output to syslog by default - creates double entries
+  in the journal (bz#1822012)
+- (#1820069) add try-restart clamav-freshclam.service on logrotate
+
+* Mon Mar 16 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-4
 - Quiet freshclam-sleep when used with proxy
 
 * Sat Feb 29 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-3
