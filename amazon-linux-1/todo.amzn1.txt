@@ -1,8 +1,6 @@
 libgcc44-4.4.6-4.81.amzn1 1606
 libgcc64-6.4.1-1.45.amzn1 1605
-libgcc48-4.8.5-28.142.amzn1 1605
 python26-2.6.9-2.89.amzn1 1463
-libstdc++48-4.8.5-28.142.amzn1 1443
 libstdc++44-4.4.6-4.81.amzn1 1443
 libstdc++64-6.4.1-1.45.amzn1 1442
 php-common-5.3.29-1.8.amzn1 621
@@ -26,7 +24,6 @@ java-1.7.0-openjdk-1.7.0.231-2.6.19.1.80.amzn1 129
 java-1.6.0-openjdk-1.6.0.41-1.13.13.1.77.amzn1 124
 php56-xml-5.6.40-1.142.amzn1 122
 php55-xml-5.5.38-2.119.amzn1 122
-libgfortran-6.4.1-1.45.amzn1 116
 php54-xml-5.4.45-1.75.amzn1 112
 postgresql92-libs-9.2.24-2.66.amzn1 111
 postgresql8-libs-8.4.20-5.52.amzn1 111
@@ -147,7 +144,6 @@ libXcursor-1.1.14-2.1.10.amzn1 31
 texlive-kpathsea-lib-2012-38.20130427_r30134.24.amzn1 30
 python26-dateutil-2.1-1.3.amzn1 30
 texlive-tools-svn26263.0-38.24.amzn1 29
-perl-Digest-SHA-5.85-3.5.amzn1 29
 libXaw-1.0.11-2.8.amzn1 29
 graphviz-2.38.0-18.51.amzn1 29
 automake-1.13.4-3.15.amzn1 29
@@ -193,8 +189,6 @@ iptables-1.4.18-1.22.amzn1 23
 subversion-1.9.7-1.58.amzn1 22
 openmotif-2.3.3-7.1.10.amzn1 22
 libXxf86vm-1.1.3-2.1.9.amzn1 22
-json-c-0.11-6.8.amzn1 22
-gcc48-4.8.5-28.142.amzn1 22
 php-ZendFramework-1.12.20-1.12.amzn1 21
 perl-TimeDate-2.30-2.7.amzn1 21
 perl-Digest-SHA1-2.13-9.7.amzn1 21
@@ -242,8 +236,6 @@ nginx-1.16.1-1.37.amzn1 17
 mysql55-5.5.62-1.23.amzn1 17
 lighttpd-1.4.53-1.36.amzn1 17
 gnupg-1.4.19-1.30.amzn1 17
-gcc48-c++-4.8.5-28.142.amzn1 17
-gcc-4.8.5-1.22.amzn1 17
 device-mapper-libs-1.02.135-1.31.amzn1 17
 desktop-file-utils-0.21-4.0.amzn1 17
 xinetd-2.3.14-39.9.amzn1 16
@@ -263,7 +255,6 @@ log4j-1.2.16-6.4.9.amzn1 16
 libart_lgpl-2.3.20-5.1.7.amzn1 16
 gsl-1.13-4.3.amzn1 16
 gcc64-c++-6.4.1-1.45.amzn1 16
-gcc48-gfortran-4.8.5-28.142.amzn1 16
 freeglut-2.6.0-1.8.amzn1 16
 dbus-python26-0.83.0-6.1.13.amzn1 16
 cronie-1.4.4-15.8.amzn1 16
@@ -284,7 +275,6 @@ net-snmp-5.5-54.1.20.amzn1 15
 gpm-libs-1.20.6-12.8.amzn1 15
 gcc64-gfortran-6.4.1-1.45.amzn1 15
 gcc44-gfortran-4.4.6-4.81.amzn1 15
-gcc-gfortran-4.8.5-1.22.amzn1 15
 compat-protobuf-2.3.0-7.1.amzn1 15
 c-ares-1.13.0-1.5.amzn1 15
 tokyocabinet-1.4.33-6.4.amzn1 14
@@ -428,7 +418,6 @@ perl-Class-Inspector-1.28-2.9.amzn1 10
 perl-Authen-SASL-2.15-10.8.amzn1 10
 nfs-utils-1.3.0-0.21.amzn1 10
 newt-0.52.11-3.11.amzn1 10
-libquadmath-6.4.1-1.45.amzn1 10
 libdbi-0.8.3-4.7.amzn1 10
 libc-client-2007e-11.6.amzn1 10
 kernel-4.14.146-93.123.amzn1 10
@@ -467,7 +456,6 @@ libconfuse-2.7-4.2.amzn1 9
 ldns-1.6.16-7.3.amzn1 9
 lcms-libs-1.19-1.8.amzn1 9
 guile-1.8.7-5.8.amzn1 9
-gcc-c++-4.8.5-1.22.amzn1 9
 freeradius-2.2.6-7.16.amzn1 9
 expect-5.44.1.15-5.12.amzn1 9
 boost141-serialization-1.41.0-15.17.amzn1 9
@@ -516,7 +504,6 @@ perl-Exception-Class-1.37-3.8.amzn1 8
 perl-Error-0.17020-2.9.amzn1 8
 perl-Env-1.04-2.5.amzn1 8
 perl-Email-Simple-2.102-2.3.amzn1 8
-perl-Digest-1.17-245.5.amzn1 8
 perl-Date-Calc-6.3-14.9.amzn1 8
 perl-DB_File-1.830-6.7.amzn1 8
 perl-DBD-SQLite-1.39-3.9.amzn1 8
@@ -1234,7 +1221,6 @@ libksba-1.3.5-1.9.amzn1 3
 libipa_hbac-1.16.4-21.25.amzn1 3
 libibumad-1.3.8-1.7.amzn1 3
 libgtop2-2.28.4-6.7.amzn1 3
-libgnat48-4.8.5-28.142.amzn1 3
 liberation-mono-fonts-1.05.1.20090721-5.6.amzn1 3
 liberation-fonts-common-1.05.1.20090721-5.6.amzn1 3
 libdmx-1.1.3-3.7.amzn1 3
@@ -1262,7 +1248,6 @@ gprolog-1.3.1-6.4.amzn1 3
 gnutls-utils-2.12.23-21.18.amzn1 3
 gnuplot-common-4.2.6-2.7.amzn1 3
 geronimo-specs-compat-1.0-3.5.M2.13.amzn1 3
-gcc48-gnat-4.8.5-28.142.amzn1 3
 ganglia-gmond-3.7.2-2.20.amzn1 3
 fontforge-20090622-3.1.7.amzn1 3
 epel-release-6-8.9.amzn1 3
@@ -1714,7 +1699,6 @@ libpagemap-0.0.1-6.7.amzn1 2
 libnl3-cli-3.2.28-4.6.amzn1 2
 libibmad-1.3.9-1.9.amzn1 2
 libibcommon-1.2.0-3.5.amzn1 2
-libgnat-4.8.5-1.22.amzn1 2
 liberation-serif-fonts-1.05.1.20090721-5.6.amzn1 2
 liberation-sans-fonts-1.05.1.20090721-5.6.amzn1 2
 libecap-1.0.0-1.0.amzn1 2
@@ -1756,7 +1740,6 @@ ghostscript-fonts-5.50-23.2.7.amzn1 2
 gdisk-0.8.10-1.5.amzn1 2
 gcc64-gdb-plugin-6.4.1-1.45.amzn1 2
 gcc44-gnat-4.4.6-4.81.amzn1 2
-gcc-gnat-4.8.5-1.22.amzn1 2
 ganglia-gmetad-3.7.2-2.20.amzn1 2
 gamin-python-0.1.10-16.14.amzn1 2
 foomatic-db-filesystem-4.0-7.20091126.2.amzn1 2
@@ -1786,7 +1769,6 @@ cvs2commons-2.3.0-2.0.r5319svn.6.amzn1 2
 ctdb-4.8.3-4.amzn1 2
 cronie-noanacron-1.4.4-15.8.amzn1 2
 cracklib-dicts-2.8.16-4.14.amzn1 2
-cpp48-4.8.5-28.142.amzn1 2
 copy-jdk-configs-3.3-10.3.amzn1 2
 compat-boost-wave-1.41.0-11.10.amzn1 2
 compat-boost-openmpi-1.41.0-11.10.amzn1 2
@@ -2709,7 +2691,6 @@ llvm6.0-static-6.0.1-1.0.amzn1 1
 linuxdoc-tools-0.9.68-5.10.amzn1 1
 libxslt-python26-1.1.28-5.13.amzn1 1
 libverto-glib-0.2.5-4.9.amzn1 1
-libtsan-4.8.5-28.142.amzn1 1
 libsss_autofs-1.16.4-21.25.amzn1 1
 libselinux-utils-2.1.10-3.22.amzn1 1
 libsanitizer-6.4.1-1.45.amzn1 1
@@ -2717,13 +2698,10 @@ libreswan-3.15-7.3.9.amzn1 1
 libreadline-java-0.8.0-24.3.7.amzn1 1
 libproxy-python-0.3.0-4.9.amzn1 1
 libproxy-bin-0.3.0-4.9.amzn1 1
-libmudflap-4.8.5-28.142.amzn1 1
 libmetalink-0.1.3-1.2.amzn1 1
 libjpeg-turbo-utils-1.2.90-8.16.amzn1 1
 libgccjit-6.4.1-1.45.amzn1 1
 libepoxy-1.2-3.3.amzn1 1
-libatomic-6.4.1-1.45.amzn1 1
-libasan-4.8.5-28.142.amzn1 1
 ldirectord-3.9.2-4.4.amzn1 1
 ldb-tools-1.3.4-1.amzn1 1
 latrace-0.5.9-2.2.amzn1 1
@@ -3940,7 +3918,6 @@ libmpx-6.4.1-1.45.amzn1 0
 libmnl-static-1.0.3-4.2.amzn1 0
 libmicrohttpd-doc-0.9.33-2.5.amzn1 0
 libjpeg-turbo-static-1.2.90-8.16.amzn1 0
-libitm-6.4.1-1.45.amzn1 0
 libicu-doc-50.1.2-11.12.amzn1 0
 libibumad-static-1.3.8-1.7.amzn1 0
 libibmad-static-1.3.9-1.9.amzn1 0
@@ -4244,7 +4221,6 @@ crypto-utils-2.4.1-42.9.amzn1 0
 crash-extensions-7.2.1-1.22.amzn1 0
 cracklib-python-2.8.16-4.14.amzn1 0
 cppunit-doc-1.12.1-11.2.amzn1 0
-cpp-4.8.5-1.22.amzn1 0
 cowsay-3.03-8.2.amzn1 0
 compat-readline5-static-5.2-17.3.amzn1 0
 compat-mpich-doc-1.2.1-2.3.12.amzn1 0
