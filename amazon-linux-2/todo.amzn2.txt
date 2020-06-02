@@ -110,7 +110,6 @@ gcr-3.20.0-1.amzn2.0.2 27
 webkitgtk4-jsc-2.14.7-3.amzn2.0.1 26
 maven-artifact-2.2.1-47.amzn2 26
 keyutils-libs-1.5.8-3.amzn2.0.2 26
-gstreamer-0.10.36-7.amzn2.0.2 26
 dconf-0.26.0-2.amzn2.0.2 26
 python-mod_wsgi-4.5.20-4.amzn2.0.2 25
 mod_wsgi-3.4-12.amzn2.0.2 25
@@ -137,7 +136,6 @@ apache-commons-io-2.4-12.amzn2 23
 xml-commons-apis-1.4.01-16.amzn2 22
 python-pygments-1.4-10.amzn2 22
 python-pillow-2.0.0-19.gitd1c6db8.amzn2.0.2 22
-gstreamer-plugins-base-0.10.36-18.amzn2 22
 gnome-icon-theme-3.12.0-1.amzn2 22
 dbus-x11-1.10.24-7.amzn2 22
 sendmail-8.14.7-5.amzn2.0.1 21
@@ -149,7 +147,6 @@ suitesparse-4.0.2-10.amzn2.0.1 20
 rsync-3.1.2-4.amzn2 20
 rpm-build-4.11.3-25.amzn2.0.3 20
 opus-1.0.2-6.amzn2.0.2 20
-libv4l-0.9.5-4.amzn2.0.1 20
 libpurple-2.10.11-7.amzn2 20
 iptables-services-1.4.21-24.1.amzn2 20
 ibus-1.5.17-2.amzn2 20
@@ -209,7 +206,6 @@ generic-logos-18.0.0-4.amzn2 17
 dracut-033-535.amzn2.1.3 17
 desktop-file-utils-0.23-1.amzn2.0.2 17
 clutter-gtk-1.8.4-1.amzn2 17
-xml-common-0.6.3-39.amzn2 16
 vte291-0.46.2-1.amzn2.0.1 16
 usermode-1.111-5.amzn2.0.2 16
 system-menus-12.0.2-8.amzn2 16
@@ -233,7 +229,6 @@ libbonobo-2.32.1-7.amzn2.0.2 16
 google-guice-3.1.3-9.amzn2 16
 gnome-shell-3.26.2-5.amzn2 16
 gedit-plugins-data-3.22.0-1.amzn2.0.1 16
-fribidi-0.19.4-6.amzn2.0.2 16
 e2fsprogs-1.42.9-12.amzn2.0.2 16
 culmus-fonts-common-0.130-3.amzn2 16
 xorg-x11-xinit-1.3.4-2.amzn2 15
@@ -281,13 +276,11 @@ plexus-classworlds-2.4.2-8.amzn2 14
 perl-Tk-804.030-6.amzn2.0.2 14
 perl-Module-Pluggable-4.8-3.amzn2 14
 perl-MailTools-2.12-2.amzn2 14
-orc-0.4.26-1.amzn2.0.2 14
 libwbclient-4.8.3-4.amzn2.0.1 14
 libsamplerate-0.1.8-6.amzn2.0.2 14
 libmnl-1.0.3-7.amzn2.0.2 14
 libgnome-2.32.1-9.amzn2.0.1 14
 libdhash-0.5.0-29.amzn2 14
-iso-codes-3.46-2.amzn2 14
 emacs-lucid-25.3-3.amzn2.0.1 14
 dmidecode-3.0-5.amzn2.0.2 14
 corosynclib-2.4.3-4.amzn2 14
@@ -303,7 +296,6 @@ perl-XML-Simple-2.20-5.amzn2 13
 perl-IO-Socket-INET6-2.69-5.amzn2 13
 perl-HTTP-Date-6.02-8.amzn2 13
 perl-Archive-Tar-1.92-3.amzn2 13
-opencv-core-2.4.5-3.amzn2.0.2 13
 net-tools-2.0-0.22.20131004git.amzn2.0.2 13
 neon-0.30.0-3.amzn2.0.2 13
 motif-2.3.4-14.amzn2 13
@@ -362,7 +354,6 @@ xml-commons-resolver-1.2-15.amzn2 11
 vim-filesystem-8.1.1602-1.amzn2 11
 vim-filesystem-7.4.160-4.amzn2.0.16 11
 tkinter-2.7.16-3.amzn2.0.1 11
-sgml-common-0.6.3-39.amzn2 11
 scipy-0.12.1-6.amzn2 11
 relaxngDatatype-1.0-11.amzn2 11
 perl-Readonly-1.03-22.amzn2 11
@@ -372,7 +363,6 @@ perl-IO-stringy-2.110-22.amzn2 11
 perl-File-Which-1.09-12.amzn2 11
 perl-Date-Manip-6.41-2.amzn2 11
 pcsc-lite-1.8.8-7.amzn2 11
-opencv-2.4.5-3.amzn2.0.2 11
 nfs-utils-1.3.0-0.54.amzn2.0.2 11
 nautilus-extensions-3.22.3-5.amzn2 11
 minizip-1.2.7-17.amzn2.0.2 11
@@ -418,7 +408,6 @@ maven-plugin-descriptor-2.2.1-47.amzn2 10
 lockdev-1.0.4-0.13.20111007git.amzn2.0.2 10
 llvm-libs-7.0.1-1.amzn2.0.1 10
 libwacom-0.24-4.amzn2 10
-libsodium-1.0.18-2.amzn2 10
 libnfnetlink-1.0.1-4.amzn2.0.2 10
 libgphoto2-2.5.15-1.amzn2 10
 libconfig-1.4.9-5.amzn2.0.2 10
@@ -455,15 +444,11 @@ perl-DateTime-TimeZone-1.70-1.amzn2 9
 perl-DB_File-1.830-6.amzn2.0.2 9
 papi-5.2.0-25.amzn2 9
 nmap-ncat-6.40-13.amzn2 9
-net-snmp-utils-5.7.2-43.amzn2 9
 maven-settings-2.2.1-47.amzn2 9
 maven-reporting-impl-2.2-8.amzn2 9
 maven-archiver-2.5-9.amzn2 9
-mailcap-2.1.41-2.amzn2 9
-lm_sensors-3.4.0-4.20160601gitf9185e5.amzn2.0.2 9
 libvirt-daemon-driver-storage-core-4.5.0-10.amzn2.12.1 9
 libvirt-4.5.0-10.amzn2.12.1 9
-libutempter-1.1.6-4.amzn2.0.2 9
 libsss_idmap-1.16.2-13.amzn2.0.1 9
 libsmbclient-4.8.3-4.amzn2.0.1 9
 libsemanage-2.5-11.amzn2 9
@@ -473,18 +458,14 @@ libXp-1.0.2-2.1.amzn2.0.2 9
 libXi-devel-1.7.9-1.amzn2.0.2 9
 libXfont2-2.0.1-2.amzn2.0.2 9
 json-glib-devel-1.2.6-1.amzn2.0.2 9
-hwdata-0.252-8.8.amzn2 9
 gvnc-0.7.0-3.amzn2 9
-guile-2.0.14-3.amzn2.0.2 9
 gtkspell-2.0.16-8.amzn2.0.2 9
 gtkmm24-2.24.5-1.amzn2.0.2 9
 gobject-introspection-devel-1.50.0-1.amzn2.0.2 9
 gnu-free-mono-fonts-20120503-8.amzn2 9
-glibc-devel-2.26-32.amzn2.0.2 9
 gdb-8.0.1-30.amzn2.0.3 9
 fontawesome-fonts-4.1.0-1.amzn2 9
 exempi-2.2.0-9.amzn2 9
-cracklib-2.9.0-11.amzn2.0.2 9
 clutter-gst3-3.0.22-1.amzn2.0.1 9
 clutter-devel-1.26.2-2.amzn2 9
 bsh-1.3.0-29.1.amzn2 9
@@ -496,8 +477,6 @@ apache-commons-cli-1.2-13.amzn2 9
 PackageKit-glib-1.1.5-2.amzn2.0.2 9
 MySQL-python-1.2.5-1.amzn2.0.2 9
 ModemManager-glib-1.6.10-1.amzn2 9
-xorg-x11-fonts-ISO8859-1-75dpi-7.5-9.amzn2 8
-unbound-libs-1.6.6-1.amzn2.0.2 8
 udisks2-2.1.2-6.amzn2.0.2 8
 texlive-ms-svn24467.0-38.amzn2.0.4 8
 texlive-geometry-svn19716.5.6-38.amzn2.0.4 8
