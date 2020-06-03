@@ -12,6 +12,7 @@ configuration to install them (requires [Docker](https://docs.docker.com/install
 * [Quickstart](#quickstart)
 * [AWS SAM Example](#full-example-with-aws-sam)
 * [Serverless Framework Example](#example-with-serverless-framework)
+* [No `devel` Packages?](#no-devel-packages)
 * [Requesting Packages to Add](#requesting-packages-to-add)
 * [Building/Hosting Your Own Packages](#buildinghosting-your-own-packages)
 
@@ -304,6 +305,32 @@ Then we can deploy:
 
 ```console
 sls deploy
+```
+
+## No `devel` Packages?
+
+`yumda` is for installing runtime dependencies – not build-time dependencies (because you're usually not building *on* Lambda). So a typical workflow is to build native dependencies using a build container of some sort (eg those provided by [docker-lambda](https://github.com/lambci/docker-lambda)) and then create a layer for any necessary runtime libraries using `yumda`.
+
+Here's an example to illustrate that will create a layer containing the [OpenEXR bindings for python](https://pypi.org/project/OpenEXR/):
+
+```bash
+mkdir exr-layer
+
+# First we use build-python3.8 from docker-lambda to *build* the library.
+# We install OpenEXR-devel because the pip package needs it to build,
+# and then we can use pip to install the python package:
+
+docker run --rm -v "$PWD"/exr-layer:/opt lambci/lambda:build-python3.8 \
+  bash -c "yum install -y OpenEXR-devel && pip install OpenEXR -t /opt/python"
+
+# At runtime, on Lambda itself, we don't need OpenEXR-devel – we only need the
+# libraries that the built python package depends on, which is just OpenEXR-libs.
+# We want them in our layer, so this is where yumda comes in:
+
+docker run --rm -v "$PWD"/exr-layer:/lambda/opt lambci/yumda:2 \
+  yum install -y OpenEXR-libs
+
+# Now we have everything we need in ./exr-layer and we can deploy it as a layer
 ```
 
 ## Requesting Packages to Add
