@@ -105,8 +105,8 @@
 Summary: An interpreted, interactive, object-oriented programming language
 Name: %{python}
 # Remember to also rebase python-docs when changing this:
-Version: 2.7.16
-Release: 5%{?dist}
+Version: 2.7.18
+Release: 1%{?dist}
 License: Python
 Group: Development/Languages
 Requires: %{python}-libs%{?_isa} = %{version}-%{release}
@@ -621,13 +621,6 @@ Patch146: 00146-hashlib-fips.patch
 # Sent upstream as http://bugs.python.org/issue14785
 Patch147: 00147-add-debug-malloc-stats.patch
 
-# 00153 #
-# Strip out lines of the form "warning: Unable to open ..." from gdb's stderr
-# when running test_gdb.py; also cope with change to gdb in F17 onwards in
-# which values are printed as "v@entry" rather than just "v":
-# Not yet sent upstream
-Patch153: 00153-fix-test_gdb-noise.patch
-
 # 00155 #
 # Avoid allocating thunks in ctypes unless absolutely necessary, to avoid
 # generating SELinux denials on "import ctypes" and "import uuid" when
@@ -640,22 +633,6 @@ Patch155: 00155-avoid-ctypes-thunks.patch
 # suite to ensure that it can load our -gdb.py script (rhbz#817072):
 # Not yet sent upstream
 Patch156: 00156-gdb-autoload-safepath.patch
-
-# 00157 #
-# Update uid/gid handling throughout the standard library: uid_t and gid_t are
-# unsigned 32-bit values, but existing code often passed them through C long
-# values, which are signed 32-bit values on 32-bit architectures, leading to
-# negative int objects for uid/gid values >= 2^31 on 32-bit architectures.
-#
-# Introduce _PyObject_FromUid/Gid to convert uid_t/gid_t values to python
-# objects, using int objects where the value will fit (long objects otherwise),
-# and _PyArg_ParseUid/Gid to convert int/long to uid_t/gid_t, with -1 allowed
-# as a special case (since this is given special meaning by the chown syscall)
-#
-# Update standard library to use this throughout for uid/gid values, so that
-# very large uid/gid values are round-trippable, and -1 remains usable.
-# (rhbz#697470)
-Patch157: 00157-uid-gid-overflows.patch
 
 # 00165 #
 # Backport to Python 2 from Python 3.3 of improvements to the "crypt" module
@@ -674,18 +651,6 @@ Patch165: 00165-crypt-module-salt-backport.patch
 #
 # Not yet sent upstream
 Patch167: 00167-disable-stack-navigation-tests-when-optimized-in-test_gdb.patch
-
-# 00168 #
-# Update distutils.sysconfig so that if CFLAGS is defined in the environment,
-# when building extension modules, it is appended to the full compilation
-# flags from Python's Makefile, rather than instead reducing the compilation
-# flags to the subset within OPT and adding it to those.
-#
-# In particular, this should ensure that "-fno-strict-aliasing" is used by
-# "python setup.py build" even when CFLAGS is defined in the environment.
-#
-# (rhbz#849994)
-Patch168: 00168-distutils-cflags.patch
 
 # 00169 #
 # Use SHA-256 rather than implicitly using MD5 within the challenge handling
@@ -761,13 +726,6 @@ Patch193: 00193-enable-loading-sqlite-extensions.patch
 # 00198 #
 Patch198: 00198-add-rewheel-module.patch
 
-# 00325 #
-# Unnecessary URL scheme exists to allow local_file:// reading file  in urllib
-# Security fix for CVE-2019-9948
-# Fixed upstream: https://bugs.python.org/issue35907
-# Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=1704174
-Patch325: 00325-CVE-2019-9948.patch
-
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora 17 onwards,
@@ -800,11 +758,6 @@ Patch5000: 05000-autotool-intermediates.patch
 
 
 ### End Fedora patch definitions. ###
-
-Patch9000: 0001-bpo-30458-Disallow-control-chars-in-http-URLs-GH-127.patch
-Patch9001: 0001-bpo-36216-Add-check-for-characters-in-netloc-that-no.patch
-Patch9002: Fix-CVE-2019-10160.patch
-Patch9003: 9003-bpo-34155-Dont-parse-domains-containing-at-GH-13079.patch
 
 %description
 Python is an interpreted, interactive, object-oriented programming
@@ -1050,14 +1003,11 @@ done
 %endif
 %patch146 -p1
 %patch147 -p1
-%patch153 -p0
 %patch155 -p1
 %patch156 -p1
-%patch157 -p1
 %patch165 -p1
 mv Modules/cryptmodule.c Modules/_cryptmodule.c
 %patch167 -p1
-%patch168 -p1
 %patch169 -p1
 %patch170 -p1
 %patch174 -p1 -b .fix-for-usr-move
@@ -1071,7 +1021,6 @@ mv Modules/cryptmodule.c Modules/_cryptmodule.c
 %if %{with rewheel}
 %patch198 -p1
 %endif
-%patch325 -p1
 
 
 %if 0%{?_module_build}
@@ -1089,11 +1038,6 @@ find -name "*~" |xargs rm -f
 
 
 ### End Fedora patch definitions. ###
-
-%patch9000 -p1
-%patch9001 -p1
-%patch9002 -p1
-%patch9003 -p1
 
 # ======================================================
 # Configuring and building the code:
@@ -1956,6 +1900,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon May 25 2020 Paul Ezvan <paulezva@amazon.com> - 2.7.18-1
+* Update to 2.7.18
+
 * Mon Dec 09 2019 Jason Green <jasg@amazon.com> - 2.7.16-5
 - Exclude 2to3
 
@@ -1965,7 +1912,7 @@ rm -fr %{buildroot}
 * Wed Sep 11 2019 Jeremiah Mahler <jmmahler@amazon.com> - 2.7.16-3.amzn2.0.1
 - Fix CVE-2019-9948
 
-* Fri Jul 29 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.7.16-2
+* Mon Jul 29 2019 Andrew Egelhofer <egelhofe@amazon.com> - 2.7.16-2
 - Fix CVE-2019-10160
 
 * Tue Feb 13 2018 Chad Miller <millchad@amazon.com> - 2.7.14-1
