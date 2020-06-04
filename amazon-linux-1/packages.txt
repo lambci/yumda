@@ -35,7 +35,7 @@ groff.x86_64                          1.22.2-8.11.lambda1                lambda1
 java-1.8.0-openjdk-devel.x86_64       1:1.8.0.252.b09-2.51.lambda1       lambda1
 jp2a.x86_64                           1.0.7-1.lambda1                    lambda1
 json-c.x86_64                         0.11-6.8.lambda1                   lambda1
-kernel-headers.x86_64                 4.14.177-107.254.lambda1           lambda1
+kernel-headers.x86_64                 4.14.181-108.257.lambda1           lambda1
 less.x86_64                           436-13.12.lambda1                  lambda1
 libXdmcp.x86_64                       1.1.1-3.8.lambda1                  lambda1
 libXpm.x86_64                         3.5.10-2.9.lambda1                 lambda1
