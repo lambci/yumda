@@ -544,7 +544,7 @@ Group: Development/Languages
 # libmbfl is licensed under LGPLv2
 # ucgendat is licensed under OpenLDAP
 License: PHP and LGPLv2 and OpenLDAP
-BuildRequires: oniguruma-devel
+BuildRequires: oniguruma-devel >= 6.8.2
 Provides: bundled(libmbfl) = 1.3.2
 Requires: php-common%{?_isa} = %{version}-%{release}
 Prefix: %{_prefix}

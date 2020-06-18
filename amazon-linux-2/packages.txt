@@ -508,7 +508,7 @@ nss-tools.x86_64             3.44.0-7.lambda2                            lambda2
 nss_db.x86_64                2.26-34.lambda2                             lambda2
 nss_hesiod.x86_64            2.26-34.lambda2                             lambda2
 nss_nis.x86_64               2.26-34.lambda2                             lambda2
-oniguruma.x86_64             5.9.6-1.lambda2.0.3                         lambda2
+oniguruma.x86_64             6.8.2-1.lambda2                             lambda2
 opencv.x86_64                2.4.5-3.lambda2.0.2                         lambda2
 opencv-core.x86_64           2.4.5-3.lambda2.0.2                         lambda2
 openjpeg.x86_64              1.5.1-18.lambda2                            lambda2
