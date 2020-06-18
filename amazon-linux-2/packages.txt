@@ -397,6 +397,7 @@ libpcap.x86_64               14:1.5.3-11.lambda2                         lambda2
 libpciaccess.x86_64          0.14-1.lambda2                              lambda2
 libpeas.x86_64               1.20.0-1.lambda2.0.3                        lambda2
 libpng.x86_64                2:1.5.13-7.lambda2.0.2                      lambda2
+libprelude.x86_64            5.1.1-1.lambda2                             lambda2
 libproxy.x86_64              0.4.11-10.lambda2.0.3                       lambda2
 libproxy-bin.x86_64          0.4.11-10.lambda2.0.3                       lambda2
 libpsl.x86_64                0.7.0-1.lambda2                             lambda2
@@ -650,6 +651,7 @@ postgresql.x86_64            9.2.24-1.lambda2.0.1                        lambda2
 postgresql-contrib.x86_64    9.2.24-1.lambda2.0.1                        lambda2
 postgresql-libs.x86_64       9.2.24-1.lambda2.0.1                        lambda2
 postgresql-server.x86_64     9.2.24-1.lambda2.0.1                        lambda2
+prelude-tools.x86_64         5.1.1-1.lambda2                             lambda2
 procps-ng.x86_64             3.3.10-26.lambda2                           lambda2
 procps-ng-i18n.x86_64        3.3.10-26.lambda2                           lambda2
 psl.x86_64                   0.7.0-1.lambda2                             lambda2
