@@ -1,12 +1,13 @@
 Summary:	Library for reading and writing sound files
 Name:		libsndfile
 Version:	1.0.25
-Release: 10%{?dist}.0.2
+Release:	11%{?dist}
 License:	LGPLv2+ and GPLv2+ and BSD
 Group:		System Environment/Libraries
 URL:		http://www.mega-nerd.com/libsndfile/
 Source0:	http://www.mega-nerd.com/libsndfile/files/libsndfile-%{version}.tar.gz
 Patch0:		%{name}-1.0.25-system-gsm.patch
+Patch1: libsndfile-1.0.28-CVE_2018_13139.patch
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires:	alsa-lib-devel
@@ -45,6 +46,7 @@ This package contains command line utilities for libsndfile.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1 -b .CVE_2018_13139
 rm -r src/GSM610 ; autoreconf -I M4 -fiv # for system-gsm patch
 #also for aarch64 support which requires autotools 2.69+
 
@@ -96,8 +98,11 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Jun 18 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Oct 29 2019 Michal Hlavinka <mhlavink@redhat.com> - 1.0.25-11
+- fix CVE-2018-13139 - stack-based buffer overflow in sndfile-deinterleave utility (#1598577)
 
 * Sat Aug  2 2014 Peter Robinson <pbrobinson@redhat.com> 1.0.25-10
 - Generic 32/64 bit platform detection - fix ppc64le build (#1126140)
