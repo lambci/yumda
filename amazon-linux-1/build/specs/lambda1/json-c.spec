@@ -4,25 +4,20 @@
 
 Name:		json-c
 Version:	0.11
-Release: 6%{?_buildid}%{?dist}
+Release: 7%{?_buildid}%{?dist}
 Summary:	A JSON implementation in C
 Group:		Development/Libraries
 License:	MIT
 URL:		https://github.com/json-c/json-c/wiki
 Source0:	https://github.com/json-c/json-c/archive/json-c-%{version}-%{reldate}.tar.gz
 
-# increaser parser strictness (for php compatibility)
-Patch0:		https://github.com/json-c/json-c/pull/90.patch
-Patch1:		https://github.com/json-c/json-c/pull/94.patch
+Patch0:		json-c-CVE-2013-6371.patch
 
-# Disable default compiler warning flags
-Patch2:		json-c-0.11-cflags.patch
-
-# Fix CVE issues CVE-2013-6370 and CVE-2013-6371, patch backported from upstream
-Patch3:		json-c-0.11-cve.patch
+# patches added by Amazon
+Patch1001:  Fix-CVE-2020-12762.patch
 
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-BuildRequires:	libtool autoconf
+BuildRequires: libtool
 
 Prefix: %{_prefix}
 
@@ -34,16 +29,20 @@ JSON formatted strings back into the C representation of JSON objects.
 %prep
 %setup -q -n json-c-json-c-%{version}-%{reldate}
 
-%patch0 -p1 -b .strict90
-%patch1 -p1 -b .strict94
-%patch2 -p1 -b .cflags
-%patch3 -p1 -b .cve
+%patch0 -p1 -b .cve20136371
 
-# regenerate auto stuff to avoid rpath issue and cve stuff
+%patch1001 -p1
+
+# regenerate auto stuff to avoid rpath issue
 autoreconf -fi
 
 %build
-%configure --enable-shared --disable-static --disable-rpath --enable-rdrand
+
+%configure \
+  --enable-shared \
+  --disable-static \
+  --disable-rpath \
+  --enable-rdrand
 # parallel build is broken for now, make %{?_smp_mflags}
 make
 
@@ -57,7 +56,6 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %clean
 rm -rf %{buildroot}
 
-
 %files
 %defattr(-,root,root,-)
 %license COPYING
@@ -69,34 +67,46 @@ rm -rf %{buildroot}
 %exclude %{_libdir}/pkgconfig
 
 %changelog
-* Sun Nov 17 2019 Michael Hart <michael@lambci.org>
+* Sat Jun 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
 
-* Wed Apr 09 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 0.11-7
-- Address CVE-2013-6371 and CVE-2013-6370 (BZ #1085676 and #1085677).
-- Enabled rdrand support.
+* Tue Jun 16 2020 Jeremiah Mahler <jmmahler@amazon.com>
+- add fix for CVE-2020-12762
 
-* Mon Feb 10 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 0.11-6
-- Bump spec.
+* Tue Jan 3 2017 Andrew Jorgensen <ajorgens@amazon.com>
+- Bump release number
 
-* Sat Dec 21 2013 Ville Skyttä <ville.skytta@iki.fi> - 0.11-5
-- Run test suite during build.
-- Drop empty NEWS from docs.
+* Fri Mar 13 2015 Amazon Linux AMI <amazon-linux-ami@amazon.com>
+- import source package EL7/json-c-0.11-4.el7_0
+
+* Wed Sep 17 2014 Tom Kirchner <tjk@amazon.com>
+- import source package F20/json-c-0.11-6.fc20
+
+* Wed May 7 2014 Cristian Gafton <gafton@amazon.com>
+- import source package RHEL7/json-c-0.11-3.el7
+
+* Wed Apr  9 2014 Remi Collet <remi@fedoraproject.org> - 0.11-4
+- fix has collision CVE-2013-6371
+- fix buffer overflow CVE-2013-6370
+- enable upstream test suite
+
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.11-3
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.11-2
+- Mass rebuild 2013-12-27
+
+* Fri Dec 13 2013 Cristian Gafton <gafton@amazon.com>
+- import source package RHEL7/json-c-0.11-1.el7
+
+* Thu Dec 12 2013 Cristian Gafton <gafton@amazon.com>
+- setup complete for package json-c
 
 * Tue Nov 5 2013 Heath Petty <hpetty@amazon.com>
 - Made the dev package noarch
 
 * Wed Oct 2 2013 Heath Petty <hpetty@amazon.com>
 - import source package EPEL/json-c-0.11-4.el6
-
-* Tue Sep 10 2013 Susi Lehtola <jussilehtola@fedoraproject.org> - 0.11-4
-- Remove default warning flags so that package builds on EPEL as well.
-
-* Sat Aug 24 2013 Remi Collet <remi@fedoraproject.org> - 0.11-3
-- increase parser strictness for php
-
-* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.11-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
 * Mon Apr 29 2013 Remi Collet <remi@fedoraproject.org> - 0.11-1
 - update to 0.11
