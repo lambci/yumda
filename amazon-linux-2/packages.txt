@@ -287,7 +287,7 @@ jbigkit-libs.x86_64          2.0-11.lambda2.0.2                          lambda2
 jemalloc.x86_64              3.6.0-1.lambda2                             lambda2
 jp2a.x86_64                  1.0.7-1.lambda2                             lambda2
 json-c.x86_64                0.11-4.lambda2.0.4                          lambda2
-kernel-headers.x86_64        4.14.181-140.257.lambda2                    lambda2
+kernel-headers.x86_64        4.14.181-142.260.lambda2                    lambda2
 kmod.x86_64                  25-3.lambda2.0.2                            lambda2
 kmod-libs.x86_64             25-3.lambda2.0.2                            lambda2
 lcms2.x86_64                 2.6-3.lambda2.0.2                           lambda2
