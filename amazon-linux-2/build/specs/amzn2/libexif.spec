@@ -1,11 +1,14 @@
 Summary:	Library for extracting extra information from image files
 Name:		libexif
 Version:	0.6.21
-Release: 6%{?dist}.0.2
+Release:	7%{?dist}
 Group:		System Environment/Libraries
 License:	LGPLv2+
 URL:		http://libexif.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+# RHBZ#1840949
+Patch0:	CVE-2020-13112.patch
+
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	doxygen
@@ -38,6 +41,7 @@ API Documentation for programmers wishing to use libexif in their programs.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 autoreconf -fiv
@@ -70,6 +74,10 @@ iconv -f latin1 -t utf-8 < README > README.utf8; cp README.utf8 README
 %doc libexif-api.html
 
 %changelog
+* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.21-7
+- Add patch for CVE-2020-13112
+- Resolves: #1840949
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.6.21-6
 - Mass rebuild 2014-01-24
 

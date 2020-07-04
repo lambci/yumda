@@ -1,6 +1,6 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
-Version: 1.39.2
+Version: 1.41.0
 Release: 1%{?dist}
 License: MIT
 URL: https://nghttp2.org/
@@ -10,6 +10,7 @@ BuildRequires: CUnit-devel
 BuildRequires: c-ares-devel
 BuildRequires: gcc-c++
 BuildRequires: libev-devel
+BuildRequires: libxml2-devel
 BuildRequires: openssl-devel
 BuildRequires: python3-devel
 BuildRequires: systemd-devel
@@ -51,7 +52,7 @@ sed -e '1 s|^#!/.*python|&3|' -i script/fetch-ocsp-response
     --disable-hpack-tools                   \
     --disable-python-bindings               \
     --disable-static                        \
-    --without-libxml2                       \
+    --with-libxml2                          \
     --without-spdylay
 
 # avoid using rpath
@@ -113,6 +114,18 @@ make %{?_smp_mflags} check
 
 
 %changelog
+* Tue Jun 02 2020 Kamil Dudka <kdudka@redhat.com> 1.41.0-1
+- update to the latest upstream release
+
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.40.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Fri Nov 15 2019 Kamil Dudka <kdudka@redhat.com> 1.40.0-1
+- update to the latest upstream release
+
+* Thu Nov 14 2019 Kamil Dudka <kdudka@redhat.com> 1.39.2-2
+- enable use of libxml2 to make `nghttp --get-assets` work (#1772462)
+
 * Wed Aug 14 2019 Kamil Dudka <kdudka@redhat.com> 1.39.2-1
 - update to the latest upstream release
 

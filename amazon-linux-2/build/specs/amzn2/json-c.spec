@@ -1,10 +1,10 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .4
 %global reldate 20130402
 
 Name:		json-c
 Version:	0.11
-Release: 4%{?dist}.0.3
+Release:	4%{?dist}%{?_trivial}%{?_buildid}
 Summary:	A JSON implementation in C
 Group:		Development/Libraries
 License:	MIT
@@ -15,6 +15,7 @@ Patch0:		json-c-CVE-2013-6371.patch
 
 #amazon patches
 Patch500: json-c-fallthrough.diff
+Patch1002: Fix-CVE-2020-12762.patch
 
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: libtool
@@ -49,6 +50,7 @@ This package contains the reference manual for json-c.
 
 %patch0 -p1 -b .cve20136371
 %patch500 -p1 -b .fallthrough
+%patch1002 -p1
 
 for doc in ChangeLog; do
  iconv -f iso-8859-1 -t utf8 $doc > $doc.new &&
@@ -118,6 +120,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jun 16 2020 Jeremiah Mahler <jmmahler@amazon.com> - 0.11-4.amzn2.0.4
+- fix for CVE-2020-12762
+
 * Wed Apr  9 2014 Remi Collet <remi@fedoraproject.org> - 0.11-4
 - fix has collision CVE-2013-6371
 - fix buffer overflow CVE-2013-6370
