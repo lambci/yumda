@@ -1,11 +1,14 @@
 Summary:	Library for extracting extra information from image files
 Name:		libexif
 Version:	0.6.21
-Release: 6%{?dist}.0.2
+Release:	7%{?dist}
 Group:		System Environment/Libraries
 License:	LGPLv2+
 URL:		http://libexif.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+# RHBZ#1840949
+Patch0:	CVE-2020-13112.patch
+
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	doxygen
@@ -22,6 +25,7 @@ allows you to parse an EXIF file and read the data from those tags.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 autoreconf -fiv
@@ -44,8 +48,12 @@ iconv -f latin1 -t utf-8 < COPYING > COPYING.utf8; cp COPYING.utf8 COPYING
 %exclude %{_localedir}
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Sat Jul 4 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.21-7
+- Add patch for CVE-2020-13112
+- Resolves: #1840949
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.6.21-6
 - Mass rebuild 2014-01-24
