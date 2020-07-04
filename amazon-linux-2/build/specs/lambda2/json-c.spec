@@ -1,10 +1,10 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .4
 %global reldate 20130402
 
 Name:		json-c
 Version:	0.11
-Release: 4%{?dist}.0.3
+Release:	4%{?dist}%{?_trivial}%{?_buildid}
 Summary:	A JSON implementation in C
 Group:		Development/Libraries
 License:	MIT
@@ -15,6 +15,7 @@ Patch0:		json-c-CVE-2013-6371.patch
 
 #amazon patches
 Patch500: json-c-fallthrough.diff
+Patch1002: Fix-CVE-2020-12762.patch
 
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: libtool
@@ -31,6 +32,7 @@ JSON formatted strings back into the C representation of JSON objects.
 
 %patch0 -p1 -b .cve20136371
 %patch500 -p1 -b .fallthrough
+%patch1002 -p1
 
 # regenerate auto stuff to avoid rpath issue
 autoreconf -fi
@@ -69,8 +71,11 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sat Nov 16 2019 Michael Hart <michael@lambci.org>
+* Sat Jul 4 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Jun 16 2020 Jeremiah Mahler <jmmahler@amazon.com> - 0.11-4.amzn2.0.4
+- fix for CVE-2020-12762
 
 * Wed Apr  9 2014 Remi Collet <remi@fedoraproject.org> - 0.11-4
 - fix has collision CVE-2013-6371
