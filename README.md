@@ -243,7 +243,7 @@ sam deploy --template-file packaged.yaml --stack-name yumda-example --capabiliti
 
 ## Example with [Serverless Framework](https://serverless.com/)
 
-We'll use the same code layout as in the example above, which you can find in the [example](https://github.com/lambci/yumda/tree/master/example) directory.
+We'll use the same code layout as in the example above, which you can find in the [examples](https://github.com/lambci/yumda/tree/master/examples/nodejs10.x) directory.
 
 So our lambda function code lives in `./hello-world/app.js` and our dependencies are in `./dependencies`.
 
