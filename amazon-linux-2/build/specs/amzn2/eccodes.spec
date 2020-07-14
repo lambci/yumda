@@ -1,14 +1,14 @@
 Name:           eccodes
-Version:        2.14.1
+Version:        2.18.0
 Release:        1%{?dist}
 Summary:        WMO data format decoding and encoding
 
 # force the shared libraries to have these so versions
 %global so_version       0.1
 %global so_version_f90   0.1
-%global datapack_date    20181010
+%global datapack_date    20200626
 
-# latest rawhide grib_api version is 1.27.0-5
+# latest fedora-32 grib_api version is 1.27.0-7
 # but this version number is to be updated as soon as we know
 # what the final release of grib_api by upstream will be.
 # latest upstream grib_api release is 1.28.0 (05-Dec-2018)
@@ -62,6 +62,7 @@ BuildRequires:  openjpeg2-devel
 # For tests
 BuildRequires:  perl(Getopt::Long)
 BuildRequires:  perl(Test::More)
+BuildRequires:  perl(File::Compare)
 
 # the data is needed by the library and all tools provided in the main package
 # the other way around, the data package could be installed without
@@ -95,7 +96,7 @@ Obsoletes:      grib_api < %{final_grib_api_version}
 ExcludeArch: i686
 # as explained in bugzilla #1562071
 #  note: this is no longer part of fc30/rawhide
-#  but the exclude is still needed for EPEL-7
+#  but the exclude is still needed for EPEL-7 and EPEL-8
 ExcludeArch: ppc64
 # as explained in bugzilla #1562076
 ExcludeArch: s390x
@@ -347,6 +348,9 @@ ctest3 -V %{?_smp_mflags}
 %doc %{_datadir}/doc/%{name}/
 
 %changelog
+* Sat Jun 27 2020 Jos de Kloe <josdekloe@gmail.com> - 2.18.0-1
+- Upgrade to upstream version 2.18.0
+
 * Sun Oct 27 2019 Jos de Kloe <josdekloe@gmail.com> - 2.14.1-1
 - Upgrade to upstream version 2.14.1
 
