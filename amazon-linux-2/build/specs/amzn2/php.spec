@@ -78,12 +78,12 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.17
+%global upver        7.3.19
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
 Version: %{upver}%{?rcver:~%{rcver}}
-Release: 2%{?dist}
+Release: 1%{?dist}
 # All files licensed under PHP version 3.01, except
 # Zend is licensed under Zend
 # TSRM is licensed under BSD
@@ -1630,6 +1630,9 @@ getent passwd nginx > /dev/null || \
 
 
 %changelog
+* Wed Jul 01 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.19-1
+- Package updated to 7.3.19
+
 * Mon Apr 27 2020 Trinity Quirk <tquirk@amazon.com> - 3.5.17-2
 - Obsolete correct version of php-pecl-zip
 
