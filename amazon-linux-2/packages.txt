@@ -292,7 +292,7 @@ kmod.x86_64                  25-3.lambda2.0.2                            lambda2
 kmod-libs.x86_64             25-3.lambda2.0.2                            lambda2
 lcms2.x86_64                 2.6-3.lambda2.0.2                           lambda2
 lcms2-utils.x86_64           2.6-3.lambda2.0.2                           lambda2
-ldb-tools.x86_64             1.4.2-1.lambda2                             lambda2
+ldb-tools.x86_64             1.5.4-1.lambda2                             lambda2
 lemon.x86_64                 3.7.17-8.lambda2.1.1                        lambda2
 less.x86_64                  458-9.lambda2.0.2                           lambda2
 libICE.x86_64                1.0.9-9.lambda2.0.2                         lambda2
@@ -380,7 +380,7 @@ libitm.x86_64                7.3.1-6.lambda2.0.4                         lambda2
 libjpeg-turbo.x86_64         1.2.90-6.lambda2.0.3                        lambda2
 libjpeg-turbo-utils.x86_64   1.2.90-6.lambda2.0.3                        lambda2
 libksba.x86_64               1.3.0-5.lambda2.0.2                         lambda2
-libldb.x86_64                1.4.2-1.lambda2                             lambda2
+libldb.x86_64                1.5.4-1.lambda2                             lambda2
 libmcrypt.x86_64             2.5.8-24.lambda2.0.2                        lambda2
 libmetalink.x86_64           0.1.2-7.lambda2.0.2                         lambda2
 libmodman.x86_64             2.0.1-8.lambda2.0.2                         lambda2
