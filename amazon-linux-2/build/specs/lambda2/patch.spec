@@ -1,9 +1,11 @@
+%define _trivial .0
+%define _buildid .2
 %global gnulib_ver 20120926
 
 Summary: Utility for modifying/upgrading files
 Name: patch
 Version: 2.7.1
-Release: 12%{?dist}
+Release: 12%{?dist}%{?_trivial}%{?_buildid}
 License: GPLv3+
 URL: http://www.gnu.org/software/patch/patch.html
 Group: Development/Tools
@@ -19,6 +21,8 @@ Patch7: patch-2.7.1-newmode.patch
 Patch8: patch-2.7.x-CVE-2018-20969.patch
 # Selinux
 Patch100: patch-selinux.patch
+# CVE-2019-13636 patch
+Patch1000: patch-2.7.x-CVE-2019-13636.patch
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: libselinux-devel
@@ -70,6 +74,9 @@ applications.
 # SELinux support.
 %patch100 -p1 -b .selinux
 
+# CVE-2019-13636 patch
+%patch1000 -p1 -b .CVE-2019-13636
+
 %build
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE"
 %configure --disable-silent-rules
@@ -90,8 +97,11 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_mandir}
 
 %changelog
-* Thu Oct 31 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jul 09 2020 Sai Harsha <ssuryad@amazon.com> - 2.7.1-12
+- Fix CVE-2019-13636
 
 * Mon Sep 02 2019 Than Ngo <than@redhat.com> - 2.7.1-12
 - Fixed CVE-2018-20969, invoke ed directly instead of using the shell
