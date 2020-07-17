@@ -417,7 +417,7 @@ libsodium.x86_64             1.0.18-2.lambda2                            lambda2
 libsoup.x86_64               2.56.0-6.lambda2                            lambda2
 libssh2.x86_64               1.4.3-12.lambda2.2.2                        lambda2
 libtalloc.x86_64             2.1.16-1.lambda2                            lambda2
-libtdb.x86_64                1.3.16-1.lambda2                            lambda2
+libtdb.x86_64                1.3.18-1.lambda2                            lambda2
 libtevent.x86_64             0.9.37-1.lambda2                            lambda2
 libthai.x86_64               0.1.14-9.lambda2.0.2                        lambda2
 libtheora.x86_64             1:1.1.1-8.lambda2.0.2                       lambda2
@@ -708,7 +708,7 @@ t1lib.x86_64                 5.1.2-14.lambda2.0.2                        lambda2
 tar.x86_64                   2:1.26-35.lambda2                           lambda2
 tcp_wrappers.x86_64          7.6-77.lambda2.0.2                          lambda2
 tcp_wrappers-libs.x86_64     7.6-77.lambda2.0.2                          lambda2
-tdb-tools.x86_64             1.3.16-1.lambda2                            lambda2
+tdb-tools.x86_64             1.3.18-1.lambda2                            lambda2
 teckit.x86_64                2.5.1-11.lambda2.0.2                        lambda2
 texlive.x86_64               2:2012-38.20130427_r30134.lambda2.0.4       lambda2
 texlive-adjustbox.noarch     2:svn26555.0-38.lambda2.0.4                 lambda2
