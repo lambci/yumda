@@ -8,7 +8,7 @@
 Summary: A collection of SNMP protocol tools and libraries
 Name: net-snmp
 Version: 5.7.2
-Release: 43%{?dist}
+Release: 48%{?dist}.1
 Epoch: 1
 
 License: BSD
@@ -111,6 +111,15 @@ Patch78: net-snmp-5.7.2-traptomail.patch
 Patch79: net-snmp-5.7.2-null-magic.patch
 Patch80: net-snmp-5.7.2-v3-forward.patch
 Patch81: net-snmp-5.7.2-memory.patch
+Patch82: net-snmp-5.7.2-glusterfs.patch
+Patch83: net-snmp-5.7.2-ifTable-interface_fadeout.patch
+Patch84: net-snmp-5.7.2-icmp.patch
+Patch85: net-snmp-5.7.2-pass_common.patch
+Patch86: net-snmp-5.7.2-CVE-2018-18066.patch
+Patch87: net-snmp-5.7.2-counter64.patch
+Patch88: net-snmp-5.7.2-SHA-fix.patch
+Patch89: net-snmp-5.7.2-sec-counter.patch
+Patch90: net-snmp-5.7.2-memory-leak.patch
 
 Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 Requires: %{name}-agent-libs = %{epoch}:%{version}-%{release}
@@ -268,6 +277,15 @@ binaries and applications.
 %patch79 -p1 -b .null-magic
 %patch80 -p1 -b .v3-forward
 %patch81 -p1 -b .memory
+%patch82 -p1 -b .glusterfs
+%patch83 -p1 -b .interface-fadeout
+%patch84 -p1 -b .icmp
+%patch85 -p1 -b .pass_common
+%patch86 -p1 -b .CVE-2018-18066
+%patch87 -p1 -b .counter64
+%patch88 -p1 -b .SHA-fix
+%patch89 -p1 -b .sec-counter
+%patch90 -p1 -b .memory-leak
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1545946
 sed -i -e 's/SYSYSTEMD/SYSTEMD/g' agent/snmpd.c
@@ -455,8 +473,33 @@ sed -i '1 s|^#!/usr/bin/perl|#!%{_bindir}/perl|' %{buildroot}%{_bindir}/*
 %exclude %{perl_vendorarch}
 
 %changelog
-* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed May 06 2020 Josef Ridky <jridky@redhat.com> - 1:5.7.2-48.1
+- add missing part of memory leak patch (#1832224)
+
+* Wed Mar 11 2020 Josef Ridky <jridky@redhat.com> - 1:5.7.2-48
+- fix crash due of double-free of security context (#1809076)
+
+* Mon Dec 09 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-47
+- revert calculation of free space (#1779609)
+
+* Mon Dec 02 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-46
+- fix sha224 and sha384 declaration check (#1774693)
+
+* Tue Sep 17 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-45
+- fix memory leak introduced by fix of snmp v3 traps forwarding (#1751195)
+
+* Wed Aug 14 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-44
+- add support for glusterfs (#1316386)
+- change services to start after network-online.target (#1388118)
+- fix interface fadeout configuration (#1547355)
+- fix scanf pattern for ICMP stats (#1693547)
+- change buffer size in pass_common.c file (#1695363 and #1731357)
+- remove initial whitespace reading from scanf pattern of /sys/dev/block/../stat file (#1700494)
+- fix for CVE-2018-18066 (#1638911)
+- add Counter64 support for UCD-SNMP-MIB (#1703752)
 
 * Wed May 22 2019 Josef Ridky <jridky@redhat.com> - 1:5.7.2-43
 - fix available memory calculation (#1250060)

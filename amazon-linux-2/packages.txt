@@ -490,10 +490,10 @@ mod_proxy_html.x86_64        1:2.4.43-1.lambda2                          lambda2
 mod_session.x86_64           2.4.43-1.lambda2                            lambda2
 mod_ssl.x86_64               1:2.4.43-1.lambda2                          lambda2
 mpfr.x86_64                  3.1.1-4.lambda2.0.2                         lambda2
-net-snmp.x86_64              1:5.7.2-43.lambda2                          lambda2
-net-snmp-agent-libs.x86_64   1:5.7.2-43.lambda2                          lambda2
-net-snmp-libs.x86_64         1:5.7.2-43.lambda2                          lambda2
-net-snmp-utils.x86_64        1:5.7.2-43.lambda2                          lambda2
+net-snmp.x86_64              1:5.7.2-48.lambda2.1                        lambda2
+net-snmp-agent-libs.x86_64   1:5.7.2-48.lambda2.1                        lambda2
+net-snmp-libs.x86_64         1:5.7.2-48.lambda2.1                        lambda2
+net-snmp-utils.x86_64        1:5.7.2-48.lambda2.1                        lambda2
 netcdf.x86_64                4.3.3.1-5.lambda2                           lambda2
 netpbm.x86_64                10.79.00-7.lambda2                          lambda2
 netpbm-progs.x86_64          10.79.00-7.lambda2                          lambda2
