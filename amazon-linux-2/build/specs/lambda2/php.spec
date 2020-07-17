@@ -74,12 +74,12 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.17
+%global upver        7.3.19
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
 Version: %{upver}%{?rcver:~%{rcver}}
-Release: 2%{?dist}
+Release: 1%{?dist}
 # All files licensed under PHP version 3.01, except
 # Zend is licensed under Zend
 # TSRM is licensed under BSD
@@ -544,6 +544,7 @@ Group: Development/Languages
 # libmbfl is licensed under LGPLv2
 # ucgendat is licensed under OpenLDAP
 License: PHP and LGPLv2 and OpenLDAP
+# sudo yum --disablerepo='*' --enablerepo=epel install -y oniguruma-devel
 BuildRequires: oniguruma-devel >= 6.8.2
 Provides: bundled(libmbfl) = 1.3.2
 Requires: php-common%{?_isa} = %{version}-%{release}
@@ -1560,8 +1561,11 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Fri May 15 2020 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jul 01 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.19-1
+- Package updated to 7.3.19
 
 * Mon Apr 27 2020 Trinity Quirk <tquirk@amazon.com> - 3.5.17-2
 - Obsolete correct version of php-pecl-zip
