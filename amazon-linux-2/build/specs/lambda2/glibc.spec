@@ -1,6 +1,6 @@
 %define glibcsrcdir glibc-2.26-193-ga0bc5dd3be
 %define glibcversion 2.26
-%define glibcrelease 34%{?dist}
+%define glibcrelease 35%{?dist}
 # Pre-release tarballs are pulled in from git using a command that is
 # effectively:
 #
@@ -396,7 +396,7 @@ BuildRequires: cpp
 
 # This is to ensure that __frame_state_for is exported by glibc
 # will be compatible with egcs 1.x.y
-BuildRequires: gcc >= 4.9
+BuildRequires: gcc >= 7.3.1-8
 %define enablekernel 3.2
 Conflicts: kernel < %{enablekernel}
 %define target %{_target_cpu}-redhat-linux
@@ -796,6 +796,9 @@ GXX=g++
 
 # Propagates the listed flags to BuildFlags if supplied by redhat-rpm-config.
 BuildFlags="-O2 -g"
+%if %{_target_cpu}=="aarch64"
+BuildFlags="$BuildFlags -moutline-atomics"
+%endif
 rpm_inherit_flags ()
 {
 	local reference=" $* "
@@ -1423,8 +1426,11 @@ fi
 
 
 %changelog
-* Sun Jan 19 2020 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue May 19 2020 Anchal Agarwal <anchalag@amazon.com> - 2.26-35
+- Add -moutline-atomic to the aarch64 BuildFlags
 
 * Fri Jan 17 2020 Frederick Lefebvre <fredlef@amazon.com> - 2.26-34
 - Rollback fix for CVE-2016-10739
