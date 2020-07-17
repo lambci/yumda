@@ -4,7 +4,7 @@
 %global gcc_major 7
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %{release}, append them after %{gcc_release} on Release: line.
-%global gcc_release 6
+%global gcc_release 9
 %global _unpackaged_files_terminate_build 0
 %global _performance_build 1
 %if 0%{?fedora} > 27
@@ -29,12 +29,10 @@
 # Disable %check by default
 %bcond_with checks
 
-%define _trivial .0
-%define _buildid .4
 Summary: Various compilers (C, C++, Objective-C, ...)
 Name: gcc
 Version: %{gcc_version}
-Release: %{gcc_release}%{?dist}%{?_trivial}%{?_buildid}
+Release: %{gcc_release}%{?dist}
 # libgcc, libgfortran, libgomp, libstdc++ and crtstuff have
 # GCC Runtime Exception.
 License: GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions and LGPLv2+ and BSD
@@ -145,6 +143,33 @@ Patch10000: gcc-7.3.1-Add-vec-reverse.patch
 Patch10001: gcc-7.3.1-falign-functions-max-0001.patch
 Patch10002: gcc-7.3.1-falign-functions-max-0002.patch
 Patch10005: gcc-7.3.1-aarch64-Set-default-values-for-falign.patch
+Patch10006: 1000-graviton_support.patch
+
+# Graviton2 patches
+Patch20000: 0001-Allow-const0_rtx-operand-for-atomic-compare-exchange.patch
+Patch20001: 0002-Add-early-clobber-for-aarch64_store_exclusive.patch
+Patch20002: 0003-aarch64-Simplify-LSE-cas-generation.patch
+Patch20003: 0004-Emit-tighter-strong-atomic-compare-exchange-loop-whe.patch
+Patch20004: 0005-aarch64-Improve-cas-generation.patch
+Patch20005: 0006-aarch64-Improve-swp-generation.patch
+Patch20006: 0007-aarch64-Improve-atomic-op-lse-generation.patch
+Patch20007: 0008-aarch64-Remove-early-clobber-from-ATOMIC_LDOP-scratc.patch
+Patch20008: 0009-aarch64-Extend-R-for-integer-registers.patch
+Patch20009: 0010-aarch64-Implement-TImode-compare-and-swap.patch
+Patch20010: 0011-Fix-shrinkwrapping-interactions-with-atomics-PR92692.patch
+Patch20011: 0012-aarch64-Tidy-aarch64_split_compare_and_swap.patch
+Patch20012: 0013-aarch64-Add-out-of-line-functions-for-LSE-atomics.patch
+Patch20013: 0014-Add-visibility-to-libfunc-constructors.patch
+Patch20014: 0015-atomic_cmp_exchange_zero_reg_1.c-Pass-march-armv8-a-.patch
+Patch20015: 0016-aarch64-Implement-moutline-atomics.patch
+Patch20016: 0017-aarch64-Fix-store-exclusive-in-load-operate-LSE-help.patch
+Patch20017: 0018-aarch64-Configure-for-sys-auxv.h-in-libgcc-for-lse-i.patch
+Patch20018: 0019-aarch64-Fix-up-aarch64_compare_and_swaphi-pattern-PR.patch
+Patch20019: 0020-aarch64-Fix-bootstrap-with-old-binutils-PR93053.patch
+Patch20020: 0021-aarch64-Fix-ICE-due-to-aarch64_gen_compare_reg_maybe.patch
+Patch20021: 0022-re-PR-target-90724-ICE-with-__sync_bool_compare_and_.patch
+Patch20022: 0023-aarch64-Fix-for-PR-target-94814.patch
+Patch20023: 0024-aarch64-Force-TImode-values-into-even-registers.patch
 
 # On ARM EABI systems, we do want -gnueabi to be part of the
 # target triple.
@@ -479,6 +504,32 @@ Go dynamically linked programs.
 %patch10001 -p1 -b .falign1
 %patch10002 -p1 -b .falign2
 %patch10005 -p1 -b .falign3
+%patch10006 -p1 -b .graviton_detection
+
+%patch20000 -p1 -b .graviton2_support_1
+%patch20001 -p1 -b .graviton2_support_2
+%patch20002 -p1 -b .graviton2_support_3
+%patch20003 -p1 -b .graviton2_support_4
+%patch20004 -p1 -b .graviton2_support_5
+%patch20005 -p1 -b .graviton2_support_6
+%patch20006 -p1 -b .graviton2_support_7
+%patch20007 -p1 -b .graviton2_support_8
+%patch20008 -p1 -b .graviton2_support_9
+%patch20009 -p1 -b .graviton2_support_10
+%patch20010 -p1 -b .graviton2_support_11
+%patch20011 -p1 -b .graviton2_support_12
+%patch20012 -p1 -b .graviton2_support_13
+%patch20013 -p1 -b .graviton2_support_14
+%patch20014 -p1 -b .graviton2_support_15
+%patch20015 -p1 -b .graviton2_support_16
+%patch20016 -p1 -b .graviton2_support_17
+%patch20017 -p1 -b .graviton2_support_18
+%patch20018 -p1 -b .graviton2_support_19
+%patch20019 -p1 -b .graviton2_support_20
+%patch20020 -p1 -b .graviton2_support_21
+%patch20021 -p1 -b .graviton2_support_22
+%patch20022 -p1 -b .graviton2_support_23
+%patch20023 -p1 -b .graviton2_support_24
 
 echo 'Red Hat %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
@@ -1352,8 +1403,18 @@ fi
 %endif
 
 %changelog
-* Sun Sep 29 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jun 24 2020 Jakub Jelinek <jakub@redhat.com> 7.3.1-9.amzn2
+- use libgcc_s.so linker script also on aarch64 (#1830472)
+
+* Thu May 21 2020 Emmanuel Lepage <emmlep@amazon.com> 7.3.1-8.amzn2
+- Add -march=native support for Graviton2
+
+* Fri May 08 2020 Emmanuel Lepage <emmlep@amazon.com> 7.3.1-7.amzn2
+- Add Aarch64 LSE -moutline-atomics support
+- Backport most aarch64 patches from GCC 7.3.5
 
 * Mon Sep 23 2019 Frederick Lefebvre <fredlef@amazon.com> 7.3.1-6.amzn2.0.4
 - Default falign-jumps, falign-loops and falign-functions to "32:16" for aarch64 instances
