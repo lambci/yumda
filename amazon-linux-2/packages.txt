@@ -418,7 +418,7 @@ libsoup.x86_64               2.56.0-6.lambda2                            lambda2
 libssh2.x86_64               1.4.3-12.lambda2.2.2                        lambda2
 libtalloc.x86_64             2.1.16-1.lambda2                            lambda2
 libtdb.x86_64                1.3.18-1.lambda2                            lambda2
-libtevent.x86_64             0.9.37-1.lambda2                            lambda2
+libtevent.x86_64             0.9.39-1.lambda2                            lambda2
 libthai.x86_64               0.1.14-9.lambda2.0.2                        lambda2
 libtheora.x86_64             1:1.1.1-8.lambda2.0.2                       lambda2
 libtiff.x86_64               4.0.3-32.lambda2                            lambda2

@@ -1,5 +1,5 @@
 Name: libtevent
-Version: 0.9.37
+Version: 0.9.39
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The tevent library
@@ -52,6 +52,7 @@ for p in %patches ; do
 done 
 
 %build
+export PYTHON=/usr/bin/python2
 %configure --disable-rpath \
            --bundled-libraries=NONE \
            --builtin-libraries=replace
@@ -61,6 +62,7 @@ make %{?_smp_mflags} V=1
 %install
 rm -rf $RPM_BUILD_ROOT
 
+export PYTHON=/usr/bin/python2
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Shared libraries need to be marked executable for
@@ -82,8 +84,11 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_prefix}/lib64/python*
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Aug  2 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.9.39-1
+- Resolves: #1736006 - Rebase libtevent to version 0.9.39 for Samba
 
 * Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.9.37-1
 - Resolves: #1658748 - Rebase libtevent to version 0.9.37 for Samba
