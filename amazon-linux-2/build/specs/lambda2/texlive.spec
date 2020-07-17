@@ -1,5 +1,5 @@
 %global _trivial .0
-%global _buildid .4
+%global _buildid .5
 
 %global source_date 20130427_r30134
 %global tl_version 2012
@@ -54,6 +54,8 @@ Patch2: texlive-multilib.patch
 Patch3: texlive-poppler-0.26.5-bz#1217556.patch
 # fix selinux context issue
 Patch4: texlive-2012-selinux.patch
+# CVE-2018-17407
+Patch7: texlive-20130427_r30134-CVE-2018-17407.patch
 
 # Amazon patches
 # Fix dvitodvi bugs
@@ -23739,6 +23741,7 @@ done
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch7 -p1
 
 %patch1000 -p0
 
@@ -49746,8 +49749,11 @@ fi
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Jul 29 2019 Than Ngo <than@redhat.com> - 2:2012-44.20130427_r30134
+- Resolves: #1650521, buffer overflow in t1_check_unusual_charstring function
 
 * Mon Sep 21 2015 Than Ngo <than@redhat.com> - 2:2012-38.20130427_r30134
 - Resolves: bz#1198299, directory not owned by any package issue
