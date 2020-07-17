@@ -91,7 +91,7 @@ cpp.x86_64                   7.3.1-6.lambda2.0.4                         lambda2
 cracklib.x86_64              2.9.0-11.lambda2.0.2                        lambda2
 cracklib-dicts.x86_64        2.9.0-11.lambda2.0.2                        lambda2
 cups-libs.x86_64             1:1.6.3-40.lambda2                          lambda2
-curl.x86_64                  7.61.1-12.lambda2.0.1                       lambda2
+curl.x86_64                  7.61.1-12.lambda2.0.2                       lambda2
 cyrus-sasl.x86_64            2.1.26-23.lambda2                           lambda2
 cyrus-sasl-gs2.x86_64        2.1.26-23.lambda2                           lambda2
 cyrus-sasl-gssapi.x86_64     2.1.26-23.lambda2                           lambda2
@@ -337,7 +337,7 @@ libcilkrts.x86_64            7.3.1-6.lambda2.0.4                         lambda2
 libcroco.x86_64              0.6.11-1.lambda2.0.2                        lambda2
 libcrypt.x86_64              2.26-34.lambda2                             lambda2
 libcrypt-nss.x86_64          2.26-34.lambda2                             lambda2
-libcurl.x86_64               7.61.1-12.lambda2.0.1                       lambda2
+libcurl.x86_64               7.61.1-12.lambda2.0.2                       lambda2
 libdaemon.x86_64             0.14-7.lambda2.0.2                          lambda2
 libdb.x86_64                 5.3.21-24.lambda2.0.3                       lambda2
 libdb-cxx.x86_64             5.3.21-24.lambda2.0.3                       lambda2
