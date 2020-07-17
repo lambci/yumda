@@ -3,12 +3,12 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
-%define talloc_version 2.1.14
-%define tdb_version 1.3.16
-%define tevent_version 0.9.37
+%define talloc_version 2.1.16
+%define tdb_version 1.3.18
+%define tevent_version 0.9.39
 
 Name: libldb
-Version: 1.4.2
+Version: 1.5.4
 Release: 1%{?dist}
 Group: Development/Libraries
 Summary: A schema-less, ldap like, API and database
@@ -89,6 +89,7 @@ Development files for the Python bindings for the LDB library
 
 %build
 
+export PYTHON=/usr/bin/python2
 %configure --disable-rpath \
            --disable-rpath-install \
            --bundled-libraries=cmocka \
@@ -103,6 +104,7 @@ make V=1
 doxygen Doxyfile
 
 %install
+export PYTHON=/usr/bin/python2
 make install DESTDIR=%{buildroot}
 
 rm -f %{buildroot}%{_libdir}/libldb.a
@@ -131,6 +133,8 @@ rm -rf %{buildroot}
 %dir %{_libdir}/ldb
 %{_libdir}/libldb.so.*
 %{_libdir}/ldb/libldb-key-value.so
+%{_libdir}/ldb/libldb-tdb-err-map.so
+%{_libdir}/ldb/libldb-tdb-int.so
 %dir %{_libdir}/ldb/modules
 %dir %{_libdir}/ldb/modules/ldb
 %{_libdir}/ldb/modules/ldb/*.so
@@ -181,6 +185,9 @@ rm -rf %{buildroot}
 %postun -n pyldb -p /sbin/ldconfig
 
 %changelog
+* Thu Aug  1 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.5.4-1
+- Resolves: rhbz#1736013 - Rebase libldb to version 1.5.4 for Samba
+
 * Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.4.2-1
 - Resolves: rhbz#1658758 - Rebase libldb to version 1.4.2 for Samba
 

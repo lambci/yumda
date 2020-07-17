@@ -1,7 +1,7 @@
 %bcond_with psl
 
 %define _trivial .0
-%define _buildid .1
+%define _buildid .2
 Summary: A utility for getting files from remote servers (FTP, HTTP, and others)
 Name: curl
 Version: 7.61.1
@@ -61,6 +61,9 @@ Patch18:  0018-curl-7.65.3-CVE-2019-5482.patch
 
 # double free due to subsequent call of realloc() (CVE-2019-5481)
 Patch19:  0019-curl-7.65.3-CVE-2019-5481.patch
+
+# avoid overwriting a local file with -J (CVE-2020-8177)
+Patch20:  0020-curl-7.69.1-CVE-2020-8177.patch
 
 # patch making libcurl multilib ready
 Patch101: 0101-curl-7.32.0-multilib.patch
@@ -212,6 +215,7 @@ git apply %{PATCH4}
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 
 # make tests/*.py use Python 3
 sed -e '1 s|^#!/.*python|#!%{__python3}|' -i tests/*.py
@@ -333,6 +337,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/libcurl.m4
 
 %changelog
+* Wed Jun 24 2020 Kamil Dudka <kdudka@redhat.com> - 7.61.1-12
+- avoid overwriting a local file with -J (CVE-2020-8177)
+
 * Wed Sep 11 2019 Kamil Dudka <kdudka@redhat.com> - 7.61.1-12
 - double free due to subsequent call of realloc() (CVE-2019-5481)
 - fix heap buffer overflow in function tftp_receive_packet() (CVE-2019-5482)

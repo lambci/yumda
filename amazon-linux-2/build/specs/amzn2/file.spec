@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .2
+%define _buildid .1
 
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
@@ -8,7 +8,7 @@
 Summary: A utility for determining file types
 Name: file
 Version: 5.11
-Release: 35%{?dist}%{?_trivial}%{?_buildid}
+Release: 36%{?dist}%{?_trivial}%{?_buildid}
 License: BSD
 Group: Applications/File
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
@@ -78,6 +78,9 @@ Patch61: file-5.11-python-comment.patch
 # patches added by Amazon
 Patch1001: file-5.11-java-jar-zip.patch
 Patch1002: CVE-2019-18218.patch
+
+# fix out-of-bounds read via a crafted ELF file (CVE-2018-10360)
+Patch62: file-5.11-CVE-2018-10360.patch
 
 URL: http://www.darwinsys.com/file/
 Requires: file-libs = %{version}-%{release}
@@ -188,6 +191,7 @@ file(1) command.
 %patch61 -p1
 %patch1001 -p1
 %patch1002 -p1
+%patch62 -p1
 
 # Patches can generate *.orig files, which can't stay in the magic dir,
 # otherwise there will be problems when compiling magic file!
@@ -272,6 +276,9 @@ cd python
 
 * Tue Nov 12 2019 Jeremiah Mahler <jmmahler@amazon.com> 5.11-35.amzn2.0.1
 - backport fix so .jar is not detected as .zip
+
+* Tue Aug 06 2019 Kamil Dudka <kdudka@redhat.com> - 5.11-36
+- fix out-of-bounds read via a crafted ELF file (CVE-2018-10360)
 
 * Wed Jun 06 2018 Kamil Dudka <kdudka@redhat.com> 5.11-35
 - fix #1562135 - do not classify groovy script as python code

@@ -5,7 +5,7 @@
 %{!?python_version: %global python_version %(%{__python} -c "from distutils.sysconfig import get_python_version; print(get_python_version())")}
 
 Name: libtdb
-Version: 1.3.16
+Version: 1.3.18
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The tdb library
@@ -60,6 +60,7 @@ done
 
 
 %build
+export PYTHON=/usr/bin/python2
 %configure --disable-rpath \
            --bundled-libraries=NONE \
            --builtin-libraries=replace
@@ -68,6 +69,7 @@ make %{?_smp_mflags} V=1
 %install
 rm -rf $RPM_BUILD_ROOT
 
+export PYTHON=/usr/bin/python2
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Shared libraries need to be marked executable for
@@ -115,6 +117,9 @@ rm -rf $RPM_BUILD_ROOT
 %postun -n python-tdb -p /sbin/ldconfig
 
 %changelog
+* Thu Aug  1 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.3.18-1
+- Resolves: rhbz#1736003 - Rebase libtdb to version 1.3.18 for Samba
+
 * Tue Jan 15 2019 Jakub Hrozek <jhrozek@redhat.com> - 1.3.16-1
 - Resolves: rhbz#1658745 - Rebase libtdb to version 1.3.16 for Samba
 

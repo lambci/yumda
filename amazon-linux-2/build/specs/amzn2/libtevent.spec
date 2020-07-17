@@ -1,5 +1,5 @@
 Name: libtevent
-Version: 0.9.37
+Version: 0.9.39
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The tevent library
@@ -69,6 +69,7 @@ for p in %patches ; do
 done 
 
 %build
+export PYTHON=/usr/bin/python2
 %configure --disable-rpath \
            --bundled-libraries=NONE \
            --builtin-libraries=replace
@@ -80,6 +81,7 @@ doxygen doxy.config
 %install
 rm -rf $RPM_BUILD_ROOT
 
+export PYTHON=/usr/bin/python2
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Shared libraries need to be marked executable for
@@ -117,6 +119,9 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
+* Fri Aug  2 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.9.39-1
+- Resolves: #1736006 - Rebase libtevent to version 0.9.39 for Samba
+
 * Wed Jan 16 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.9.37-1
 - Resolves: #1658748 - Rebase libtevent to version 0.9.37 for Samba
 
