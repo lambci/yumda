@@ -1,5 +1,5 @@
 Name: libtalloc
-Version: 2.1.14
+Version: 2.1.16
 Release: 1%{?dist}
 Group: System Environment/Daemons
 Summary: The talloc library
@@ -27,6 +27,7 @@ A library that implements a hierarchical allocator with destructors.
 %setup -q -n talloc-%{version}
 
 %build
+export PYTHON=/usr/bin/python2
 %configure --disable-rpath \
            --disable-rpath-install \
            --bundled-libraries=NONE \
@@ -38,6 +39,7 @@ make %{?_smp_mflags} V=1
 %install
 rm -rf $RPM_BUILD_ROOT
 
+export PYTHON=/usr/bin/python2
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # Shared libraries need to be marked executable for
@@ -46,6 +48,10 @@ find $RPM_BUILD_ROOT -name "*.so*" -exec chmod -c +x {} \;
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/libtalloc.a
 rm -f $RPM_BUILD_ROOT/usr/share/swig/*/talloc.i
+
+%check
+export PYTHON=/usr/bin/python2
+make check
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -62,8 +68,12 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_prefix}/lib64/python*
 
 %changelog
-* Sun Nov 3 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Aug  1 2019 Jakub Hrozek <jhrozek@redhat.com> - 2.1.16-1
+- Rebase to libtalloc 2.1.16
+- Resolves: rhbz#1736005 - Rebase libtalloc to version 2.1.16 for Samba
 
 * Tue Jan 15 2019 Jakub Hrozek <jhrozek@redhat.com> - 2.1.14-1
 - Rebase to libtalloc 2.1.14
