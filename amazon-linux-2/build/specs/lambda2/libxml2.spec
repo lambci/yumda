@@ -1,11 +1,12 @@
 # for -O3 on ppc64 c.f. 1051068
 %global _performance_build 1
-%global _buildid .3
+%global _trivial .4
+%global _buildid .1
 
 Summary: Library providing XML and HTML support
 Name: libxml2
 Version: 2.9.1
-Release: 6%{?dist}%{?extra_release}.3%{?_buildid}
+Release: 6%{?dist}%{?extra_release}%{?_trivial}%{?_buildid}
 License: MIT
 Group: Development/Libraries
 Source: ftp://xmlsoft.org/libxml2/libxml2-%{version}.tar.gz
@@ -55,6 +56,18 @@ patch136: libxml2-Heap-based-buffer-underreads-due-to-xmlParseName.patch
 patch137: libxml2-Heap-use-after-free-in-htmlParsePubidLiteral-and-htmlParseSystemiteral.patch
 patch138: libxml2-Heap-use-after-free-in-xmlSAX2AttributeNs.patch
 patch139: libxml2-More-format-string-warnings-with-possible-format-string-vulnerability.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1595697
+patch140: libxml2-2.9.1-CVE-2015-8035.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1602817
+patch141: libxml2-2.9.1-CVE-2018-14404.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1729857
+patch142: libxml2-2.9.1-CVE-2017-15412.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1714050
+patch143: libxml2-2.9.1-CVE-2016-5131.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1579211
+patch144: libxml2-2.9.1-CVE-2017-18258.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1622715
+patch145: libxml2-2.9.1-CVE-2018-14567.patch
 
 # Amazon patches
 Patch10001: libxml2-CVE-2016-4658.patch
@@ -119,6 +132,12 @@ URI library.
 %patch137 -p1
 %patch138 -p1
 %patch139 -p1
+%patch140 -p1
+%patch141 -p1
+%patch142 -p1
+%patch143 -p1
+%patch144 -p1
+%patch145 -p1
 
 %patch10001 -p1
 %patch10002 -p1
@@ -147,8 +166,16 @@ make install DESTDIR=%{buildroot}
 %exclude %{_bindir}/xml2-config
 
 %changelog
-* Sun Sep 29 2019 Michael Hart <michael@lambci.org>
+* Thu Jul 23 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Nov 01 2019 David King <dking@redhat.com> - 2.9.1-6.4
+- Fix CVE-2015-8035 (#1595697)
+- Fix CVE-2018-14404 (#1602817)
+- Fix CVE-2017-15412 (#1729857)
+- Fix CVE-2016-5131 (#1714050)
+- Fix CVE-2017-18258 (#1579211)
+- Fix CVE-2018-1456 (#1622715)
 
 * Wed Sep  18 2019 Frederick Lefebvre <fredlef@amazon.com> - libxml2-2.9.1-6.amzn2.3.3
 - Disallow namespace nodes in XPointer ranges (CVE-2016-4658)
