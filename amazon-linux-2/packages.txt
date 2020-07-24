@@ -274,6 +274,7 @@ hunspell-en-US.noarch        0.20121024-6.lambda2.0.1                    lambda2
 hwdata.x86_64                0.252-9.3.lambda2                           lambda2
 icu.x86_64                   50.2-4.lambda2                              lambda2
 ilmbase.x86_64               1.0.3-7.lambda2.0.2                         lambda2
+iputils.x86_64               20160308-10.lambda2.0.2                     lambda2
 iso-codes.noarch             3.46-2.lambda2                              lambda2
 jansson.x86_64               2.10-1.lambda2.0.2                          lambda2
 jasper.x86_64                1.900.1-33.lambda2                          lambda2
