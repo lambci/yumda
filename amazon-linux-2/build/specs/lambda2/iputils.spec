@@ -101,9 +101,9 @@ ln -sf ../bin/tracepath6 ${RPM_BUILD_ROOT}%{_sbindir}
 
 %files
 %license README.bonding
-%attr(0755,root,root) %caps(cap_net_raw=p) %{_sbindir}/clockdiff
-%attr(0755,root,root) %caps(cap_net_raw=p) %{_sbindir}/arping
-%attr(0755,root,root) %caps(cap_net_raw=p cap_net_admin=p) %{_bindir}/ping
+%{_sbindir}/clockdiff
+%{_sbindir}/arping
+%{_bindir}/ping
 %{_sbindir}/ifenslave
 %{_sbindir}/rdisc
 %{_bindir}/tracepath
