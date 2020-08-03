@@ -27,7 +27,7 @@ Amazon Linux 1:
 ```console
 docker run --rm -v $PWD:/tmp/fs lambci/yumda:build-1 bash -c "
   diff <(ls -1 /tmp/fs/specs/lambda1 | sed 's/.spec$//' | xargs repoquery -s --archlist=x86_64,noarch | \
-    grep -v -e git-2.14 -e libwebp-0.4.3-3.el6 | \
+    grep -v -e git-2.18 -e libwebp-0.4.3-3.el6 | \
     sed -e 's/amzn1/lambda1/' -e 's/el6/lambda1/' | sort | uniq) \
     <(ls -1 /tmp/fs/lambda1/SRPMS/Packages | sort) | \
     grep '^<'"
