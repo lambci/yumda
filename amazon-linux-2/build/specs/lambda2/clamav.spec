@@ -34,7 +34,7 @@
 
 Summary:    End-user tools for the Clam Antivirus scanner
 Name:       clamav
-Version:    0.102.3
+Version:    0.102.4
 Release:    1%{?dist}
 License:    %{?with_unrar:proprietary}%{!?with_unrar:GPLv2}
 URL:        https://www.clamav.net/
@@ -58,7 +58,7 @@ Source5:    clamd-README
 #http://database.clamav.net/main.cvd
 Source10:   main-59.cvd
 #http://database.clamav.net/daily.cvd
-Source11:   daily-25811.cvd
+Source11:   daily-25876.cvd
 #http://database.clamav.net/bytecode.cvd
 Source12:   bytecode-331.cvd
 #for clamonacc
@@ -268,6 +268,8 @@ install -D -m 0644 -p %SOURCE12     $RPM_BUILD_ROOT%homedir/bytecode.cvd
 ## prepare the clamd-files
 install -D -m 0644 -p %SOURCE3      _doc_server/clamd.logrotate
 install -D -m 0644 -p %SOURCE5      _doc_server/README
+## Fixup URL for EPEL
+%{?epel:sed -i -e s/product=Fedora/product=Fedora%20EPEL/ _doc_server/README}
 
 install -D -p -m 0644 %SOURCE100        $RPM_BUILD_ROOT%_unitdir/clamonacc.service
 
@@ -405,12 +407,19 @@ rm $RPM_BUILD_ROOT%_unitdir/clamav-daemon.*
 
 
 %changelog
-* Sat May 30 2020 Michael Hart <michael@lambci.org>
+* Mon Aug 3 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Jul 17 2020 Orion Poplawski <orion@nwra.com> - 0.102.4-1
+- Update to 0.102.4 (bz#1857867,1858262,1858263,1858265,1858266)
+- Security fixes CVE-2020-3327 CVE-2020-3350 CVE-2020-3481
+
+* Thu May 28 2020 Orion Poplawski <orion@nwra.com> - 0.102.3-2
+- Update clamd README file (bz#1798369)
 
 * Thu May 14 2020 Orion Poplawski <orion@nwra.com> - 0.102.3-1
 - Update to 0.102.3 (bz#1834910)
-- Security fixes CVE-2020-3341
+- Security fixes CVE-2020-3327 CVE-2020-3341
 
 * Sat May 02 2020 Orion Poplawski <orion@nwra.com> - 0.102.2-9
 - Add upstream patch to fix "Attempt to allocate 0 bytes" errors while scanning
