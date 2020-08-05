@@ -80,7 +80,8 @@
 # local copy of autoconf-2.65, regenerate the patch, then exit, without doing
 # the rest of the build
 %global regenerate_autotooling_patch 0
-
+%define _trivial .0
+%define _buildid .1
 
 # ==================
 # Top-level metadata
@@ -89,7 +90,7 @@ Summary: An interpreted, interactive, object-oriented programming language
 Name: %{python}
 # Remember to also rebase python-docs when changing this:
 Version: 2.7.18
-Release: 1%{?dist}
+Release: 1%{?dist}%{?_trivial}%{?_buildid}
 License: Python
 Group: Development/Languages
 Requires: %{python}-libs%{?_isa} = %{version}-%{release}
@@ -727,6 +728,10 @@ Patch04000: 04000-modularity-disable-tk.patch
 
 Patch5000: 05000-autotool-intermediates.patch
 
+# allow for double- and single-quoted realm values
+# (single quotes are a violation of the RFC, but appear in the wild)
+Patch6000: CVE-2020-8492.patch
+
 
 
 ### End Fedora patch definitions. ###
@@ -892,6 +897,7 @@ find -name "*~" |xargs rm -f
 # We don't apply the patch if we're working towards regenerating it
 %patch5000 -p0 -b .autotool-intermediates
 %endif
+%patch6000 -p1
 
 
 ### End Fedora patch definitions. ###
@@ -1401,8 +1407,11 @@ find %{buildroot} -name '*.pyo' -delete
 # ======================================================
 
 %changelog
-* Thu Jun 4 2020 Michael Hart <michael@lambci.org>
+* Wed Aug 5 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Jul 23 2020 Kinjal Thaker <kthaker@amazon.com> - 2.7.18-1.amzn2.0.1
+- backported CVE-2020-8492 patch
 
 * Mon May 25 2020 Paul Ezvan <paulezva@amazon.com> - 2.7.18-1
 * Update to 2.7.18
