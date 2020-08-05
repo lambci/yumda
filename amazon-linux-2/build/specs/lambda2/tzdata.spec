@@ -1,8 +1,8 @@
 Summary: Timezone data
 Name: tzdata
-Version: 2019c
-%define tzdata_version 2019c
-%define tzcode_version 2019c
+Version: 2020a
+%define tzdata_version 2020a
+%define tzcode_version 2020a
 Release: 1%{?dist}
 License: Public Domain
 Group: System Environment/Base
@@ -138,8 +138,16 @@ install -p -m 644 tzdb.dat $RPM_BUILD_ROOT%{_datadir}/javazi-1.8/
 %{_datadir}/javazi-1.8
 
 %changelog
-* Sun Nov 17 2019 Michael Hart <michael@lambci.org>
+* Wed Aug 5 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Apr 24 2020 Patsy Griffin <patsy@redhat.com> - 2020a-1
+- Rebase to tzdata-2020a
+  - Morocco will spring forward on 2020-05-31 rather than
+    previously predicted 2020-05-24.
+  - Canada's Yukon region changed to year round UTC -07
+    effective 2020-03-08.
+  - America/Godthab was renamed to America/Nuuk.
 
 * Wed Sep 11 2019 Patsy Griffin <patsy@redhat.com> - 2019c-1
 - Rebase to tzdata-2019c
