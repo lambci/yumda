@@ -15,7 +15,7 @@ URL: https://www.python.org/
 
 #  WARNING  When rebasing to a new Python version,
 #           remember to update the python3-docs package as well
-%global general_version %{pybasever}.6
+%global general_version %{pybasever}.8
 #global prerel ...
 %global upstream_version %{general_version}%{?prerel}
 Version: %{general_version}%{?prerel:~%{prerel}}
@@ -1204,8 +1204,11 @@ find %{buildroot} -name '*.pyo' -delete
 # ======================================================
 
 %changelog
-* Thu Apr 2 2020 Michael Hart <michael@lambci.org>
+* Wed Aug 5 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Jul 23 2020 Kinjal Thaker <kthaker@amazon.com> - 3.7.8-1.amzn2.0.1
+- Update python to 3.7.8 fixing CVE-2020-8492
 
 * Tue Feb 25 2020 Jason Green <jasg@amazon.com> - 3.7.6-1.amzn2.0.1
 - Update to Python 3.7.6
