@@ -30,6 +30,7 @@ Conflicts:      perl-libwww-perl < 6
 %filter_setup
 %global __requires_exclude %{?__requires_exclude:%__requires_exclude|}perl\\(Win32|HTTP::Date|HTTP::Headers::Util\\)$
 
+Prefix: %{_prefix}
 
 %description
 This class is for objects that represent a "cookie jar" -- that is, a
@@ -40,7 +41,10 @@ knows about.
 %setup -q -n HTTP-Cookies-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -48,15 +52,16 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} \;
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}/man3/*
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.01-5
 - Mass rebuild 2013-12-27
 
