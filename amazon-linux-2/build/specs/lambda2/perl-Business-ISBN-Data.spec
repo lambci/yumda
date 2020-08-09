@@ -23,6 +23,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 # LWP::Simple not needed in normal operation
 %global __requires_exclude ^perl\\(LWP::Simple\\)$
 
+Prefix: %{_prefix}
+
 %description
 This is a data pack for Business::ISBN.  You can update
 the ISBN data without changing the version of Business::ISBN.
@@ -36,7 +38,10 @@ Most of the interesting stuff is in Business::ISBN.
 chmod -c +x make_data.pl
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -44,15 +49,18 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 %{_fixperms} %{buildroot}
 
-%check
-make test
+sed -i 's|/usr/bin/perl|%{_bindir}/perl|g' %{buildroot}%{perl_vendorlib}/Business/ISBN/make_data.pl
 
 %files
-%doc Changes README LICENSE examples/ t/
+%license LICENSE
 %{perl_vendorlib}/Business/
-%{_mandir}/man3/Business::ISBN::Data.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 20120719.001-2
 - Mass rebuild 2013-12-27
 
