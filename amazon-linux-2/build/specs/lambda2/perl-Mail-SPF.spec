@@ -27,6 +27,8 @@ Requires:       perl(Net::DNS) >= 0.62
 Requires:       perl(URI) >= 1.13
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 Mail::SPF is an object-oriented implementation of Sender Policy Framework
 (SPF). See http://www.openspf.org for more information about SPF.
@@ -43,7 +45,10 @@ Mail::SPF is an object-oriented implementation of Sender Policy Framework
 chmod -x bin/* sbin/*
 
 %build
-perl Build.PL installdirs=vendor
+perl Build.PL installdirs=vendor \
+  prefix=%{_prefix} \
+  installvendorlib=%{perl_vendorlib} \
+  installvendorarch=%{perl_vendorarch}
 ./Build
 
 %install
@@ -53,22 +58,23 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
 # Don't include the spfd and spfquery scripts in _bindir.
-rm -f $RPM_BUILD_ROOT%{_bindir}/spfquery $RPM_BUILD_ROOT%{_sbindir}/spfd
+rm -f $RPM_BUILD_ROOT%{_bindir}/spfquery $RPM_BUILD_ROOT%{_sbindir}/spfd $RPM_BUILD_ROOT/usr/sbin/spfd
 rm -rf $RPM_BUILD_ROOT%{_mandir}/man1
-
-%check
-./Build test
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc CHANGES LICENSE README TODO bin/ sbin/
+%license LICENSE
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.8.0-4
 - Mass rebuild 2013-12-27
 
