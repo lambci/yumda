@@ -572,6 +572,7 @@ perl-IO-Socket-SSL.noarch          1.94-7.lambda2.0.1                    lambda2
 perl-IO-Zlib.noarch                1:1.10-294.lambda2                    lambda2
 perl-IPC-Cmd.noarch                1:0.80-4.lambda2                      lambda2
 perl-JSON-PP.noarch                2.27202-2.lambda2                     lambda2
+perl-LWP-MediaTypes.noarch         6.02-2.lambda2                        lambda2
 perl-Locale-Maketext.noarch        1.23-3.lambda2                        lambda2
 perl-Locale-Maketext-Simple.noarch 1:0.21-294.lambda2                    lambda2
 perl-Mail-DKIM.noarch              0.39-8.lambda2                        lambda2
