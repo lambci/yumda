@@ -22,6 +22,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 Requires:       perl(Time::Zone)
 Conflicts:      perl-libwww-perl < 6
 
+Prefix: %{_prefix}
+
 %description
 This module provides functions that deal the date formats used by the HTTP
 protocol (and then some more). Only the first two functions, time2str() and
@@ -31,7 +33,10 @@ str2time(), are exported by default.
 %setup -q -n HTTP-Date-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -39,15 +44,16 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} \;
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.02-8
 - Mass rebuild 2013-12-27
 

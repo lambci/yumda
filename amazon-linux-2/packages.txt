@@ -572,6 +572,7 @@ perl-File-Temp.noarch        0.23.01-3.lambda2                           lambda2
 perl-Filter.x86_64           1.49-3.lambda2.0.2                          lambda2
 perl-Getopt-Long.noarch      2.40-3.lambda2                              lambda2
 perl-HTML-Parser.x86_64      3.71-4.lambda2.0.2                          lambda2
+perl-HTTP-Date.noarch        6.02-8.lambda2                              lambda2
 perl-HTTP-Tiny.noarch        0.033-3.lambda2                             lambda2
 perl-IO-Compress.noarch      2.061-2.lambda2                             lambda2
 perl-IO-Zlib.noarch          1:1.10-294.lambda2                          lambda2
