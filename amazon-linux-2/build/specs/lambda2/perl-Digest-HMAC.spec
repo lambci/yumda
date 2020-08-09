@@ -11,6 +11,8 @@ BuildArch:      noarch
 BuildRequires:  perl(Digest::MD5), perl(Digest::SHA1), perl(ExtUtils::MakeMaker)
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 HMAC is used for message integrity checks between two parties that
 share a secret key, and works in combination with some other Digest
@@ -26,7 +28,10 @@ the secret key and the name of some other simple Digest:: as argument.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 
@@ -37,17 +42,17 @@ find $RPM_BUILD_ROOT -type d -depth -exec rmdir {} 2>/dev/null ';'
 chmod -R u+w $RPM_BUILD_ROOT/*
 
 
-%check
-make test
-
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/Digest/
-%{_mandir}/man3/*.3*
+
+%exclude %{_mandir}
 
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.03-5
 - Mass rebuild 2013-12-27
 

@@ -539,6 +539,7 @@ perl-DBI.x86_64                    1.627-4.lambda2.0.2                   lambda2
 perl-DB_File.x86_64                1.830-6.lambda2.0.2                   lambda2
 perl-Data-Dumper.x86_64            2.145-3.lambda2.0.2                   lambda2
 perl-Digest.noarch                 1.17-245.lambda2                      lambda2
+perl-Digest-HMAC.noarch            1.03-5.lambda2                        lambda2
 perl-Digest-MD5.x86_64             2.52-3.lambda2.0.2                    lambda2
 perl-Digest-SHA.x86_64             1:5.85-4.lambda2.0.2                  lambda2
 perl-Encode.x86_64                 2.51-7.lambda2.0.2                    lambda2
