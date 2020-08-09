@@ -50,6 +50,8 @@ Conflicts:      perl-libwww-perl < 6
 
 %global __requires_exclude %{?__requires_exclude:%__requires_exclude|}perl\\(HTTP::(Date|Request|Response|Status)|LWP::MediaTypes\\)$
 
+Prefix: %{_prefix}
+
 %description
 Instances of the HTTP::Daemon class are HTTP/1.1 servers that listen on a
 socket for incoming requests. The HTTP::Daemon is a subclass of
@@ -62,7 +64,10 @@ IO::Socket::INET, so you can perform socket operations directly on it too.
 %patch2 -p1
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -71,15 +76,16 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} \;
 find %{buildroot} -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu May 24 2018 Petr Pisar <ppisar@redhat.com> - 6.01-8
 - Fix formatting numerical non-local specific IPv6 addresses (bug #1578026)
 
