@@ -22,6 +22,8 @@ BuildRequires:  perl(Test)
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 Requires:       ca-certificates
 
+Prefix: %{_prefix}
+
 %description
 Mozilla::CA provides a path to ca-certificates copy of Mozilla's bundle of
 certificate authority certificates in a form that can be consumed by modules
@@ -36,7 +38,10 @@ rm mk-ca-bundle.pl
 sed -i '/^mk-ca-bundle.pl$/d' MANIFEST
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -44,15 +49,16 @@ make pure_install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jan 16 2014 Petr Pisar <ppisar@redhat.com> - 20130114-5
 - Specify all dependencies
 

@@ -584,6 +584,7 @@ perl-Module-Load-Conditional.noarch
                                    0.54-3.lambda2                        lambda2
 perl-Module-Loaded.noarch          1:0.08-294.lambda2                    lambda2
 perl-Module-Metadata.noarch        1.000018-2.lambda2                    lambda2
+perl-Mozilla-CA.noarch             20130114-5.lambda2                    lambda2
 perl-Net-DNS.x86_64                0.72-6.lambda2.0.2                    lambda2
 perl-Net-DNS-Nameserver.x86_64     0.72-6.lambda2.0.2                    lambda2
 perl-Net-Daemon.noarch             0.48-5.lambda2                        lambda2
