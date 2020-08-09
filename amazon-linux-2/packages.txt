@@ -594,6 +594,7 @@ perl-Net-DNS-Nameserver.x86_64     0.72-6.lambda2.0.2                    lambda2
 perl-Net-Daemon.noarch             0.48-5.lambda2                        lambda2
 perl-Net-HTTP.noarch               6.06-2.lambda2                        lambda2
 perl-Net-LibIDN.x86_64             0.12-15.lambda2.0.2                   lambda2
+perl-Net-SMTP-SSL.noarch           1.01-13.lambda2                       lambda2
 perl-Net-SSLeay.x86_64             1.55-6.lambda2.0.1                    lambda2
 perl-NetAddr-IP.x86_64             4.069-3.lambda2.0.2                   lambda2
 perl-Object-Accessor.noarch        1:0.42-294.lambda2                    lambda2

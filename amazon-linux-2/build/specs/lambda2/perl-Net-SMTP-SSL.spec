@@ -15,6 +15,8 @@ BuildRequires: perl(IO::Socket::SSL)
 BuildRequires: perl(Test::More)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 Implements the same API as Net::SMTP, but uses IO::Socket::SSL for its
 network operations.
@@ -23,7 +25,10 @@ network operations.
 %setup -q -n Net-SMTP-SSL-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -32,17 +37,18 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null ';'
 chmod -R u+w $RPM_BUILD_ROOT
 
-%check
-make %{?_smp_mflags} test
-
 %files
-%doc README Changes
+%license README
 %dir %{perl_vendorlib}/Net/
 %dir %{perl_vendorlib}/Net/SMTP/
 %{perl_vendorlib}/Net/SMTP/SSL.pm
-%{_mandir}/man3/Net::SMTP::SSL.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.01-13
 - Mass rebuild 2013-12-27
 
