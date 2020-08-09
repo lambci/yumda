@@ -655,6 +655,7 @@ postgresql-contrib.x86_64    9.2.24-1.lambda2.0.1                        lambda2
 postgresql-libs.x86_64       9.2.24-1.lambda2.0.1                        lambda2
 postgresql-server.x86_64     9.2.24-1.lambda2.0.1                        lambda2
 prelude-tools.x86_64         5.1.1-1.lambda2                             lambda2
+procmail.x86_64              3.22-36.lambda2.1.2                         lambda2
 procps-ng.x86_64             3.3.10-26.lambda2                           lambda2
 procps-ng-i18n.x86_64        3.3.10-26.lambda2                           lambda2
 psl.x86_64                   0.7.0-1.lambda2                             lambda2

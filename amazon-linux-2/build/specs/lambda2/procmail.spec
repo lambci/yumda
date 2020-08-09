@@ -29,6 +29,8 @@ Patch8: procmail-3.22-out-of-bounds-rw-fixes.patch
 Patch9: procmail-3.22-CVE-2017-16844.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+Prefix: %{_prefix}
+
 %description
 Procmail can be used to create mail-servers, mailing lists, sort your
 incoming mail into separate folders/files (real convenient when subscribing
@@ -73,16 +75,19 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root)
-%doc Artistic COPYING FAQ FEATURES HISTORY README KNOWN_BUGS examples telsas_procmailrc debian/QuickStart debian/README.Maildir
+%license Artistic COPYING
 
 %{_bindir}/formail
 %attr(2755,root,mail) %{_bindir}/lockfile
 %{_bindir}/mailstat
 %attr(0755,root,mail) %{_bindir}/procmail
 
-%{_mandir}/man[15]/*
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Nov 21 2017 Jaroslav Škarvada <jskarvad@redhat.com> - 3.22-36.1
 - Fixed possible buffer overflow in loadbuf function
   Resolves: CVE-2017-16844
