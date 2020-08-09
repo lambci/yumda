@@ -19,6 +19,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $versi
 Requires:       perl(Crypt::OpenSSL::Random)
 Requires:	perl(Crypt::OpenSSL::Bignum)
 
+Prefix: %{_prefix}
+
 %description
 Crypt::OpenSSL::RSA - RSA encoding and decoding, using the openSSL libraries
 
@@ -26,7 +28,10 @@ Crypt::OpenSSL::RSA - RSA encoding and decoding, using the openSSL libraries
 %setup -q -n Crypt-OpenSSL-RSA-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -40,20 +45,21 @@ find %{buildroot} -type f -name '*.bs' -size 0 -exec rm -f {} \;
 
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc Changes README LICENSE
+%license LICENSE
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/Crypt/
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.28-7
 - Mass rebuild 2014-01-24
 
