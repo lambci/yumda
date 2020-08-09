@@ -19,6 +19,8 @@ BuildRequires:  perl(Scalar::Util)
 BuildRequires:  perl(Test::More) >= 0.88
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 IO::HTML provides an easy way to open a file containing HTML while
 automatically determining its encoding. It uses the HTML5 encoding sniffing
@@ -28,7 +30,10 @@ algorithm specified in section 8.2.2.1 of the draft standard.
 %setup -q -n IO-HTML-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -36,15 +41,16 @@ make pure_install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes LICENSE README
+%license LICENSE
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.00-2
 - Mass rebuild 2013-12-27
 
