@@ -25,6 +25,8 @@ BuildRequires:  perl(Test::Pod)
 BuildRequires:  perl(vars)
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 MailTools is a set of Perl modules related to mail applications.
 
@@ -42,7 +44,10 @@ rm *.PL
 cd -
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -50,12 +55,8 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} +
 %{_fixperms} %{buildroot}
 
-%check
-make test
-make test TEST_FILES="xt/*.t"
-
 %files
-%doc ChangeLog README* examples/
+%license README*
 %dir %{perl_vendorlib}/Mail/
 %dir %{perl_vendorlib}/Mail/Field/
 %dir %{perl_vendorlib}/Mail/Mailer/
@@ -89,20 +90,13 @@ make test TEST_FILES="xt/*.t"
 %{perl_vendorlib}/Mail/Mailer/smtp.pm
 %{perl_vendorlib}/Mail/Mailer/smtps.pm
 %{perl_vendorlib}/Mail/Mailer/testfile.pm
-%{_mandir}/man3/Mail::Address.3*
-%{_mandir}/man3/Mail::Cap.3*
-%{_mandir}/man3/Mail::Field.3*
-%{_mandir}/man3/Mail::Field::AddrList.3*
-%{_mandir}/man3/Mail::Field::Date.3*
-%{_mandir}/man3/Mail::Field::Generic.3*
-%{_mandir}/man3/Mail::Filter.3*
-%{_mandir}/man3/Mail::Header.3*
-%{_mandir}/man3/Mail::Internet.3*
-%{_mandir}/man3/Mail::Mailer.3*
-%{_mandir}/man3/Mail::Send.3*
-%{_mandir}/man3/Mail::Util.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.12-2
 - Mass rebuild 2013-12-27
 

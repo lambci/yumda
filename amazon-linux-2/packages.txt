@@ -577,6 +577,7 @@ perl-Locale-Maketext.noarch        1.23-3.lambda2                        lambda2
 perl-Locale-Maketext-Simple.noarch 1:0.21-294.lambda2                    lambda2
 perl-Mail-DKIM.noarch              0.39-8.lambda2                        lambda2
 perl-Mail-SPF.noarch               2.8.0-4.lambda2                       lambda2
+perl-MailTools.noarch              2.12-2.lambda2                        lambda2
 perl-Module-CoreList.noarch        1:2.76.02-294.lambda2                 lambda2
 perl-Module-Load.noarch            1:0.24-3.lambda2                      lambda2
 perl-Module-Load-Conditional.noarch
