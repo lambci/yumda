@@ -261,6 +261,8 @@ install -m 0644 %{SOURCE13} $RPM_BUILD_DIR/Mail-SpamAssassin-%{version}/
 mkdir   -m 0700 -p          $RPM_BUILD_ROOT%{_sharedstatedir}/razor/
 %endif
 
+sed -i 's|/usr/bin/perl|%{_bindir}/perl|g' %{buildroot}%{_bindir}/*
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
