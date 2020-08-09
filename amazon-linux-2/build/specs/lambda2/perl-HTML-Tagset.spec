@@ -16,6 +16,8 @@ BuildRequires:  perl(Test::Pod)
 %endif
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 This module contains several data tables useful in various kinds of
 HTML parsing operations, such as tag and entity names.
@@ -24,7 +26,10 @@ HTML parsing operations, such as tag and entity names.
 %setup -q -n HTML-Tagset-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -33,15 +38,16 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 find %{buildroot} -depth -type d -exec rmdir {} ';' 2>/dev/null
 %{_fixperms} %{buildroot}
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/HTML/
-%{_mandir}/man3/HTML::Tagset.3pm*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 3.20-15
 - Mass rebuild 2013-12-27
 
