@@ -22,6 +22,8 @@ BuildRequires:  perl(Test::Simple)
 BuildRequires:  perl(warnings)
 Requires:  perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 This module implements the various components of the DKIM and DomainKeys
 message-signing and verifying standards for Internet mail. It currently
@@ -36,7 +38,10 @@ Mail::SpamAssassin::Plugin::DKIM plugin.
 chmod -x scripts/*.pl sample_mime_lite.pl
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -44,17 +49,16 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} +
 chmod -R u+w %{buildroot}/*
 
-%check
-# Conditionally disable tests that require DNS lookups
-%{?!_with_network_tests: rm t/policy.t t/public_key.t }
-make test
-
 %files
-%doc ChangeLog Changes HACKING.DKIM README TODO scripts sample_mime_lite.pl
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.39-8
 - Mass rebuild 2013-12-27
 
