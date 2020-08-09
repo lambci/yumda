@@ -36,6 +36,8 @@ BuildRequires:  perl(warnings)
 BuildRequires:  perl(Test::Pod) >= 1.00
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 This modules handles International Standard Book Numbers, including
 ISBN-10 and ISBN-13.
@@ -44,7 +46,10 @@ ISBN-10 and ISBN-13.
 %setup -q -n Business-ISBN-%{cpan_version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -52,15 +57,16 @@ make pure_install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} ';'
 chmod -R u+w $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes LICENSE README
+%license LICENSE
 %{perl_vendorlib}/*
-%{_mandir}/man3/*.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.06-2
 - Mass rebuild 2013-12-27
 
