@@ -23,6 +23,8 @@ BuildRequires:  perl(utf8)
 BuildRequires:  perl(warnings)
 Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 IO::Socket::INET6 provides an object interface to creating and using
 sockets in either AF_INET or AF_INET6 domains. It is built upon the
@@ -32,7 +34,10 @@ IO::Socket interface and inherits all the methods defined by IO::Socket.
 %setup -q -n IO-Socket-INET6-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -44,11 +49,15 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} +
 make test
 
 %files
-%doc README ChangeLog
+%license README
 %{perl_vendorlib}/IO/
-%{_mandir}/man3/IO::Socket::INET6.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.69-5
 - Mass rebuild 2013-12-27
 
