@@ -25,6 +25,8 @@ Requires:       perl(Math::BigInt)
 # Don't "provide" private Perl libs or redundant unversioned provides
 %global __provides_exclude ^(perl\\(NetAddr::IP(::(InetBase|Util(PP)?))?\\)$|Util\\.so)
 
+Prefix: %{_prefix}
+
 %description
 This module provides an object-oriented abstraction on top of IP addresses
 or IP subnets, that allows for easy manipulations.
@@ -33,7 +35,10 @@ or IP subnets, that allows for easy manipulations.
 %setup -q -n NetAddr-IP-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -42,20 +47,17 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} \;
 find %{buildroot} -type f -name '*.bs' -size 0 -exec rm -f {} \;
 %{_fixperms} %{buildroot}
 
-%check
-make test
-
 %files
-%doc About-NetAddr-IP.txt Artistic Changes Copying TODO docs/rfc1884.txt
+%license Artistic Copying
 %{perl_vendorarch}/auto/NetAddr/
 %{perl_vendorarch}/NetAddr/
-%{_mandir}/man3/NetAddr::IP.3pm*
-%{_mandir}/man3/NetAddr::IP::InetBase.3pm*
-%{_mandir}/man3/NetAddr::IP::Lite.3pm*
-%{_mandir}/man3/NetAddr::IP::Util.3pm*
-%{_mandir}/man3/NetAddr::IP::UtilPP.3pm*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 4.069-3
 - Mass rebuild 2014-01-24
 
