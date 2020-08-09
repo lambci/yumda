@@ -33,6 +33,8 @@ Requires:       perl(Symbol)
 Requires:       perl(IO::Socket::SSL) >= 1.38
 Conflicts:      perl-libwww-perl < 6
 
+Prefix: %{_prefix}
+
 %description
 The Net::HTTP class is a low-level HTTP client. An instance of the
 Net::HTTP class represents a connection to an HTTP server. The HTTP
@@ -43,7 +45,10 @@ and HTTP/1.1.
 %setup -q -n Net-HTTP-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -51,15 +56,16 @@ make pure_install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.06-2
 - Mass rebuild 2013-12-27
 
