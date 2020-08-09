@@ -614,6 +614,7 @@ perl-Thread-Queue.noarch           3.02-2.lambda2                        lambda2
 perl-Time-HiRes.x86_64             4:1.9725-3.lambda2.0.2                lambda2
 perl-Time-Local.noarch             1.2300-2.lambda2                      lambda2
 perl-Time-Piece.x86_64             1.20.1-294.lambda2                    lambda2
+perl-TimeDate.noarch               1:2.30-2.lambda2                      lambda2
 perl-constant.noarch               1.27-2.lambda2.0.1                    lambda2
 perl-libs.x86_64                   4:5.16.3-294.lambda2                  lambda2
 perl-libwww-perl.noarch            6.05-2.lambda2                        lambda2
