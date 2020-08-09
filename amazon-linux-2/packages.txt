@@ -616,6 +616,7 @@ perl-Time-Local.noarch             1.2300-2.lambda2                      lambda2
 perl-Time-Piece.x86_64             1.20.1-294.lambda2                    lambda2
 perl-TimeDate.noarch               1:2.30-2.lambda2                      lambda2
 perl-URI.noarch                    1.60-9.lambda2                        lambda2
+perl-WWW-RobotRules.noarch         6.02-5.lambda2                        lambda2
 perl-constant.noarch               1.27-2.lambda2.0.1                    lambda2
 perl-libs.x86_64                   4:5.16.3-294.lambda2                  lambda2
 perl-libwww-perl.noarch            6.05-2.lambda2                        lambda2

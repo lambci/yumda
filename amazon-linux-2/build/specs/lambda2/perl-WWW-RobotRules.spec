@@ -23,6 +23,8 @@ Conflicts:      perl-libwww-perl < 6
 # Do not provide private imlementation of abstract class methods
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}perl\\(WWW::RobotRules::InCore\\)
 
+Prefix: %{_prefix}
+
 %description
 This module parses /robots.txt files as specified in "A Standard for Robot
 Exclusion", at <http://www.robotstxt.org/wc/norobots.html>. Webmasters can
@@ -33,7 +35,10 @@ of their web site.
 %setup -q -n WWW-RobotRules-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -42,15 +47,16 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.02-5
 - Mass rebuild 2013-12-27
 
