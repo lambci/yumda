@@ -60,6 +60,8 @@ Requires:	perl(XSLoader)
 # Don't "provide" private Perl libs or the redundant unversioned perl(Net::SSLeay) provide
 %global __provides_exclude ^(perl\\(Net::SSLeay\\)$|SSLeay\\.so)
 
+Prefix: %{_prefix}
+
 %description
 This module offers some high level convenience functions for accessing
 web pages on SSL servers (for symmetry, same API is offered for
@@ -86,7 +88,9 @@ chmod -c 644 examples/*
 %build
 PERL_MM_USE_DEFAULT=1 perl Makefile.PL \
 	INSTALLDIRS=vendor \
-	OPTIMIZE="%{optflags}"
+	OPTIMIZE="%{optflags}" \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -99,23 +103,24 @@ find %{buildroot} -type f -name '*.bs' -empty -exec rm -f {} ';'
 # Remove script we don't want packaged
 rm -f %{buildroot}%{perl_vendorarch}/Net/ptrtstrun.pl
 
-%check
-make test
-
 %clean
 rm -rf %{buildroot}
 
 %files
-%doc Changes Credits QuickRef README examples/
+%license Credits README
 %{perl_vendorarch}/auto/Net/
 %dir %{perl_vendorarch}/Net/
 %{perl_vendorarch}/Net/SSLeay/
 %{perl_vendorarch}/Net/SSLeay.pm
-%doc %{perl_vendorarch}/Net/SSLeay.pod
-%{_mandir}/man3/Net::SSLeay.3pm*
-%{_mandir}/man3/Net::SSLeay::Handle.3pm*
+
+%exclude %{_mandir}
+%exclude /usr/share/man
+%exclude %{perl_vendorarch}/Net/SSLeay.pod
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Feb 15 2017 Jitka Plesnikova <jplesnik@redhat.com> - 1.55-6
 - Deleted support for SSL_get_tlsa_record_byname (bug #1422435)
 - Removed tests which fails due to changes openssl 1.0.1h and later
