@@ -36,6 +36,8 @@ Requires:       perl(URI)
 %{?perl_default_filter}
 %global __requires_exclude %{?__requires_exclude:%__requires_exclude|}perl\\(HTML::Tagset\\)$
 
+Prefix: %{_prefix}
+
 %description
 The HTML-Parser module for perl to parse and extract information from
 HTML documents, including the HTML::Entities, HTML::HeadParser,
@@ -46,7 +48,10 @@ HTML::LinkExtor, HTML::PullParser, and HTML::TokeParser modules.
 chmod -c a-x eg/*
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -59,16 +64,17 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 find %{buildroot} -type f -name '*.bs' -empty -exec rm -f {} ';'
 chmod -R u+w %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc Changes README TODO eg/
+%license README
 %{perl_vendorarch}/HTML/
 %{perl_vendorarch}/auto/HTML/
-%{_mandir}/man3/*.3pm*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 3.71-4
 - Mass rebuild 2014-01-24
 
