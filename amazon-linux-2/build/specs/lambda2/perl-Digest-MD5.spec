@@ -30,6 +30,8 @@ Requires:       perl(XSLoader)
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 The Digest::MD5 module allows you to use the RSA Data Security Inc. MD5
 Message Digest algorithm from within Perl programs. The algorithm takes as
@@ -40,7 +42,10 @@ input a message of arbitrary length and produces as output a 128-bit
 %setup -q -n Digest-MD5-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -49,16 +54,17 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -type f -name '*.bs' -size 0 -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/Digest*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.52-3
 - Mass rebuild 2014-01-24
 
