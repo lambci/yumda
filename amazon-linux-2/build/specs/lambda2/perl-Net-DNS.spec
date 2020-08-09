@@ -67,6 +67,8 @@ Requires:      perl(XSLoader)
 # Do not export under-specified provides
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\((Net::DNS::Text)\\)$
 
+Prefix: %{_prefix}
+
 %description
 Net::DNS is a collection of Perl modules that act as a Domain Name System
 (DNS) resolver. It allows the programmer to perform DNS queries that are
@@ -79,6 +81,7 @@ its various sections. See RFC 1035 or DNS and BIND (Albitz & Liu) for details.
 Summary:        DNS server for Perl
 Group:          Development/Libraries
 License:        GPL+ or Artistic
+Prefix: %{_prefix}
 
 %description Nameserver
 Instances of the "Net::DNS::Nameserver" class represent DNS server objects.
@@ -96,7 +99,10 @@ done
 
 %build
 export PERL_MM_USE_DEFAULT=yes
-perl Makefile.PL INSTALLDIRS=vendor --no-online-tests
+perl Makefile.PL INSTALLDIRS=vendor --no-online-tests \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags} OPTIMIZE="%{optflags}"
 
 %install
@@ -105,27 +111,24 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 find %{buildroot} -type f -name '*.bs' -a -size 0 -exec rm -f {} ';'
 chmod -R u+w %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc README Changes TODO demo
+%license README
 %{perl_vendorarch}/Net/
 %exclude %{perl_vendorarch}/Net/DNS/Resolver/cygwin.pm
 %exclude %{perl_vendorarch}/Net/DNS/Resolver/MSWin32.pm
 %{perl_vendorarch}/auto/Net/
-%{_mandir}/man3/Net::DNS*.3*
-%exclude %{_mandir}/man3/Net::DNS::Resolver::cygwin.3*
-%exclude %{_mandir}/man3/Net::DNS::Resolver::MSWin32.3*
 # perl-Net-DNS-Nameserver
 %exclude %{perl_vendorarch}/Net/DNS/Nameserver.pm
-%exclude %{_mandir}/man3/Net::DNS::Nameserver*
 
 %files Nameserver
 %{perl_vendorarch}/Net/DNS/Nameserver.pm
-%{_mandir}/man3/Net::DNS::Nameserver*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Mar 08 2016 Petr Šabata <contyk@redhat.com> - 0.72-6
 - Fix a memory leak, rhbz#1207802, rt#81942
 
