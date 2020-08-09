@@ -551,6 +551,7 @@ perl-Compress-Raw-Zlib.x86_64
                              1:2.061-4.lambda2.0.2                       lambda2
 perl-DBD-MySQL.x86_64        4.023-6.lambda2                             lambda2
 perl-DBI.x86_64              1.627-4.lambda2.0.2                         lambda2
+perl-DB_File.x86_64          1.830-6.lambda2.0.2                         lambda2
 perl-Data-Dumper.x86_64      2.145-3.lambda2.0.2                         lambda2
 perl-Digest.noarch           1.17-245.lambda2                            lambda2
 perl-Digest-SHA.x86_64       1:5.85-4.lambda2.0.2                        lambda2

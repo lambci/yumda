@@ -40,6 +40,8 @@ Requires:       perl(XSLoader)
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 DB_File is a module which allows Perl programs to make use of the facilities
 provided by Berkeley DB version 1.x (if you have a newer version of DB, you
@@ -53,7 +55,10 @@ find -type f -exec chmod -x {} +
 %fix_shbang_line dbinfo
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -62,16 +67,17 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -type f -name '*.bs' -size 0 -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes dbinfo README
+%license dbinfo README
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/DB_File*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Aug 08 2014 Petr Pisar <ppisar@redhat.com> - 1.830-6
 - Build-require Test::More always because of the new thread tests
 
