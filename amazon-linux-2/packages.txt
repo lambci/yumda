@@ -612,6 +612,7 @@ perl-Scalar-List-Utils.x86_64
                              1.27-248.lambda2.0.2                        lambda2
 perl-Socket.x86_64           2.010-4.lambda2.0.2                         lambda2
 perl-Storable.x86_64         2.45-3.lambda2.0.2                          lambda2
+perl-Sys-Syslog.x86_64       0.33-3.lambda2.0.2                          lambda2
 perl-Test-Harness.noarch     3.28-3.lambda2                              lambda2
 perl-Text-ParseWords.noarch  3.29-4.lambda2                              lambda2
 perl-Thread-Queue.noarch     3.02-2.lambda2                              lambda2

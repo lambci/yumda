@@ -46,6 +46,8 @@ Requires:       perl(XSLoader)
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 Sys::Syslog is an interface to the UNIX syslog(3) function. Call syslog() with
 a string priority and a list of printf() arguments just like at syslog(3).
@@ -64,7 +66,10 @@ for F in Changes; do
 done
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -73,16 +78,17 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -type f -name '*.bs' -size 0 -exec rm -f {} \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes eg README 
+%license README 
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/Sys*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.33-3
 - Mass rebuild 2014-01-24
 
