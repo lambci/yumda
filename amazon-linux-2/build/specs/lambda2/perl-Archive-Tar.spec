@@ -45,6 +45,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`perl -V:version`"; echo $version))
 Requires:       perl(Compress::Zlib) >= 2.015
 Requires:       perl(IO::Zlib) >= 1.01
 
+Prefix: %{_prefix}
+
 %description
 Archive::Tar provides an object oriented mechanism for handling tar
 files.  It provides class methods for quick and easy files handling
@@ -57,7 +59,10 @@ will also support compressed or gzipped tar files.
 %patch0 -p1
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -65,18 +70,20 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 chmod -R u+w %{buildroot}/*
 
-%check
-make test
+sed -i 's|/usr/bin/perl|%{_bindir}/perl|g' %{buildroot}%{_bindir}/*
 
 %files
-%doc CHANGES README
+%license README
 %{_bindir}/*
 %{perl_vendorlib}/Archive/
-%{_mandir}/man3/*.3*
-%{_mandir}/man1/*.1*
+
+%exclude %{_mandir}
 
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Jan 17 2019 Jitka Plesnikova <jplesnik@redhat.com> - 1.92-3
 - CVE-2018-12015 - Directory traversal in Archive::Tar (bug #1592803)
 
