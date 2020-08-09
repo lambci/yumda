@@ -61,6 +61,8 @@ Conflicts:      perl-libwww-perl < 6
 %global __requires_exclude %{?__requires_exclude:%__requires_exclude|}^perl\\((HTTP::Date|URI)\\)$
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(HTTP::Headers\\)$
 
+Prefix: %{_prefix}
+
 %description
 The HTTP-Message distribution contains classes useful for representing the
 messages passed in HTTP style communication.  These are classes representing
@@ -70,7 +72,10 @@ requests, responses and the headers contained within them.
 %setup -q -n HTTP-Message-%{version}
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -78,15 +83,16 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} +
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.06-6
 - Mass rebuild 2013-12-27
 
