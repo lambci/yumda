@@ -27,7 +27,6 @@
 %define perl_devel 0
 %define dkim_deps  0
 %define require_encode_detect 0
-%define use_systemd 0
 
 # SSL and IPv6 (FC6+, RHEL5+)
 %if 0%{?fedora} > 5
@@ -53,10 +52,6 @@ Requires: portreserve
 # Mail::DKIM by default (F11+)
 %if 0%{?fedora} >= 11
 %define dkim_deps 1
-%endif
-
-%if 0%{?fedora} >= 16
-%define use_systemd 1
 %endif
 
 %define real_name Mail-SpamAssassin
@@ -89,9 +84,6 @@ Source10: spamassassin-helper.sh
 Source11: spamassassin-official.conf
 Source12: sought.conf
 Source13: README.RHEL.Fedora
-%if %{use_systemd}
-Source14: spamassassin.service
-%endif
 # Patches 0-99 are RH specific
 Patch1:   spamassassin-HTTPSMismatch.pm
 # add note about rawbody split (#892350)
@@ -114,9 +106,6 @@ BuildRequires: perl(Time::HiRes)
 BuildRequires: perl(HTML::Parser)
 BuildRequires: perl(NetAddr::IP)
 BuildRequires: openssl-devel
-%if %{use_systemd}
-BuildRequires: systemd-units
-%endif
 
 Requires: perl(HTTP::Date)
 Requires: perl(LWP::UserAgent)
@@ -150,17 +139,12 @@ BuildRequires: perl-devel
 Requires: perl(Mail::DKIM)
 %endif
 
-%if %{use_systemd}
-Requires(post): systemd-units
-Requires(post): systemd-sysv
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-%endif
-
 Requires: perl(XSLoader)
 Requires: perl(ExtUtils::MakeMaker)
 
 Obsoletes: perl-Mail-SpamAssassin
+
+Prefix: %{_prefix}
 
 %description
 SpamAssassin provides you with a way to reduce if not completely eliminate
@@ -195,21 +179,17 @@ echo "RHEL=%{rhel} FEDORA=%{fedora}"
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS"
-%{__perl} Makefile.PL DESTDIR=$RPM_BUILD_ROOT/ SYSCONFDIR=%{_sysconfdir} INSTALLDIRS=vendor ENABLE_SSL=yes < /dev/null
+%{__perl} Makefile.PL PREFIX=%{prefix} SYSCONFDIR=%{_sysconfdir} INSTALLDIRS=vendor ENABLE_SSL=yes < /dev/null
 %{__make} OPTIMIZE="$RPM_OPT_FLAGS" %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%makeinstall PREFIX=%buildroot/%{prefix} \
-        INSTALLMAN1DIR=%buildroot/%{_mandir}/man1 \
-        INSTALLMAN3DIR=%buildroot/%{_mandir}/man3 \
-        LOCAL_RULES_DIR=%{buildroot}/etc/mail/spamassassin
+# %makeinstall PREFIX=%buildroot/%{prefix} \
+#         INSTALLMAN1DIR=%buildroot/%{_mandir}/man1 \
+#         INSTALLMAN3DIR=%buildroot/%{_mandir}/man3 \
+#         LOCAL_RULES_DIR=%{buildroot}/etc/mail/spamassassin
+%makeinstall DESTDIR=$RPM_BUILD_ROOT/ LOCAL_RULES_DIR=%{_sysconfdir}/mail/spamassassin
 chmod 755 %buildroot/%{_bindir}/* # allow stripping
-
-%if %{use_systemd} == 0
-install -d %buildroot/%{_initrddir}
-install -m 0755 spamd/redhat-rc-script.sh %buildroot/%{_initrddir}/spamassassin
-%endif
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/mail/spamassassin
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
@@ -218,19 +198,15 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.d
 install -m 0644 %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/mail/spamassassin/local.cf
 install -m644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/spamassassin
 
-install -m 0644 %{SOURCE3} %buildroot/etc/mail/spamassassin
-install -m 0644 %{SOURCE4} %buildroot/etc/mail/spamassassin
+install -m 0644 %{SOURCE3} %buildroot%{_sysconfdir}/mail/spamassassin
+install -m 0644 %{SOURCE4} %buildroot%{_sysconfdir}/mail/spamassassin
 # installed mode 755 as it's executed by users. 
-install -m 0755 %{SOURCE10} %buildroot/etc/mail/spamassassin
-install -m 0644 %{SOURCE6} %buildroot/etc/logrotate.d/sa-update
-install -m 0644 %{SOURCE7} %buildroot/etc/cron.d/sa-update
+install -m 0755 %{SOURCE10} %buildroot%{_sysconfdir}/mail/spamassassin
+install -m 0644 %{SOURCE6} %buildroot%{_sysconfdir}/logrotate.d/sa-update
+install -m 0644 %{SOURCE7} %buildroot%{_sysconfdir}/cron.d/sa-update
 install -m 0644 %{SOURCE9} %buildroot%{_sysconfdir}/sysconfig/sa-update
 # installed mode 744 as non root users can't run it, but can read it.
 install -m 0744 %{SOURCE8} %buildroot%{_datadir}/spamassassin/sa-update.cron
-%if %{use_systemd}
-mkdir -p %buildroot%{_unitdir}
-install -m 0644 %{SOURCE14} %buildroot%{_unitdir}/spamassassin.service
-%endif
 
 [ -x /usr/lib/rpm/brp-compress ] && /usr/lib/rpm/brp-compress
 
@@ -243,9 +219,10 @@ tar xfvz %{SOURCE1}
 sed -i -e 's|\@\@VERSION\@\@|%{saversion}|' *.cf
 cd -
 
-find $RPM_BUILD_ROOT/usr -type f -print |
+find $RPM_BUILD_ROOT%{prefix} -type f -print |
         sed "s@^$RPM_BUILD_ROOT@@g" |
         grep -v perllocal.pod |
+        grep -v %{_mandir} |
         grep -v "\.packlist" > %{name}-%{version}-filelist
 if [ "$(cat %{name}-%{version}-filelist)X" = "X" ] ; then
     echo "ERROR: EMPTY FILE LIST"
@@ -271,12 +248,7 @@ install -m 0644 %{SOURCE13} $RPM_BUILD_DIR/Mail-SpamAssassin-%{version}/
 
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
-%doc LICENSE NOTICE CREDITS Changes README TRADEMARK UPGRADE
-%doc USAGE sample-nonspam.txt sample-spam.txt 
-%doc README.RHEL.Fedora
-%if %{use_systemd} == 0
-%{_initrddir}/spamassassin
-%endif
+%license LICENSE NOTICE CREDITS TRADEMARK
 %dir %{_sysconfdir}/mail
 %config(noreplace) %{_sysconfdir}/mail/spamassassin
 %config(noreplace) %{_sysconfdir}/sysconfig/spamassassin
@@ -287,97 +259,16 @@ install -m 0644 %{SOURCE13} $RPM_BUILD_DIR/Mail-SpamAssassin-%{version}/
 %dir %{_localstatedir}/lib/spamassassin
 %config(noreplace) %{_sysconfdir}/logrotate.d/sa-update
 %config(noreplace) %{_sysconfdir}/portreserve/spamd
-%if %{use_systemd}
-%{_unitdir}/spamassassin.service
-%endif
+
+%exclude %{_mandir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-%if %{use_systemd} == 0
-/sbin/chkconfig --add spamassassin
-%endif
-
-%if %{use_systemd}
-%if 0%{?fedora} > 17
-        %systemd_post spamassassin.service
-%else
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
-%endif
-%endif
-
-# -a and --auto-whitelist options were removed from 3.0.0
-# prevent service startup failure
-TMPFILE=$(/bin/mktemp /etc/sysconfig/spamassassin.XXXXXX) || exit 1
-cp /etc/sysconfig/spamassassin $TMPFILE
-perl -p -i -e 's/(["\s]-\w+)a/$1/ ; s/(["\s]-)a(\w+)/$1$2/ ; s/(["\s])-a\b/$1/' $TMPFILE
-perl -p -i -e 's/ --auto-whitelist//' $TMPFILE
-# replace /etc/sysconfig/spamassassin only if it actually changed
-cmp /etc/sysconfig/spamassassin $TMPFILE || cp $TMPFILE /etc/sysconfig/spamassassin
-rm $TMPFILE
-
-if [ -f /etc/spamassassin.cf ]; then
-        %{__mv} /etc/spamassassin.cf /etc/mail/spamassassin/migrated.cf
-fi
-if [ -f /etc/mail/spamassassin.cf ]; then
-        %{__mv} /etc/mail/spamassassin.cf /etc/mail/spamassassin/migrated.cf
-fi
-
-%postun
-%if %{use_systemd} == 0
-if [ "$1" -ge "1" ]; then
-    /sbin/service spamassassin condrestart > /dev/null 2>&1
-fi
-exit 0
-%endif
-
-%if %{use_systemd}
-%if 0%{?fedora} > 17
-        %systemd_postun spamassassin.service
-%else
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart spamassassin.service >/dev/null 2>&1 || :
-fi
-%endif
-%endif
-
-%preun
-%if %{use_systemd} == 0
-if [ $1 = 0 ] ; then
-    /sbin/service spamassassin stop >/dev/null 2>&1
-    /sbin/chkconfig --del spamassassin
-fi
-exit 0
-%endif
-
-%if %{use_systemd}
-%if 0%{?fedora} > 17
-        %systemd_preun spamassassin.service
-%else
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable spamassassin.service > /dev/null 2>&1 || :
-    /bin/systemctl stop spamassassin.service > /dev/null 2>&1 || :
-fi
-%endif
-%endif
-
-%if %{use_systemd}
-%triggerun -- spamassassin < 3.3.2-2
-%{_bindir}/systemd-sysv-convert --save spamassassin >/dev/null 2>&1 ||:
-
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del spamassassin >/dev/null 2>&1 || :
-/bin/systemctl try-restart spamassassin.service >/dev/null 2>&1 || :
-%endif
-
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Thu Sep 27 2018 Ondřej Lysoněk <olysonek@redhat.com> - 3.4.0-4
 - Add missing Requires for perl(XSLoader) and perl(ExtUtils::MakeMaker),
 - which are no longer auto-generated due to a (expected) change in rpm-build
@@ -606,10 +497,10 @@ fi
 * Wed May 02 2007 Warren Togami <wtogami@redhat.com> 3.2.0-1
 - 3.2.0
 
-* Mon Apr 13 2007 Warren Togami <wtogami@redhat.com> 3.2.0-0.5.rc3
+* Fri Apr 13 2007 Warren Togami <wtogami@redhat.com> 3.2.0-0.5.rc3
 - 3.2.0 rc3
 
-* Mon Apr 13 2007 Warren Togami <wtogami@redhat.com> 3.2.0-0.4.rc2
+* Fri Apr 13 2007 Warren Togami <wtogami@redhat.com> 3.2.0-0.4.rc2
 - 3.2.0 rc2
 
 * Mon Apr 02 2007 Warren Togami <wtogami@redhat.com> 3.2.0-0.3.rc1
@@ -686,7 +577,7 @@ fi
 * Tue May 09 2006 Warren Togami <wtogami@redhat.com> - 3.0.5-4
 - Preserve timestamp and context of /etc/sysconfig/spamassassin (#178580)
 
-* Mon Mar 11 2006 Warren Togami <wtogami@redhat.com> - 3.1.1-1
+* Sat Mar 11 2006 Warren Togami <wtogami@redhat.com> - 3.1.1-1
 - 3.1.1
 
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 3.1.0-5
@@ -743,7 +634,7 @@ fi
 - Own /usr/share/spamassassin (#152534).
 - Drop no longer needed dependency filter script.
 
-* Sun Apr 02 2005 Warren Togami <wtogami@redhat.com> 3.0.2-7
+* Sat Apr 02 2005 Warren Togami <wtogami@redhat.com> 3.0.2-7
 - req DB_File (#143186)
 
 * Sat Apr 02 2005 Warren Togami <wtogami@redhat.com> 3.0.2-6
@@ -803,7 +694,7 @@ fi
 * Wed Jul 28 2004 Warren Togami <wtogami@redhat.com> - 3.0-3.pre2
 - 3.0 pre2
 
-* Mon Jun 20 2004 Warren Togami <wtogami@redhat.com> - 3.0-2.pre1
+* Sun Jun 20 2004 Warren Togami <wtogami@redhat.com> - 3.0-2.pre1
 - 3.0.0 pre1
 - remove unnecessary patches applied upstream
 - update krb5 backcompat patch
@@ -817,7 +708,7 @@ fi
 - #124871 more docs
 - #124872 unowned directories
 
-* Tue May 24 2004 Warren Togami <wtogami@redhat.com> - 3.0-svn20040524
+* Mon May 24 2004 Warren Togami <wtogami@redhat.com> - 3.0-svn20040524
 - #123432 do not start service by default
 - #122488 remove CRLF's
 - #123706 correct license
