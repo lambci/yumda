@@ -23,6 +23,8 @@ Requires:       perl(I18N::Langinfo)
 %{?perl_default_filter}
 %global __requires_exclude %{__requires_exclude}|perl\\(Encode\\)$
 
+Prefix: %{_prefix}
+
 %description
 In many applications it's wise to let Perl use Unicode for the strings
 it processes.  Most of the interfaces Perl has to the outside world is
@@ -34,7 +36,10 @@ way out.
 %setup -q -n Encode-Locale-%{version}
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -43,15 +48,16 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} \;
 find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Changes README
+%license README
 %{perl_vendorlib}/Encode/
-%{_mandir}/man3/Encode::Locale.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.03-5
 - Mass rebuild 2013-12-27
 
