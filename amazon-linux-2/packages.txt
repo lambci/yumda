@@ -528,6 +528,7 @@ pcre2-utf16.x86_64                 10.23-2.lambda2.0.2                   lambda2
 pcre2-utf32.x86_64                 10.23-2.lambda2.0.2                   lambda2
 perl.x86_64                        4:5.16.3-294.lambda2                  lambda2
 perl-Archive-Tar.noarch            1.92-3.lambda2                        lambda2
+perl-BSD-Resource.x86_64           1.29.07-1.lambda2                     lambda2
 perl-Business-ISBN.noarch          2.06-2.lambda2                        lambda2
 perl-Business-ISBN-Data.noarch     20120719.001-2.lambda2                lambda2
 perl-CPAN.noarch                   1.9800-294.lambda2                    lambda2

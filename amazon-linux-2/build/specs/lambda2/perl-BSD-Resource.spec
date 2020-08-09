@@ -25,6 +25,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "$(perl -V:version)"; echo $version))
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 A module providing an interface for testing and setting process limits
 and priorities.
@@ -33,7 +35,10 @@ and priorities.
 %setup -q -n BSD-Resource-%{module_version} 
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{optflags}" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -42,16 +47,17 @@ find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 find %{buildroot} -type f -name '*.bs' -a -size 0 -exec rm -f {} ';'
 %{_fixperms} %{buildroot}/*
 
-%check
-make test
-
 %files
-%doc ChangeLog README
+%license README
 %{perl_vendorarch}/BSD/
 %{perl_vendorarch}/auto/BSD/
-%{_mandir}/man3/*.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Jul 15 2013 Petr Šabata <contyk@redhat.com> - 1.29.07-1
 - 1.2907 bump, tests and pod enhancements
 - Fix a bogus date in changelog
