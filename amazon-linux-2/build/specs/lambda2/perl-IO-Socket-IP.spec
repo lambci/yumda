@@ -33,6 +33,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "$(perl -V:version)"; echo $version))
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 This module provides a protocol-independent way to use IPv4 and IPv6
 sockets, as a drop-in replacement for IO::Socket::INET. Most constructor
@@ -45,24 +47,26 @@ arguments and methods are provided in a backward-compatible way.
 %patch2 -p1
 
 %build
-perl Build.PL installdirs=vendor
+perl Build.PL installdirs=vendor \
+  prefix=%{_prefix} \
+  installvendorlib=%{perl_vendorlib} \
+  installvendorarch=%{perl_vendorarch}
 ./Build
 
 %install
 ./Build install destdir=%{buildroot} create_packlist=0
 %{_fixperms} %{buildroot}/*
 
-%check
-# Don't do the live test
-rm -f t/21nonblocking-connect-internet.t
-./Build test
-
 %files
-%doc Changes examples LICENSE README
+%license LICENSE
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Mon Sep 18 2017 Petr Pisar <ppisar@redhat.com> - 0.21-5
 - Fix constructing sockets without specifying host or family (bug #1492760)
 

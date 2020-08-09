@@ -567,6 +567,7 @@ perl-HTTP-Negotiate.noarch         6.01-5.lambda2                        lambda2
 perl-HTTP-Tiny.noarch              0.033-3.lambda2                       lambda2
 perl-IO-Compress.noarch            2.061-2.lambda2                       lambda2
 perl-IO-Socket-INET6.noarch        2.69-5.lambda2                        lambda2
+perl-IO-Socket-IP.noarch           0.21-5.lambda2                        lambda2
 perl-IO-Socket-SSL.noarch          1.94-7.lambda2.0.1                    lambda2
 perl-IO-Zlib.noarch                1:1.10-294.lambda2                    lambda2
 perl-IPC-Cmd.noarch                1:0.80-4.lambda2                      lambda2
