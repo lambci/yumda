@@ -552,6 +552,7 @@ perl-ExtUtils-Embed.noarch         1.30-294.lambda2                      lambda2
 perl-ExtUtils-Install.noarch       1.58-294.lambda2                      lambda2
 perl-ExtUtils-MakeMaker.noarch     6.68-3.lambda2                        lambda2
 perl-ExtUtils-Manifest.noarch      1.61-244.lambda2                      lambda2
+perl-File-Listing.noarch           6.04-7.lambda2                        lambda2
 perl-File-Path.noarch              2.09-2.lambda2                        lambda2
 perl-File-Temp.noarch              0.23.01-3.lambda2                     lambda2
 perl-Filter.x86_64                 1.49-3.lambda2.0.2                    lambda2
