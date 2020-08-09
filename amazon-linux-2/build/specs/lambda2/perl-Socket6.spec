@@ -22,6 +22,8 @@ BuildRequires:  perl(Socket)
 BuildRequires:  perl(Test)
 Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
+Prefix: %{_prefix}
+
 %description
 This module supports getaddrinfo() and getnameinfo() to intend to
 enable protocol independent programming.
@@ -36,7 +38,10 @@ sed -i -e '/MAN3PODS/d' Makefile.PL
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS"
+perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="$RPM_OPT_FLAGS" \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 
@@ -49,23 +54,23 @@ find $RPM_BUILD_ROOT -type d -depth -exec rmdir {} 2>/dev/null ';'
 chmod -R u+w $RPM_BUILD_ROOT/*
 
 
-%check
-make test
-
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
 %files
 %defattr(-,root,root,-)
-%doc ChangeLog README
+%license README
 %{perl_vendorarch}/Socket6*
 %{perl_vendorarch}/auto/Socket6/
-%{_mandir}/man3/Socket6.3pm*
+
+%exclude %{_mandir}
 
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.23-15
 - Mass rebuild 2014-01-24
 

@@ -605,6 +605,7 @@ perl-Pod-Simple.noarch             1:3.28-4.lambda2                      lambda2
 perl-Pod-Usage.noarch              1.63-3.lambda2                        lambda2
 perl-Scalar-List-Utils.x86_64      1.27-248.lambda2.0.2                  lambda2
 perl-Socket.x86_64                 2.010-4.lambda2.0.2                   lambda2
+perl-Socket6.x86_64                0.23-15.lambda2.0.2                   lambda2
 perl-Storable.x86_64               2.45-3.lambda2.0.2                    lambda2
 perl-Sys-Syslog.x86_64             0.33-3.lambda2.0.2                    lambda2
 perl-Test-Harness.noarch           3.28-3.lambda2                        lambda2
