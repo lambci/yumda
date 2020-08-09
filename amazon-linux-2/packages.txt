@@ -536,6 +536,7 @@ perl-Compress-Raw-Bzip2.x86_64     2.061-3.lambda2.0.2                   lambda2
 perl-Compress-Raw-Zlib.x86_64      1:2.061-4.lambda2.0.2                 lambda2
 perl-Crypt-OpenSSL-Bignum.x86_64   0.04-18.lambda2.0.2                   lambda2
 perl-Crypt-OpenSSL-RSA.x86_64      0.28-7.lambda2.0.2                    lambda2
+perl-Crypt-OpenSSL-Random.x86_64   0.04-21.lambda2.0.2                   lambda2
 perl-DBD-MySQL.x86_64              4.023-6.lambda2                       lambda2
 perl-DBI.x86_64                    1.627-4.lambda2.0.2                   lambda2
 perl-DB_File.x86_64                1.830-6.lambda2.0.2                   lambda2

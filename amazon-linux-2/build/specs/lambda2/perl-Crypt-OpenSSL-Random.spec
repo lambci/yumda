@@ -19,6 +19,8 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $versi
 
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 Crypt::OpenSSL::Random - Routines for accessing the OpenSSL
 pseudo-random number generator
@@ -28,7 +30,10 @@ pseudo-random number generator
 %patch0 -p1 -b name
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -37,25 +42,25 @@ rm -rf %{buildroot}
 make pure_install PERL_INSTALL_ROOT=%{buildroot}
 
 find %{buildroot} -type f \( -name .packlist -o \
-        -name '*.bs' -empty \) -exec rm {} \;
+        -name '*.bs' -empty \) -exec rm -f {} \;
 find %{buildroot} -depth -type d -empty -exec rmdir {} \;
 %{_fixperms} %{buildroot}/*
-
-%check
-make test
 
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc Changes
-%doc LICENSE
+%license LICENSE
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/Crypt/
-%{_mandir}/man3/*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.04-21
 - Mass rebuild 2014-01-24
 
