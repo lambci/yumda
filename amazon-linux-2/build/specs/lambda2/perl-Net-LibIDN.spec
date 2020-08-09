@@ -23,6 +23,8 @@ BuildRequires:  perl(Test)
 # Filter the Perl extension module
 %{?perl_default_filter}
 
+Prefix: %{_prefix}
+
 %description
 Provides perl bindings for GNU Libidn, a C library for handling
 Internationalized Domain Names according to IDNA (RFC 3490), in
@@ -39,7 +41,10 @@ for F in _LibIDN.pm; do
 done;
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -48,16 +53,17 @@ find $RPM_BUILD_ROOT -type f -name .packlist -exec rm -f {} +
 find $RPM_BUILD_ROOT -type f -name '*.bs' -empty -exec rm -f {} +
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%check
-make test
-
 %files
-%doc Artistic Changes README
-%{_mandir}/man3/*.3pm*
+%license Artistic README
 %{perl_vendorarch}/Net
 %{perl_vendorarch}/auto/Net
 
+%exclude %{_mandir}
+
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.12-15
 - Mass rebuild 2014-01-24
 
