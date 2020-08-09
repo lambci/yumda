@@ -31,6 +31,8 @@ Requires:       perl(Data::Dumper)
 Requires:       perl(MIME::Base64) >= 2
 Requires:       perl(Net::Domain)
 
+Prefix: %{_prefix}
+
 %description
 This module implements the URI class. Objects of this class represent
 "Uniform Resource Identifier references" as specified in RFC 2396 (and
@@ -41,7 +43,9 @@ updated by RFC 2732).
 chmod -c 644 uri-test
 
 %build
-perl Makefile.PL INSTALLDIRS=perl
+perl Makefile.PL INSTALLDIRS=perl \
+  PREFIX=%{_prefix} \
+  INSTALLPRIVLIB=%{perl_privlib}
 make %{?_smp_mflags}
 
 %install
@@ -49,26 +53,17 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
 %{_fixperms} %{buildroot}
 
-%check
-make test
-
 %files
-%doc Changes README uri-test
+%license README
 %{perl_privlib}/URI.pm
 %{perl_privlib}/URI/
-%{_mandir}/man3/URI.3pm*
-%{_mandir}/man3/URI::Escape.3pm*
-%{_mandir}/man3/URI::Heuristic.3pm*
-%{_mandir}/man3/URI::QueryParam.3pm*
-%{_mandir}/man3/URI::Split.3pm*
-%{_mandir}/man3/URI::URL.3pm*
-%{_mandir}/man3/URI::WithBase.3pm*
-%{_mandir}/man3/URI::_punycode.3pm*
-%{_mandir}/man3/URI::data.3pm*
-%{_mandir}/man3/URI::file.3pm*
-%{_mandir}/man3/URI::ldap.3pm*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.60-9
 - Mass rebuild 2013-12-27
 
