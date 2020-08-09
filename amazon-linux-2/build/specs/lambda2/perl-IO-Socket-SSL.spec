@@ -54,6 +54,8 @@ Requires:       perl(Net::LibIDN)
 Requires:       perl-Net-SSLeay >= 1.55-5
 Requires:       openssl >= 0.9.8
 
+Prefix: %{_prefix}
+
 %description
 This module is a true drop-in replacement for IO::Socket::INET that
 uses SSL to encrypt data before it is transferred to a remote server
@@ -74,7 +76,10 @@ mod_perl.
 %patch6 -p1
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor \
+  PREFIX=%{_prefix} \
+  INSTALLVENDORLIB=%{perl_vendorlib} \
+  INSTALLVENDORARCH=%{perl_vendorarch}
 make %{?_smp_mflags}
 
 %install
@@ -82,17 +87,16 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} +
 %{_fixperms} %{buildroot}
 
-%check
-make test
-
 %files
-%doc BUGS Changes README docs/ certs/ example/ util/
+%license README
 %{perl_vendorlib}/IO/
-%{_mandir}/man3/IO::Socket::SSL.3*
-%{_mandir}/man3/IO::Socket::SSL::Intercept.3*
-%{_mandir}/man3/IO::Socket::SSL::Utils.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed Aug 30 2017 Petr Pisar <ppisar@redhat.com> - 1.94-7
 - Default to system wide CA certificate store (bug #1402588)
 
