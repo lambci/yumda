@@ -621,6 +621,7 @@ perl-Time-Local.noarch       1.2300-2.lambda2                            lambda2
 perl-Time-Piece.x86_64       1.20.1-294.lambda2                          lambda2
 perl-constant.noarch         1.27-2.lambda2.0.1                          lambda2
 perl-libs.x86_64             4:5.16.3-294.lambda2                        lambda2
+perl-libwww-perl.noarch      6.05-2.lambda2                              lambda2
 perl-local-lib.noarch        1.008010-4.lambda2                          lambda2
 perl-macros.x86_64           4:5.16.3-294.lambda2                        lambda2
 perl-parent.noarch           1:0.225-244.lambda2.0.1                     lambda2

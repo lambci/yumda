@@ -62,6 +62,8 @@ Requires:       perl(URI) >= 1.10
 Requires:       perl(URI::Escape)
 Requires:       perl(WWW::RobotRules) >= 6
 
+Prefix: %{_prefix}
+
 %description
 The libwww-perl collection is a set of Perl modules which provides a simple and
 consistent application programming interface to the World-Wide Web.  The main
@@ -91,7 +93,10 @@ use and even classes that help you implement simple HTTP servers.
 
 %build
 # Install the aliases by default
-perl Makefile.PL INSTALLDIRS=perl --aliases < /dev/null
+perl Makefile.PL INSTALLDIRS=perl --aliases \
+  PREFIX=%{_prefix} \
+  INSTALLPRIVLIB=%{perl_privlib} \
+  < /dev/null
 make %{?_smp_mflags}
 
 %install
@@ -99,20 +104,21 @@ make pure_install DESTDIR=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} +
 chmod -R u+w %{buildroot}/*
 
-%check
-# Some optional tests require resolvable hostname
-make test
+sed -i '1 s|^#!/usr/bin/perl|#!%{_bindir}/perl|' %{buildroot}%{_bindir}/*
 
 %files
-%doc AUTHORS Changes README*
+%license README*
 %{_bindir}/*
 %{perl_privlib}/lwp*.pod
 %{perl_privlib}/LWP.pm
 %{perl_privlib}/LWP/
-%{_mandir}/man1/*.1*
-%{_mandir}/man3/*.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 6.05-2
 - Mass rebuild 2013-12-27
 
