@@ -15,6 +15,8 @@ BuildRequires: perl(Test::More)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: perl(Encode::Encoding)
 
+Prefix: %{_prefix}
+
 %description
 This Perl module is an Encode::Encoding subclass that uses
 Encode::Detect::Detector to determine the charset of the input data and then
@@ -31,11 +33,11 @@ EOF
 %{__chmod} +x %{__perl_requires}
 
 %build
-%{__perl} Build.PL installdirs=vendor optimize="${RPM_OPT_FLAGS}"
+perl Build.PL installdirs=vendor optimize="${RPM_OPT_FLAGS}" \
+  prefix=%{_prefix} \
+  installvendorlib=%{perl_vendorlib} \
+  installvendorarch=%{perl_vendorarch}
 ./Build
-
-%check
-./Build test
 
 %install
 %{__rm} -rf "${RPM_BUILD_ROOT}"
@@ -44,18 +46,25 @@ find "${RPM_BUILD_ROOT}" -type f -name "*.bs" -size 0 -exec %{__rm} -f {} \;
 find "${RPM_BUILD_ROOT}" -depth -type d -exec rmdir {} 2>/dev/null \;
 %{_fixperms} "${RPM_BUILD_ROOT}"/*
 
+if [ ! -d ${RPM_BUILD_ROOT}%{perl_vendorarch} ] && [ -d ${RPM_BUILD_ROOT}%{_prefix}/lib64 ]; then
+  mv ${RPM_BUILD_ROOT}%{_prefix}/lib64 ${RPM_BUILD_ROOT}%{_libdir}
+fi
+
 %clean
 %{__rm} -rf "${RPM_BUILD_ROOT}"
 
 %files
 %defattr(-,root,root,-)
-%doc Changes LICENSE
+%license LICENSE
 %{perl_vendorarch}/auto/Encode
 %{perl_vendorarch}/Encode
-%{_mandir}/man3/Encode::Detect.3*
-%{_mandir}/man3/Encode::Detect::Detector.3*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.01-13
 - Mass rebuild 2014-01-24
 
