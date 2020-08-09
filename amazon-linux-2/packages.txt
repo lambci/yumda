@@ -545,6 +545,7 @@ perl-Digest-SHA.x86_64             1:5.85-4.lambda2.0.2                  lambda2
 perl-Encode.x86_64                 2.51-7.lambda2.0.2                    lambda2
 perl-Encode-Detect.x86_64          1.01-13.lambda2.0.2                   lambda2
 perl-Encode-Locale.noarch          1.03-5.lambda2                        lambda2
+perl-Error.noarch                  1:0.17020-2.lambda2                   lambda2
 perl-Exporter.noarch               5.68-3.lambda2                        lambda2
 perl-ExtUtils-CBuilder.noarch      1:0.28.2.6-294.lambda2                lambda2
 perl-ExtUtils-Embed.noarch         1.30-294.lambda2                      lambda2

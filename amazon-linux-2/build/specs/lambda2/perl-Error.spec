@@ -31,6 +31,8 @@ Requires:       perl(Carp)
 %global __provides_exclude_from ^%{_docdir}
 %global __requires_exclude_from ^%{_docdir}
 
+Prefix: %{_prefix}
+
 %description
 The Error package provides two interfaces. Firstly Error provides a
 procedural interface to exception handling. Secondly Error is a base class
@@ -41,7 +43,10 @@ can simply be recorded.
 %setup -q -n Error-%{version}
 
 %build
-perl Build.PL installdirs=vendor
+perl Build.PL installdirs=vendor \
+  prefix=%{_prefix} \
+  installvendorlib=%{perl_vendorlib} \
+  installvendorarch=%{perl_vendorarch}
 ./Build
 
 %install
@@ -49,22 +54,22 @@ rm -rf $RPM_BUILD_ROOT
 ./Build install destdir=$RPM_BUILD_ROOT create_packlist=0
 %{_fixperms} $RPM_BUILD_ROOT
 
-%check
-./Build test
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 # GPL+ or Artistic
-%doc ChangeLog README examples/
+%license README
 %{perl_vendorlib}/Error.pm
-%{_mandir}/man3/Error.3pm*
 # MIT
 %{perl_vendorlib}/Error/
-%{_mandir}/man3/Error::Simple.3pm*
+
+%exclude %{_mandir}
 
 %changelog
+* Sun Aug 9 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1:0.17020-2
 - Mass rebuild 2013-12-27
 
