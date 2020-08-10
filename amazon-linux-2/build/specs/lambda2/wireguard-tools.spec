@@ -7,9 +7,9 @@ License:        GPLv2
 
 Source0:        https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-%{version}.tar.xz
 
-%{?systemd_requires}
-BuildRequires:  systemd
 BuildRequires:  gcc
+
+Prefix: %{_prefix}
 
 %description
 WireGuard is a novel VPN that runs inside the Linux Kernel and uses
@@ -26,7 +26,9 @@ This package provides the wg binary for controlling WireGuard.
 %autosetup -p1
 
 %build
-%set_build_flags
+export CFLAGS="$RPM_OPT_FLAGS"
+export CXXFLAGS="$RPM_OPT_FLAGS"
+export LDFLAGS="$RPM_LD_FLAGS"
 
 ## Start DNS Hatchet
 pushd contrib/dns-hatchet
@@ -38,22 +40,19 @@ popd
 
 %install
 %make_install BINDIR=%{_bindir} MANDIR=%{_mandir} RUNSTATEDIR=%{_rundir} \
-WITH_BASHCOMPLETION=yes WITH_WGQUICK=yes WITH_SYSTEMDUNITS=yes -C src
+WITH_BASHCOMPLETION=no WITH_WGQUICK=yes WITH_SYSTEMDUNITS=no -C src
 
 %files
-%doc README.md contrib
 %license COPYING
 %{_bindir}/wg
 %{_bindir}/wg-quick
-%{_sysconfdir}/wireguard/
-%{_datadir}/bash-completion/completions/wg
-%{_datadir}/bash-completion/completions/wg-quick
-%{_unitdir}/wg-quick@.service
-%{_unitdir}/wg-quick.target
-%{_mandir}/man8/wg.8*
-%{_mandir}/man8/wg-quick.8*
+
+%exclude %{_mandir}
 
 %changelog
+* Mon Aug 10 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Wed May 13 2020 Joe Doss <joe@solidadmin.com> - 1.0.20200513-1
 - Update to 1.0.20200513
 - Makefile: remember to install all systemd units
