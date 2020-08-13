@@ -166,7 +166,7 @@ Amazon Linux 2:
 
 ```console
 docker run --rm lambci/yumda:2 bash -c "
-  yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v -e libcrypt-nss -e llvm-private | xargs yum install"
+  yum list available | tail -n +3 | grep -o -E '^\S+' | grep -v -e libcrypt-nss -e llvm-private -e matio | xargs yum install"
 ```
 
 Checking for hardlinks from lambci/yumda:
