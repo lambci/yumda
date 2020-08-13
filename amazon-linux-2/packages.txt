@@ -456,7 +456,7 @@ mariadb.x86_64                     1:5.5.64-1.lambda2                    lambda2
 mariadb-embedded.x86_64            1:5.5.64-1.lambda2                    lambda2
 mariadb-libs.x86_64                1:5.5.64-1.lambda2                    lambda2
 mariadb-server.x86_64              1:5.5.64-1.lambda2                    lambda2
-matio.x86_64                       1.5.3-1.lambda2                       lambda2
+matio.x86_64                       1.5.17-3.lambda2                      lambda2
 memcached.x86_64                   1.5.17-1.lambda2.0.1                  lambda2
 mesa-dri-drivers.x86_64            17.2.3-8.20171019.lambda2.0.4         lambda2
 mesa-filesystem.x86_64             17.2.3-8.20171019.lambda2.0.4         lambda2

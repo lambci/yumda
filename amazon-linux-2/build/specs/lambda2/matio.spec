@@ -1,9 +1,8 @@
 Name:           matio
-Version:        1.5.3
-Release:        1%{?dist}
+Version:        1.5.17
+Release:        3%{?dist}
 Summary:        Library for reading/writing Matlab MAT files
 
-Group:          System Environment/Libraries
 License:        BSD
 URL:            http://sourceforge.net/projects/matio
 Source0:        http://downloads.sourceforge.net/matio/matio-%{version}.tar.gz
@@ -67,8 +66,59 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir
 
 
 %changelog
-* Thu Apr 30 2020 Michael Hart <michael@lambci.org>
+* Thu Aug 13 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
++* Thu Jun 25 2020 Orion Poplawski <orion@cora.nwra.com> - 1.5.17-3
+- Rebuild for hdf5 1.10.6
+
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.17-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Mon Dec 23 2019 Gwyn Ciesla <gwync@protonmail.com> - 1.5.17-1
+- 1.5.17
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.15-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Sat Mar 30 2019 Orion Poplawski <orion@nwra.com> - 1.5.15-1
+- Update to 1.5.15
+
+* Sat Mar 16 2019 Orion Poplawski <orion@nwra.com> - 1.5.14-1
+- Update to 1.5.14
+
+* Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Mon Feb 12 2018 Sandro Mani <manisandro@gmail.com> - 1.5.7-8
+- Rebuild (hdf5)
+
+* Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.7-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Tue Dec 06 2016 Orion Poplawski <orion@cora.nwra.com> - 1.5.7-3
+- Rebuild for hdf5 1.8.18
+
+* Fri Jul 01 2016 Dan Horák <dan[at]danny.cz> - 1.5.7-2
+- fix build on big endian arches
+
+* Wed Jun 29 2016 Orion Poplawski <orion@cora.nwra.com> - 1.5.7-1
+- Update to 1.5.7
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
 * Thu Jan 21 2016 Orion Poplawski <orion@cora.nwra.com> - 1.5.3-1
 - Update to 1.5.3
