@@ -11,21 +11,14 @@ BuildRequires:  pkgconfig
 # Upstream do not yet support mips
 ExcludeArch:    mips
 
+Prefix: %{_prefix}
+
 %description
 This data synchronization library provides read-side access which scales
 linearly with the number of cores. It does so by allowing multiples copies
 of a given data structure to live at the same time, and by monitoring
 the data structure accesses to detect grace periods after which memory
 reclamation is possible.
-
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 
 %prep
@@ -46,30 +39,20 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -vf $RPM_BUILD_ROOT%{_libdir}/*.la
 
 
-%check
-#TODO greenscientist: make check currently fail in mockbuild
-#make check
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
-%doc LICENSE gpl-2.0.txt lgpl-relicensing.txt lgpl-2.1.txt
-%{_docdir}/%{name}/README
-%{_docdir}/%{name}/ChangeLog
+%license LICENSE gpl-2.0.txt lgpl-relicensing.txt lgpl-2.1.txt
 %{_libdir}/*.so.*
 
-%files devel
-%{_includedir}/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/liburcu*.pc
-%{_docdir}/%{name}/README
-%{_docdir}/%{name}/*.txt
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_docdir}
 
 
 %changelog
+* Mon Aug 17 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue Dec  8 2015 Peter Robinson <pbrobinson@fedoraproject.org> 0.7.16-1
 - Update to 0.7.16
 
