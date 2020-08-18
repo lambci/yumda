@@ -10,19 +10,11 @@ Source0:        http://lttng.org/files/lttng-ust/%{name}-%{version}.tar.bz2
 BuildRequires:  libuuid-devel texinfo systemtap-sdt-devel libtool
 BuildRequires:  userspace-rcu-devel >= 0.7.2
 
+Prefix: %{_prefix}
+
 %description
 This library may be used by user space applications to generate 
 tracepoints using LTTng.
-
-%package -n %{name}-devel
-Summary:        LTTng Userspace Tracer library headers and development files
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       userspace-rcu-devel systemtap-sdt-devel
-
-%description -n %{name}-devel
-This library provides support for developing programs using 
-LTTng userspace tracing
 
 %prep
 %setup -q
@@ -35,7 +27,7 @@ LTTng userspace tracing
 
 #Reinitialize libtool with the fedora version to remove Rpath
 libtoolize -cvfi
-%configure --docdir=%{_docdir}/%{name} --disable-static --with-sdt
+%configure --disable-static --with-sdt
 # --with-java-jdk
 # Java support was disabled in lttng-ust's stable-2.0 branch upstream in
 # http://git.lttng.org/?p=lttng-ust.git;a=commit;h=655a0d112540df3001f9823cd3b331b8254eb2aa
@@ -47,31 +39,21 @@ make %{?_smp_mflags} V=1
 make DESTDIR=%{buildroot} install
 rm -vf %{buildroot}%{_libdir}/*.la
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-
 %files
+%license README
 %{_libdir}/*.so.*
-%{_mandir}/man3/lttng-ust.3.gz
-%{_mandir}/man3/lttng-ust-cyg-profile.3.gz
-%{_mandir}/man3/lttng-ust-dl.3.gz
-%dir %{_docdir}/%{name}
-%{_docdir}/%{name}/ChangeLog
-%{_docdir}/%{name}/README
-%{_docdir}/%{name}/java-util-logging.txt
 
-
-%files -n %{name}-devel
-%{_bindir}/lttng-gen-tp
-%{_mandir}/man1/lttng-gen-tp.1.gz
-%{_prefix}/include/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/lttng-ust*.pc
-
-%dir %{_docdir}/%{name}/examples
-%{_docdir}/%{name}/examples/*
+%exclude %{_bindir}/lttng-gen-tp
+%exclude %{_mandir}
+%exclude %{_includedir}
+%exclude %{_libdir}/*.so
+%exclude %{_libdir}/pkgconfig
+%exclude %{_docdir}
 
 %changelog
+* Mon Aug 17 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Tue May 20 2014 Yannick Brosseau <yannick.brosseau@gmail.com> - 2.4.1-1
 - New upstream bugfix release
 
