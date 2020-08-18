@@ -69,7 +69,7 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/info/dir
 * Thu Aug 13 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
-+* Thu Jun 25 2020 Orion Poplawski <orion@cora.nwra.com> - 1.5.17-3
+* Thu Jun 25 2020 Orion Poplawski <orion@cora.nwra.com> - 1.5.17-3
 - Rebuild for hdf5 1.10.6
 
 * Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.5.17-2
