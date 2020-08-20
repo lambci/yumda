@@ -10,6 +10,8 @@ Source0:        http://snappy.googlecode.com/files/%{name}-%{version}.tar.gz
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+Prefix: %{_prefix}
+
 %description
 Snappy is a compression/decompression library. It does not aim for maximum 
 compression, or compatibility with any other compression library; instead, it 
@@ -17,16 +19,6 @@ aims for very high speeds and reasonable compression. For instance, compared to
 the fastest mode of zlib, Snappy is an order of magnitude faster for most 
 inputs, but the resulting compressed files are anywhere from 20% to 100% 
 bigger. 
-
-
-%package        devel
-Summary:        Development files for %{name}
-Group:          Development/Libraries
-Requires:       %{name}%{?_isa} = %{version}-%{release}
-
-%description    devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
 
 
 %prep
@@ -47,28 +39,19 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %clean
 rm -rf %{buildroot}
 
-%check
-make check
-
-
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,-)
-%doc AUTHORS ChangeLog COPYING NEWS README
+%license COPYING
 %{_libdir}/libsnappy.so.*
 
-%files devel
-%defattr(-,root,root,-)
-%doc format_description.txt framing_format.txt
-%{_includedir}/snappy*.h
-%{_libdir}/libsnappy.so
+%exclude %{_includedir}
+%exclude %{_libdir}/libsnappy.so
 
 
 %changelog
+* Thu Aug 20 2020 Michael Hart <michael@lambci.org>
+- recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.1.0-3
 - Mass rebuild 2014-01-24
 
