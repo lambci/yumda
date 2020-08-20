@@ -7,7 +7,7 @@ Amazon Linux 1:
 ```console
 cd amazon-linux-1/build
 
-docker run --rm -it -v $PWD:/tmp/fs:delegated lambci/yumda:build-1 bash
+docker run --rm -it -v $PWD:/tmp/fs:cached lambci/yumda:build-1 bash
 gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
 ```
 
@@ -16,7 +16,7 @@ Amazon Linux 2:
 ```console
 cd amazon-linux-2/build
 
-docker run --rm -it -v $PWD:/tmp/fs:delegated lambci/yumda:build-2 bash
+docker run --rm -it -v $PWD:/tmp/fs:cached lambci/yumda:build-2 bash
 gpg --import /tmp/fs/RPM-GPG-KEY-lambci.private
 ```
 
