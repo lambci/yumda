@@ -13,6 +13,8 @@ Source0:	%{name}.tar.gz
 BuildRoot:      %{name}-%{version}
 BuildRequires:  golang >= 1.6
 
+Prefix: %{_prefix}
+
 %description
 CFSSL is CloudFlare's PKI/TLS swiss army knife. It is both a command line tool
 and an HTTP API server for signing, verifying, and bundling TLS certificates.
