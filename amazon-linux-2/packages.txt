@@ -669,11 +669,11 @@ php-xmlrpc.x86_64                  7.3.19-1.lambda2                      lambda2
 pinentry.x86_64                    0.8.1-17.lambda2.0.2                  lambda2
 pixman.x86_64                      0.34.0-1.lambda2.0.2                  lambda2
 pkgconfig.x86_64                   1:0.27.1-4.lambda2.0.2                lambda2
-poppler.x86_64                     0.26.5-38.lambda2.0.1                 lambda2
-poppler-cpp.x86_64                 0.26.5-38.lambda2.0.1                 lambda2
+poppler.x86_64                     0.26.5-42.lambda2                     lambda2
+poppler-cpp.x86_64                 0.26.5-42.lambda2                     lambda2
 poppler-data.noarch                0.4.6-3.lambda2.0.1                   lambda2
-poppler-glib.x86_64                0.26.5-38.lambda2.0.1                 lambda2
-poppler-utils.x86_64               0.26.5-38.lambda2.0.1                 lambda2
+poppler-glib.x86_64                0.26.5-42.lambda2                     lambda2
+poppler-utils.x86_64               0.26.5-42.lambda2                     lambda2
 postgresql.x86_64                  9.2.24-1.lambda2.0.1                  lambda2
 postgresql-contrib.x86_64          9.2.24-1.lambda2.0.1                  lambda2
 postgresql-libs.x86_64             9.2.24-1.lambda2.0.1                  lambda2
