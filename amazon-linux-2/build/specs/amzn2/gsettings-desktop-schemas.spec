@@ -2,7 +2,7 @@
 
 Name:           gsettings-desktop-schemas
 Version:        3.28.0
-Release:        2%{?dist}
+Release: 3%{?dist}.0.1
 Summary:        A collection of GSettings schemas
 
 License:        LGPLv2+
@@ -10,7 +10,10 @@ License:        LGPLv2+
 URL:            http://bugzilla.gnome.org/enter_bug.cgi?product=gsettings-desktop-schemas
 Source0:        http://download.gnome.org/sources/%{name}/3.28/%{name}-%{version}.tar.xz
 # Backported from upstream
-Patch0:         0001-schemas-default-lock-background.patch
+Patch00001: 0001-schemas-default-lock-background.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1506370
+Patch10001: 0001-schemas-add-new-lockdown-setting-for-password-showin.patch
 
 BuildRequires: glib2-devel >= 2.31.0
 BuildRequires: intltool
@@ -75,6 +78,10 @@ fi
 
 
 %changelog
+* Wed Aug 21 2019 Ray Strode <rstrode@redhat.com> - 3.28.0-3
+- add setting to display Show Password menu
+  Related: #1506370
+
 * Tue Sep 04 2018 Kalev Lember <klember@redhat.com> - 3.28.0-2
 - Fix lock screen background to show up
 - Resolves: #1597764

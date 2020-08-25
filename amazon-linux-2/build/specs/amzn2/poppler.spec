@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 38%{?dist}.0.1
+Release: 42%{?dist}
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -116,6 +116,18 @@ Patch39: poppler-0.26.5-tiling-patterns.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1686802
 Patch40: poppler-0.26.5-coverage-values.patch
 Patch41: poppler-0.26.5-rescale-filter.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1696636
+Patch42: poppler-0.26.5-PSOutputDev-rgb.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1713582
+Patch43:  poppler-0.26.5-jpeg2000-component-size.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1732340
+Patch44: poppler-0.26.5-JPXStream-length.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1753850
+Patch45: poppler-0.26.5-parser-integer-overflow.patch
 
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
@@ -274,6 +286,10 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 %patch39 -p1 -b .tiling-pattern
 %patch40 -p1 -b .coverage-values
 %patch41 -p1 -b .rescale-filter
+%patch42 -p1 -b .psoutputdev-rgb
+%patch43 -p1 -b .jpeg2000-component-size
+%patch44 -p1 -b .jpxstream-length
+%patch45 -p1 -b .parser-integer-overflow
 
 # hammer to nuke rpaths, recheck on new releases
 autoreconf -i -f
@@ -395,6 +411,23 @@ test "$(pkg-config --modversion poppler-splash)" = "%{version}"
 
 
 %changelog
+* Fri Nov 15 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-42
+- Fix potential integer overflow and check length for negative values
+- Resolves: #1757283
+
+* Tue Aug 13 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-41
+- Ignore dict Length if it is broken
+- Resolves: #1733026
+
+* Tue Aug 13 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-40
+- Fail gracefully if not all components of JPEG2000Stream
+- have the same size
+- Resolves: #1723504
+
+* Tue Aug 13 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-39
+- Check whether input is RGB in PSOutputDev::checkPageSlice()
+- Resolves: #1697575
+
 * Fri Mar 29 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-38
 - Constrain number of cycles in rescale filter
 - Compute correct coverage values for box filter
