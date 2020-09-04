@@ -81,7 +81,7 @@
 # the rest of the build
 %global regenerate_autotooling_patch 0
 %define _trivial .0
-%define _buildid .1
+%define _buildid .2
 
 # ==================
 # Top-level metadata
@@ -136,7 +136,7 @@ BuildRequires: tix-devel
 BuildRequires: tk-devel
 
 BuildRequires: zlib-devel
-
+BuildRequires: git-core
 
 
 # =======================
@@ -699,6 +699,12 @@ Patch193: 00193-enable-loading-sqlite-extensions.patch
 # 00198 #
 Patch198: 00198-add-rewheel-module.patch
 
+# 00351 #
+# Avoid infinite loop when reading specially crafted TAR files using the tarfile module
+# (CVE-2019-20907).
+# See: https://bugs.python.org/issue39017
+Patch351: 00351-cve-2019-20907-fix-infinite-loop-in-tarfile.patch
+
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora 17 onwards,
@@ -731,8 +737,6 @@ Patch5000: 05000-autotool-intermediates.patch
 # allow for double- and single-quoted realm values
 # (single quotes are a violation of the RFC, but appear in the wild)
 Patch6000: CVE-2020-8492.patch
-
-
 
 ### End Fedora patch definitions. ###
 
@@ -883,7 +887,8 @@ mv Modules/cryptmodule.c Modules/_cryptmodule.c
 %if %{with rewheel}
 %patch198 -p1
 %endif
-
+# Patch 351 adds binary file for testing. We need to apply it using Git.
+git apply %{PATCH351}
 
 %if 0%{?_module_build}
 %patch4000 -p1
@@ -898,7 +903,6 @@ find -name "*~" |xargs rm -f
 %patch5000 -p0 -b .autotool-intermediates
 %endif
 %patch6000 -p1
-
 
 ### End Fedora patch definitions. ###
 
@@ -1407,8 +1411,12 @@ find %{buildroot} -name '*.pyo' -delete
 # ======================================================
 
 %changelog
-* Wed Aug 5 2020 Michael Hart <michael@lambci.org>
+* Fri Sep 4 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Jul 24 2020 Petr Viktorin <pviktori@redhat.com> - 2.7.18-2
+- Avoid infinite loop when reading specially crafted TAR files (CVE-2019-20907)
+  Resolves: https://bugzilla.redhat.com/show_bug.cgi?id=1856481 
 
 * Thu Jul 23 2020 Kinjal Thaker <kthaker@amazon.com> - 2.7.18-1.amzn2.0.1
 - backported CVE-2020-8492 patch
