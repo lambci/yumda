@@ -78,7 +78,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.19
+%global upver        7.3.21
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -979,6 +979,7 @@ build --libdir=%{_libdir}/php \
       --with-gd=shared,%{_prefix} \
 %else
       --with-gd=shared \
+      --with-webp-dir=%{_prefix} \
 %endif
       --with-gmp=shared \
       --enable-calendar=shared \
@@ -1118,6 +1119,7 @@ build --includedir=%{_includedir}/php-zts \
       --with-gd=shared,%{_prefix} \
 %else
       --with-gd=shared \
+      --with-webp-dir=%{_prefix} \
 %endif
       --with-gmp=shared \
       --enable-calendar=shared \
@@ -1630,6 +1632,10 @@ getent passwd nginx > /dev/null || \
 
 
 %changelog
+* Mon Aug 17 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.21-1
+- Package updated to 7.3.21
+- Added WebP support to gd extension
+
 * Wed Jul 01 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.19-1
 - Package updated to 7.3.19
 
