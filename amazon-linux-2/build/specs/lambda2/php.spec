@@ -74,7 +74,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.19
+%global upver        7.3.21
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -982,6 +982,7 @@ build --libdir=%{_libdir}/php \
       --with-gd=shared,%{_prefix} \
 %else
       --with-gd=shared \
+      --with-webp-dir=%{_prefix} \
 %endif
       --with-gmp=shared \
       --enable-calendar=shared \
@@ -1121,6 +1122,7 @@ build --includedir=%{_includedir}/php-zts \
       --with-gd=shared,%{_prefix} \
 %else
       --with-gd=shared \
+      --with-webp-dir=%{_prefix} \
 %endif
       --with-gmp=shared \
       --enable-calendar=shared \
@@ -1561,8 +1563,12 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Thu Jul 16 2020 Michael Hart <michael@lambci.org>
+* Fri Sep 11 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Aug 17 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.21-1
+- Package updated to 7.3.21
+- Added WebP support to gd extension
 
 * Wed Jul 01 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.19-1
 - Package updated to 7.3.19
