@@ -32,7 +32,7 @@ glibc-devel.x86_64                    2.17-292.180.lambda1               lambda1
 glibc-headers.x86_64                  2.17-292.180.lambda1               lambda1
 glibc-utils.x86_64                    2.17-292.180.lambda1               lambda1
 groff.x86_64                          1.22.2-8.11.lambda1                lambda1
-java-1.8.0-openjdk-devel.x86_64       1:1.8.0.252.b09-2.51.lambda1       lambda1
+java-1.8.0-openjdk-devel.x86_64       1:1.8.0.265.b01-0.54.lambda1       lambda1
 jp2a.x86_64                           1.0.7-1.lambda1                    lambda1
 json-c.x86_64                         0.11-7.8.lambda1                   lambda1
 kernel-headers.x86_64                 4.14.193-113.317.lambda1           lambda1

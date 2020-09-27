@@ -1,4 +1,4 @@
-%define _buildid .51
+%define _buildid .54
 
 # The -g flag says to use strip -g instead of full strip on DSOs or EXEs.
 # This fixes detailed NMT and other tools which need minimal debug info.
@@ -31,7 +31,7 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u252-b09
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u265-b01
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
@@ -45,7 +45,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      2
+%global rpmrelease      0
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
 # Release will be (where N is usually a number starting at 1):
 # - 0.N%%{?extraver}%%{?dist} for EA releases,
@@ -322,13 +322,107 @@ cp --remove-destination /usr/lib/jvm/%{jrelnk}/lib/amd64/server/libjvm.so $JVMDI
 %{_bindir}/tnameserv
 %{_bindir}/policytool
 %{_bindir}/unpack200
+%{_bindir}/alt-java
+%{_bindir}/jfr
 
 %exclude %{_prefix}/share
 %exclude %{_jvmdir}/%{sdkdir}/tapset
 
 %changelog
-* Fri May 15 2020 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 1) with prefix /opt
+
+* Fri Aug 28 2020 ssuryad <ssuryad@amazon.com>
+- Update to java-1.8.0-openjdk-1.8.0.265.b01-1
+- import source package EL7/java-1.8.0-openjdk-1.8.0.262.b10-0.el7_8
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b10-0
+- Update to aarch64-shenandoah-jdk8u262-b10.
+- Switch to GA mode for final release.
+- Update release notes for 8u262 release.
+- Fix typo in jfr_arches which leads to ppc64 being wrongly excluded.
+- Split JDK-8042159 patch into per-repo patches as upstream.
+- Update JDK-8042159 JDK patch to apply after JDK-8238002 changes to Awt2dLibraries.gmk
+- Resolves: rhbz#1838811
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b09-shenandoah-merge-2020-07-03
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b09.
+- With JDK-8248399 fixed, a broken jfr binary is no longer installed on architectures without JFR.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b08-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b08.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.2.ea
+- Update to aarch64-shenandoah-jdk8u262-b07-shenandoah-merge-2020-06-18.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Sync alt-java support with java-11-openjdk version.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Created copy of java as alt-java and adapted alternatives and man pages
+- Resolves: rhbz#1838811
+
+* Fri Jul 10 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b07.
+- Require tzdata 2020a so system tzdata matches resource updates in b07
+- Resolves: rhbz#1838811
+
+* Thu Jul 09 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.1.ea
+- Sync SystemTap & desktop files with upstream IcedTea release 3.15.0, removing previous workarounds
+- Sync stapinstall handling with RHEL 8 implementation
+- Need to support noarch for creating source RPMs for non-scratch builds.
+- Resolves: rhbz#1838811
+
+* Wed Jul 08 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b06.
+- Resolves: rhbz#1838811
+
+* Fri Jul 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b05-shenandoah-merge-2020-06-04.
+- Resolves: rhbz#1838811
+
+* Thu Jul 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b05.
+- Resolves: rhbz#1838811
+
+* Tue Jun 30 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b04-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b04.
+- Resolves: rhbz#1838811
+
+* Mon Jun 29 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b03-shenandoah-merge-2020-05-20.
+- Resolves: rhbz#1838811
+
+* Sat Jun 27 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b03.
+- Resolves: rhbz#1838811
+
+* Mon Jun 22 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.1.ea
+- Enable JFR in our builds, ahead of upstream default.
+- Only enable JFR for JIT builds, as it is not supported with Zero.
+- Turn off JFR on x86 for now due to assert(SerializePageShiftCount == count) crash.
+- Introduce jfr_arches for architectures which support JFR.
+- Resolves: rhbz#1838811
+
+* Wed Jun 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b02.
+- Resolves: rhbz#1838811
+
+* Sun May 24 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b01.
+- Switch to EA mode.
+- Adjust JDK-8143245/PR3548 patch following context changes due to JDK-8203287 for JFR
+- Adjust RH1648644 following context changes due to introduction of JFR packages
+- Add recently added binaries to alternatives set (clhsdb, hsdb, jfr)
+- Resolves: rhbz#1838811
 
 * Mon Apr 27 2020 Amazon Linux AMI <amazon-linux-ami@amazon.com>
 - import source package EL7/java-1.8.0-openjdk-1.8.0.252.b09-2.el7_8
