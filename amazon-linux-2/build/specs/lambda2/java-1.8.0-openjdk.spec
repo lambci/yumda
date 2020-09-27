@@ -15,6 +15,7 @@
 %global ppc64be         ppc64 ppc64p7
 %global multilib_arches %{power64} sparc64 x86_64
 %global jit_arches      %{ix86} x86_64 sparcv9 sparc64 %{aarch64} %{power64}
+%global jfr_arches      x86_64 sparcv9 sparc64 %{aarch64} %{power64}
 
 %global include_debug_build 0
 
@@ -76,13 +77,13 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u252-b09
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u265-b01
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
 %global revision        %{shenandoah_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
-%global icedteaver      3.11.0
+%global icedteaver      3.15.0
 
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -92,7 +93,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      2
+%global rpmrelease      1
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
 # Release will be (where N is usually a number starting at 1):
 # - 0.N%%{?extraver}%%{?dist} for EA releases,
@@ -134,6 +135,7 @@
 %global sdkbindir()     %{expand:%{_jvmdir}/%{sdkdir %%1}/bin}
 %global jrebindir()     %{expand:%{_jvmdir}/%{jredir %%1}/bin}
 %global jvmjardir()     %{expand:%{_jvmjardir}/%{uniquesuffix %%1}}
+%global alt_java_name     alt-java
 
 %global rpm_state_dir %{_localstatedir}/lib/rpm-state/
 
@@ -186,7 +188,8 @@
 # Require /etc/pki/java/cacerts
 Requires: ca-certificates
 # Require zoneinfo data provided by tzdata-java subpackage.
-Requires: tzdata-java >= 2015d
+# 2020a required as of JDK-8243541
+Requires: tzdata-java >= 2020a
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
 # for optional support of printing bindings
@@ -407,7 +410,8 @@ Patch102: jdk8203030-zero_s390_31_bit_size_t_type_conflicts_in_shared_code.patch
 # 8035341: Allow using a system installed libpng
 Patch202: jdk8035341-allow_using_system_installed_libpng.patch
 # 8042159: Allow using a system-installed lcms2
-Patch203: jdk8042159-allow_using_system_installed_lcms2.patch
+Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
+Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 
 #############################################
 #
@@ -486,6 +490,14 @@ BuildRequires: pkgconfig
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: zip
 BuildRequires: unzip
+%ifarch %{arm}
+BuildRequires: devtoolset-7-build
+BuildRequires: devtoolset-7-binutils
+BuildRequires: devtoolset-7-gcc
+BuildRequires: devtoolset-7-gcc-c++
+BuildRequires: devtoolset-7-gdb
+%endif 
+
 # Use OpenJDK 7 where available (on RHEL) to avoid
 # having to use the rhel-7.x-java-unsafe-candidate hack
 %if ! 0%{?fedora} && 0%{?rhel} <= 7
@@ -498,7 +510,8 @@ BuildRequires: java-1.8.0-openjdk-devel
 %ifnarch %{jit_arches}
 BuildRequires: libffi-devel
 %endif
-BuildRequires: tzdata-java >= 2015d
+# 2020a required as of JDK-8243541
+BuildRequires: tzdata-java >= 2020a
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -559,6 +572,7 @@ sh %{SOURCE12}
 %patch201
 %patch202
 %patch203
+%patch204
 
 %patch1
 %patch3
@@ -637,6 +651,7 @@ mkdir -p %{buildoutputdir ""}
 pushd %{buildoutputdir ""}
 
 bash ../../configure \
+    --enable-jfr \
     --with-native-debug-symbols=internal \
     --with-milestone=%{milestone} \
     --with-update-version=%{updatever} \
@@ -856,8 +871,99 @@ find $RPM_BUILD_ROOT/%{_jvmdir}/%{sdkdir ""}/ -name "THIRD_PARTY_README" -exec c
 
 
 %changelog
-* Thu May 7 2020 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Thu Aug 27 2020 Sai Harsha <ssuryad@amazon.com> - 1:1.8.0.265.b01-1
+- Update to aarch64-shenandoah-jdk8u265-b01.
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b10-0
+- Update to aarch64-shenandoah-jdk8u262-b10.
+- Switch to GA mode for final release.
+- Update release notes for 8u262 release.
+- Fix typo in jfr_arches which leads to ppc64 being wrongly excluded.
+- Split JDK-8042159 patch into per-repo patches as upstream.
+- Update JDK-8042159 JDK patch to apply after JDK-8238002 changes to Awt2dLibraries.gmk
+- Resolves: rhbz#1838811
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b09-shenandoah-merge-2020-07-03
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b09.
+- With JDK-8248399 fixed, a broken jfr binary is no longer installed on architectures without JFR.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b08-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b08.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.2.ea
+- Update to aarch64-shenandoah-jdk8u262-b07-shenandoah-merge-2020-06-18.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Sync alt-java support with java-11-openjdk version.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Created copy of java as alt-java and adapted alternatives and man pages
+- Resolves: rhbz#1838811
+
+* Fri Jul 10 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b07.
+- Require tzdata 2020a so system tzdata matches resource updates in b07
+- Resolves: rhbz#1838811
+
+* Thu Jul 09 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.1.ea
+- Sync SystemTap & desktop files with upstream IcedTea release 3.15.0, removing previous workarounds
+- Sync stapinstall handling with RHEL 8 implementation
+- Need to support noarch for creating source RPMs for non-scratch builds.
+- Resolves: rhbz#1838811
+
+* Wed Jul 08 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b06.
+- Resolves: rhbz#1838811
+
+* Fri Jul 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b05-shenandoah-merge-2020-06-04.
+- Resolves: rhbz#1838811
+
+* Thu Jul 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b05.
+- Resolves: rhbz#1838811
+
+* Tue Jun 30 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b04-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b04.
+- Resolves: rhbz#1838811
+
+* Mon Jun 29 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b03-shenandoah-merge-2020-05-20.
+- Resolves: rhbz#1838811
+
+* Sat Jun 27 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b03.
+- Resolves: rhbz#1838811
+
+* Mon Jun 22 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.1.ea
+- Enable JFR in our builds, ahead of upstream default.
+- Only enable JFR for JIT builds, as it is not supported with Zero.
+- Turn off JFR on x86 for now due to assert(SerializePageShiftCount == count) crash.
+- Introduce jfr_arches for architectures which support JFR.
+- Resolves: rhbz#1838811
+
+* Wed Jun 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b02.
+- Resolves: rhbz#1838811
+
+* Sun May 24 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b01.
+- Switch to EA mode.
+- Adjust JDK-8143245/PR3548 patch following context changes due to JDK-8203287 for JFR
+- Adjust RH1648644 following context changes due to introduction of JFR packages
+- Add recently added binaries to alternatives set (clhsdb, hsdb, jfr)
+- Resolves: rhbz#1838811
 
 * Tue Apr 14 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b09-2
 - Add release notes.
