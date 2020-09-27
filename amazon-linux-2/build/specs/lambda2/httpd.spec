@@ -8,7 +8,7 @@
 
 Summary: Apache HTTP Server
 Name: httpd
-Version: 2.4.43
+Version: 2.4.46
 Release: 1%{?dist}
 URL: https://httpd.apache.org/
 Source0: https://www.apache.org/dist/httpd/httpd-%{version}.tar.bz2
@@ -520,8 +520,11 @@ rm -rf $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf/{original,extra}
 %exclude %{contentdir}/build
 
 %changelog
-* Mon May 25 2020 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Aug 24 2020 Trinity Quirk <tquirk@amazon.com> - 2.4.46-1
+- Package updated to 2.4.46
 
 * Mon May 04 2020 Trinity Quirk <tquirk@amazon.com> - 2.4.43-1
 - Package updated to 2.4.43
