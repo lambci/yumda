@@ -1,6 +1,9 @@
+%global __provides_exclude_from ^%{_docdir}/.*$
+%global __requires_exclude_from ^%{_docdir}/.*$
+
 Name:           wireguard-tools
-Version:        1.0.20200513
-Release:        1%{?dist}
+Version:        1.0.20200827
+Release:        2%{?dist}
 URL:            https://www.wireguard.com/
 Summary:        Fast, modern, secure VPN tunnel
 License:        GPLv2
@@ -50,8 +53,29 @@ WITH_BASHCOMPLETION=no WITH_WGQUICK=yes WITH_SYSTEMDUNITS=no -C src
 %exclude %{_mandir}
 
 %changelog
-* Mon Aug 10 2020 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Sep 01 2020 Joe Doss <joe@solidadmin.com> - 1.0.20200827-2
+- Prevent RPM from including python3 from doc macro
+
+* Sat Aug 29 2020 Joe Doss <joe@solidadmin.com> - 1.0.20200827-1
+- Update to 1.0.20200827
+- wg-quick: android: use iproute2 to bring up interface instead of ndc
+- wg-quick: Revert wait on process substitutions
+
+* Thu Aug 20 2020 Joe Doss <joe@solidadmin.com> - 1.0.20200820-1
+- Update to 1.0.20200820
+- ipc: split into separate files per-platform
+- wincompat: fold random into genkey
+- systemd: add reload target to systemd unit
+- man: wg-quick: use syncconf instead of addconf for strip example
+- pubkey: isblank is a subset of isspace
+- ctype: use non-locale-specific ctype.h
+- wg-quick: wait on process substitutions
+
+* Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.0.20200513-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
 * Wed May 13 2020 Joe Doss <joe@solidadmin.com> - 1.0.20200513-1
 - Update to 1.0.20200513
