@@ -2,7 +2,7 @@
 %{!?_httpd_mmn: %global _httpd_mmn %(cat %{_includedir}/httpd/.mmn 2>/dev/null || echo 0-0)}
 
 Name:		mod_http2
-Version:	1.15.3
+Version:	1.15.14
 Release:	2%{?dist}
 Summary:	module implementing HTTP/2 for Apache 2
 License:	ASL 2.0
@@ -23,11 +23,11 @@ top of libnghttp2 for httpd 2.4 servers.
 %patch1 -p1 -b .buildfix
 
 %build
-%configure
-make %{?_smp_mflags} V=1
+%configure --with-apxs=%{_httpd_apxs}
+%make_build
 
 %install
-make DESTDIR=%{buildroot} install
+%make_install
 rm -rf %{buildroot}/etc/httpd/share/doc/
 
 # create configuration
@@ -44,6 +44,24 @@ echo "LoadModule proxy_http2_module modules/mod_proxy_http2.so" > %{buildroot}%{
 %{_httpd_moddir}/mod_proxy_http2.so
 
 %changelog
+* Thu Aug 27 2020 Joe Orton <jorton@redhat.com> - 1.15.14-2
+- use apxs via _httpd_apxs macro
+
+* Mon Aug 17 2020 Joe Orton <jorton@redhat.com> - 1.15.14-1
+- update to 1.15.14
+
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.15.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Fri Mar  6 2020 Joe Orton <jorton@redhat.com> - 1.15.7-1
+- update to 1.15.7
+
+* Fri Feb  7 2020 Joe Orton <jorton@redhat.com> - 1.15.5-1
+- update to 1.15.5
+
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.15.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Mon Aug 19 2019 Lubos Uhliarik <luhliari@redhat.com> - 1.15.3-2
 - Rebuilt with newer nghttp2
 

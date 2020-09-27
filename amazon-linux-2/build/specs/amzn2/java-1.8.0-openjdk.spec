@@ -34,6 +34,7 @@
 %global ppc64be         ppc64 ppc64p7
 %global multilib_arches %{power64} sparc64 x86_64
 %global jit_arches      %{ix86} x86_64 sparcv9 sparc64 %{aarch64} %{power64}
+%global jfr_arches      x86_64 sparcv9 sparc64 %{aarch64} %{power64}
 
 # By default, we build a debug build during main build on JIT architectures
 %ifarch %{jit_arches}
@@ -106,7 +107,7 @@
 # In some cases, the arch used by the JDK does
 # not match _arch.
 # Also, in some cases, the machine name used by SystemTap
-# does not match that given by _build_cpu
+# does not match that given by _target_cpu
 %ifarch x86_64
 %global archinstall amd64
 %global stapinstall x86_64
@@ -150,15 +151,17 @@
 # 32 bit sparc, optimized for v9
 %ifarch sparcv9
 %global archinstall sparc
-%global stapinstall %{_build_cpu}
+%global stapinstall %{_target_cpu}
 %endif
 # 64 bit sparc
 %ifarch sparc64
 %global archinstall sparcv9
-%global stapinstall %{_build_cpu}
+%global stapinstall %{_target_cpu}
 %endif
-%ifnarch %{jit_arches}
-%global archinstall %{_arch}
+# Need to support noarch for srpm build
+%ifarch noarch
+%global archinstall %{nil}
+%global stapinstall %{nil}
 %endif
 
 %ifarch %{jit_arches}
@@ -183,13 +186,13 @@
 # note, following three variables are sedded from update_sources if used correctly. Hardcode them rather there.
 %global shenandoah_project	aarch64-port
 %global shenandoah_repo		jdk8u-shenandoah
-%global shenandoah_revision    	aarch64-shenandoah-jdk8u252-b09
+%global shenandoah_revision    	aarch64-shenandoah-jdk8u265-b01
 # Define old aarch64/jdk8u tree variables for compatibility
 %global project         %{shenandoah_project}
 %global repo            %{shenandoah_repo}
 %global revision        %{shenandoah_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
-%global icedteaver      3.11.0
+%global icedteaver      3.15.0
 
 # e.g. aarch64-shenandoah-jdk8u212-b04-shenandoah-merge-2019-04-30 -> aarch64-shenandoah-jdk8u212-b04
 %global version_tag     %(VERSION=%{revision}; echo ${VERSION%%-shenandoah-merge*})
@@ -199,7 +202,7 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
-%global rpmrelease      2
+%global rpmrelease      1
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
 # Release will be (where N is usually a number starting at 1):
 # - 0.N%%{?extraver}%%{?dist} for EA releases,
@@ -241,6 +244,7 @@
 %global sdkbindir()     %{expand:%{_jvmdir}/%{sdkdir %%1}/bin}
 %global jrebindir()     %{expand:%{_jvmdir}/%{jredir %%1}/bin}
 %global jvmjardir()     %{expand:%{_jvmjardir}/%{uniquesuffix %%1}}
+%global alt_java_name     alt-java
 
 %global rpm_state_dir %{_localstatedir}/lib/rpm-state/
 
@@ -252,9 +256,10 @@
 # and 32 bit architectures we place the tapsets under the arch
 # specific dir (note that systemtap will only pickup the tapset
 # for the primary arch for now). Systemtap uses the machine name
-# aka build_cpu as architecture specific directory name.
+# aka target_cpu as architecture specific directory name.
 %global tapsetroot /usr/share/systemtap
-%global tapsetdir %{tapsetroot}/tapset/%{stapinstall}
+%global tapsetdirttapset %{tapsetroot}/tapset/
+%global tapsetdir %{tapsetdirttapset}/%{stapinstall}
 %endif
 
 # not-duplicated scriptlets for normal/debug packages
@@ -287,6 +292,7 @@ alternatives \\
   --install %{_bindir}/java java %{jrebindir %%1}/java $PRIORITY  --family %{name}.%{_arch} \\
   --slave %{_jvmdir}/jre jre %{_jvmdir}/%{jredir %%1} \\
   --slave %{_jvmjardir}/jre jre_exports %{_jvmjardir}/%{jrelnk %%1} \\
+  --slave %{_bindir}/%{alt_java_name} %{alt_java_name} %{jrebindir %%1}/%{alt_java_name} \\
   --slave %{_bindir}/jjs jjs %{jrebindir %%1}/jjs \\
   --slave %{_bindir}/keytool keytool %{jrebindir %%1}/keytool \\
   --slave %{_bindir}/orbd orbd %{jrebindir %%1}/orbd \\
@@ -299,6 +305,8 @@ alternatives \\
   --slave %{_bindir}/unpack200 unpack200 %{jrebindir %%1}/unpack200 \\
   --slave %{_mandir}/man1/java.1$ext java.1$ext \\
   %{_mandir}/man1/java-%{uniquesuffix %%1}.1$ext \\
+  --slave %{_mandir}/man1/%{alt_java_name}.1$ext %{alt_java_name}.1$ext \\
+  %{_mandir}/man1/%{alt_java_name}-%{uniquesuffix %%1}.1$ext \\
   --slave %{_mandir}/man1/jjs.1$ext jjs.1$ext \\
   %{_mandir}/man1/jjs-%{uniquesuffix %%1}.1$ext \\
   --slave %{_mandir}/man1/keytool.1$ext keytool.1$ext \\
@@ -379,7 +387,9 @@ alternatives \\
   --slave %{_jvmdir}/java java_sdk %{_jvmdir}/%{sdkdir %%1} \\
   --slave %{_jvmjardir}/java java_sdk_exports %{_jvmjardir}/%{sdkdir %%1} \\
   --slave %{_bindir}/appletviewer appletviewer %{sdkbindir %%1}/appletviewer \\
+  --slave %{_bindir}/clhsdb clhsdb %{sdkbindir %%1}/clhsdb \\
   --slave %{_bindir}/extcheck extcheck %{sdkbindir %%1}/extcheck \\
+  --slave %{_bindir}/hsdb hsdb %{sdkbindir %%1}/hsdb \\
   --slave %{_bindir}/idlj idlj %{sdkbindir %%1}/idlj \\
   --slave %{_bindir}/jar jar %{sdkbindir %%1}/jar \\
   --slave %{_bindir}/jarsigner jarsigner %{sdkbindir %%1}/jarsigner \\
@@ -390,6 +400,9 @@ alternatives \\
   --slave %{_bindir}/jconsole jconsole %{sdkbindir %%1}/jconsole \\
   --slave %{_bindir}/jdb jdb %{sdkbindir %%1}/jdb \\
   --slave %{_bindir}/jdeps jdeps %{sdkbindir %%1}/jdeps \\
+%ifarch %{jfr_arches}
+  --slave %{_bindir}/jfr jfr %{sdkbindir %%1}/jfr \\
+%endif
   --slave %{_bindir}/jhat jhat %{sdkbindir %%1}/jhat \\
   --slave %{_bindir}/jinfo jinfo %{sdkbindir %%1}/jinfo \\
   --slave %{_bindir}/jmap jmap %{sdkbindir %%1}/jmap \\
@@ -569,6 +582,7 @@ exit 0
 %config(noreplace) %{_jvmdir}/%{jredir %%1}/lib/logging.properties
 %config(noreplace) %{_jvmdir}/%{jredir %%1}/lib/net.properties
 %{_mandir}/man1/java-%{uniquesuffix %%1}.1*
+%{_mandir}/man1/%{alt_java_name}-%{uniquesuffix %%1}.1*
 %{_mandir}/man1/jjs-%{uniquesuffix %%1}.1*
 %{_mandir}/man1/keytool-%{uniquesuffix %%1}.1*
 %{_mandir}/man1/orbd-%{uniquesuffix %%1}.1*
@@ -706,7 +720,8 @@ Requires: ca-certificates
 # Require jpackage-utils for ownership of /usr/lib/jvm/
 Requires: jpackage-utils
 # Require zoneinfo data provided by tzdata-java subpackage.
-Requires: tzdata-java >= 2015d
+# 2020a required as of JDK-8243541
+Requires: tzdata-java >= 2020a
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
 # tool to copy jdk's configs - should be Recommends only, but then only dnf/yum enforce it,
@@ -997,7 +1012,8 @@ Patch102: jdk8203030-zero_s390_31_bit_size_t_type_conflicts_in_shared_code.patch
 # 8035341: Allow using a system installed libpng
 Patch202: jdk8035341-allow_using_system_installed_libpng.patch
 # 8042159: Allow using a system-installed lcms2
-Patch203: jdk8042159-allow_using_system_installed_lcms2.patch
+Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
+Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 
 #############################################
 #
@@ -1076,6 +1092,14 @@ BuildRequires: pkgconfig
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: zip
 BuildRequires: unzip
+%ifarch %{arm}
+BuildRequires: devtoolset-7-build
+BuildRequires: devtoolset-7-binutils
+BuildRequires: devtoolset-7-gcc
+BuildRequires: devtoolset-7-gcc-c++
+BuildRequires: devtoolset-7-gdb
+%endif 
+
 # Use OpenJDK 7 where available (on RHEL) to avoid
 # having to use the rhel-7.x-java-unsafe-candidate hack
 %if ! 0%{?fedora} && 0%{?rhel} <= 7
@@ -1088,7 +1112,8 @@ BuildRequires: java-1.8.0-openjdk-devel
 %ifnarch %{jit_arches}
 BuildRequires: libffi-devel
 %endif
-BuildRequires: tzdata-java >= 2015d
+# 2020a required as of JDK-8243541
+BuildRequires: tzdata-java >= 2020a
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1287,6 +1312,14 @@ See normal java-%{version}-openjdk-accessibility description.
 %endif
 
 %prep
+
+# Using the echo macro breaks rpmdev-bumpspec, as it parses the first line of stdout :-(
+%if 0%{?stapinstall:1}
+  echo "CPU: %{_target_cpu}, arch install directory: %{archinstall}, SystemTap install directory: %{stapinstall}"
+%else
+  %{error:Unrecognised architecture %{_target_cpu}}
+%endif
+
 if [ %{include_normal_build} -eq 0 -o  %{include_normal_build} -eq 1 ] ; then
   echo "include_normal_build is %{include_normal_build}"
 else
@@ -1339,6 +1372,7 @@ sh %{SOURCE12}
 %patch201
 %patch202
 %patch203
+%patch204
 
 %patch1
 %patch3
@@ -1419,7 +1453,7 @@ for file in %{SOURCE9} %{SOURCE10} ; do
     EXT="${FILE##*.}"
     NAME="${FILE%.*}"
     OUTPUT_FILE=$NAME$suffix.$EXT
-    sed    -e  "s:_BINDIR_:%{sdkbindir -- $suffix}:g" $file > $OUTPUT_FILE
+    sed    -e  "s:_SDKBINDIR_:%{sdkbindir -- $suffix}:g" $file > $OUTPUT_FILE
     sed -i -e  "s:_JREBINDIR_:%{jrebindir -- $suffix}:g" $OUTPUT_FILE
     sed -i -e  "s:@target_cpu@:%{_arch}:g" $OUTPUT_FILE
     sed -i -e  "s:@OPENJDK_VER@:%{version}-%{release}$suffix:g" $OUTPUT_FILE
@@ -1433,6 +1467,10 @@ sed -e "s:@NSS_LIBDIR@:%{NSS_LIBDIR}:g" %{SOURCE11} > nss.cfg
 
 
 %build
+%ifarch %{arm}
+%{?enable_devtoolset7:%{enable_devtoolset7}}
+%endif
+
 # How many CPU's do we have?
 export NUM_PROC=%(/usr/bin/getconf _NPROCESSORS_ONLN 2> /dev/null || :)
 export NUM_PROC=${NUM_PROC:-1}
@@ -1457,6 +1495,9 @@ EXTRA_CPP_FLAGS="%ourcppflags -std=gnu++98 -fno-delete-null-pointer-checks -fno-
 # fix rpmlint warnings
 EXTRA_CFLAGS="$EXTRA_CFLAGS -fno-strict-aliasing"
 %endif
+%ifarch %{arm}
+EXTRA_CFLAGS="$EXTRA_CFLAGS -Wno-nonnull"
+%endif
 EXTRA_ASFLAGS="${EXTRA_CFLAGS}"
 export EXTRA_CFLAGS EXTRA_ASFLAGS
 
@@ -1478,6 +1519,9 @@ mkdir -p %{buildoutputdir $suffix}
 pushd %{buildoutputdir $suffix}
 
 bash ../../configure \
+%ifarch %{jfr_arches}
+    --enable-jfr \
+%endif
 %ifnarch %{jit_arches}
     --with-jvm-variants=zero \
 %endif
@@ -1540,6 +1584,15 @@ install -m 644 nss.cfg $JAVA_HOME/jre/lib/security/
 # Use system-wide tzdata
 rm $JAVA_HOME/jre/lib/tzdb.dat
 ln -s %{_datadir}/javazi-1.8/tzdb.dat $JAVA_HOME/jre/lib/tzdb.dat
+
+# Create fake alt-java as a placeholder for future alt-java
+pushd ${JAVA_HOME}
+cp -a jre/bin/java jre/bin/%{alt_java_name}
+cp -a bin/java bin/%{alt_java_name}
+# add alt-java man page
+echo "Hardened java binary recommended for launching untrusted code from the Web e.g. javaws" > man/man1/%{alt_java_name}.1
+cat man/man1/java.1 >> man/man1/%{alt_java_name}.1
+popd
 
 # build cycles
 done
@@ -2049,6 +2102,97 @@ require "copy_jdk_configs.lua"
 %endif
 
 %changelog
+* Thu Aug 27 2020 Sai Harsha <ssuryad@amazon.com> - 1:1.8.0.265.b01-1
+- Update to aarch64-shenandoah-jdk8u265-b01.
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b10-0
+- Update to aarch64-shenandoah-jdk8u262-b10.
+- Switch to GA mode for final release.
+- Update release notes for 8u262 release.
+- Fix typo in jfr_arches which leads to ppc64 being wrongly excluded.
+- Split JDK-8042159 patch into per-repo patches as upstream.
+- Update JDK-8042159 JDK patch to apply after JDK-8238002 changes to Awt2dLibraries.gmk
+- Resolves: rhbz#1838811
+
+* Sun Jul 12 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b09-shenandoah-merge-2020-07-03
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b09-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b09.
+- With JDK-8248399 fixed, a broken jfr binary is no longer installed on architectures without JFR.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b08-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b08.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.2.ea
+- Update to aarch64-shenandoah-jdk8u262-b07-shenandoah-merge-2020-06-18.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Sync alt-java support with java-11-openjdk version.
+- Resolves: rhbz#1838811
+
+* Sat Jul 11 2020 Jiri Vanek <jvanek@redhat.com> - 1:1.8.0.262.b07-0.1.ea
+- Created copy of java as alt-java and adapted alternatives and man pages
+- Resolves: rhbz#1838811
+
+* Fri Jul 10 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b07-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b07.
+- Require tzdata 2020a so system tzdata matches resource updates in b07
+- Resolves: rhbz#1838811
+
+* Thu Jul 09 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.1.ea
+- Sync SystemTap & desktop files with upstream IcedTea release 3.15.0, removing previous workarounds
+- Sync stapinstall handling with RHEL 8 implementation
+- Need to support noarch for creating source RPMs for non-scratch builds.
+- Resolves: rhbz#1838811
+
+* Wed Jul 08 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b06-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b06.
+- Resolves: rhbz#1838811
+
+* Fri Jul 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b05-shenandoah-merge-2020-06-04.
+- Resolves: rhbz#1838811
+
+* Thu Jul 02 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b05-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b05.
+- Resolves: rhbz#1838811
+
+* Tue Jun 30 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b04-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b04.
+- Resolves: rhbz#1838811
+
+* Mon Jun 29 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.1.ea
+- Update to aarch64-shenandoah-jdk8u262-b03-shenandoah-merge-2020-05-20.
+- Resolves: rhbz#1838811
+
+* Sat Jun 27 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b03-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b03.
+- Resolves: rhbz#1838811
+
+* Mon Jun 22 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.1.ea
+- Enable JFR in our builds, ahead of upstream default.
+- Only enable JFR for JIT builds, as it is not supported with Zero.
+- Turn off JFR on x86 for now due to assert(SerializePageShiftCount == count) crash.
+- Introduce jfr_arches for architectures which support JFR.
+- Resolves: rhbz#1838811
+
+* Wed Jun 03 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b02-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b02.
+- Resolves: rhbz#1838811
+
+* Sun May 24 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.262.b01-0.0.ea
+- Update to aarch64-shenandoah-jdk8u262-b01.
+- Switch to EA mode.
+- Adjust JDK-8143245/PR3548 patch following context changes due to JDK-8203287 for JFR
+- Adjust RH1648644 following context changes due to introduction of JFR packages
+- Add recently added binaries to alternatives set (clhsdb, hsdb, jfr)
+- Resolves: rhbz#1838811
+
 * Tue Apr 14 2020 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.252.b09-2
 - Add release notes.
 - Mark license files with appropriate macro.

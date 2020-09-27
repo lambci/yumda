@@ -8,7 +8,7 @@
 
 Summary: Apache HTTP Server
 Name: httpd
-Version: 2.4.43
+Version: 2.4.46
 Release: 1%{?dist}
 URL: https://httpd.apache.org/
 Source0: https://www.apache.org/dist/httpd/httpd-%{version}.tar.bz2
@@ -689,6 +689,9 @@ exit $rv
 %{_rpmconfigdir}/macros.d/macros.httpd
 
 %changelog
+* Mon Aug 24 2020 Trinity Quirk <tquirk@amazon.com> - 2.4.46-1
+- Package updated to 2.4.46
+
 * Mon May 04 2020 Trinity Quirk <tquirk@amazon.com> - 2.4.43-1
 - Package updated to 2.4.43
 
