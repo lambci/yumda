@@ -1,9 +1,9 @@
 %define _trivial .0
-%define _buildid .1
+%define _buildid .2
 
 %global major_version 2
 %global minor_version 6
-%global teeny_version 3
+%global teeny_version 6
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -24,7 +24,7 @@
 %endif
 
 
-%global release 122
+%global release 125
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -36,10 +36,7 @@
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 1.17.2
-# FileUtils had not used to have separate versioning from Ruby :/ Lets use
-# date of bundling for now. The gemified version of FileUtils has already proper
-# version (if it's going to be bundled).
-%global bundler_fileutils_version 0.20170425
+%global bundler_fileutils_version 1.1.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 2.9.4
 %global bundler_thor_version 0.20.0
@@ -54,8 +51,8 @@
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.3
 %global psych_version 3.1.0
-%global rake_version 12.3.2
-%global rdoc_version 6.1.0
+%global rake_version 12.3.3
+%global rdoc_version 6.1.2
 %global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
@@ -81,7 +78,7 @@ Release: %{release_string}%{?_trivial}%{?_buildid}
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
 # UCD: some of enc/trans/**/*.src
 License: (Ruby or BSD) and Public Domain and MIT and CC0 and zlib and UCD
-URL: http://ruby-lang.org/
+URL: https://www.ruby-lang.org/
 Source0: https://cache.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
 Source1: operating_system.rb
 # TODO: Try to push SystemTap support upstream.
@@ -129,6 +126,7 @@ source_macros(rpm.expand("%{SOURCE5}"))
 
 }
 
+# Patchset resycned with ruby-2.6.6-125.fc31
 # Fix ruby_version abuse.
 # https://bugs.ruby-lang.org/issues/11002
 Patch0: ruby-2.3.0-ruby_version.patch
@@ -168,12 +166,9 @@ Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.pat
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
-# Use larger keys to prevent test failures.
-# https://github.com/ruby/openssl/pull/217
-Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
 
 # Amazon Patches
-Patch1000: ruby-2.6.3-fix-gem_ext_cmake_builder-test.patch
+Patch100: ruby-2.6.3-fix-gem_ext_cmake_builder-test.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -193,7 +188,7 @@ BuildRequires: procps
 %{?with_systemtap:BuildRequires: %{_bindir}/dtrace}
 # RubyGems test suite optional dependencies.
 %{?with_git:BuildRequires: git}
-%{?with_cmake:BuildRequires: %{_bindir}/cmake}
+%{?with_cmake:BuildRequires: cmake}
 # Required to test hardening.
 %{?with_hardening_test:BuildRequires: %{_bindir}/checksec}
 %{?with_hostname:BuildRequires: %{_bindir}/hostname}
@@ -517,11 +512,16 @@ Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(io-console)
 Provides:   rubygem(bundler) = %{version}-%{release}
+# The following bundled() Provides: are virtual
+# https://fedoraproject.org/wiki/Bundled_Libraries
 # https://github.com/bundler/bundler/issues/3647
 Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
-Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
+Provides:   bundled(rubygem-net-http-persistent) = %{bundler_net_http_persistent_version}
 Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+# Streamline upgrade if an older version of rubygem-bundler-doc is present
+Provides:   rubygem-bundler-doc
+Obsoletes:  rubygem-bundler-doc <= %{bundler_version}
 BuildArch:  noarch
 Prefix: %{_prefix}
 
@@ -548,12 +548,11 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch11 -p1
 %patch12 -p1
+
 %patch22 -p1
-%patch23 -p1
 
-
-# Amazon patches
-%patch1000 -p1
+# Amazon Patches
+%patch100 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1017,8 +1016,25 @@ sed -i '/^end$/ i\
 
 
 %changelog
-* Sun Sep 01 2019 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Sep 07 2020 Andrew Lau <andrelau@amazon.com> - 2.6.6-125.amzn2
+- Rebuild for Amazon Linux 2 (Extras Library).
+- Fixes: CVE-2012-6708 CVE-2015-9251 CVE-2019-15845 CVE-2019-16201
+  CVE-2019-16254 CVE-2019-16255 CVE-2020-10663 CVE-2020-10933
+
+* Thu May 07 2020 Pavel Valena <pvalena@redhat.com> - 2.6.6-125
+- Upgrade to Ruby 2.6.6.
+  Resolves: rhbz#1833293
+  Resolves: rhbz#1827505
+
+* Tue Oct 08 2019 Slava Kardakov <ojab@ojab.ru> - 2.6.5-124
+- Update to Ruby 2.6.5.
+
+* Fri Aug 30 2019 Pavel Valena <pvalena@redhat.com> - 2.6.4-123
+- Update to Ruby 2.6.4.
+- Fix checksec 2.0+ compatibility.
 
 * Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.3-122
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
