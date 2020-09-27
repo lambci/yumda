@@ -1,12 +1,14 @@
 Name:		libmetalink
-Version:	0.1.2
-Release: 7%{?dist}.0.2
+Version:	0.1.3
+Release:	13%{?dist}
 Summary:	Metalink library written in C
-Group:		System Environment/Libraries
 License:	MIT
 URL:		https://launchpad.net/libmetalink
-Source0:	http://launchpad.net/libmetalink/trunk/packagingfix/+download/%{name}-%{version}.tar.bz2
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:	https://launchpad.net/libmetalink/trunk/%{name}-%{version}/+download/%{name}-%{version}.tar.bz2
+# https://bugs.launchpad.net/libmetalink/+bug/1888672
+Patch0:     libmetalink-0.1.3-ns_uri.patch
+
+BuildRequires:  gcc
 BuildRequires:	expat-devel
 BuildRequires:	CUnit-devel
 
@@ -17,14 +19,14 @@ libmetalink is a Metalink C library. It adds Metalink functionality such as
 parsing Metalink XML files to programs written in C.
 
 %prep
-%setup -q
+%autosetup -p1
 
 %build
 %configure --disable-static
-make %{?_smp_mflags}
+%make_build
 
 %install
-make install DESTDIR=$RPM_BUILD_ROOT
+%make_install
 
 %files
 %license COPYING
@@ -37,8 +39,54 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %exclude %{_libdir}/pkgconfig
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Sun Sep 27 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Aug 04 2020 Alejandro Alvarez Ayllon <aalvarez@fedoraproject.org> - 0.1.3-13
+- Apply patch fixing NULL ptr deref in initial_state_start_fun (#1860976)
+
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
+* Mon Jul 13 2020 Tom Stellard <tstellar@redhat.com> - 0.1.3-11
+- Use make macros
+- https://fedoraproject.org/wiki/Changes/UseMakeBuildInstallMacro
+
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
+* Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 0.1.3-5
+- Switch to %%ldconfig_scriptlets
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Wed Nov 16 2016 Alejandro Alvarez <aalvarez@cern.ch> - 0.1.3-1
+- New upstream release
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 0.1.2-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.1.2-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.1.2-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
