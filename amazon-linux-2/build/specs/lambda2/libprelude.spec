@@ -8,30 +8,27 @@
 %global cppmajor                12
 
 Name:           libprelude
-Version:        5.1.1
-Release:        1%{?dist}
+Version:        5.2.0
+Release:        2%{?dist}
 Summary:        Secure Connections between all Sensors and the Prelude Manager
-# Prelude is GPL-2.0+
-# libmissing is LGPL-2.1+
-License:        GPLv2+
+License:        LGPL-2.1+
 Group:          System Environment/Libraries
 URL:            https://www.prelude-siem.org/
 Source0:        https://www.prelude-siem.org/pkg/src/%{version}/%{name}-%{version}.tar.gz
 # https://www.prelude-siem.org/issues/859
-Patch0:         libprelude-5.1.0-linking.patch
+Patch0:         libprelude-5.2.0-linking.patch
 # https://www.prelude-siem.org/issues/860
-Patch1:         libprelude-5.1.0-ruby_vendorarchdir.patch
+Patch1:         libprelude-5.2.0-ruby_vendorarchdir.patch
 # https://www.prelude-siem.org/issues/863
-Patch2:         libprelude-5.1.0-fsf_address.patch
+Patch2:         libprelude-5.2.0-fsf_address.patch
 # https://www.prelude-siem.org/issues/865
-Patch3:         libprelude-5.1.0-fix_timegm.patch
+Patch3:         libprelude-5.2.0-fix_timegm.patch
 # https://www.prelude-siem.org/issues/885
-Patch4:         libprelude-5.1.0-fix_pthread_atfork.patch
+Patch4:         libprelude-5.2.0-fix_pthread_atfork.patch
 # https://www.prelude-siem.org/issues/887
-Patch5:         libprelude-5.1.0-fix_prelude_tests_timer.patch
-Patch6:         libprelude-5.1.0-fix_py38.patch
-Patch7:         libprelude-5.1.0-fix_awk_error.patch
-Patch8:         libprelude-5.1.0-fix_gtkdoc_1.32.patch
+Patch5:         libprelude-5.2.0-fix_prelude_tests_timer.patch
+Patch6:         libprelude-5.2.0-fix_gtkdoc_1.32.patch
+Patch7:         libprelude-5.2.0-clean_libprelude-config.patch
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
@@ -46,7 +43,7 @@ BuildRequires:  valgrind
 %endif
 
 # Upstream do not use explicit version of gnulib, just checkout
-# and update files. In libprelude 5.0.0, the checkout has been done
+# and update files. In libprelude 5.2.0, the checkout has been done
 # on 2018-09-03
 Provides:       bundled(gnulib) = 20180903
 
@@ -131,8 +128,14 @@ find %{buildroot} -name '.packlist' -delete
 %exclude %{_docdir}
 
 %changelog
-* Thu Jun 18 2020 Michael Hart <michael@lambci.org>
+* Mon Oct 19 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Sep 18 2020 Thomas Andrejak <thomas.andrejak@gmail.com> - 5.2.0-2
+- Clean libprelude-config
+
+* Thu Sep 17 2020 Thomas Andrejak <thomas.andrejak@gmail.com> - 5.2.0-1
+- Bump version 5.2.0
 
 * Mon Apr 06 2020 Thomas Andrejak <thomas.andrejak@gmail.com> - 5.1.1-1
 - Bump version 5.1.1
