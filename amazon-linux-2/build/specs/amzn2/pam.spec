@@ -1,9 +1,12 @@
+%define _trivial .0
+%define _buildid .1
+
 %define pam_redhat_version 0.99.11
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 22%{?dist}
+Release: 23%{?dist}%{?_trivial}%{?_buildid}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -23,7 +26,6 @@ Source10: config-util.pamd
 Source11: dlopen.sh
 Source12: system-auth.5
 Source13: config-util.5
-Source14: 20-nproc.conf
 Source15: pamtmp.conf
 Source16: postlogin.pamd
 Source17: postlogin.5
@@ -69,6 +71,10 @@ Patch54: pam-1.1.8-man-space.patch
 Patch55: pam-1.1.8-tty-audit-uid-range.patch
 Patch56: pam-1.1.8-faillock-admin-group.patch
 Patch57: pam-1.1.8-mkhomedir-inroot.patch
+Patch58: pam-1.1.8-authtok-verified.patch
+Patch59: pam-1.1.8-man-fixes.patch
+Patch60: pam-1.1.8-unix-max-fd-no.patch
+Patch61: pam-1.1.8-loginuid-containers.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -171,6 +177,10 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch55 -p1 -b .uid-range
 %patch56 -p1 -b .admin-group
 %patch57 -p1 -b .mkhomedir-inroot
+%patch58 -p1 -b .authtok-verified
+%patch59 -p1 -b .manfix
+%patch60 -p1 -b .max-fd-no
+%patch61 -p1 -b .containers
 
 %build
 autoreconf -i
@@ -217,7 +227,6 @@ install -m 644 %{SOURCE8} $RPM_BUILD_ROOT%{_pamconfdir}/fingerprint-auth
 install -m 644 %{SOURCE9} $RPM_BUILD_ROOT%{_pamconfdir}/smartcard-auth
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
 install -m 644 %{SOURCE16} $RPM_BUILD_ROOT%{_pamconfdir}/postlogin
-install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/20-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
@@ -388,7 +397,6 @@ fi
 %config(noreplace) %{_secconfdir}/group.conf
 %config(noreplace) %{_secconfdir}/limits.conf
 %dir %{_secconfdir}/limits.d
-%config(noreplace) %{_secconfdir}/limits.d/20-nproc.conf
 %config(noreplace) %{_secconfdir}/namespace.conf
 %dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
@@ -419,6 +427,16 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Sep 22 2020 Jeremiah Mahler <jmmahler@amazon.com> 1.8-23.amzn2.0.1
+- remove (nproc) process limits
+
+* Tue Aug  6 2019 Tomáš Mráz <tmraz@redhat.com> 1.1.8-23
+- pam_get_authtok_verify: ensure no double verification happens
+- manual page fixes for pam_tty_audit and pam_wheel
+- pam_unix: lower the excessive maximum number of closed fd descriptors
+  when spawning handlers
+- pam_loginuid: do not prevent login in unprivileged containers
+
 * Fri Nov  3 2017 Tomáš Mráz <tmraz@redhat.com> 1.1.8-22
 - pam_mkhomedir: do not fail creating parent dir if in /
 
