@@ -11,7 +11,7 @@ Summary: CUPS printing system
 Name: cups
 Epoch: 1
 Version: 1.6.3
-Release: 40%{?dist}
+Release: 51%{?dist}
 License: GPLv2
 Group: System Environment/Daemons
 Url: http://www.cups.org/
@@ -103,6 +103,15 @@ Patch72: cups-1.6.3-page-count.patch
 Patch73: 0001-Fix-stuck-multi-file-jobs-Issue-5359-Issue-5413.patch
 Patch74: 0001-The-scheduler-now-uses-the-getgrouplist-function-whe.patch
 Patch75: cups-dont-send-http-options-field.patch
+Patch76: cups-CVE-2018-4180.patch
+Patch77: cups-CVE-2018-4700.patch
+Patch78: cups-unlink-filename.patch
+Patch79: 0001-Multiple-security-disclosure-issues.patch
+Patch80: cups-str4528.patch
+Patch81: 0001-Fix-cupsGetPPD-with-IPP-print-queues-STR-4725.patch
+Patch82: cups-memory-consumption.patch
+Patch83: cups-cupsdsavejob-sigsegv.patch
+Patch84: cups-cve-rebound-fix.patch
 
 Patch100: cups-lspp.patch
 
@@ -324,6 +333,28 @@ natively, without needing the lp/lpr commands.
 %patch74 -p1 -b .getgrouplist
 # 1700637 - Stop advertising the HTTP methods that are supported
 %patch75 -p1 -b .dont-send-http-options-field
+# 1608764 - CVE-2018-4180 cups
+# 1607291 - CVE-2018-4181 cups
+# backported patch for multiple security issues
+# prevent passing malicious changes of for example printing backend
+# through configuration
+%patch76 -p1 -b .harden-env-var-parsing
+# 1651575 - CVE-2018-4700 cups: Predictable session cookie breaks CSRF protection
+%patch77 -p1 -b .session-cookie-fix
+# 1687571 - cupsd doesn't clean up temp files if client connection is terminated abnormally
+%patch78 -p1 -b .unlink-tmp-file
+# 1774460 - CVE-2019-8696 and CVE-2019-8675 [rhel-7]
+%patch79 -p1 -b .snmp-cve
+# 1753809 - Settings in ~/.cups/client.conf aren't used
+%patch80 -p1 -b .home-client
+# 1715907 - CUPS- client: cupsGetPPD3() function tries to load PPD from IPP printer
+# and not from the CUPS queue
+%patch81 -p1 -b .download-ppd
+# 1672212 - cupsd eats a lot of memory when lots of queue with extensive PPDs are created
+%patch82 -p1 -b .memory-consumption
+# 1813413 - [RHEL 7.7] segfault in cupsdSaveJob() caused by no space in /var
+%patch83 -p1 -b .cupsdsavejob-sigsegv
+%patch84 -p1 -b .cve-rebound-fix
 
 sed -i -e '1iMaxLogSize 0' conf/cupsd.conf.in
 
@@ -381,8 +412,44 @@ make BUILDROOT=$RPM_BUILD_ROOT install
 %exclude %{_unitdir}
 
 %changelog
-* Tue Feb 11 2020 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Apr 20 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-51
+- 1823758 - CVE-2017-18190 cups: DNS rebinding attacks via incorrect whitelist [rhel-7]
+
+* Wed Mar 25 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-50
+- 1813413 - [RHEL 7.7] segfault in cupsdSaveJob() caused by no space in /var
+
+* Fri Feb 14 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-49
+- more covscan issues raised from the fix 1672212
+
+* Fri Feb 14 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-48
+- fixing covscan issue from 1672212
+
+* Fri Feb 14 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-47
+ - 1672212 - cupsd eats a lot of memory when lots of queue with extensive PPDs are created
+
+* Tue Feb 11 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-46
+- 1715907 - CUPS- client: cupsGetPPD3() function tries to load PPD from IPP printer and not from the CUPS queue
+
+* Thu Feb 06 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-45
+- fixing covscan issue from 1774460
+
+* Mon Feb 03 2020 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-44
+- 1774460 - CVE-2019-8696 cups: stack-buffer-overflow in libcups's asn1_get_packed function [rhel-7]
+- 1774461 - CVE-2019-8675 cups: stack-buffer-overflow in libcups's asn1_get_type function [rhel-7]
+- 1753809 - Settings in ~/.cups/client.conf aren't used
+
+* Thu Aug 08 2019 Tomas Korbar <tkorbar@redhat.com> - 1:1.6.3-43
+- 1687571 - cupsd doesn't clean tmp files if client conn is terminated abnormally
+
+* Wed Jul 31 2019 Tomas Korbar <tkorbar@redhat.com> - 1:1.6.3-42
+- 1651575 - CVE-2018-4700 cups
+
+* Wed Jul 31 2019 Tomas Korbar <tkorbar@redhat.com> - 1:1.6.3-41
+- 1608764 - CVE-2018-4180 cups
+- 1607291 - CVE-2018-4181 cups
 
 * Wed Apr 17 2019 Zdenek Dohnal <zdohnal@redhat.com> - 1:1.6.3-40
 - 1700637 - Stop advertising the HTTP methods that are supported
