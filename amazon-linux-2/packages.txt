@@ -399,8 +399,8 @@ libseccomp.x86_64                  2.4.1-1.lambda2                       lambda2
 libsecret.x86_64                   0.18.5-2.lambda2.0.2                  lambda2
 libsigc++20.x86_64                 2.10.0-1.lambda2.0.2                  lambda2
 libsmartcols.x86_64                2.30.2-2.lambda2.0.4                  lambda2
-libsndfile.x86_64                  1.0.25-11.lambda2                     lambda2
-libsndfile-utils.x86_64            1.0.25-11.lambda2                     lambda2
+libsndfile.x86_64                  1.0.25-12.lambda2                     lambda2
+libsndfile-utils.x86_64            1.0.25-12.lambda2                     lambda2
 libsodium.x86_64                   1.0.18-2.lambda2                      lambda2
 libsoup.x86_64                     2.56.0-6.lambda2                      lambda2
 libssh2.x86_64                     1.4.3-12.lambda2.2.2                  lambda2
