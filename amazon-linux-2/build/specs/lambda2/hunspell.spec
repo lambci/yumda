@@ -1,7 +1,7 @@
 Name:      hunspell
 Summary:   A spell checker and morphological analyzer library
 Version:   1.3.2
-Release: 15%{?dist}.0.2
+Release:   16%{?dist}
 Source:    http://downloads.sourceforge.net/%{name}/hunspell-%{version}.tar.gz
 Group:     System Environment/Libraries
 URL:       http://hunspell.sourceforge.net/
@@ -17,6 +17,7 @@ Patch1: hunspell.rhbz918938.patch
 Patch2: hunspell-aarch64.patch
 Patch3: 0001-Resolves-rhbz-1261421-crash-on-mashing-hangul-korean.patch
 Patch4: hunspell.rhbz915448.patch
+Patch5: 0001-invalid-read-memory-access-624.patch
 
 Prefix: %{_prefix}
 
@@ -33,6 +34,7 @@ Curses library, Ispell pipe interface, OpenOffice.org UNO module.
 %patch2 -p1 -b .aarch64
 %patch3 -p1 -b .rhbz-1261421-crash-on-mashing-hangul-korean
 %patch4 -p0 -b .rhbz915448
+%patch5 -p1 -b .CVE-2019-16707
 
 %build
 configureflags="--disable-rpath --disable-static --without-ui --without-readline"
@@ -78,8 +80,11 @@ mkdir $RPM_BUILD_ROOT%{_datadir}/myspell
 %exclude %{_bindir}/wordforms
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Apr 14 2020 Caolán McNamara <caolanm@redhat.com> - 1.3.2-16
+- Resolves: rhbz#1775556 CVE-2019-16707
 
 * Wed Aug 10 2016 Caolán McNamara <caolanm@redhat.com> - 1.3.2-15
 - Resolves: rhbz#1262755 bad UTF-8 char count in pipe mode
