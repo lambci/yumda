@@ -74,7 +74,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.21
+%global upver        7.3.23
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -1563,8 +1563,11 @@ rm -f README.{Zeus,QNX,CVS-RULES}
 %exclude %{_mandir}
 
 %changelog
-* Fri Sep 11 2020 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Oct 20 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.23-1
+- Package updated to 7.3.23
 
 * Mon Aug 17 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.21-1
 - Package updated to 7.3.21
