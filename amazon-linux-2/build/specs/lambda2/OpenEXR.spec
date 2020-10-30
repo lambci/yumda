@@ -1,7 +1,9 @@
+%define _trivial .0
+%define _buildid .1
 
 Name:	 OpenEXR
 Version: 1.7.1
-Release: 7%{?dist}.0.2
+Release: 8%{?dist}%{?_trivial}%{?_buildid}
 Summary: A high dynamic-range (HDR) image file format
 
 Group:	 System Environment/Libraries
@@ -13,7 +15,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %global soname 7
 
 ## fedora patches
-%if 0%{?fedora} < 19 && 0%{?rhel} < 7
+%if 0%{?fedora} < 19 && 0%{?rhel} < 7 && ! 0%{?amzn} >= 2
 # revert soname bump
 # upstream missed bumping to so7 for OpenEXR-1.7.0, decided to do so now for
 # OpenEXR-1.7.1.  given fedora has shipped OpenEXR-1.7.0 since f15, bumping
@@ -22,6 +24,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Patch0: openexr-1.7.1-so6.patch
 BuildRequires: automake libtool
 %endif
+
+Patch1: CVE-2020-11764.patch
+Patch2: CVE-2020-11763.patch
+Patch3: CVE-2020-11761.patch
 
 Obsoletes: openexr < %{version}-%{release}
 Provides:  openexr = %{version}-%{release}
@@ -56,6 +62,10 @@ Prefix: %{_prefix}
 ./bootstrap
 %endif
 
+%patch1 -p1 -b .CVE-2020-11764
+%patch2 -p1 -b .CVE-2020-11763
+%patch3 -p1 -b .CVE-2020-11761
+
 %build
 %configure --disable-static
 
@@ -79,7 +89,6 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 %{_libdir}/libIlmImf.so.%{soname}*
 
 %exclude %{_includedir}
-%exclude %{_mandir}
 %exclude %{_libdir}/*.la
 %exclude %{_libdir}/*.so
 %exclude %{_libdir}/pkgconfig
@@ -87,8 +96,17 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Oct 07 2020 Nikhil Dikshit <nikhildi@amazon.com> - 1.7.1-8
+- Adding one more condition for Amazon Linux 2 to avoid using
+openexr-1.7.1-so6.patch.
+
+* Tue Jun 02 2020 Josef Ridky <jridky@redhat.com> - 1.7.1-8
+- fix CVE-2020-11764 (#1833552)
+- fix CVE-2020-11763 (#1833566)
+- fix CVE-2020-11761 (#1834461)
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.7.1-7
 - Mass rebuild 2014-01-24
