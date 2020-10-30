@@ -1,9 +1,9 @@
 %global _trivial .0
-%global _buildid .3
+%global _buildid .1
 Summary: Windows MetaFile Library
 Name: libwmf
 Version: 0.2.8.4
-Release: 41%{?dist}%{?_trivial}%{?_buildid}
+Release: 44%{?dist}%{?_trivial}%{?_buildid}
 Group: System Environment/Libraries
 #libwmf is under the LGPLv2+, however...
 #1. The tarball contains an old version of the urw-fonts under GPL+.
@@ -63,11 +63,10 @@ Patch17: libwmf-0.2.8.4-CVE-2015-0848+CVE-2015-4588.patch
 Patch18: libwmf-0.2.8.4-CVE-2015-4695.patch
 # CVE-2015-4696
 Patch19: libwmf-0.2.8.4-CVE-2015-4696.patch
-
-# Amazon Patches
-
 # CVE-2019-6978
-Patch100: libwmf-0.2.8.4-CVE-2019-6978.patch
+Patch20: 0001-merge-in-fixes-for-libgd-CVE-2019-6978.patch
+# rhbz#1840569
+Patch21: libwmf-0.2.8.4.newurwfonts.patch
 
 Requires: urw-fonts
 Requires: %{name}-lite = %{version}-%{release}
@@ -109,14 +108,15 @@ A library for parsing Windows MetaFile vector graphics (WMF).
 %patch17 -p1 -b .CVE-2015-0848+CVE-2015-4588
 %patch18 -p1 -b .CVE-2015-4695
 %patch19 -p1 -b .CVE-2015-4696
-%patch100 -p1 -b .CVE-2019-6978
+%patch20 -p1 -b .CVE-2019-6978
+%patch21 -p1 -b .newurwfonts
 f=README ; iconv -f iso-8859-2 -t utf-8 $f > $f.utf8 ; mv $f.utf8 $f
 
 %build
 rm configure.ac
 ln -s patches/acconfig.h acconfig.h
 autoreconf -i -f
-%configure --with-libxml2 --disable-static --disable-dependency-tracking
+%configure --with-libxml2 --disable-static --disable-dependency-tracking --with-gsfontdir=/usr/share/fonts/urw-base35
 make %{?_smp_mflags}
 
 %install
@@ -153,21 +153,24 @@ sed -i $RPM_BUILD_ROOT%{_datadir}/libwmf/fonts/fontmap -e 's#libwmf/fonts#fonts/
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
- Wed Mar 06 2019 Paul Ezvan <paulezva@amazon.com> - 0.2.8.4-41.3
-- Fix CVE-2019-6978
+* Wed May 27 2020 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-44
+- Resolves: rhbz#1840569 adapt to new urw-fonts
 
-* Wed Sep 02 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-41
-- Related: rhbz#1239161 fix patch context
-
-* Mon Jun 08 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-40
-- Resolves: rhbz#1239161 CVE-2015-0848 CVE-2015-4588 CVE-2015-4695 CVE-2015-4696
-
-* Mon Jun 08 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-39.1
-- Resolves: rhbz#1227430 CVE-2015-0848 heap overflow when decoding BMP images
-
+* Mon Mar 30 2020 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-43
+- Resolves: rhbz#1679005 CVE-2019-6978
+  
+* Wed Sep 02 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-42
+- Related: rhbz#1239162 fix patch context
+  
+* Tue Jul 07 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-41
+- Resolves: rhbz#1239162 CVE-2015-0848 CVE-2015-4588 CVE-2015-4695 CVE-2015-4696
+  
+* Mon May 08 2015 Caolán McNamara <caolanm@redhat.com> - 0.2.8.4-40
+- Resolves: rhbz#1227431 CVE-2015-0848 libwmf: heap overflow when decoding BMP images
+  
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.2.8.4-39
 - Mass rebuild 2014-01-24
 
