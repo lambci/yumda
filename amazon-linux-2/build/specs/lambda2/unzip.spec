@@ -1,7 +1,7 @@
 Summary: A utility for unpacking zip files
 Name: unzip
 Version: 6.0
-Release: 20%{?dist}
+Release: 21%{?dist}
 License: BSD
 Group: Applications/Archiving
 Source: http://downloads.sourceforge.net/infozip/unzip60.tar.gz
@@ -42,7 +42,9 @@ Patch17: unzip-6.0-symlink.patch
 #Patch17: unzip-6.0-alt-iconv-utf8-print.patch
 
 Patch24: unzip-6.0-cve-2018-18384.patch
-
+Patch25: unzip-zipbomb-part1.patch
+Patch26: unzip-zipbomb-part2.patch
+Patch27: unzip-zipbomb-part3.patch
 
 URL: http://www.info-zip.org/UnZip.html
 BuildRequires:  bzip2-devel
@@ -87,6 +89,9 @@ a zip archive.
 
 
 %patch24 -p1 -b .cve-2018-18384
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
 
 %build
 make -f unix/Makefile CF_NOOPT="-I. -DUNIX $RPM_OPT_FLAGS -DNOMEMCPY -DNO_LCHMOD" LFLAGS2="%{?__global_ldflags}" generic_gcc %{?_smp_mflags}
@@ -107,8 +112,12 @@ popd
 %exclude %{_mandir}
 
 %changelog
-* Sun Nov 1 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Nov 04 2019 Jakub Martisko <jamartis@redhat.com> - 6.0-21
+- Fix CVE-2019-13232
+- Resolves: CVE-2019-13232
 
 * Mon Feb 25 2019 Jakub Martisko <jamartis@redhat.com> - 6.0-20
 - Fix CVE-2018-18384
