@@ -3,7 +3,7 @@
 %bcond_with tokudb
 
 Name: mariadb
-Version: 5.5.64
+Version: 5.5.68
 Release: 1%{?dist}
 Epoch: 1
 
@@ -51,6 +51,8 @@ Patch14: mariadb-basedir.patch
 Patch17: mariadb-covscan-signexpr.patch
 Patch18: mariadb-covscan-stroverflow.patch
 Patch20: mariadb-mysql_secure_installation.patch
+Patch21: mariadb-norelocatable.patch
+Patch22: mariadb-client-memory-leak.patch
 
 BuildRequires: perl, readline-devel, openssl-devel
 BuildRequires: cmake, ncurses-devel, zlib-devel, libaio-devel
@@ -155,6 +157,8 @@ MariaDB is a community developed branch of MySQL.
 %patch17 -p1
 %patch18 -p1
 %patch20 -p1
+%patch21 -p1
+%patch22 -p1
 
 # workaround for upstream bug #56342
 rm -f mysql-test/t/ssl_8k_key-master.opt
@@ -524,8 +528,38 @@ fi
 
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed May 13 2020 Michal Schorm <mschorm@redhat.com> - 1:5.5.68-1
+- Rebase to 5.5.68
+  This is the last upstream release. This major version reached upstream EOL
+- Related to: rhbz#1834835
+
+* Thu Mar 26 2020 Lukas Javorsky <ljavorsk@redhat.com> - 1:5.5.67-2
+- Resolves: rhbz#1689827
+
+* Tue Feb 25 2020 Michal Schorm <mschorm@redhat.com> - 1:5.5.67-1
+- Rebase to 5.5.67
+- Related to: rhbz#1834835
+- CVE's fixed: rhbz#1821939
+  CVE-2020-2574
+
+* Mon Nov 18 2019 Michal Schorm <mschorm@redhat.com> - 1:5.5.66-1
+- Rebase to 5.5.66
+- Related to: rhbz#1834835
+- CVE's fixed: rhbz#1769276 rhbz#1830110
+  CVE-2019-2974 CVE-2020-2780
+
+* Sat Aug 17 2019 Honza Horak <hhorak@redhat.com> - 1:5.5.65-1
+- Rebase to 5.5.65
+  Also fixes:
+  CVE-2019-2737 CVE-2019-2739 CVE-2019-2740 CVE-2019-2805
+  Resolves: #1741357
+- Revert upstream changes that make the mysql_install_db relocatable
+  because it broke mysql_install_db when run without --rpm arg
+  Resolves: #1731062
+- Add openssl BR that was missing for the tests
 
 * Thu May 02 2019 Michal Schorm <mschorm@redhat.com> - 1:5.5.64-1
 - Rebase to 5.5.64
