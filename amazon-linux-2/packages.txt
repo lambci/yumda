@@ -435,7 +435,7 @@ libwmf-lite.x86_64                 0.2.8.4-44.lambda2.0.1                lambda2
 libxcb.x86_64                      1.12-1.lambda2.0.2                    lambda2
 libxkbcommon.x86_64                0.7.1-3.lambda2                       lambda2
 libxkbcommon-x11.x86_64            0.7.1-3.lambda2                       lambda2
-libxml2.x86_64                     2.9.1-6.lambda2.4.1                   lambda2
+libxml2.x86_64                     2.9.1-6.lambda2.5.1                   lambda2
 libxshmfence.x86_64                1.2-1.lambda2.0.2                     lambda2
 libxslt.x86_64                     1.1.28-5.lambda2.0.2                  lambda2
 libyaml.x86_64                     0.1.4-11.lambda2.0.2                  lambda2
