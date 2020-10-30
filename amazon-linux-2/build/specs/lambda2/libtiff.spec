@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 32%{?dist}
+Release: 35%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -53,6 +53,8 @@ Patch40: libtiff-CVE-2018-17101.patch
 Patch41: libtiff-CVE-2018-18557.patch
 Patch42: libtiff-CVE-2018-18661.patch
 Patch43: libtiff-coverity.patch
+Patch44: libtiff-CVE-2019-14973.patch
+Patch45: libtiff-CVE-2019-17546.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -125,6 +127,8 @@ image files using the libtiff library.
 %patch41 -p1
 %patch42 -p1
 %patch43 -p1
+%patch44 -p1
+%patch45 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -162,8 +166,20 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %exclude %{_datadir}
 
 %changelog
-* Mon Oct 28 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Mon Apr 06 2020 Nikola Forró <nforro@redhat.com> - 4.0.3-35
+- Fix two resource leaks
+  Related: #1771371
+
+* Thu Feb 20 2020 Nikola Forró <nforro@redhat.com> - 4.0.3-34
+- Fix CVE-2019-17546
+  Resolves: #1771371
+
+* Thu Feb 20 2020 Nikola Forró <nforro@redhat.com> - 4.0.3-33
+- Fix CVE-2019-14973
+  Resolves: #1755704
 
 * Tue Apr 30 2019 Nikola Forró <nforro@redhat.com> - 4.0.3-32
 - Fix one more Covscan defect

@@ -409,8 +409,8 @@ libtdb.x86_64                      1.3.18-1.lambda2                      lambda2
 libtevent.x86_64                   0.9.39-1.lambda2                      lambda2
 libthai.x86_64                     0.1.14-9.lambda2.0.2                  lambda2
 libtheora.x86_64                   1:1.1.1-8.lambda2.0.2                 lambda2
-libtiff.x86_64                     4.0.3-32.lambda2                      lambda2
-libtiff-tools.x86_64               4.0.3-32.lambda2                      lambda2
+libtiff.x86_64                     4.0.3-35.lambda2                      lambda2
+libtiff-tools.x86_64               4.0.3-35.lambda2                      lambda2
 libtirpc.x86_64                    0.2.4-0.16.lambda2                    lambda2
 libtool.x86_64                     2.4.2-22.2.lambda2.0.2                lambda2
 libtool-ltdl.x86_64                2.4.2-22.2.lambda2.0.2                lambda2
