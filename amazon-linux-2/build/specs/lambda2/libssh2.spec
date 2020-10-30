@@ -1,4 +1,4 @@
-%define _buildid .2
+%define _buildid .3
 # Fedora 10 onwards support noarch subpackages; by using one, we can
 # put the arch-independent docs in a common subpackage and save lots
 # of space on the mirrors
@@ -53,6 +53,9 @@ Patch101:	0101-libssh2-1.4.3-CVE-2016-0787.patch
 Patch1001:	CVE-2019-3858.patch
 Patch1002:	CVE-2019-3861.patch
 Patch1003:	CVE-2019-3862.patch
+
+#Amazon Patch for CVE-2019-17498 - https://git.centos.org/rpms/libssh2/blob/c452912ffa32658dcd5a0f909c555d2cd55a29c6/f/SOURCES/0010-libssh2-1.8.0-CVE-2019-17498.patch
+Patch1004:      0010-libssh2-1.8.0-CVE-2019-17498.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -nu)
 BuildRequires:	openssl-devel
@@ -132,6 +135,9 @@ sed -i s/4711/47%{?__isa_bits}/ tests/ssh2.{c,sh}
 %patch1002 -p1
 %patch1003 -p1
 
+#Amazon patch for CVE-2019-17498 - https://git.centos.org/rpms/libssh2/blob/c452912ffa32658dcd5a0f909c555d2cd55a29c6/f/SOURCES/0010-libssh2-1.8.0-CVE-2019-17498.patch
+%patch1004 -p1 
+
 # Make sshd transition appropriately if building in an SELinux environment
 %if !(0%{?fedora} >= 17 || 0%{?rhel} >= 7)
 chcon $(/usr/sbin/matchpathcon -n /etc/rc.d/init.d/sshd) tests/ssh2.sh || :
@@ -161,8 +167,11 @@ make install DESTDIR=%{buildroot} INSTALL="install -p"
 %exclude %{_libdir}/pkgconfig
 
 %changelog
-* Sun Sep 29 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Tue Oct 13 2020 Jyotsna Prasad <prasadjy@amazon.com> 1.4.3-12.amzn2.2.3
+* Backported patch for CVE-2019-17498
 
 * Tue Aug 27 2019 Jason Green <jasg@amazon.com> 1.4.3-12.amzn2.2.2
 * fix for CVE-2019-3862
