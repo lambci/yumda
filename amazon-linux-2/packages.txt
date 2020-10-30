@@ -119,7 +119,7 @@ elfutils-libs.x86_64               0.176-2.lambda2                       lambda2
 enchant.x86_64                     1:1.6.0-8.lambda2.0.2                 lambda2
 enchant-aspell.x86_64              1:1.6.0-8.lambda2.0.2                 lambda2
 enchant-voikko.x86_64              1:1.6.0-8.lambda2.0.2                 lambda2
-expat.x86_64                       2.1.0-10.lambda2.0.2                  lambda2
+expat.x86_64                       2.1.0-12.lambda2                      lambda2
 fftw.x86_64                        3.3.3-8.lambda2.0.2                   lambda2
 fftw-libs.x86_64                   3.3.3-8.lambda2.0.2                   lambda2
 fftw-libs-double.x86_64            3.3.3-8.lambda2.0.2                   lambda2
