@@ -84,7 +84,7 @@ compat-gcc-48-gfortran.x86_64      4.8.5-16.lambda2.0.2                  lambda2
 compat-gcc-48-libgfortran.x86_64   4.8.5-16.lambda2.0.2                  lambda2
 compat-libical1.x86_64             1.0.1-2.lambda2.0.1                   lambda2
 compat-libmpc.x86_64               1.0.1-3.lambda2.0.2                   lambda2
-cpio.x86_64                        2.11-27.lambda2                       lambda2
+cpio.x86_64                        2.11-28.lambda2                       lambda2
 cpp.x86_64                         7.3.1-9.lambda2                       lambda2
 cracklib.x86_64                    2.9.0-11.lambda2.0.2                  lambda2
 cracklib-dicts.x86_64              2.9.0-11.lambda2.0.2                  lambda2

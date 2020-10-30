@@ -1,7 +1,7 @@
 Summary: A GNU archiving program
 Name: cpio
 Version: 2.11
-Release: 27%{?dist}
+Release: 28%{?dist}
 License: GPLv3+
 Group: Applications/Archiving
 URL: http://www.gnu.org/software/cpio/
@@ -53,6 +53,10 @@ Patch15: cpio-2.11-reproducible.patch
 # ~> upstream fd262d116c4564c1796
 Patch16: cpio-2.11-recovery.patch
 
+# Improper input validation
+# ~> upstream 7554e3e42cd72f6f8304410c47fe6f8918e9bfd7
+Patch17: cpio-2.11-CVE-2019-14866.patch
+
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Provides: bundled(gnulib)
@@ -94,6 +98,7 @@ Install cpio if you need a program to manage file archives.
 %patch14 -p1 -b .crc-big-files
 %patch15 -p1 -b .reproducible
 %patch16 -p1 -b .recovery
+%patch17 -p1
 
 autoreconf -v
 
@@ -127,8 +132,11 @@ rm -rf ${RPM_BUILD_ROOT}
 %exclude %{_datadir}
 
 %changelog
-* Wed Oct 30 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Fri Mar 13 2020 Ondrej Dubaj <odubaj@redhat.com> - 2.11-28
+- Improper input validation when writing tar header fields (#1766222)
 
 * Mon Feb 06 2017 Pavel Raiskup <praiskup@redhat.com> - 2.11-27
 - don't segfault during recovery (rhbz#1318084)
