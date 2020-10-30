@@ -1,11 +1,11 @@
 Name:       SDL
 Version:    1.2.15
-Release:    15%{?dist}
+Release:    17%{?dist}
 Summary:    A cross-platform multimedia library
 Group:      System Environment/Libraries
 URL:        http://www.libsdl.org/
 # The license of the file src/video/fbcon/riva_mmio.h is bad, but the contents
-# of the file has been relicensed to MIT in 2008 by Nvidia for the 
+# of the file has been relicensed to MIT in 2008 by Nvidia for the
 # xf86_video-nv driver, therefore it can be considered ok.
 License:    LGPLv2+
 # Source: http://www.libsdl.org/release/%%{name}-%%{version}.tar.gz
@@ -27,6 +27,19 @@ Patch4:     SDL-1.2.15-add_sdl_config_man.patch
 Patch5:     SDL-1.2.15-no-default-backing-store.patch
 # upstream bug #4538, in upstream after 1.2.15
 Patch6:    SDL-1.2.15-CVE-2019-13616-validate_image_size_when_loading_BMP_files.patch
+
+Patch7:    0001-CVE-2019-7572-Fix-a-buffer-overread-in-IMA_ADPCM_nib.patch
+Patch8:    0002-CVE-2019-7578-Fix-a-buffer-overread-in-InitIMA_ADPCM.patch
+Patch9:    0003-CVE-2019-7574-Fix-a-buffer-overread-in-IMA_ADPCM_dec.patch
+Patch10:   0004-CVE-2019-7577-Fix-a-buffer-overread-in-MS_ADPCM_deco.patch
+Patch11:   0005-CVE-2019-7577-Fix-a-buffer-overread-in-MS_ADPCM_nibb.patch
+Patch12:   0006-CVE-2019-7572-Fix-a-buffer-overwrite-in-IMA_ADPCM_de.patch
+Patch13:   0007-CVE-2019-7573-CVE-2019-7576-Fix-buffer-overreads-in-.patch
+Patch14:   0008-CVE-2019-7575-Fix-a-buffer-overwrite-in-MS_ADPCM_dec.patch
+Patch15:   0009-CVE-2019-7635-Reject-BMP-images-with-pixel-colors-ou.patch
+Patch16:   0010-CVE-2019-7638-CVE-2019-7636-Refuse-loading-BMP-image.patch
+Patch17:   0011-CVE-2019-7637-Fix-in-integer-overflow-in-SDL_Calcula.patch
+Patch18:   0001-Don-t-use-C99-features.patch
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  audiofile-devel
@@ -60,8 +73,20 @@ to provide fast access to the graphics frame buffer and audio device.
 %patch4 -p1 -b .sdl_config_man
 %patch5 -p1 -b .backing_store
 %patch6 -p1 -b .0006
+%patch7 -p1 -b .0007
+%patch8 -p1 -b .0008
+%patch9 -p1 -b .0009
+%patch10 -p1 -b .0010
+%patch11 -p1 -b .0011
+%patch12 -p1 -b .0012
+%patch13 -p1 -b .0013
+%patch14 -p1 -b .0014
+%patch15 -p1 -b .0015
+%patch16 -p1 -b .0016
+%patch17 -p1 -b .0017
+%patch18 -p1 -b .0018
 
-for F in CREDITS; do 
+for F in CREDITS; do
     iconv -f iso8859-1 -t utf-8 < "$F" > "${F}.utf"
     touch --reference "$F" "${F}.utf"
     mv "${F}.utf" "$F"
@@ -106,12 +131,23 @@ rm -f %{buildroot}%{_libdir}/*.la
 %exclude %{_mandir}
 
 %changelog
-* Mon Dec 23 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
-* Wed Nov 27 2019 Tomas Pelka <tpelka@redhat.com> - 1.2.15-15
+* Fri Feb 14 2020 Wim Taymans <wtaymans@redhat.com> - 1.2.15-17
+- Fix Some CVEs: CVE-2019-7572, CVE-2019-7573, CVE-2019-7574,
+  CVE-2019-7575, CVE-2019-7576, CVE-2019-7577, CVE-2019-7578,
+  CVE-2019-7635, CVE-2019-7636, CVE-2019-7637, CVE-2019-7638
+- Resolves: rhbz#1716201, rhbz#1716202, rhbz#1716206,
+- Resolves: rhbz#1716207, rhbz#1716208
+
+* Mon Dec 16 2019 Tomas Pelka <tpelka@redhat.com> - 1.2.15-16
+- Need to bump version to avoid conflict with 7.7.z build
+- Resolves: rhbz#1756277
+
+* Fri Aug 30 2019 Petr Pisar <ppisar@redhat.com> - 1.2.15-15
 - Fix CVE-2019-13616 (a heap buffer over-read in BlitNtoN) (bug #1747237)
-- Resolves: rhbz#1756276
+- Resolves: rhbz#1756277
 
 * Wed Jul 29 2015 Petr Pisar <ppisar@redhat.com> - 1.2.15-14
 - Do not harness backing store by default. Export SDL_VIDEO_X11_BACKINGSTORE
@@ -233,7 +269,7 @@ rm -f %{buildroot}%{_libdir}/*.la
 - Rewrite pulseaudio support to stop the crackle crackle with the
   new glitch free pulseaudio, this also gives us much better latency,
   as good as with directly using alsa (rh 474745, sdl 698)
-- Workaround an obscure bug in the inline-asm revcpy function (by disabling it) 
+- Workaround an obscure bug in the inline-asm revcpy function (by disabling it)
   This fixes Ri-li crashing on i386 (rh 484121, rh 484362, sdl 699)
 
 * Tue Sep  2 2008 Thomas Woerner <twoerner@redhat.com> 1.2.13-6
@@ -318,7 +354,7 @@ rm -f %{buildroot}%{_libdir}/*.la
 - added build requires for automake and autoconf
 
 * Tue Jul 25 2006 Thomas Woerner <twoerner@redhat.com> 1.2.10-6
-- dropped libXt build requires, because libSDL does not need libXt at all - 
+- dropped libXt build requires, because libSDL does not need libXt at all -
   this was an autofoo bug (fixed already)
 - fixed multilib devel conflicts (#192749)
 - added buidrequires for imake: AC_PATH_X needs imake currently
@@ -540,7 +576,7 @@ rm -f %{buildroot}%{_libdir}/*.la
 - Rebuild to eliminate libXv/libXxf86dga deps.
 
 * Fri Jun 29 2001 Preston Brown <pbrown@redhat.com>
-- output same libraries for sdl-config whether --libs or --static-libs 
+- output same libraries for sdl-config whether --libs or --static-libs
   selected.  Fixes compilation of most SDL programs.
 - properly packaged new HTML documentation
 
@@ -607,7 +643,7 @@ rm -f %{buildroot}%{_libdir}/*.la
 
 * Wed Jan 19 2000 Sam Lantinga <slouken@devolution.com>
 - Re-integrated spec file into SDL distribution
-- 'name' and 'version' come from configure 
+- 'name' and 'version' come from configure
 - Some of the documentation is devel specific
 - Removed SMP support from %%build - it doesn't work with libtool anyway
 
