@@ -1,7 +1,7 @@
 Summary: PDF rendering library
 Name:    poppler
 Version: 0.26.5
-Release: 42%{?dist}
+Release: 43%{?dist}
 License: (GPLv2 or GPLv3) and GPLv2+ and LGPLv2+ and MIT
 Group:   Development/Libraries
 URL:     http://poppler.freedesktop.org/
@@ -129,6 +129,9 @@ Patch44: poppler-0.26.5-JPXStream-length.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1753850
 Patch45: poppler-0.26.5-parser-integer-overflow.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1797453
+Patch46: poppler-0.26.5-tilingpatternfill-crash.patch
+
 Requires: poppler-data >= 0.4.0
 BuildRequires: automake libtool
 BuildRequires: gettext-devel
@@ -238,6 +241,7 @@ converting PDF files to a number of other formats.
 %patch43 -p1 -b .jpeg2000-component-size
 %patch44 -p1 -b .jpxstream-length
 %patch45 -p1 -b .parser-integer-overflow
+%patch46 -p1 -b .divide-by-zero
 
 # hammer to nuke rpaths, recheck on new releases
 autoreconf -i -f
@@ -295,8 +299,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Aug 25 2020 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Apr 15 2020 Marek Kasik <mkasik@redhat.com> - 0.26.5-43
+- Fix crash on broken file in tilingPatternFill()
+- Resolves: #1801340
 
 * Fri Nov 15 2019 Marek Kasik <mkasik@redhat.com> - 0.26.5-42
 - Fix potential integer overflow and check length for negative values
