@@ -2,7 +2,7 @@ Loaded plugins: ovl, priorities
 Available Packages
 GraphicsMagick.x86_64              1.3.34-1.lambda2                      lambda2
 GraphicsMagick-c++.x86_64          1.3.34-1.lambda2                      lambda2
-ImageMagick.x86_64                 6.7.8.9-18.lambda2                    lambda2
+ImageMagick.x86_64                 6.9.10.68-3.lambda2.0.1               lambda2
 OpenColorIO.x86_64                 1.0.9-4.lambda2                       lambda2
 OpenEXR.x86_64                     1.7.1-8.lambda2.0.1                   lambda2
 OpenEXR-libs.x86_64                1.7.1-8.lambda2.0.1                   lambda2

@@ -1,27 +1,20 @@
-%global VER 6.7.8
-%global Patchlevel 9
+%define _trivial .0
+%define _buildid .1
+
+%global VER 6.9.10
+%global Patchlevel 68
 
 Name:		ImageMagick
 Version:		%{VER}.%{Patchlevel}
-Release:		18%{?dist}
+Release:		3%{?dist}%{?_trivial}%{?_buildid}
 Summary:		An X application for displaying and manipulating images
 Group:		Applications/Multimedia
 License:		ImageMagick
 Url:			http://www.imagemagick.org/
 Source0:		ftp://ftp.ImageMagick.org/pub/%{name}/%{name}-%{VER}-%{Patchlevel}.tar.xz
 
-Patch0:			0001-Fix-man-page-scan-results.patch
-Patch1:			0001-Fix-CVE-2014-1947-CVE-2014-2030.patch
-Patch2:     0002-1303227-fix-exr-crash.patch
-Patch3:     ImageMagick-cve-2016-3717.patch
 Patch4:     ImageMagick-cve-2016-5118.patch
-Patch5:     ImageMagick-pict-doublefree.patch
-Patch6:     ImageMagick-gnuplot-delegate-remove.diff
-Patch7:     ImageMagick-icon-mem.patch
-Patch8:     ImageMagick-splice-crash.patch
-Patch9:     ImageMagick-null-pointer-access.patch
-Patch10:    ImageMagick-cve-2016-5240.patch
-Patch11:    rhbz1633602-quantize.patch
+Patch5:     ImageMagick-freeze-svg-empty-class.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	bzip2-devel, freetype-devel, libjpeg-devel, libpng-devel
@@ -31,6 +24,8 @@ BuildRequires:	libwmf-devel, jasper-devel, libtool-ltdl-devel
 BuildRequires:	libX11-devel, libXext-devel, libXt-devel
 BuildRequires:	libxml2-devel, librsvg2-devel, OpenEXR-devel
 BuildRequires:	lcms2-devel
+# For fixing bug https://bugzilla.redhat.com/show_bug.cgi?id=1743658
+Requires:       urw-fonts
 
 Prefix: %{_prefix}
 
@@ -55,18 +50,8 @@ sed -i 's/libltdl.la/libltdl.so/g' configure
 iconv -f ISO-8859-1 -t UTF-8 README.txt > README.txt.tmp
 touch -r README.txt README.txt.tmp
 mv README.txt.tmp README.txt
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1 -z .cve-2016-3717
 %patch4 -p1 -b .cve-2016-5118
-%patch5 -p1 -b .pict-doublefree
-%patch6 -p1 -b .gnuplot-delegate-remove
-%patch7 -p1 -b .icon-mem
-%patch8 -p1 -b .splice-crash
-%patch9 -p1 -b .null-pointer-access
-%patch10 -p1 -b .cve-2016-5240
-%patch11 -p1 -b .quantize
+%patch5 -p1 -b .cve-2016-5240
 
 %build
 %configure --enable-shared \
@@ -98,12 +83,12 @@ make install DESTDIR=%{buildroot} INSTALL="install -p"
 %files
 %defattr(-,root,root,-)
 %license LICENSE
-%{_libdir}/libMagickCore.so.5*
-%{_libdir}/libMagickWand.so.5*
+%{_libdir}/libMagickCore-6*.so*
+%{_libdir}/libMagickWand-6*.so*
 %{_bindir}/[a-z]*
 %{_libdir}/%{name}-%{VER}
-%{_datadir}/%{name}-%{VER}
-%{_sysconfdir}/%{name}
+%{_datadir}/%{name}-6
+%{_sysconfdir}/%{name}-6
 
 %exclude %{_includedir}
 %exclude %{_mandir}
@@ -115,8 +100,20 @@ make install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 %changelog
-* Fri Feb 21 2020 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
+
+* Wed Jul 22 2020 Emmanuel Lepage <emmlep@amazon.com> - 6.9.10.68-3.amzn2
+- Use the older GPL GhostScript fonts rather than the newer AGPL ones.
+
+* Mon Nov 11 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-3
+- Fixing freeze when svg file contains class=''
+
+* Thu Nov  7 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-2
+- Fixed ghostscript fonts, fixed multilib conflicts
+
+* Wed Oct 23 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-1
+- Rebase to 6.9.10.68
 
 * Thu Apr 11 2019 Jan Horak <jhorak@redhat.com> - 6.7.8.9-18
 - Fixed white images
