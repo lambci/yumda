@@ -2,7 +2,7 @@ Summary: A library of functions for manipulating PNG image format files
 Name: libpng
 Epoch: 2
 Version: 1.5.13
-Release: 7%{?dist}.0.2
+Release: 8%{?dist}
 License: zlib
 Group: System Environment/Libraries
 URL: http://www.libpng.org/pub/png/
@@ -16,6 +16,7 @@ Source1: pngusr.dfa
 Patch0: libpng-multilib.patch
 Patch1: libpng-CVE-2013-6954.patch
 Patch2: libpng-CVE-2015-8126.patch
+Patch3: libpng-CVE-2017-12652.patch
 
 BuildRequires: zlib-devel, pkgconfig
 
@@ -40,6 +41,7 @@ cp -p %{SOURCE1} .
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %configure --disable-static
@@ -60,18 +62,22 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %exclude %{_bindir}
 
 %changelog
-* Wed May 15 2019 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
-* Sat Nov 28 2015 Petr Hracek <phracek@redhat.com> - 2:1.5.13-7
-- Security fix for CVE-2015-8126
-- Changing png_ptr to info_ptf based on upstream
-- Related: #1283576
+* Fri Nov 22 2019 Nikola Forró <nforro@redhat.com> - 2:1.5.13-8
+- Fix CVE-2017-12652
+- Resolves: #1744870
 
+* Fri Nov 20 2015 Petr Hracek <phracek@redhat.com> - 2:1.5.13-7
+- Security fix for CVE-2015-8126
+- Changing png_ptr to info_ptr base on upstream
+- Related: #1283575
+  
 * Fri Nov 20 2015 Petr Hracek <phracek@redhat.com> - 2:1.5.13-6
 - Security fix for CVE-2015-8126
-- Resolves: #1283576
-
+- Resolves: #1283575
+  
 * Wed Jan 29 2014 Petr Hracek <phracek@redhat.com> - 2:1.5.13-5
 - Adding patch CVE-2013-6954
 - Resolves: #1056863 

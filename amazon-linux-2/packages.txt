@@ -384,7 +384,7 @@ libogg.x86_64                      2:1.3.0-7.lambda2.0.2                 lambda2
 libpcap.x86_64                     14:1.5.3-11.lambda2                   lambda2
 libpciaccess.x86_64                0.14-1.lambda2                        lambda2
 libpeas.x86_64                     1.20.0-1.lambda2.0.3                  lambda2
-libpng.x86_64                      2:1.5.13-7.lambda2.0.2                lambda2
+libpng.x86_64                      2:1.5.13-8.lambda2                    lambda2
 libprelude.x86_64                  5.2.0-2.lambda2                       lambda2
 libproxy.x86_64                    0.4.11-10.lambda2.0.3                 lambda2
 libproxy-bin.x86_64                0.4.11-10.lambda2.0.3                 lambda2
