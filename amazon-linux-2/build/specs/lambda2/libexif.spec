@@ -1,13 +1,13 @@
 Summary:	Library for extracting extra information from image files
 Name:		libexif
-Version:	0.6.21
-Release:	7%{?dist}
+Version:	0.6.22
+Release:	1%{?dist}
 Group:		System Environment/Libraries
 License:	LGPLv2+
-URL:		http://libexif.sourceforge.net/
-Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-# RHBZ#1840949
-Patch0:	CVE-2020-13112.patch
+URL:		https://libexif.github.io/
+%global tarball_version %(echo %{version} | sed -e 's|\\.|_|g')
+Source0:	https://github.com/libexif/libexif/archive/libexif-%{tarball_version}-release.tar.gz
+Source1:        strip-gettext-nondeterminism
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -18,14 +18,16 @@ BuildRequires:	pkgconfig
 
 Prefix: %{_prefix}
 
+# For strip-gettext-nondeterminism
+BuildRequires:  perl(Time::Piece)
+
 %description
 Most digital cameras produce EXIF files, which are JPEG files with
 extra tags that contain information about the image. The EXIF library
 allows you to parse an EXIF file and read the data from those tags.
 
 %prep
-%setup -q
-%patch0 -p1
+%autosetup -n libexif-libexif-%{tarball_version}-release -p1
 
 %build
 autoreconf -fiv
@@ -37,10 +39,11 @@ make DESTDIR=%{buildroot} install
 find %{buildroot} -name "*.la" -exec rm -v {} \;
 rm -rf %{buildroot}%{_datadir}/doc/libexif
 iconv -f latin1 -t utf-8 < COPYING > COPYING.utf8; cp COPYING.utf8 COPYING
+find %{buildroot} -type f -name '*.mo' -exec %{SOURCE1} {} \;
 
 %files
 %license COPYING
-%{_libdir}/libexif.so.*
+%{_libdir}/libexif.so.12*
 
 %exclude %{_includedir}
 %exclude %{_libdir}/*.so
@@ -48,13 +51,13 @@ iconv -f latin1 -t utf-8 < COPYING > COPYING.utf8; cp COPYING.utf8 COPYING
 %exclude %{_localedir}
 
 %changelog
-* Sat Jul 4 2020 Michael Hart <michael@lambci.org>
+* Thu Oct 29 2020 Michael Hart <michael@lambci.org>
 - recompiled for AWS Lambda (Amazon Linux 2) with prefix /opt
 
-* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.21-7
-- Add patch for CVE-2020-13112
-- Resolves: #1840949
-
+* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.22-1
+- Upgrade to 0.6.22
+- Resolves: #1841316
+  
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.6.21-6
 - Mass rebuild 2014-01-24
 
