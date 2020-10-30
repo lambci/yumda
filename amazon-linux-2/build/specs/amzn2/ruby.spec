@@ -1,5 +1,5 @@
 %define _trivial .0
-%define _buildid .2
+%define _buildid .3
 
 %global major_version 2
 %global minor_version 6
@@ -185,6 +185,9 @@ Patch22: ruby-2.6.0-config-support-include-directive.patch
 
 # Amazon Patches
 Patch100: ruby-2.6.3-fix-gem_ext_cmake_builder-test.patch
+# Enable arm64 optimizations that exist for power/x86
+# https://github.com/ruby/ruby/pull/3393
+Patch101: ruby-2.6.6-arm64-optimizations.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -584,6 +587,7 @@ rm -rf ext/fiddle/libffi*
 
 # Amazon Patches
 %patch100 -p1
+%patch101 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1228,6 +1232,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Tue Sep 29 2020 Andrew Lau <andrelau@amazon.com> - 2.6.6-125.amzn2.0.3
+- ARM64 optimizations provided by Ali Saidi <alisaidi@amazon.com>
+  https://github.com/ruby/ruby/pull/3393
+
 * Mon Sep 07 2020 Andrew Lau <andrelau@amazon.com> - 2.6.6-125.amzn2
 - Rebuild for Amazon Linux 2 (Extras Library).
 - Fixes: CVE-2012-6708 CVE-2015-9251 CVE-2019-15845 CVE-2019-16201

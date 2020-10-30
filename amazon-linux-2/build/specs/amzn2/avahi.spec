@@ -12,7 +12,7 @@
 
 Name:             avahi
 Version:          0.6.31
-Release: 19%{?dist}.0.1
+Release:          20%{?dist}
 Summary:          Local network service discovery
 License:          LGPLv2+
 URL:              http://avahi.org
@@ -74,6 +74,7 @@ Patch0010:        0010-avahi-ui-Replace-usage-of-deprecated-GTK-Stock-Items.patc
 Patch0011:        0011-avahi-ui-replace-gtk_vbox_new-with-gtk_box_new-for-G.patch
 Patch0012:        0012-avahi-ui-Cannot-use-g_object_unref-to-free-GdkCursor.patch
 Patch0013:        0013-avahi-ui-Remove-deprecated-usage-of-gtk_widget_push_.patch
+Patch0014:        0014-don-t-respond-to-unicast-queries-outside-of-local-network.patch
 
 # due to FTBFS caused by Gtk changes introduced in RHEL-7.2
 Patch1000:        avahi-0.6.31-no-deprecations.patch
@@ -666,6 +667,9 @@ fi
 %endif
 
 %changelog
+* Thu Oct 24 2019 Jan Macku <jamacku@redhat.com> - 0.6.31-20
+- multicast DNS no longer responds to unicast queries outside of local network (#1663410)
+
 * Thu Nov 09 2017 Michal Sekletar <msekleta@redhat.com> - 0.6.31-19
 - exclude avahi-discover from avahi-tools package (#1421229)
 

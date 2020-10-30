@@ -78,7 +78,7 @@
 %global with_libpcre  0
 %endif
 
-%global upver        7.3.21
+%global upver        7.3.23
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: php
@@ -1632,6 +1632,9 @@ getent passwd nginx > /dev/null || \
 
 
 %changelog
+* Tue Oct 20 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.23-1
+- Package updated to 7.3.23
+
 * Mon Aug 17 2020 Trinity Quirk <tquirk@amazon.com> - 7.3.21-1
 - Package updated to 7.3.21
 - Added WebP support to gd extension

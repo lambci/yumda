@@ -1,13 +1,13 @@
 Summary:	Library for extracting extra information from image files
 Name:		libexif
-Version:	0.6.21
-Release:	7%{?dist}
+Version:	0.6.22
+Release:	1%{?dist}
 Group:		System Environment/Libraries
 License:	LGPLv2+
-URL:		http://libexif.sourceforge.net/
-Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-# RHBZ#1840949
-Patch0:	CVE-2020-13112.patch
+URL:		https://libexif.github.io/
+%global tarball_version %(echo %{version} | sed -e 's|\\.|_|g')
+Source0:	https://github.com/libexif/libexif/archive/libexif-%{tarball_version}-release.tar.gz
+Source1:        strip-gettext-nondeterminism
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -15,6 +15,9 @@ BuildRequires:	doxygen
 BuildRequires:	gettext-devel
 BuildRequires:	libtool
 BuildRequires:	pkgconfig
+
+# For strip-gettext-nondeterminism
+BuildRequires:  perl(Time::Piece)
 
 %description
 Most digital cameras produce EXIF files, which are JPEG files with
@@ -40,8 +43,7 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 API Documentation for programmers wishing to use libexif in their programs.
 
 %prep
-%setup -q
-%patch0 -p1
+%autosetup -n libexif-libexif-%{tarball_version}-release -p1
 
 %build
 autoreconf -fiv
@@ -55,6 +57,7 @@ rm -rf %{buildroot}%{_datadir}/doc/libexif
 cp -R doc/doxygen-output/libexif-api.html .
 iconv -f latin1 -t utf-8 < COPYING > COPYING.utf8; cp COPYING.utf8 COPYING
 iconv -f latin1 -t utf-8 < README > README.utf8; cp README.utf8 README
+find %{buildroot} -type f -name '*.mo' -exec %{SOURCE1} {} \;
 %find_lang libexif-12
 
 %post -p /sbin/ldconfig
@@ -63,7 +66,7 @@ iconv -f latin1 -t utf-8 < README > README.utf8; cp README.utf8 README
 
 %files -f libexif-12.lang
 %doc COPYING README NEWS
-%{_libdir}/libexif.so.*
+%{_libdir}/libexif.so.12*
 
 %files devel
 %{_includedir}/libexif
@@ -74,9 +77,9 @@ iconv -f latin1 -t utf-8 < README > README.utf8; cp README.utf8 README
 %doc libexif-api.html
 
 %changelog
-* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.21-7
-- Add patch for CVE-2020-13112
-- Resolves: #1840949
+* Thu Jun 04 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.22-1
+- Upgrade to 0.6.22
+- Resolves: #1841316
 
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.6.21-6
 - Mass rebuild 2014-01-24

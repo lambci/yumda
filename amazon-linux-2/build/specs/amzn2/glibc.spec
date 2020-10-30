@@ -1,6 +1,6 @@
 %define glibcsrcdir glibc-2.26-193-ga0bc5dd3be
 %define glibcversion 2.26
-%define glibcrelease 35%{?dist}
+%define glibcrelease 37%{?dist}
 # Pre-release tarballs are pulled in from git using a command that is
 # effectively:
 #
@@ -319,6 +319,21 @@ Patch10004: CVE-2016-10739d.patch
 Patch10005: CVE-2016-10739e.patch
 Patch10006: CVE-2016-10739f.patch
 Patch10007: CVE-2016-10739g.patch
+
+# Patch for CVE-2019-19126 
+# From https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=d5dfad4326fc683c813df1e37bbf5cf920591c8e
+Patch10008: CVE-2019-19126.patch
+
+# Patch for CVE-2020-1752
+# From https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=da97c6b88eb03fb834e92964b0895c2ac8d61f63
+Patch10009: CVE-2020-1752.patch
+
+# Patch for CVE-2020-10029
+# https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=9333498794cde1d5cca518badf79533a24114b6f
+# https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=c10acd40262486dac597001aecc20ad9d3bd0e4a
+Patch10010: CVE-2020-10029a.patch
+Patch10011: CVE-2020-10029b.patch
+
 ##############################################################################
 # End of glibc patches.
 ##############################################################################
@@ -900,13 +915,18 @@ microbenchmark tests on the system.
 %patch3125 -p1
 %patch3126 -p1
 %patch3127 -p1
-#patch10001 -p1
-#patch10002 -p1
-#patch10003 -p1
-#patch10004 -p1
-#patch10005 -p1
-#patch10006 -p1
-#patch10007 -p1
+%patch10001 -p1
+%patch10002 -p1
+%patch10003 -p1
+%patch10004 -p1
+%patch10005 -p1
+%patch10006 -p1
+%patch10007 -p1
+%patch10008 -p1
+%patch10009 -p1
+%patch10010 -p1
+%patch10011 -p1
+
 ##############################################################################
 # %%prep - Additional prep required...
 ##############################################################################
@@ -2269,6 +2289,16 @@ rm -f *.filelist*
 %endif
 
 %changelog
+* Tue Oct 13 2020 Sai Harsha <ssuryad@amazon.com> - 2.16.36
+- CVE-2019-19126: rtld: Check __libc_enable_secure before honoring
+LD_PREFER_MAP_32BIT_EXEC [BZ #25204]
+- CVE-2020-1752: Fix use-after-free in glob when expanding ~user [BZ #25414]
+- CVE-2020-10029: Avoid ldbl-96 stack corruption from range reduction of
+pseudo-zero [BZ #25487]
+
+* Wed Oct 7 2020 CJ Harris <harric@amazon.com> - 2.26-36
+- Revert Rollback fix for CVE-2016-10739
+
 * Tue May 19 2020 Anchal Agarwal <anchalag@amazon.com> - 2.26-35
 - Add -moutline-atomic to the aarch64 BuildFlags
 

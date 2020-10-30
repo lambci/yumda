@@ -1,12 +1,14 @@
 Name:             libcroco
 Summary:          A CSS2 parsing library
-Version:          0.6.11
-Release: 1%{?dist}.0.2
+Version:          0.6.12
+Release:          6%{?dist}
 License:          LGPLv2
 Group:            System Environment/Libraries
 Source:           http://download.gnome.org/sources/libcroco/0.6/%{name}-%{version}.tar.xz
-#Fedora specific patch
-Patch0:    libcroco-0.6.1-multilib.patch
+#Fedora-specific patch
+Patch0:           libcroco-0.6.1-multilib.patch
+# https://gitlab.gnome.org/GNOME/libcroco/-/merge_requests/5
+Patch1:           CVE-2020-12825.patch
 
 BuildRequires:    pkgconfig
 BuildRequires:    glib2-devel
@@ -27,6 +29,7 @@ files to allow you to develop with libcroco.
 %prep
 %setup -q
 %patch0 -p1 -b .multilib
+%patch1 -p1 -b .CVE-2020-12825
 
 %build
 %configure --disable-static
@@ -57,6 +60,18 @@ make check
 %{_datadir}/gtk-doc/html/libcroco
 
 %changelog
+* Mon Aug 03 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.12-6
+- Rebuild with 7.9-z target
+  Related: #1835951
+
+* Mon Aug 03 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 0.6.12-5
+- Fix CVE-2020-12825
+  Resolves: #1835951
+
+* Thu Apr 06 2017 Richard Hughes <rhughes@redhat.com> - 0.6.12-4
+- Update to 0.6.12
+- Resolves: #1569991
+
 * Thu Dec 17 2015 Kalev Lember <klember@redhat.com> - 0.6.11-1
 - Update to 0.6.11
 - Resolves: #1386999

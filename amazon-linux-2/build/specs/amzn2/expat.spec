@@ -1,11 +1,14 @@
 Summary: An XML parser library
 Name: expat
 Version: 2.1.0
-Release: 10%{?dist}.0.2
+Release: 12%{?dist}
 Group: System Environment/Libraries
 Source: http://downloads.sourceforge.net/expat/expat-%{version}.tar.gz
 Patch0: expat-2.1.0-xmlwfargs.patch
 Patch1: expat-2.1.0-CVE-2016-0718.patch
+Patch2: expat-2.1.0-CVE-2015-2716.patch
+Patch3: expat-2.1.0-CVE-2018-20843.patch
+Patch4: expat-2.1.0-CVE-2019-15903.patch
 URL: http://www.libexpat.org/
 License: MIT
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -41,6 +44,9 @@ Install it if you need to link statically with expat.
 %setup -q
 %patch0 -p1 -b .xmlwfargs
 %patch1 -p1 -b .cve0718
+%patch2 -p1 -b .cve2716
+%patch3 -p1 -b .cve20843
+%patch4 -p1 -b .cve15903
 
 %build
 rm -rf autom4te*.cache
@@ -87,6 +93,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_libdir}/lib*.a
 
 %changelog
+* Thu Apr  2 2020 Joe Orton <jorton@redhat.com> - 2.1.0-12
+- add security fixes for CVE-2018-20843, CVE-2019-15903
+
+* Thu Jul 25 2019 Joe Orton <jorton@redhat.com> - 2.1.0-11
+- add security fix for CVE-2015-2716
+
 * Thu Nov 24 2016 Joe Orton <jorton@redhat.com> - 2.1.0-10
 - updated security fix for CVE-2016-0718
 

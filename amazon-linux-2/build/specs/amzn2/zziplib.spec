@@ -1,7 +1,7 @@
 Summary: Lightweight library to easily extract data from zip files
 Name: zziplib
 Version: 0.13.62
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: LGPLv2+ or MPLv1.1
 Group: Applications/Archiving
 URL: http://zziplib.sourceforge.net/
@@ -16,6 +16,8 @@ Patch5: CVE-2018-16548.part2.patch
 Patch6: CVE-2018-16548.part3.patch
 
 Patch7: CVE-2018-6541.patch
+
+Patch8: CVE-2018-17828-singlez.patch
 
 BuildRequires: perl
 BuildRequires: python
@@ -78,6 +80,8 @@ zziplib library.
 %patch6 -p1
 
 %patch7 -p1
+
+%patch8 -p1
 # Save the common patched _config.h file to overwrite the generated one
 cp -a zzip/_config.h _config.h
 
@@ -119,6 +123,11 @@ install -p -m 0644 _config.h %{buildroot}%{_includedir}/zzip/_config.h
 %{_mandir}/man3/*
 
 %changelog
+* Thu Oct 24 2019 Jakub Martisko <jamartis@redhat.com> - 0.13.62-12
+- Fix a directory traversal bug
+- unzip-mem should now strip all "../" prefixes from the archived files
+- Resolves: CVE-2018-17828
+
 * Thu Feb 28 2019 Jakub Martisko <jamartis@redhat.com> - 0.13.62-11
 - Fix CVE-2018-6541
 - Part of the original patch has already been applied in the past (CVE-2018-7726),

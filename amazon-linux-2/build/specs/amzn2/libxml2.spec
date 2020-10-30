@@ -1,6 +1,6 @@
 # for -O3 on ppc64 c.f. 1051068
 %global _performance_build 1
-%global _trivial .4
+%global _trivial .5
 %global _buildid .1
 
 Summary: Library providing XML and HTML support
@@ -68,6 +68,14 @@ patch143: libxml2-2.9.1-CVE-2016-5131.patch
 patch144: libxml2-2.9.1-CVE-2017-18258.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1622715
 patch145: libxml2-2.9.1-CVE-2018-14567.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1793000
+patch146: libxml2-2.9.1-CVE-2019-19956.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1810057
+patch147: libxml2-2.9.1-CVE-2019-20388.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1810073
+patch148: libxml2-2.9.1-CVE-2020-7595.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1812145
+patch149: libxml2-2.9.1-xsd-any.patch
 
 # Amazon patches
 Patch10001: libxml2-CVE-2016-4658.patch
@@ -181,6 +189,10 @@ at parse time or later once the document has been modified.
 %patch143 -p1
 %patch144 -p1
 %patch145 -p1
+%patch146 -p1
+%patch147 -p1
+%patch148 -p1
+%patch149 -p1
 
 %patch10001 -p1
 %patch10002 -p1
@@ -266,6 +278,12 @@ rm -fr %{buildroot}
 %doc doc/python.html
 
 %changelog
+* Wed Apr 22 2020 David King <dking@redhat.com> - 2.9.1-6.5
+- Fix CVE-2019-19956 (#1793000)
+- Fix CVE-2019-20388 (#1810057)
+- Fix CVE-2020-7595 (#1810073)
+- Fix xsd:any schema validation (#1812145)
+
 * Fri Nov 01 2019 David King <dking@redhat.com> - 2.9.1-6.4
 - Fix CVE-2015-8035 (#1595697)
 - Fix CVE-2018-14404 (#1602817)

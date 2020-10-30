@@ -1,27 +1,20 @@
-%global VER 6.7.8
-%global Patchlevel 9
+%define _trivial .0
+%define _buildid .1
+
+%global VER 6.9.10
+%global Patchlevel 68
 
 Name:		ImageMagick
 Version:		%{VER}.%{Patchlevel}
-Release:		18%{?dist}
+Release:		3%{?dist}%{?_trivial}%{?_buildid}
 Summary:		An X application for displaying and manipulating images
 Group:		Applications/Multimedia
 License:		ImageMagick
 Url:			http://www.imagemagick.org/
 Source0:		ftp://ftp.ImageMagick.org/pub/%{name}/%{name}-%{VER}-%{Patchlevel}.tar.xz
 
-Patch0:			0001-Fix-man-page-scan-results.patch
-Patch1:			0001-Fix-CVE-2014-1947-CVE-2014-2030.patch
-Patch2:     0002-1303227-fix-exr-crash.patch
-Patch3:     ImageMagick-cve-2016-3717.patch
 Patch4:     ImageMagick-cve-2016-5118.patch
-Patch5:     ImageMagick-pict-doublefree.patch
-Patch6:     ImageMagick-gnuplot-delegate-remove.diff
-Patch7:     ImageMagick-icon-mem.patch
-Patch8:     ImageMagick-splice-crash.patch
-Patch9:     ImageMagick-null-pointer-access.patch
-Patch10:    ImageMagick-cve-2016-5240.patch
-Patch11:    rhbz1633602-quantize.patch
+Patch5:     ImageMagick-freeze-svg-empty-class.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	bzip2-devel, freetype-devel, libjpeg-devel, libpng-devel
@@ -31,6 +24,8 @@ BuildRequires:	libwmf-devel, jasper-devel, libtool-ltdl-devel
 BuildRequires:	libX11-devel, libXext-devel, libXt-devel
 BuildRequires:	libxml2-devel, librsvg2-devel, OpenEXR-devel
 BuildRequires:	lcms2-devel
+# For fixing bug https://bugzilla.redhat.com/show_bug.cgi?id=1743658
+Requires:       urw-fonts
 
 %description
 ImageMagick is an image display and manipulation tool for the X
@@ -136,18 +131,8 @@ mv README.txt.tmp README.txt
 # for %doc
 mkdir Magick++/examples
 cp -p Magick++/demo/*.cpp Magick++/demo/*.miff Magick++/examples
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1 -z .cve-2016-3717
 %patch4 -p1 -b .cve-2016-5118
-%patch5 -p1 -b .pict-doublefree
-%patch6 -p1 -b .gnuplot-delegate-remove
-%patch7 -p1 -b .icon-mem
-%patch8 -p1 -b .splice-crash
-%patch9 -p1 -b .null-pointer-access
-%patch10 -p1 -b .cve-2016-5240
-%patch11 -p1 -b .quantize
+%patch5 -p1 -b .cve-2016-5240
 
 %build
 %configure --enable-shared \
@@ -182,7 +167,7 @@ cp -a www/source %{buildroot}%{_datadir}/doc/%{name}-%{VER}
 rm %{buildroot}%{_libdir}/*.la
 
 # fix weird perl Magick.so permissions
-chmod 755 %{buildroot}%{perl_vendorarch}/auto/Image/Magick/Magick.so
+#chmod 755 %{buildroot}%{perl_vendorarch}/auto/Image/Magick/Magick.so
 
 # perlmagick: fix perl path of demo files
 %{__perl} -MExtUtils::MakeMaker -e 'MY->fixin(@ARGV)' PerlMagick/demo/*.pl
@@ -205,26 +190,32 @@ if [ -z perl-pkg-files ] ; then
     exit -1
 fi
 
-# fix multilib issues
-mv %{buildroot}%{_includedir}/%{name}/magick/magick-config.h \
-   %{buildroot}%{_includedir}/%{name}/magick/magick-config-%{__isa_bits}.h
+# fix multilib issues: Rename provided file with platform-bits in name.
+# Create platform independant file inplace of provided and conditionally include required.
+# $1 - filename.h to process.
+function multilibFileVersions(){
+mv $1 ${1%%.h}-%{__isa_bits}.h
 
-cat >%{buildroot}%{_includedir}/%{name}/magick/magick-config.h <<EOF
-#ifndef IMAGEMAGICK_MULTILIB
-#define IMAGEMAGICK_MULTILIB
+local basename=$(basename $1)
 
+cat >$1 <<EOF
 #include <bits/wordsize.h>
 
 #if __WORDSIZE == 32
-# include "magick-config-32.h"
+# include "${basename%%.h}-32.h"
 #elif __WORDSIZE == 64
-# include "magick-config-64.h"
+# include "${basename%%.h}-64.h"
 #else
 # error "unexpected value for __WORDSIZE macro"
 #endif
-
-#endif
 EOF
+}
+
+multilibFileVersions %{buildroot}%{_includedir}/%{name}-6/magick/magick-config.h
+multilibFileVersions %{buildroot}%{_includedir}/%{name}-6/magick/magick-baseconfig.h
+multilibFileVersions %{buildroot}%{_includedir}/%{name}-6/magick/version.h
+
+sed -i 's|/usr/share/ghostscript/fonts/|/usr/share/fonts/default/Type1/|g' %{buildroot}%{_sysconfdir}/%{name}-6/type-ghostscript.xml
 
 # Fonts must be packaged separately. It does nothave matter and demos work without it.
 rm PerlMagick/demo/Generic.ttf
@@ -246,14 +237,15 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc QuickStart.txt ChangeLog Platforms.txt
 %doc README.txt LICENSE NOTICE AUTHORS.txt NEWS.txt
-%{_libdir}/libMagickCore.so.5*
-%{_libdir}/libMagickWand.so.5*
+%{_libdir}/libMagickCore-6*.so*
+%{_libdir}/libMagickWand-6*.so*
 %{_bindir}/[a-z]*
 %{_libdir}/%{name}-%{VER}
-%{_datadir}/%{name}-%{VER}
+#%{_datadir}/%{name}-%{VER}
+%{_datadir}/%{name}-6
 %{_mandir}/man[145]/[a-z]*
 %{_mandir}/man1/%{name}.*
-%{_sysconfdir}/%{name}
+%{_sysconfdir}/%{name}-6
 
 %files devel
 %defattr(-,root,root,-)
@@ -261,15 +253,19 @@ rm -rf %{buildroot}
 %{_bindir}/Magick-config
 %{_bindir}/MagickWand-config
 %{_bindir}/Wand-config
-%{_libdir}/libMagickCore.so
-%{_libdir}/libMagickWand.so
+%{_libdir}/libMagickCore-6*.so
+%{_libdir}/libMagickWand-6*.so
 %{_libdir}/pkgconfig/MagickCore.pc
+%{_libdir}/pkgconfig/MagickCore-6*.pc
 %{_libdir}/pkgconfig/ImageMagick.pc
+%{_libdir}/pkgconfig/ImageMagick-6*.pc
 %{_libdir}/pkgconfig/MagickWand.pc
+%{_libdir}/pkgconfig/MagickWand-6*.pc
 %{_libdir}/pkgconfig/Wand.pc
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/magick
-%{_includedir}/%{name}/wand
+%{_libdir}/pkgconfig/Wand-6*.pc
+%dir %{_includedir}/%{name}-6
+%{_includedir}/%{name}-6/magick
+%{_includedir}/%{name}-6/wand
 %{_mandir}/man1/Magick-config.*
 %{_mandir}/man1/MagickCore-config.*
 %{_mandir}/man1/Wand-config.*
@@ -278,23 +274,26 @@ rm -rf %{buildroot}
 %files doc
 %defattr(-,root,root,-)
 %doc %{_datadir}/doc/%{name}-%{VER}
+%doc %{_datadir}/doc/%{name}-6
 %doc LICENSE
 
 %files c++
 %defattr(-,root,root,-)
 %doc Magick++/AUTHORS Magick++/ChangeLog Magick++/NEWS Magick++/README
 %doc www/Magick++/COPYING
-%{_libdir}/libMagick++.so.5*
+%{_libdir}/libMagick++-6*.so*
 
 %files c++-devel
 %defattr(-,root,root,-)
 %doc Magick++/examples
 %{_bindir}/Magick++-config
-%{_includedir}/%{name}/Magick++
-%{_includedir}/%{name}/Magick++.h
-%{_libdir}/libMagick++.so
+%{_includedir}/%{name}-6/Magick++
+%{_includedir}/%{name}-6/Magick++.h
+%{_libdir}/libMagick++-6*.so
 %{_libdir}/pkgconfig/Magick++.pc
+%{_libdir}/pkgconfig/Magick++-6*.pc
 %{_libdir}/pkgconfig/ImageMagick++.pc
+%{_libdir}/pkgconfig/ImageMagick++-6*.pc
 %{_mandir}/man1/Magick++-config.*
 
 %files perl -f perl-pkg-files
@@ -303,6 +302,18 @@ rm -rf %{buildroot}
 %doc PerlMagick/demo/ PerlMagick/Changelog PerlMagick/README.txt
 
 %changelog
+* Wed Jul 22 2020 Emmanuel Lepage <emmlep@amazon.com> - 6.9.10.68-3.amzn2
+- Use the older GPL GhostScript fonts rather than the newer AGPL ones.
+
+* Mon Nov 11 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-3
+- Fixing freeze when svg file contains class=''
+
+* Thu Nov  7 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-2
+- Fixed ghostscript fonts, fixed multilib conflicts
+
+* Wed Oct 23 2019 Jan Horak <jhorak@redhat.com> - 6.9.10.68-1
+- Rebase to 6.9.10.68
+
 * Thu Apr 11 2019 Jan Horak <jhorak@redhat.com> - 6.7.8.9-18
 - Fixed white images
 

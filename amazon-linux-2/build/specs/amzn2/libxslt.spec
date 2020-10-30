@@ -1,7 +1,7 @@
 Summary: Library providing the Gnome XSLT engine
 Name: libxslt
 Version: 1.1.28
-Release: 5%{?dist}.0.2
+Release: 6%{?dist}%{?extra_release}
 License: MIT
 Group: Development/Libraries
 Source: ftp://xmlsoft.org/XSLT/libxslt-%{version}.tar.gz
@@ -15,6 +15,10 @@ BuildRequires: automake autoconf
 # Fedora specific patches
 Patch0: multilib.patch
 Patch1: libxslt-1.1.26-utf8-docs.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1775516
+Patch2: libxslt-1.1.28-CVE-2019-18197.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1715731
+Patch3: libxslt-1.1.28-CVE-2019-11068.patch
 
 %description
 This C library allows to transform XML files into other XML files
@@ -53,6 +57,8 @@ with XPath functions written in Python.
 %setup -q
 %patch0 -p1
 %patch1 -p1 -b .utf8
+%patch2 -p1
+%patch3 -p1
 # Now fix up the timestamps of patched docs files
 # ChangeLog needs to be retouched before gzip as well
 # since timestamp affects output
@@ -122,6 +128,10 @@ make tests
 %doc python/tests/*.xsl
 
 %changelog
+* Wed Apr 22 2020 David King <dking@redhat.com> - 1.1.28-6
+- Fix CVE-2019-18197 (#1775516)
+- Fix CVE-2019-11068 (#1715731)
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.1.28-5
 - Mass rebuild 2014-01-24
 
